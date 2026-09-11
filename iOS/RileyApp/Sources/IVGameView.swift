@@ -696,11 +696,11 @@ public struct IVGameView: View {
         let completedPasses = packetWipeSweepCount / 2
         let remainingPasses = 2 - completedPasses
         if remainingPasses == 1 {
-            return "Almost clean! 1 more wipe!"
+            return "Almost clean! Keep wiping!"
         } else if isPacketWipeDragging {
             return "Wipe back and forth over elbow!"
         } else {
-            return "Wipe elbow 2 times to clean it!"
+            return "Wipe your elbow clean!"
         }
     }
     

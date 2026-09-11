@@ -1715,7 +1715,7 @@
                 <!-- Layer 7d: Floating Interactive Packet Wipe (Step 6B: Wipe Elbow) -->
                 <div id="gamePacketWipeWrapper" class="game-packet-wipe-wrapper" style="display: none;" onpointerdown="startPacketWipeDrag(event)">
                   <img id="gamePacketWipeImg" src="assets/GamePacketWipeItem.png" alt="Clean Wipe" draggable="false" />
-                  <div class="band-drag-prompt" id="packetWipePrompt">Wipe elbow 2 times to clean it!</div>
+                  <div class="band-drag-prompt" id="packetWipePrompt">Wipe your elbow clean!</div>
                 </div>
 
                 <!-- Layer 8: Floating Interactive Elastic Tourniquet Band (Step 5) -->
@@ -2953,7 +2953,7 @@
       }
 
       if (wipePrompt) {
-        wipePrompt.textContent = 'Wipe elbow 2 times to clean it!';
+        wipePrompt.textContent = 'Wipe your elbow clean!';
       }
 
       if (wipeWrapper) {
@@ -3086,7 +3086,7 @@
         if (packetWipeSweepCount >= TOTAL_PACKET_WIPE_SWEEPS) {
           wipePrompt.textContent = '✨ Arm clean and ready for IV! ✨';
         } else if (remainingPasses === 1) {
-          wipePrompt.textContent = 'Almost clean! 1 more wipe!';
+          wipePrompt.textContent = 'Almost clean! Keep wiping!';
         } else {
           wipePrompt.textContent = 'Wipe back and forth over elbow!';
         }
@@ -3394,7 +3394,7 @@
         packetWipeImg.style.transform = 'rotate(0deg)';
       }
       if (packetWipePrompt) {
-        packetWipePrompt.textContent = 'Wipe the arm clean!';
+        packetWipePrompt.textContent = 'Wipe your elbow clean!';
       }
 
       // Ointment is visible and floating in Step 1
