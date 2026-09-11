@@ -544,6 +544,29 @@ public struct IVGameView: View {
                         .offset(x: packetWidth * 0.15, y: -packetHeight * 0.25)
                         .transition(.scale(scale: 0.2).combined(with: .opacity))
                 }
+                
+                // Dotted Rip Guide Line & Arrow placed right over rip seam (x = 80.4%)
+                if !isPacketRipped {
+                    let ripLineX = packetWidth * 0.804 - packetWidth / 2
+                    
+                    Path { path in
+                        path.move(to: CGPoint(x: ripLineX, y: -packetHeight * 0.44))
+                        path.addLine(to: CGPoint(x: ripLineX, y: packetHeight * 0.44))
+                    }
+                    .stroke(
+                        Color(red: 1.0, green: 0.9, blue: 0.0),
+                        style: StrokeStyle(lineWidth: 3.5, lineCap: .round, dash: [4, 6])
+                    )
+                    .shadow(color: Color.black, radius: 2, x: 0, y: 0)
+                    .shadow(color: Color.yellow.opacity(0.8), radius: 6, x: 0, y: 0)
+                    
+                    Text("▼")
+                        .font(.system(size: 20, weight: .black))
+                        .foregroundColor(Color(red: 1.0, green: 0.9, blue: 0.0))
+                        .shadow(color: Color.black, radius: 3, x: 0, y: 1)
+                        .shadow(color: Color.yellow, radius: 8, x: 0, y: 0)
+                        .offset(x: ripLineX, y: -packetHeight * 0.52 + (isFloating ? 5 : 0))
+                }
             }
             .contentShape(Rectangle())
             .gesture(
@@ -558,12 +581,16 @@ public struct IVGameView: View {
                 ripOpenPacketAction()
             }
             
-            Text(isPacketRipped ? "✨ Ripped open! ✨" : "Trace right edge down to rip open!")
+            Text(isPacketRipped ? "✨ Ripped open! ✨" : "trace your finger along the dotted line to rip open the packet!")
                 .font(.system(size: 11, weight: .bold))
-                .foregroundColor(Color.yellow)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 3)
-                .background(Color.black.opacity(0.72))
+                .foregroundColor(Color(red: 1.0, green: 0.9, blue: 0.0))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 4)
+                .background(Color.black.opacity(0.78))
+                .overlay(
+                    Capsule().stroke(Color.yellow.opacity(0.6), lineWidth: 1)
+                )
                 .clipShape(Capsule())
                 .transition(.opacity)
         }
