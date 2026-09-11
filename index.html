@@ -2,10 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Riley Hospital for Children - iOS App Simulator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Riley - Pediatric Medical Procedure Prep</title>
+  
+  <!-- PWA & Mobile Web App Meta Tags -->
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <meta name="theme-color" content="#411e8c" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Riley" />
+  <link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./assets/icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="./assets/icons/icon-512.png" />
+
   <style>
-    :root {
+:root {
       --riley-purple: #5931ba;
       --riley-dark-purple: #411e8c;
       --riley-header-orange: #f7b16a;
@@ -31,116 +42,11 @@
       overflow: hidden;
     }
 
-    /* Top Simulator Toolbar */
-    header.sim-toolbar {
-      background: #1a1e29;
-      border-bottom: 1px solid #2d3748;
-      padding: 10px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
-      z-index: 50;
-    }
-
-    .toolbar-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .badge-riley {
-      background: linear-gradient(135deg, #7c3aed, #4f46e5);
-      color: white;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 20px;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-    }
-
-    .toolbar-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: #f8fafc;
-    }
-
-    .toolbar-controls {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .sim-btn {
-      background: #283042;
-      border: 1px solid #3e4c66;
-      color: #cbd5e1;
-      padding: 6px 14px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.15s ease;
-    }
-
-    .sim-btn:hover {
-      background: #343e56;
-      color: white;
-      border-color: #6366f1;
-    }
-
-    .sim-btn.active {
-      background: #6366f1;
-      border-color: #4f46e5;
-      color: white;
-    }
-
-    .sim-select {
-      background: #283042;
-      border: 1px solid #3e4c66;
-      color: #cbd5e1;
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 500;
-      outline: none;
-      cursor: pointer;
-    }
-
-    /* Main Simulator Canvas Area */
-    main.sim-workspace {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: radial-gradient(circle at center, #1b202d 0%, #0d1017 100%);
-      position: relative;
-      overflow: auto;
-      padding: 20px;
-    }
+    
+    
 
     /* Outer Device Shell */
-    .device-shell {
-      background: #181b22;
-      border-radius: 46px;
-      padding: 14px;
-      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8),
-                  0 0 0 1px rgba(255, 255, 255, 0.08),
-                  inset 0 0 0 2px #333946;
-      transition: width 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
-                  height 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      max-width: 96vw;
-      max-height: 88vh;
-    }
+    
 
     /* Screen Bezel and Display Area */
     .device-screen {
@@ -154,38 +60,9 @@
       flex-direction: column;
     }
 
-    .phone-notch {
-      position: absolute;
-      top: 9px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 90px;
-      height: 24px;
-      background: #000;
-      border-radius: 20px;
-      z-index: 100;
-      display: none;
-      pointer-events: none;
-    }
+    
 
-    .device-shell.is-phone .phone-notch {
-      display: block;
-    }
-
-    /* Screen Container */
-    .app-screen {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      background-color: var(--riley-purple);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.28s ease;
-    }
+    
 
     .app-screen.active {
       opacity: 1;
@@ -1334,64 +1211,50 @@
       transform: scale(0.96);
     }
 
-    /* Bottom Info Status Bar */
-    footer.sim-status {
-      background: #141822;
-      border-top: 1px solid #232a3b;
-      padding: 8px 20px;
+    
+  
+    /* Full-Screen Distribution App Styles (PWA) */
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: var(--riley-dark-purple, #411e8c);
+      color: #e2e8f0;
+      overscroll-behavior: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: pan-x pan-y;
+      position: fixed;
+      inset: 0;
+    }
+
+    .device-screen {
+      background: var(--riley-purple);
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      overflow: hidden;
+      width: 100vw !important;
+      height: 100vh !important;
+      height: 100dvh !important;
+      position: relative;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 12px;
-      color: #94a3b8;
+      flex-direction: column;
+    }
+
+    .app-header {
+      padding-top: env(safe-area-inset-top, 0px);
+    }
+
+    .prep-bottom-bar, .game-bottom-bar {
+      padding-bottom: env(safe-area-inset-bottom, 0px);
     }
   </style>
 </head>
 <body>
-
-  <!-- Simulator Toolbar -->
-  <header class="sim-toolbar">
-    <div class="toolbar-left">
-      <span class="badge-riley">Riley Children's Health</span>
-      <span class="toolbar-title">iOS App Simulator</span>
-    </div>
-
-    <div class="toolbar-controls">
-      <!-- Screen Switcher -->
-      <select id="screenSelect" class="sim-select" onchange="switchScreen(this.value)">
-        <option value="home">Screen: Home</option>
-        <option value="preparations" selected>Screen: Preparations</option>
-        <option value="games">Screen: IV Game (Tourniquet)</option>
-      </select>
-
-      <!-- Device Selector -->
-      <select id="deviceSelect" class="sim-select" onchange="changeDevice(this.value)">
-        <option value="ipad-landscape" selected>iPad Pro 12.9" (Landscape - Mockup View)</option>
-        <option value="ipad-portrait">iPad Pro 12.9" (Portrait)</option>
-        <option value="ipad-air-portrait">iPad Air 10.9" (Portrait)</option>
-        <option value="iphone-16-pro-portrait">iPhone 16 Pro (Portrait)</option>
-        <option value="iphone-16-pro-landscape">iPhone 16 Pro (Landscape)</option>
-        <option value="iphone-se-portrait">iPhone SE (Compact)</option>
-      </select>
-
-      <!-- Rotation Toggle -->
-      <button class="sim-btn" onclick="toggleRotation()" title="Rotate screen 90 degrees">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-        </svg>
-        Rotate
-      </button>
-    </div>
-  </header>
-
-  <!-- Simulator Canvas -->
-  <main class="sim-workspace">
-    <!-- Device Shell Frame -->
-    <div id="deviceShell" class="device-shell" style="width: 960px; height: 720px;">
-      <div class="phone-notch"></div>
-      
-      <!-- Device Screen Display -->
-      <div class="device-screen">
+  <div class="device-screen">
 
         <!-- ========================================================= -->
         <!-- SCREEN 1: HOME SCREEN                                     -->
@@ -1723,20 +1586,19 @@
         </div>
 
       </div>
-    </div>
-  </main>
-
-  <!-- Simulator Footer / Info -->
-  <footer class="sim-status">
-    <div>
-      <span id="screenDimensions">Current Screen: 960 × 720 pt (iPad Pro Landscape)</span>
-    </div>
-    <div>
-      <span>Preparations Screen Active • Up/Down Arrow Scrolling Enabled</span>
-    </div>
-  </footer>
+    
 
   <script>
+// Register Riley PWA Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js', { scope: './' })
+          .then(reg => console.log('Riley PWA ServiceWorker active with scope:', reg.scope))
+          .catch(err => console.warn('ServiceWorker registration error:', err));
+      });
+    }
+    
+
     // Screen Switching
     function switchScreen(screenName) {
       const screenHome = document.getElementById('screenHome');

@@ -1,0 +1,20 @@
+{
+  "name": "riley-pediatric-prep",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Riley Hospital for Children - Interactive Pediatric Medical Procedure Preparation PWA",
+  "scripts": {
+    "build": "./scripts/build.sh",
+    "compile": "python3 scripts/build.py",
+    "preview": "python3 -m http.server 8000"
+  },
+  "keywords": [
+    "pwa",
+    "pediatric",
+    "healthcare",
+    "medical-procedure",
+    "hospital"
+  ],
+  "author": "Riley Hospital for Children",
+  "license": "UNLICENSED"
+}
