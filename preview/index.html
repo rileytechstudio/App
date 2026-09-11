@@ -1415,7 +1415,14 @@
 
     .game-iv-wrapper.is-inserted {
       animation: none !important;
+      cursor: pointer;
       filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.7));
+    }
+
+    .game-iv-wrapper.is-inserted #ivPrompt {
+      cursor: pointer;
+      pointer-events: auto;
+      animation: pulseTapPrompt 1.4s infinite ease-in-out;
     }
 
     @keyframes ivFloatGlow {
@@ -3610,19 +3617,33 @@
       const scaleX = 1366 / sRect.width;
       const scaleY = 1024 / sRect.height;
 
-      // Bag anchor point in 1366x1024 coordinates
+      // Bag anchor point in 1366x1024 coordinates (matching tube example.png start)
       const bagX = 200;
       const bagY = 664;
 
-      // IV needle hub anchor: near bottom-left of wrapper (approx 16% width, 68% height)
-      const hubX = ((wRect.left - sRect.left) + wRect.width * 0.16) * scaleX;
-      const hubY = ((wRect.top - sRect.top) + wRect.height * 0.68) * scaleY;
+      // IV catheter hub anchor: accurately aligned with the green hub collar at (30.9% width, 74.1% height)
+      const hubX = ((wRect.left - sRect.left) + wRect.width * 0.309) * scaleX;
+      const hubY = ((wRect.top - sRect.top) + wRect.height * 0.741) * scaleY;
 
-      // Smooth flexible loop from bag under arm to the IV hub
-      const cp1x = bagX + (hubX - bagX) * 0.22 - 30;
-      const cp1y = Math.max(bagY, hubY) + 90;
-      const cp2x = hubX - 80;
-      const cp2y = hubY + 60;
+      const dx = hubX - bagX;
+      let cp1x, cp1y, cp2x, cp2y;
+
+      if (dx > 160) {
+        // Dragging towards arm, locked to vein, or inserted on arm
+        // Loop dips gracefully below wrist under the arm (matching tube example.png dip to y~790)
+        cp1x = bagX + dx * 0.38;
+        cp1y = Math.max(bagY, hubY) + 118;
+        // Tangent enters the catheter hub along its ~40deg angle from bottom-left
+        cp2x = hubX - 85;
+        cp2y = hubY + 65;
+      } else {
+        // Floating above or hovering near the bag
+        const t = Math.max(0, dx / 160);
+        cp1x = bagX - 25 * (1 - t) + dx * 0.38 * t;
+        cp1y = bagY + 40 * t - 50 * (1 - t);
+        cp2x = hubX - 50 * (1 - t) - 85 * t;
+        cp2y = hubY + 120 * (1 - t) + 65 * t;
+      }
 
       const d = `M ${bagX.toFixed(1)} ${bagY.toFixed(1)} C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${hubX.toFixed(1)} ${hubY.toFixed(1)}`;
       tubePath.setAttribute('d', d);
@@ -3634,9 +3655,15 @@
 
       // If already locked over vein, clicks/taps trigger insertion or extraction
       if (isIVLockedToVein) {
-        e.preventDefault();
-        e.stopPropagation();
-        handleIVAction();
+        if (!isIVInserted) {
+          e.preventDefault();
+          e.stopPropagation();
+          handleIVAction();
+        } else if (canPullOutNeedle && !isNeedlePulledOut) {
+          e.preventDefault();
+          e.stopPropagation();
+          pullOutNeedle();
+        }
         return;
       }
 
@@ -3836,6 +3863,22 @@
       handleIVAction();
     }
 
+    function onStagePullOutPointerDown(e) {
+      if (currentStep !== 8 || !isIVInserted || isNeedlePulledOut) return;
+      if (canPullOutNeedle) {
+        e.preventDefault();
+        e.stopPropagation();
+        pullOutNeedle();
+      }
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (currentStep === 8 && isIVInserted && canPullOutNeedle && !isNeedlePulledOut && (e.key === ' ' || e.key === 'Enter')) {
+        e.preventDefault();
+        pullOutNeedle();
+      }
+    });
+
     function pokeInsertNeedle() {
       if (!canPokeIV || isIVInserted) return;
       isIVInserted = true;
@@ -3844,6 +3887,7 @@
       const ivWrapper = document.getElementById('gameIVWrapper');
       const ivPrompt = document.getElementById('ivPrompt');
       const veinZone = document.getElementById('veinDropZone');
+      const stage = document.getElementById('gameStage');
 
       if (ivWrapper) {
         ivWrapper.classList.remove('can-poke');
@@ -3853,9 +3897,17 @@
         ivWrapper.style.transform = `translate3d(${lockedVeinDeltaX + 16}px, ${lockedVeinDeltaY - 10}px, 0)`;
       }
 
-      setTimeout(() => {
+      // Smoothly track tube connection during the 280ms glide
+      const startGlideTime = performance.now();
+      function animateInsertionTube(now) {
         updateIVTubePath();
-      }, 300);
+        if (now - startGlideTime < 320) {
+          requestAnimationFrame(animateInsertionTube);
+        } else {
+          updateIVTubePath();
+        }
+      }
+      requestAnimationFrame(animateInsertionTube);
 
       if (veinZone) {
         veinZone.style.boxShadow = '0 0 45px rgba(0, 255, 180, 1)';
@@ -3867,9 +3919,18 @@
         ivPrompt.textContent = 'Tap to pull out needle!';
       }
 
+      if (stage) {
+        stage.style.cursor = 'pointer';
+      }
+
+      // Allow immediate tap extraction after poke forward motion starts
       setTimeout(() => {
         canPullOutNeedle = true;
-      }, 350);
+      }, 150);
+
+      // Listen for tap/click anywhere on stage or screen to pull out needle
+      document.addEventListener('pointerdown', onStagePullOutPointerDown, { capture: true });
+      document.addEventListener('click', onStagePullOutPointerDown, { capture: true });
     }
 
     function pullOutNeedle() {
@@ -3877,26 +3938,36 @@
       isNeedlePulledOut = true;
       canPullOutNeedle = false;
 
+      document.removeEventListener('pointerdown', onStagePullOutPointerDown, { capture: true });
+      document.removeEventListener('click', onStagePullOutPointerDown, { capture: true });
+
+      const stage = document.getElementById('gameStage');
+      if (stage) stage.style.cursor = '';
+
       const needleImg = document.getElementById('gameIVNeedleImg');
       const catheterImg = document.getElementById('gameIVCatheterImg');
       const ivPrompt = document.getElementById('ivPrompt');
+      const ivWrapper = document.getElementById('gameIVWrapper');
 
-      // Slide metal needle plunger backwards and fade out
+      if (ivWrapper) {
+        ivWrapper.style.cursor = 'default';
+      }
+
+      // Slide metal needle plunger backwards along cannula angle and fade out
       if (needleImg) {
         needleImg.style.transition = 'transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.45s ease';
-        needleImg.style.transform = 'translate3d(-50px, -35px, 0)';
+        needleImg.style.transform = 'translate3d(-60px, 45px, 0)';
         needleImg.style.opacity = '0';
       }
 
-      // Seamlessly show the soft IV catheter in place
+      // Seamlessly show the soft IV catheter in place (perfectly aligned with previous hub)
       if (catheterImg) {
         catheterImg.style.display = 'block';
-        catheterImg.style.opacity = '0';
-        catheterImg.style.transition = 'opacity 0.3s ease';
-        setTimeout(() => {
-          catheterImg.style.opacity = '1';
-        }, 30);
+        catheterImg.style.opacity = '1';
+        catheterImg.style.transition = 'opacity 0.2s ease';
       }
+
+      updateIVTubePath();
 
       triggerHapticFeedback(true);
 
@@ -3953,6 +4024,10 @@
       window.removeEventListener('pointermove', onIVNeedlePointerMove);
       window.removeEventListener('pointerup', onIVNeedlePointerUp);
       window.removeEventListener('pointercancel', onIVNeedlePointerUp);
+      document.removeEventListener('pointerdown', onStagePullOutPointerDown, { capture: true });
+      document.removeEventListener('click', onStagePullOutPointerDown, { capture: true });
+      const stageReset = document.getElementById('gameStage');
+      if (stageReset) stageReset.style.cursor = '';
 
       if (ivCountdownTimer) {
         clearInterval(ivCountdownTimer);

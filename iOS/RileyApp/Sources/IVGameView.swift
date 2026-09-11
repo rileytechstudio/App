@@ -439,6 +439,15 @@ public struct IVGameView: View {
                 veinDropZoneView(stageSize: stageSize)
                 ivExtensionTubeView(stageSize: stageSize)
                 floatingIVItem(stageSize: stageSize)
+                
+                // If inserted and awaiting needle removal, tap anywhere to pull out
+                if isIVInserted && !isNeedlePulledOut {
+                    Color.clear
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            pullOutNeedleSwiftUI()
+                        }
+                }
             }
         }
     }
@@ -826,6 +835,9 @@ public struct IVGameView: View {
         let initialNeedleCenter = CGPoint(x: stageSize.width * 0.254, y: stageSize.height * 0.188)
         let targetCenter = CGPoint(x: stageSize.width * 0.742, y: stageSize.height * 0.551)
         
+        let itemWidth = stageSize.width * 0.19
+        let itemHeight = itemWidth * (324.0 / 340.0)
+        
         let needleCenter: CGPoint = {
             if isIVLockedToVein {
                 let adv: CGSize = isIVInserted ? CGSize(width: stageSize.width * 0.015, height: -stageSize.height * 0.015) : .zero
@@ -835,10 +847,23 @@ public struct IVGameView: View {
             }
         }()
         
-        let hubPoint = CGPoint(x: needleCenter.x - stageSize.width * 0.065, y: needleCenter.y + stageSize.height * 0.045)
+        // Catheter hub collar at (30.9% width, 74.1% height) relative to wrapper
+        let hubPoint = CGPoint(
+            x: needleCenter.x - itemWidth * 0.191,
+            y: needleCenter.y + itemHeight * 0.241
+        )
         
-        let cp1 = CGPoint(x: bagPoint.x + (hubPoint.x - bagPoint.x) * 0.22 - stageSize.width * 0.02, y: max(bagPoint.y, hubPoint.y) + stageSize.height * 0.09)
-        let cp2 = CGPoint(x: hubPoint.x - stageSize.width * 0.06, y: hubPoint.y + stageSize.height * 0.06)
+        let dx = hubPoint.x - bagPoint.x
+        let cp1: CGPoint
+        let cp2: CGPoint
+        if dx > stageSize.width * 0.12 {
+            cp1 = CGPoint(x: bagPoint.x + dx * 0.38, y: max(bagPoint.y, hubPoint.y) + stageSize.height * 0.115)
+            cp2 = CGPoint(x: hubPoint.x - stageSize.width * 0.062, y: hubPoint.y + stageSize.height * 0.063)
+        } else {
+            let t = max(0.0, min(1.0, dx / (stageSize.width * 0.12)))
+            cp1 = CGPoint(x: bagPoint.x - stageSize.width * 0.018 * (1.0 - t) + dx * 0.38 * t, y: bagPoint.y + stageSize.height * 0.039 * t - stageSize.height * 0.048 * (1.0 - t))
+            cp2 = CGPoint(x: hubPoint.x - stageSize.width * 0.036 * (1.0 - t) - stageSize.width * 0.062 * t, y: hubPoint.y + stageSize.height * 0.117 * (1.0 - t) + stageSize.height * 0.063 * t)
+        }
         
         ZStack {
             // Drop shadow
@@ -921,7 +946,8 @@ public struct IVGameView: View {
         .contentShape(Rectangle())
         .position(x: currentPos.x + advanceOffset.width, y: currentPos.y + advanceOffset.height)
         .gesture(
-            DragGesture(minimumDistance: isIVLockedToVein ? 1000 : 0, coordinateSpace: .local)
+            isIVLockedToVein ? nil :
+            DragGesture(coordinateSpace: .local)
                 .onChanged { value in
                     guard !isIVLockedToVein else { return }
                     isIVDragging = true
@@ -954,7 +980,7 @@ public struct IVGameView: View {
                     if isIVLockedToVein {
                         if canPokeIV && !isIVInserted {
                             pokeInsertNeedleSwiftUI()
-                        } else if canPullOutNeedle && !isNeedlePulledOut {
+                        } else if isIVInserted && !isNeedlePulledOut {
                             pullOutNeedleSwiftUI()
                         }
                     }
@@ -1013,19 +1039,19 @@ public struct IVGameView: View {
             isIVInserted = true
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
             canPullOutNeedle = true
         }
     }
     
     private func pullOutNeedleSwiftUI() {
-        guard canPullOutNeedle && !isNeedlePulledOut else { return }
+        guard !isNeedlePulledOut else { return }
         canPullOutNeedle = false
         isNeedlePulledOut = true
         HapticManager.shared.successNotification()
         
         withAnimation(.easeOut(duration: 0.45)) {
-            needleRetractOffset = CGSize(width: -45, height: 35)
+            needleRetractOffset = CGSize(width: -60, height: 45)
             needleRetractOpacity = 0.0
             catheterOpacity = 1.0
         }
