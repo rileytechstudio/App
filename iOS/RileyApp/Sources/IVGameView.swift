@@ -7,10 +7,12 @@ public enum IVGameStep: Int {
     case removeBandage = 3
     case washcloth = 4
     case tourniquet = 5
-    case completed = 6
+    case cleanWipePacket = 6
+    case cleanWipeArm = 7
+    case completed = 8
 }
 
-// MARK: - IV Game View (Numbing Ointment, Clear Bandage, Washcloth Wipe & Tourniquet Band)
+// MARK: - IV Game View (Numbing Ointment, Clear Bandage, Washcloth Wipe, Tourniquet Band & Clean Wipe)
 public struct IVGameView: View {
     @Environment(\.presentationMode) var presentationMode
     public var onDismiss: (() -> Void)? = nil
@@ -51,6 +53,20 @@ public struct IVGameView: View {
     @State private var washclothCursorSideY: Int = 0 // -1: top, 1: bottom, 0: unset
     @State private var washclothSweepCount: Int = 0
     private let totalWipeSweeps: Int = 6
+    
+    // Step 6: Clean Wipe Packet State
+    @State private var isPacketRipped: Bool = false
+    @State private var showRipEffect: Bool = false
+    
+    // Step 7: Clean Wipe Arm State
+    @State private var packetWipeDragOffset: CGSize = .zero
+    @State private var isPacketWipeDragging: Bool = false
+    @State private var packetWipePivotAngle: Double = 0.0
+    @State private var isPacketWipeOverElbow: Bool = false
+    @State private var packetWipeCursorSide: Int = 0 // -1: left, 1: right, 0: unset
+    @State private var packetWipeCursorSideY: Int = 0 // -1: top, 1: bottom, 0: unset
+    @State private var packetWipeSweepCount: Int = 0
+    private let totalPacketWipeSweeps: Int = 4 // 2 back-and-forth passes
     
     @State private var showSuccessModal: Bool = false
     @State private var isFloating: Bool = false
@@ -175,6 +191,8 @@ public struct IVGameView: View {
         case .removeBandage: return "hand.tap.fill"
         case .washcloth: return "sparkles"
         case .tourniquet: return "hand.draw.fill"
+        case .cleanWipePacket: return "scissors"
+        case .cleanWipeArm: return "sparkles"
         case .completed: return "checkmark.circle.fill"
         }
     }
@@ -186,6 +204,8 @@ public struct IVGameView: View {
         case .removeBandage: return "Step 3: Tap Bandage to Remove"
         case .washcloth: return "Step 4: Wipe Away Lotion"
         case .tourniquet: return "Step 5: Place Tourniquet Band"
+        case .cleanWipePacket: return "Step 6: Rip Open Clean Wipe"
+        case .cleanWipeArm: return "Step 7: Wipe Arm Clean"
         case .completed: return "Arm Prepared!"
         }
     }
@@ -246,7 +266,7 @@ public struct IVGameView: View {
                     return 1.0
                 case .washcloth:
                     return wipeFactor * 0.95
-                case .tourniquet, .completed:
+                case .tourniquet, .cleanWipePacket, .cleanWipeArm, .completed:
                     return 0.0
                 }
             }()
@@ -258,7 +278,7 @@ public struct IVGameView: View {
                     return 1.0
                 case .washcloth:
                     return 0.35 + CGFloat(wipeFactor) * 0.65
-                case .tourniquet, .completed:
+                case .tourniquet, .cleanWipePacket, .cleanWipeArm, .completed:
                     return 0.0
                 }
             }()
@@ -313,7 +333,7 @@ public struct IVGameView: View {
                 }
             }
             
-            // Target Drop Zone Highlight on Elbow for Ointment (Step 1) and Bandage (Step 2)
+            // Target Drop Zone Highlight on Elbow for Ointment (Step 1), Bandage (Step 2) and Clean Wipe (Step 7)
             let elbowDropZoneRect = CGRect(
                 x: stageSize.width * 0.652,
                 y: stageSize.height * 0.451,
@@ -321,8 +341,15 @@ public struct IVGameView: View {
                 height: stageSize.height * 0.20
             )
             
-            if currentStep == .ointment || currentStep == .bandage {
-                let isHighlighted = currentStep == .ointment ? isOintmentOverElbow : isBandageOverElbow
+            if currentStep == .ointment || currentStep == .bandage || currentStep == .cleanWipeArm {
+                let isHighlighted: Bool = {
+                    switch currentStep {
+                    case .ointment: return isOintmentOverElbow
+                    case .bandage: return isBandageOverElbow
+                    case .cleanWipeArm: return isPacketWipeOverElbow
+                    default: return false
+                    }
+                }()
                 Circle()
                     .strokeBorder(
                         isHighlighted ? Color(red: 0/255, green: 215/255, blue: 255/255) : Color.clear,
@@ -380,6 +407,16 @@ public struct IVGameView: View {
             // Layer 11: Floating Interactive Elastic Tourniquet Band (Step 5)
             if currentStep == .tourniquet {
                 floatingBandItem(stageSize: stageSize, dropZoneRect: bandDropZoneRect)
+            }
+            
+            // Layer 12: Floating Interactive Clean Wipe Packet (Step 6)
+            if currentStep == .cleanWipePacket {
+                floatingPacketItem(stageSize: stageSize)
+            }
+            
+            // Layer 13: Floating Interactive Clean Wipe Cloth (Step 7)
+            if currentStep == .cleanWipeArm {
+                floatingPacketWipeItem(stageSize: stageSize, elbowCenter: CGPoint(x: elbowDropZoneRect.midX, y: elbowDropZoneRect.midY), elbowSize: elbowDropZoneRect.size)
             }
         }
     }
@@ -457,14 +494,7 @@ public struct IVGameView: View {
                         
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                             withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
-                                currentStep = .completed
-                            }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                                if currentStep == .completed {
-                                    withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
-                                        showSuccessModal = true
-                                    }
-                                }
+                                currentStep = .cleanWipePacket
                             }
                         }
                     } else {
@@ -476,6 +506,252 @@ public struct IVGameView: View {
                     }
                 }
         )
+    }
+    
+    // MARK: - Floating Clean Wipe Packet Component (Step 6)
+    @ViewBuilder
+    private func floatingPacketItem(stageSize: CGSize) -> some View {
+        let packetWidth = stageSize.width * 0.178
+        let packetHeight = packetWidth * (366.0 / 586.0)
+        let initialX = stageSize.width * 0.254
+        let initialY = stageSize.height * 0.188
+        
+        let floatOffset: CGFloat = (isFloating && !isPacketRipped) ? -10 : 0
+        
+        VStack(spacing: 8) {
+            ZStack(alignment: .topTrailing) {
+                // Packet Image (Swaps to Ripped on gesture)
+                Image(isPacketRipped ? "GamePacketRippedItem" : "GamePacketItem")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: packetWidth, height: packetHeight)
+                    .shadow(
+                        color: Color.yellow.opacity(0.85),
+                        radius: 14
+                    )
+                    .shadow(
+                        color: Color(red: 1.0, green: 0.9, blue: 0.3).opacity(0.6),
+                        radius: 26
+                    )
+                
+                // RRRRRIP! Effect Image
+                if showRipEffect {
+                    Image("GameRipEffectItem")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: packetWidth * 0.44)
+                        .rotationEffect(.degrees(-14))
+                        .offset(x: packetWidth * 0.15, y: -packetHeight * 0.25)
+                        .transition(.scale(scale: 0.2).combined(with: .opacity))
+                }
+            }
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 10, coordinateSpace: .local)
+                    .onEnded { value in
+                        if value.translation.height > 15 || abs(value.translation.width) > 15 {
+                            ripOpenPacketAction()
+                        }
+                    }
+            )
+            .onTapGesture {
+                ripOpenPacketAction()
+            }
+            
+            Text(isPacketRipped ? "✨ Ripped open! ✨" : "Trace right edge down to rip open!")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundColor(Color.yellow)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 3)
+                .background(Color.black.opacity(0.72))
+                .clipShape(Capsule())
+                .transition(.opacity)
+        }
+        .position(x: initialX, y: initialY)
+        .offset(y: floatOffset)
+    }
+    
+    private func ripOpenPacketAction() {
+        guard !isPacketRipped else { return }
+        HapticManager.shared.lightTap()
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.65)) {
+            isPacketRipped = true
+            showRipEffect = true
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+            withAnimation(.easeInOut(duration: 0.28)) {
+                currentStep = .cleanWipeArm
+                packetWipeDragOffset = .zero
+                packetWipeSweepCount = 0
+                packetWipeCursorSide = 0
+                packetWipeCursorSideY = 0
+            }
+        }
+    }
+    
+    // MARK: - Floating Clean Wipe Cloth Component (Step 7)
+    @ViewBuilder
+    private func floatingPacketWipeItem(stageSize: CGSize, elbowCenter: CGPoint, elbowSize: CGSize) -> some View {
+        let wipeWidth = stageSize.width * 0.145
+        let wipeHeight = wipeWidth * (620.0 / 509.0)
+        let initialX = stageSize.width * 0.254
+        let initialY = stageSize.height * 0.188
+        
+        let floatOffset: CGFloat = (isFloating && !isPacketWipeDragging) ? -10 : 0
+        
+        VStack(spacing: 6) {
+            Image("GamePacketWipeItem")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: wipeWidth, height: wipeHeight)
+                .rotationEffect(.degrees(packetWipePivotAngle))
+                .shadow(
+                    color: Color(red: 0/255, green: 229/255, blue: 255/255).opacity(isPacketWipeDragging ? 1.0 : 0.85),
+                    radius: isPacketWipeDragging ? 26 : 14
+                )
+                .shadow(
+                    color: Color(red: 0/255, green: 168/255, blue: 255/255).opacity(isPacketWipeDragging ? 0.8 : 0.6),
+                    radius: isPacketWipeDragging ? 40 : 26
+                )
+                .scaleEffect(isPacketWipeDragging ? 1.10 : 1.0)
+            
+            Text(packetWipePromptText)
+                .font(.system(size: 11, weight: .bold))
+                .foregroundColor(Color(red: 0/255, green: 229/255, blue: 255/255))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 3)
+                .background(Color.black.opacity(0.72))
+                .clipShape(Capsule())
+                .transition(.opacity)
+        }
+        .position(x: initialX, y: initialY)
+        .offset(x: packetWipeDragOffset.width, y: packetWipeDragOffset.height + floatOffset)
+        .gesture(
+            DragGesture(coordinateSpace: .local)
+                .onChanged { value in
+                    isPacketWipeDragging = true
+                    let prevX = packetWipeDragOffset.width
+                    packetWipeDragOffset = value.translation
+                    
+                    let moveDx = value.translation.width - prevX
+                    let targetPivot = max(-18.0, min(18.0, Double(moveDx * 2.2)))
+                    withAnimation(.interactiveSpring(response: 0.12, dampingFraction: 0.65)) {
+                        packetWipePivotAngle = targetPivot
+                    }
+                    
+                    let cursorX = (initialX - wipeWidth / 2) + value.startLocation.x + value.translation.width
+                    let cursorY = (initialY - wipeHeight / 2) + value.startLocation.y + value.translation.height
+                    
+                    checkCursorPacketWipe(
+                        cursor: CGPoint(x: cursorX, y: cursorY),
+                        elbowCenter: elbowCenter,
+                        elbowSize: elbowSize
+                    )
+                }
+                .onEnded { _ in
+                    isPacketWipeDragging = false
+                    packetWipeCursorSide = 0
+                    packetWipeCursorSideY = 0
+                    withAnimation(.easeOut(duration: 0.2)) {
+                        packetWipePivotAngle = 0
+                    }
+                    if packetWipeSweepCount < totalPacketWipeSweeps {
+                        withAnimation(.spring(response: 0.42, dampingFraction: 0.72)) {
+                            packetWipeDragOffset = .zero
+                        }
+                    }
+                }
+        )
+    }
+    
+    private var packetWipePromptText: String {
+        if packetWipeSweepCount >= totalPacketWipeSweeps {
+            return "✨ Arm clean and ready for IV! ✨"
+        }
+        let completedPasses = packetWipeSweepCount / 2
+        let remainingPasses = 2 - completedPasses
+        if remainingPasses == 1 {
+            return "Almost clean! 1 more wipe!"
+        } else if isPacketWipeDragging {
+            return "Wipe back and forth over elbow!"
+        } else {
+            return "Wipe elbow 2 times to clean it!"
+        }
+    }
+    
+    private func checkCursorPacketWipe(cursor: CGPoint, elbowCenter: CGPoint, elbowSize: CGSize) {
+        let deadbandX: CGFloat = max(24, elbowSize.width * 0.18)
+        let deadbandY: CGFloat = max(24, elbowSize.height * 0.18)
+        let maxHoriz: CGFloat = max(elbowSize.width * 0.95, 85)
+        let maxVert: CGFloat = max(elbowSize.height * 0.95, 75)
+        
+        let distX = abs(cursor.x - elbowCenter.x)
+        let distY = abs(cursor.y - elbowCenter.y)
+        let isOver = distX <= maxHoriz && distY <= maxVert
+        isPacketWipeOverElbow = isOver
+        
+        guard isOver else {
+            packetWipeCursorSide = 0
+            packetWipeCursorSideY = 0
+            return
+        }
+        
+        // 1. Horizontal crossing
+        if packetWipeCursorSide == 0 {
+            if cursor.x < elbowCenter.x - deadbandX {
+                packetWipeCursorSide = -1
+            } else if cursor.x > elbowCenter.x + deadbandX {
+                packetWipeCursorSide = 1
+            }
+        } else if packetWipeCursorSide == -1 && cursor.x > elbowCenter.x + deadbandX {
+            packetWipeCursorSide = 1
+            registerPacketWipeSweepSwiftUI()
+        } else if packetWipeCursorSide == 1 && cursor.x < elbowCenter.x - deadbandX {
+            packetWipeCursorSide = -1
+            registerPacketWipeSweepSwiftUI()
+        }
+        
+        // 2. Vertical crossing
+        if packetWipeCursorSideY == 0 {
+            if cursor.y < elbowCenter.y - deadbandY {
+                packetWipeCursorSideY = -1
+            } else if cursor.y > elbowCenter.y + deadbandY {
+                packetWipeCursorSideY = 1
+            }
+        } else if packetWipeCursorSideY == -1 && cursor.y > elbowCenter.y + deadbandY {
+            packetWipeCursorSideY = 1
+            registerPacketWipeSweepSwiftUI()
+        } else if packetWipeCursorSideY == 1 && cursor.y < elbowCenter.y - deadbandY {
+            packetWipeCursorSideY = -1
+            registerPacketWipeSweepSwiftUI()
+        }
+    }
+    
+    private func registerPacketWipeSweepSwiftUI() {
+        guard packetWipeSweepCount < totalPacketWipeSweeps else { return }
+        packetWipeSweepCount += 1
+        HapticManager.shared.lightTap()
+        
+        if packetWipeSweepCount >= totalPacketWipeSweeps {
+            HapticManager.shared.successNotification()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
+                    currentStep = .completed
+                    isPacketWipeDragging = false
+                    packetWipeDragOffset = .zero
+                    packetWipeCursorSide = 0
+                    packetWipeCursorSideY = 0
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                    if currentStep == .completed {
+                        withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
+                            showSuccessModal = true
+                        }
+                    }
+                }
+            }
+        }
     }
     
     // MARK: - Floating Clear Bandage Component (Step 2)
@@ -1034,6 +1310,16 @@ public struct IVGameView: View {
             washclothCursorSide = 0
             washclothCursorSideY = 0
             washclothSweepCount = 0
+            
+            isPacketRipped = false
+            showRipEffect = false
+            packetWipeDragOffset = .zero
+            isPacketWipeDragging = false
+            packetWipePivotAngle = 0.0
+            isPacketWipeOverElbow = false
+            packetWipeCursorSide = 0
+            packetWipeCursorSideY = 0
+            packetWipeSweepCount = 0
             
             ointmentDragOffset = .zero
             isOintmentDragging = false

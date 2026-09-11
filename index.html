@@ -966,6 +966,175 @@
       }
     }
 
+    /* Floating Clean Wipe Packet (Step 6A) */
+    .game-packet-wrapper {
+      position: absolute;
+      left: 15.5%;
+      top: 5.5%;
+      width: 21%;
+      height: 22%;
+      cursor: pointer;
+      z-index: 30;
+      touch-action: none;
+      user-select: none;
+      animation: packetFloatGlow 2.4s ease-in-out infinite;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      display: none;
+      opacity: 0;
+    }
+
+    .game-packet-wrapper.visible {
+      display: block;
+      opacity: 1;
+    }
+
+    .game-packet-wrapper img.packet-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    /* Rip Effect ("RRRRRIP!") Image */
+    .rip-effect-img {
+      position: absolute;
+      right: -8%;
+      top: -38%;
+      width: 48%;
+      height: auto;
+      pointer-events: none;
+      transform-origin: bottom left;
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
+      animation: ripEffectPop 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    @keyframes ripEffectPop {
+      0% { transform: translate(-10px, 20px) rotate(-5deg) scale(0.3); opacity: 0; }
+      60% { transform: translate(0, -5px) rotate(16deg) scale(1.15); opacity: 1; }
+      100% { transform: translate(0, 0) rotate(14deg) scale(1.0); opacity: 1; }
+    }
+
+    /* Trace guide on right edge of packet */
+    .packet-rip-zone {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 35%;
+      height: 100%;
+      cursor: pointer;
+      touch-action: none;
+      z-index: 10;
+    }
+
+    .packet-rip-guide {
+      position: absolute;
+      right: 17%;
+      top: 6%;
+      bottom: 6%;
+      width: 2px;
+      border-right: 2.5px dashed rgba(255, 255, 255, 0.88);
+      pointer-events: none;
+      filter: drop-shadow(0 0 6px rgba(0, 229, 255, 0.9));
+      animation: ripGuidePulse 1.2s ease-in-out infinite;
+    }
+
+    .packet-rip-arrow {
+      position: absolute;
+      top: 4%;
+      right: 11%;
+      font-size: 15px;
+      color: #00e5ff;
+      animation: ripArrowBounce 1s ease-in-out infinite;
+      pointer-events: none;
+      text-shadow: 0 0 8px rgba(0, 229, 255, 0.8);
+    }
+
+    @keyframes ripGuidePulse {
+      0%, 100% { opacity: 0.6; filter: drop-shadow(0 0 4px rgba(0, 229, 255, 0.6)); }
+      50% { opacity: 1.0; filter: drop-shadow(0 0 10px rgba(0, 229, 255, 1)); }
+    }
+
+    @keyframes ripArrowBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(8px); }
+    }
+
+    @keyframes packetFloatGlow {
+      0%, 100% {
+        transform: translateY(0);
+        filter: drop-shadow(0 0 14px rgba(68, 214, 255, 0.75)) drop-shadow(0 0 26px rgba(0, 168, 255, 0.5));
+      }
+      50% {
+        transform: translateY(-8px);
+        filter: drop-shadow(0 0 22px rgba(68, 214, 255, 0.95)) drop-shadow(0 0 38px rgba(0, 168, 255, 0.7));
+      }
+    }
+
+    /* Floating Draggable Packet Wipe (Step 6B) */
+    .game-packet-wipe-wrapper {
+      position: absolute;
+      left: 17%;
+      top: 4%;
+      width: 18%;
+      height: 26%;
+      cursor: grab;
+      z-index: 30;
+      touch-action: none;
+      user-select: none;
+      animation: packetWipeFloatGlow 2.4s ease-in-out infinite;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      display: none;
+      opacity: 0;
+    }
+
+    .game-packet-wipe-wrapper.visible {
+      display: block;
+      opacity: 1;
+    }
+
+    .game-packet-wipe-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+      transform-origin: center center;
+      transition: transform 0.08s ease-out;
+    }
+
+    .game-packet-wipe-wrapper.is-dragging {
+      animation: none !important;
+      cursor: grabbing !important;
+      z-index: 60 !important;
+      filter: drop-shadow(0 0 25px rgba(68, 214, 255, 1)) drop-shadow(0 0 45px rgba(0, 200, 255, 0.95)) !important;
+    }
+
+    .game-packet-wipe-wrapper.spring-back {
+      transition: transform 0.42s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .game-packet-wipe-wrapper.is-dragging .band-drag-prompt {
+      opacity: 1;
+      background: rgba(0, 114, 255, 0.88);
+      color: #ffffff;
+    }
+
+    @keyframes packetWipeFloatGlow {
+      0%, 100% {
+        transform: translateY(0);
+        filter: drop-shadow(0 0 14px rgba(68, 214, 255, 0.8)) drop-shadow(0 0 28px rgba(0, 168, 255, 0.55));
+      }
+      50% {
+        transform: translateY(-9px);
+        filter: drop-shadow(0 0 24px rgba(68, 214, 255, 1)) drop-shadow(0 0 42px rgba(0, 200, 255, 0.75));
+      }
+    }
+
     .game-band-wrapper {
       position: absolute;
       left: 18.2%;
@@ -1512,6 +1681,23 @@
                 <div id="armDropZone" class="arm-drop-zone" style="display: none;"></div>
                 <div id="elbowDropZone" class="elbow-drop-zone active" style="display: block;"></div>
 
+                <!-- Layer 7c: Floating Interactive Clean Wipe Packet (Step 6A: Rip Open) -->
+                <div id="gamePacketWrapper" class="game-packet-wrapper" style="display: none;">
+                  <img id="gamePacketImg" class="packet-img" src="assets/GamePacketItem.png" alt="Clean Wipe Packet" draggable="false" />
+                  <img id="gameRipEffectImg" class="rip-effect-img" src="assets/GameRipEffectItem.png" alt="RRRRRIP!" style="display: none;" />
+                  <div id="packetRipZone" class="packet-rip-zone" onpointerdown="startPacketRipTrace(event)">
+                    <div class="packet-rip-guide"></div>
+                    <div class="packet-rip-arrow">▼</div>
+                  </div>
+                  <div class="band-drag-prompt" id="packetPrompt">Trace down right edge to rip open!</div>
+                </div>
+
+                <!-- Layer 7d: Floating Interactive Packet Wipe (Step 6B: Wipe Elbow) -->
+                <div id="gamePacketWipeWrapper" class="game-packet-wipe-wrapper" style="display: none;" onpointerdown="startPacketWipeDrag(event)">
+                  <img id="gamePacketWipeImg" src="assets/GamePacketWipeItem.png" alt="Clean Wipe" draggable="false" />
+                  <div class="band-drag-prompt" id="packetWipePrompt">Wipe elbow 2 times to clean it!</div>
+                </div>
+
                 <!-- Layer 8: Floating Interactive Elastic Tourniquet Band (Step 5) -->
                 <div id="gameBandWrapper" class="game-band-wrapper" style="display: none;" onpointerdown="startBandDrag(event)">
                   <img id="gameBandImg" src="assets/GameBandItem.png" alt="Elastic Tourniquet Band" draggable="false" />
@@ -1546,9 +1732,9 @@
                 <!-- Layer 11: Success Celebration Modal -->
                 <div id="gameSuccessOverlay" class="game-success-overlay">
                   <div class="success-card">
-                    <div class="success-icon">✨ 🩺 🩹 🧴 ✨</div>
+                    <div class="success-icon">✨ 🩺 🩹 🧴 🧼 ✨</div>
                     <div class="success-title">Great Job!</div>
-                    <div class="success-desc">You applied numbing ointment, wrapped the clear bandage, wiped the arm clean with the washcloth, and placed the tourniquet band gently around the arm!</div>
+                    <div class="success-desc">You applied numbing ointment, wrapped the clear bandage, wiped off the lotion, placed the tourniquet band, and cleaned the arm with the fresh wipe!</div>
                     <button class="game-btn-replay" onclick="resetGame()">Play Again</button>
                   </div>
                 </div>
@@ -1697,6 +1883,25 @@
     let currentDeltaX = 0;
     let currentDeltaY = 0;
     let isBandOverTarget = false;
+
+    // Step 6A: Clean Wipe Packet Rip Variables
+    let isPacketRipped = false;
+    let isTracingRip = false;
+    let ripTraceStartY = 0;
+
+    // Step 6B: Packet Wipe Elbow Variables
+    let isDraggingPacketWipe = false;
+    let packetWipeStartX = 0;
+    let packetWipeStartY = 0;
+    let packetWipeDeltaX = 0;
+    let packetWipeDeltaY = 0;
+    let packetWipeLastPointerX = 0;
+    let packetWipePivotAngle = 0;
+    let isPacketWipeOverElbow = false;
+    let packetWipeCursorSide = null; // 'left' or 'right'
+    let packetWipeCursorSideY = null; // 'top' or 'bottom'
+    let packetWipeSweepCount = 0; // 4 sweeps = 2 full passes
+    const TOTAL_PACKET_WIPE_SWEEPS = 4;
 
     // --- STEP 1: NUMBING OINTMENT DRAG & SQUEEZE ---
     function startOintmentDrag(e) {
@@ -2570,13 +2775,379 @@
         }
       }, 150);
 
+      // Advance smoothly to Step 6: Clean Wipe (Rip open packet & wipe elbow)
+      if (stepAdvanceTimeout) clearTimeout(stepAdvanceTimeout);
+      stepAdvanceTimeout = setTimeout(() => {
+        initCleanWipeStep();
+      }, 550);
+    }
+
+    // =========================================================
+    // STEP 6: CLEAN WIPE (RIP OPEN PACKET & WIPE ELBOW)
+    // =========================================================
+    function initCleanWipeStep() {
+      currentStep = 6;
+      isPacketRipped = false;
+      isTracingRip = false;
+
+      const stepBadge = document.getElementById('gameStepBadge');
+      const stepBadgeIcon = document.getElementById('gameStepBadgeIcon');
+      const stepBadgeText = document.getElementById('gameStepBadgeText');
+      const packetWrapper = document.getElementById('gamePacketWrapper');
+      const packetImg = document.getElementById('gamePacketImg');
+      const ripEffectImg = document.getElementById('gameRipEffectImg');
+      const packetRipZone = document.getElementById('packetRipZone');
+      const packetPrompt = document.getElementById('packetPrompt');
+
+      if (stepBadge) {
+        stepBadge.classList.add('highlight-advance');
+        setTimeout(() => stepBadge.classList.remove('highlight-advance'), 650);
+      }
+      if (stepBadgeIcon) stepBadgeIcon.textContent = '🧼';
+      if (stepBadgeText) stepBadgeText.textContent = 'Step 6: Clean the Arm';
+
+      if (packetImg) packetImg.src = 'assets/GamePacketItem.png';
+      if (ripEffectImg) {
+        ripEffectImg.style.display = 'none';
+        ripEffectImg.style.animation = '';
+      }
+      if (packetRipZone) packetRipZone.style.display = 'block';
+      if (packetPrompt) packetPrompt.textContent = 'Trace down right edge to rip open!';
+
+      if (packetWrapper) {
+        packetWrapper.style.display = 'block';
+        packetWrapper.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+        packetWrapper.style.transform = '';
+        setTimeout(() => {
+          packetWrapper.classList.add('visible');
+          packetWrapper.style.opacity = '1';
+        }, 50);
+      }
+    }
+
+    function startPacketRipTrace(e) {
+      if (isPacketRipped) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      isTracingRip = true;
+      ripTraceStartY = e.clientY;
+
+      window.addEventListener('pointermove', onPacketRipPointerMove);
+      window.addEventListener('pointerup', onPacketRipPointerUp);
+      window.addEventListener('pointercancel', onPacketRipPointerUp);
+    }
+
+    function onPacketRipPointerMove(e) {
+      if (!isTracingRip || isPacketRipped) return;
+      const dy = e.clientY - ripTraceStartY;
+      if (dy >= 18) {
+        triggerPacketRip();
+      }
+    }
+
+    function onPacketRipPointerUp(e) {
+      if (!isTracingRip) return;
+      isTracingRip = false;
+      window.removeEventListener('pointermove', onPacketRipPointerMove);
+      window.removeEventListener('pointerup', onPacketRipPointerUp);
+      window.removeEventListener('pointercancel', onPacketRipPointerUp);
+      if (!isPacketRipped) {
+        triggerPacketRip();
+      }
+    }
+
+    function triggerPacketRip() {
+      if (isPacketRipped) return;
+      isPacketRipped = true;
+      isTracingRip = false;
+
+      window.removeEventListener('pointermove', onPacketRipPointerMove);
+      window.removeEventListener('pointerup', onPacketRipPointerUp);
+      window.removeEventListener('pointercancel', onPacketRipPointerUp);
+
+      const packetWrapper = document.getElementById('gamePacketWrapper');
+      const packetImg = document.getElementById('gamePacketImg');
+      const ripEffectImg = document.getElementById('gameRipEffectImg');
+      const packetRipZone = document.getElementById('packetRipZone');
+      const packetPrompt = document.getElementById('packetPrompt');
+
+      if (packetRipZone) packetRipZone.style.display = 'none';
+
+      // 1. Swap to ripped packet
+      if (packetImg) {
+        packetImg.src = 'assets/GamePacketRippedItem.png';
+      }
+
+      // 2. Animate rip effect pop at angle
+      if (ripEffectImg) {
+        ripEffectImg.style.display = 'block';
+        ripEffectImg.style.animation = 'ripEffectPop 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards';
+      }
+
+      if (packetPrompt) {
+        packetPrompt.textContent = '✨ Ripped open! ✨';
+      }
+
+      // 3. After 700ms, transition to the packet wipe cloth
+      setTimeout(() => {
+        if (packetWrapper) {
+          packetWrapper.style.transition = 'opacity 0.28s ease, transform 0.28s ease';
+          packetWrapper.style.opacity = '0';
+          packetWrapper.style.transform = 'scale(0.85)';
+          setTimeout(() => {
+            packetWrapper.style.display = 'none';
+            packetWrapper.classList.remove('visible');
+            initPacketWipeStep();
+          }, 280);
+        } else {
+          initPacketWipeStep();
+        }
+      }, 700);
+    }
+
+    // --- STEP 6B: PACKET WIPE ELBOW (2 PASSES) ---
+    function initPacketWipeStep() {
+      isDraggingPacketWipe = false;
+      packetWipeDeltaX = 0;
+      packetWipeDeltaY = 0;
+      packetWipeLastPointerX = 0;
+      packetWipePivotAngle = 0;
+      isPacketWipeOverElbow = false;
+      packetWipeCursorSide = null;
+      packetWipeCursorSideY = null;
+      packetWipeSweepCount = 0;
+
+      const wipeWrapper = document.getElementById('gamePacketWipeWrapper');
+      const wipePrompt = document.getElementById('packetWipePrompt');
+      const elbowZone = document.getElementById('elbowDropZone');
+
+      if (elbowZone) {
+        elbowZone.style.display = 'block';
+        elbowZone.classList.add('active');
+        elbowZone.classList.remove('highlight');
+      }
+
+      if (wipePrompt) {
+        wipePrompt.textContent = 'Wipe elbow 2 times to clean it!';
+      }
+
+      if (wipeWrapper) {
+        wipeWrapper.style.display = 'block';
+        wipeWrapper.style.transition = 'opacity 0.3s ease';
+        wipeWrapper.style.transform = '';
+        setTimeout(() => {
+          wipeWrapper.classList.add('visible');
+          wipeWrapper.style.opacity = '1';
+        }, 50);
+      }
+    }
+
+    function startPacketWipeDrag(e) {
+      if (currentStep !== 6 || !isPacketRipped) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      const wipeWrapper = document.getElementById('gamePacketWipeWrapper');
+      if (!wipeWrapper) return;
+
+      isDraggingPacketWipe = true;
+      packetWipeStartX = e.clientX;
+      packetWipeStartY = e.clientY;
+      packetWipeDeltaX = 0;
+      packetWipeDeltaY = 0;
+      packetWipeLastPointerX = e.clientX;
+      packetWipePivotAngle = 0;
+
+      wipeWrapper.style.transition = 'none';
+      wipeWrapper.classList.add('is-dragging');
+      wipeWrapper.classList.remove('spring-back');
+
+      if (e.pointerId !== undefined) {
+        try { wipeWrapper.setPointerCapture(e.pointerId); } catch (err) {}
+      }
+
+      window.addEventListener('pointermove', onPacketWipePointerMove);
+      window.addEventListener('pointerup', onPacketWipePointerUp);
+      window.addEventListener('pointercancel', onPacketWipePointerCancel);
+    }
+
+    function onPacketWipePointerMove(e) {
+      if (!isDraggingPacketWipe) return;
+
+      packetWipeDeltaX = e.clientX - packetWipeStartX;
+      packetWipeDeltaY = e.clientY - packetWipeStartY;
+
+      const moveDx = e.clientX - packetWipeLastPointerX;
+      packetWipeLastPointerX = e.clientX;
+      packetWipePivotAngle = Math.max(-18, Math.min(18, moveDx * 2.2));
+
+      const wipeWrapper = document.getElementById('gamePacketWipeWrapper');
+      const wipeImg = document.getElementById('gamePacketWipeImg');
+      if (wipeWrapper) {
+        wipeWrapper.style.transform = `translate3d(${packetWipeDeltaX}px, ${packetWipeDeltaY}px, 0)`;
+      }
+      if (wipeImg) {
+        wipeImg.style.transform = `rotate(${packetWipePivotAngle.toFixed(1)}deg)`;
+      }
+
+      checkCursorOverElbowPacketWipe(e.clientX, e.clientY);
+    }
+
+    function checkCursorOverElbowPacketWipe(cursorX, cursorY) {
+      const elbowZone = document.getElementById('elbowDropZone');
+      const wipeWrapper = document.getElementById('gamePacketWipeWrapper');
+      if (!elbowZone || !wipeWrapper) return;
+
+      const eRect = elbowZone.getBoundingClientRect();
+      const eCenterX = eRect.left + eRect.width / 2;
+      const eCenterY = eRect.top + eRect.height / 2;
+
+      const vertDist = Math.abs(cursorY - eCenterY);
+      const horizDist = Math.abs(cursorX - eCenterX);
+      const maxVert = Math.max(eRect.height * 0.95, 75);
+      const maxHoriz = Math.max(eRect.width * 0.95, 85);
+
+      const isOver = vertDist <= maxVert && horizDist <= maxHoriz;
+      isPacketWipeOverElbow = isOver;
+
+      if (elbowZone) {
+        if (isOver) elbowZone.classList.add('highlight');
+        else elbowZone.classList.remove('highlight');
+      }
+
+      if (!isOver) {
+        packetWipeCursorSide = null;
+        packetWipeCursorSideY = null;
+        return;
+      }
+
+      const deadbandX = Math.max(24, eRect.width * 0.18);
+      const deadbandY = Math.max(24, eRect.height * 0.18);
+
+      // Horizontal crossing
+      if (packetWipeCursorSide === null) {
+        if (cursorX < eCenterX - deadbandX) packetWipeCursorSide = 'left';
+        else if (cursorX > eCenterX + deadbandX) packetWipeCursorSide = 'right';
+      } else if (packetWipeCursorSide === 'left' && cursorX > eCenterX + deadbandX) {
+        packetWipeCursorSide = 'right';
+        registerPacketWipeSweep();
+      } else if (packetWipeCursorSide === 'right' && cursorX < eCenterX - deadbandX) {
+        packetWipeCursorSide = 'left';
+        registerPacketWipeSweep();
+      }
+
+      // Vertical crossing
+      if (packetWipeCursorSideY === null) {
+        if (cursorY < eCenterY - deadbandY) packetWipeCursorSideY = 'top';
+        else if (cursorY > eCenterY + deadbandY) packetWipeCursorSideY = 'bottom';
+      } else if (packetWipeCursorSideY === 'top' && cursorY > eCenterY + deadbandY) {
+        packetWipeCursorSideY = 'bottom';
+        registerPacketWipeSweep();
+      } else if (packetWipeCursorSideY === 'bottom' && cursorY < eCenterY - deadbandY) {
+        packetWipeCursorSideY = 'top';
+        registerPacketWipeSweep();
+      }
+    }
+
+    function registerPacketWipeSweep() {
+      if (packetWipeSweepCount >= TOTAL_PACKET_WIPE_SWEEPS) return;
+      packetWipeSweepCount++;
+
+      const wipePrompt = document.getElementById('packetWipePrompt');
+      const completedPasses = Math.floor(packetWipeSweepCount / 2);
+      const remainingPasses = 2 - completedPasses;
+
+      if (wipePrompt) {
+        if (packetWipeSweepCount >= TOTAL_PACKET_WIPE_SWEEPS) {
+          wipePrompt.textContent = '✨ Arm clean and ready for IV! ✨';
+        } else if (remainingPasses === 1) {
+          wipePrompt.textContent = 'Almost clean! 1 more wipe!';
+        } else {
+          wipePrompt.textContent = 'Wipe back and forth over elbow!';
+        }
+      }
+
+      if (packetWipeSweepCount >= TOTAL_PACKET_WIPE_SWEEPS) {
+        completePacketWipeStep();
+      }
+    }
+
+    function onPacketWipePointerUp(e) {
+      if (!isDraggingPacketWipe) return;
+      isDraggingPacketWipe = false;
+
+      window.removeEventListener('pointermove', onPacketWipePointerMove);
+      window.removeEventListener('pointerup', onPacketWipePointerUp);
+      window.removeEventListener('pointercancel', onPacketWipePointerCancel);
+
+      const wipeWrapper = document.getElementById('gamePacketWipeWrapper');
+      const wipeImg = document.getElementById('gamePacketWipeImg');
+      const elbowZone = document.getElementById('elbowDropZone');
+      if (elbowZone) elbowZone.classList.remove('highlight');
+
+      if (wipeWrapper && e && e.pointerId !== undefined) {
+        try { wipeWrapper.releasePointerCapture(e.pointerId); } catch (err) {}
+      }
+
+      if (wipeImg) {
+        wipeImg.style.transform = 'rotate(0deg)';
+      }
+
+      packetWipeCursorSide = null;
+      packetWipeCursorSideY = null;
+
+      if (packetWipeSweepCount < TOTAL_PACKET_WIPE_SWEEPS) {
+        if (wipeWrapper) {
+          wipeWrapper.classList.remove('is-dragging');
+          wipeWrapper.classList.add('spring-back');
+          wipeWrapper.style.transform = 'translate3d(0, 0, 0)';
+          setTimeout(() => {
+            wipeWrapper.classList.remove('spring-back');
+            wipeWrapper.style.transform = '';
+          }, 450);
+        }
+      }
+    }
+
+    function onPacketWipePointerCancel(e) {
+      if (!isDraggingPacketWipe) return;
+      onPacketWipePointerUp(e);
+    }
+
+    function completePacketWipeStep() {
+      currentStep = 7;
+      isDraggingPacketWipe = false;
+
+      const wipeWrapper = document.getElementById('gamePacketWipeWrapper');
+      const elbowZone = document.getElementById('elbowDropZone');
+      const stepBadgeIcon = document.getElementById('gameStepBadgeIcon');
+      const stepBadgeText = document.getElementById('gameStepBadgeText');
+      const overlay = document.getElementById('gameSuccessOverlay');
+
+      if (elbowZone) {
+        elbowZone.style.display = 'none';
+        elbowZone.classList.remove('highlight');
+      }
+
+      if (wipeWrapper) {
+        wipeWrapper.style.transition = 'transform 0.25s ease-out, opacity 0.25s ease-out';
+        wipeWrapper.style.transform = `translate3d(${packetWipeDeltaX}px, ${packetWipeDeltaY}px, 0) scale(0.85)`;
+        wipeWrapper.style.opacity = '0';
+        setTimeout(() => {
+          wipeWrapper.style.display = 'none';
+          wipeWrapper.style.transform = '';
+          wipeWrapper.classList.remove('is-dragging', 'spring-back');
+        }, 300);
+      }
+
       if (stepBadgeIcon) stepBadgeIcon.textContent = '✨';
       if (stepBadgeText) stepBadgeText.textContent = 'Arm Prepared! Great Job!';
 
       if (overlayTimeout) clearTimeout(overlayTimeout);
       overlayTimeout = setTimeout(() => {
         if (overlay) overlay.classList.add('visible');
-      }, 600);
+      }, 550);
     }
 
     function resetGame() {
@@ -2603,6 +3174,12 @@
       window.removeEventListener('pointermove', onOintmentPointerMove);
       window.removeEventListener('pointerup', onOintmentPointerUp);
       window.removeEventListener('pointercancel', onOintmentPointerCancel);
+      window.removeEventListener('pointermove', onPacketRipPointerMove);
+      window.removeEventListener('pointerup', onPacketRipPointerUp);
+      window.removeEventListener('pointercancel', onPacketRipPointerUp);
+      window.removeEventListener('pointermove', onPacketWipePointerMove);
+      window.removeEventListener('pointerup', onPacketWipePointerUp);
+      window.removeEventListener('pointercancel', onPacketWipePointerCancel);
 
       currentStep = 1;
 
@@ -2652,6 +3229,23 @@
       currentDeltaX = 0;
       currentDeltaY = 0;
       isBandOverTarget = false;
+
+      // Reset Step 6: Clean Wipe Packet & Wipe
+      isPacketRipped = false;
+      isTracingRip = false;
+      ripTraceStartY = 0;
+      ripTraceCurrentY = 0;
+      isDraggingPacketWipe = false;
+      packetWipeStartX = 0;
+      packetWipeStartY = 0;
+      packetWipeDeltaX = 0;
+      packetWipeDeltaY = 0;
+      packetWipeLastPointerX = 0;
+      packetWipePivotAngle = 0;
+      isPacketWipeOverElbow = false;
+      packetWipeSweepCount = 0;
+      packetWipeCursorSide = null;
+      packetWipeCursorSideY = null;
 
       const bandWrapper = document.getElementById('gameBandWrapper');
       const washclothWrapper = document.getElementById('gameWashclothWrapper');
@@ -2732,6 +3326,51 @@
         bandageWrapper.classList.remove('is-dragging', 'spring-back', 'visible');
         bandageWrapper.style.transform = '';
         bandageWrapper.style.opacity = '0';
+      }
+
+      // Step 6 Clean Wipe Packet is hidden in Step 1
+      const packetWrapper = document.getElementById('gamePacketWrapper');
+      const packetImg = document.getElementById('gamePacketImg');
+      const ripEffectImg = document.getElementById('gameRipEffectImg');
+      const packetRipZone = document.getElementById('packetRipZone');
+      const packetPrompt = document.getElementById('packetPrompt');
+      if (packetWrapper) {
+        packetWrapper.style.display = 'none';
+        packetWrapper.style.transition = 'none';
+        packetWrapper.classList.remove('is-ripping', 'visible');
+        packetWrapper.style.transform = '';
+        packetWrapper.style.opacity = '0';
+      }
+      if (packetImg) {
+        packetImg.src = 'assets/GamePacketItem.png';
+      }
+      if (ripEffectImg) {
+        ripEffectImg.style.display = 'none';
+        ripEffectImg.style.animation = 'none';
+      }
+      if (packetRipZone) {
+        packetRipZone.style.display = 'block';
+      }
+      if (packetPrompt) {
+        packetPrompt.textContent = 'Trace right edge down to rip open!';
+      }
+
+      // Step 6 Clean Wipe Cloth is hidden in Step 1
+      const packetWipeWrapper = document.getElementById('gamePacketWipeWrapper');
+      const packetWipeImg = document.getElementById('gamePacketWipeImg');
+      const packetWipePrompt = document.getElementById('packetWipePrompt');
+      if (packetWipeWrapper) {
+        packetWipeWrapper.style.display = 'none';
+        packetWipeWrapper.style.transition = 'none';
+        packetWipeWrapper.classList.remove('is-dragging', 'spring-back', 'visible');
+        packetWipeWrapper.style.transform = '';
+        packetWipeWrapper.style.opacity = '0';
+      }
+      if (packetWipeImg) {
+        packetWipeImg.style.transform = 'rotate(0deg)';
+      }
+      if (packetWipePrompt) {
+        packetWipePrompt.textContent = 'Wipe the arm clean!';
       }
 
       // Ointment is visible and floating in Step 1
