@@ -1155,7 +1155,7 @@
       position: absolute;
       left: 80.4%;
       top: 4%;
-      bottom: 4%;
+      bottom: 8%;
       width: 0;
       border-left: 3.5px dotted #ffe600;
       pointer-events: none;
@@ -1197,15 +1197,13 @@
     }
 
     #packetPrompt {
-      white-space: normal;
-      width: max-content;
-      max-width: 320px;
+      white-space: nowrap;
       text-align: center;
       line-height: 1.35;
-      bottom: -36px;
+      bottom: -46px;
       color: #ffe600;
-      border: 1.5px solid rgba(255, 230, 0, 0.65);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6), 0 0 10px rgba(255, 230, 0, 0.35);
+      border: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
     }
 
     @keyframes packetFloatGlow {
@@ -1849,7 +1847,7 @@
                     <div class="packet-rip-guide"></div>
                     <div class="packet-rip-arrow">▼</div>
                   </div>
-                  <div class="band-drag-prompt" id="packetPrompt">trace your finger along the dotted line to rip open the packet!</div>
+                  <div class="band-drag-prompt" id="packetPrompt">Trace the dotted line to rip open!</div>
                 </div>
 
                 <!-- Layer 7d: Floating Interactive Packet Wipe (Step 6B: Wipe Elbow) -->
@@ -2973,7 +2971,7 @@
         ripEffectImg.style.animation = '';
       }
       if (packetRipZone) packetRipZone.style.display = 'block';
-      if (packetPrompt) packetPrompt.textContent = 'trace your finger along the dotted line to rip open the packet!';
+      if (packetPrompt) packetPrompt.textContent = 'Trace the dotted line to rip open!';
 
       if (packetWrapper) {
         packetWrapper.style.display = 'block';
@@ -3517,7 +3515,7 @@
         packetRipZone.style.display = 'block';
       }
       if (packetPrompt) {
-        packetPrompt.textContent = 'trace your finger along the dotted line to rip open the packet!';
+        packetPrompt.textContent = 'Trace the dotted line to rip open!';
       }
 
       // Step 6 Clean Wipe Cloth is hidden in Step 1
