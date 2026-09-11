@@ -313,12 +313,9 @@ public struct IVGameView: View {
                     Button(action: {
                         removeBandageAction()
                     }) {
-                        HStack(spacing: 6) {
-                            Text("👆")
-                            Text("Tap to peel off!")
-                                .font(.system(size: 12, weight: .heavy))
-                                .foregroundColor(.white)
-                        }
+                        Text("Tap to peel off!")
+                            .font(.system(size: 12, weight: .heavy))
+                            .foregroundColor(.white)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 7)
                         .background(Color.black.opacity(0.82))
@@ -581,7 +578,7 @@ public struct IVGameView: View {
                 ripOpenPacketAction()
             }
             
-            Text(isPacketRipped ? "✨ Ripped open! ✨" : "Trace the dotted line to rip open!")
+            Text(isPacketRipped ? "Ripped open!" : "Trace the dotted line to rip open!")
                 .font(.system(size: 11, weight: .bold))
                 .foregroundColor(Color(red: 1.0, green: 0.9, blue: 0.0))
                 .multilineTextAlignment(.center)
@@ -691,7 +688,7 @@ public struct IVGameView: View {
     
     private var packetWipePromptText: String {
         if packetWipeSweepCount >= totalPacketWipeSweeps {
-            return "✨ Arm clean and ready for IV! ✨"
+            return "Arm clean and ready for IV!"
         }
         let completedPasses = packetWipeSweepCount / 2
         let remainingPasses = 2 - completedPasses
@@ -700,7 +697,7 @@ public struct IVGameView: View {
         } else if isPacketWipeDragging {
             return "Wipe back and forth over elbow!"
         } else {
-            return "Wipe your elbow clean!"
+            return "Wipe the arm clean!"
         }
     }
     
@@ -964,7 +961,7 @@ public struct IVGameView: View {
 
     private var washclothPromptText: String {
         if washclothSweepCount >= totalWipeSweeps {
-            return "✨ Arm clean and ready! ✨"
+            return "Arm clean and ready!"
         }
         let completedPasses = washclothSweepCount / 2
         let remainingPasses = 3 - completedPasses

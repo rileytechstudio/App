@@ -1693,7 +1693,6 @@
 
                 <!-- Layer 7b: Tap Prompt on Arm Bandage (Step 3: Remove Bandage) -->
                 <div id="bandageTapPrompt" class="bandage-tap-prompt" style="display: none;" onclick="onBandageTap(event)">
-                  <span>👆</span>
                   <span>Tap to peel off!</span>
                 </div>
 
@@ -1715,7 +1714,7 @@
                 <!-- Layer 7d: Floating Interactive Packet Wipe (Step 6B: Wipe Elbow) -->
                 <div id="gamePacketWipeWrapper" class="game-packet-wipe-wrapper" style="display: none;" onpointerdown="startPacketWipeDrag(event)">
                   <img id="gamePacketWipeImg" src="assets/GamePacketWipeItem.png" alt="Clean Wipe" draggable="false" />
-                  <div class="band-drag-prompt" id="packetWipePrompt">Wipe your elbow clean!</div>
+                  <div class="band-drag-prompt" id="packetWipePrompt">Wipe the arm clean!</div>
                 </div>
 
                 <!-- Layer 8: Floating Interactive Elastic Tourniquet Band (Step 5) -->
@@ -2536,7 +2535,7 @@
 
       if (washclothPrompt) {
         if (washclothSweepCount >= TOTAL_WIPE_SWEEPS) {
-          washclothPrompt.textContent = '✨ Arm clean and ready! ✨';
+          washclothPrompt.textContent = 'Arm clean and ready!';
         } else if (remainingPasses === 2) {
           washclothPrompt.textContent = 'Wipe 2 more times!';
         } else if (remainingPasses === 1) {
@@ -2910,7 +2909,7 @@
       }
 
       if (packetPrompt) {
-        packetPrompt.textContent = '✨ Ripped open! ✨';
+        packetPrompt.textContent = 'Ripped open!';
       }
 
       // 3. After 700ms, transition to the packet wipe cloth
@@ -2953,7 +2952,7 @@
       }
 
       if (wipePrompt) {
-        wipePrompt.textContent = 'Wipe your elbow clean!';
+        wipePrompt.textContent = 'Wipe the arm clean!';
       }
 
       if (wipeWrapper) {
@@ -3084,7 +3083,7 @@
 
       if (wipePrompt) {
         if (packetWipeSweepCount >= TOTAL_PACKET_WIPE_SWEEPS) {
-          wipePrompt.textContent = '✨ Arm clean and ready for IV! ✨';
+          wipePrompt.textContent = 'Arm clean and ready for IV!';
         } else if (remainingPasses === 1) {
           wipePrompt.textContent = 'Almost clean! Keep wiping!';
         } else {
