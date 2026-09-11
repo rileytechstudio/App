@@ -1,0 +1,1072 @@
+import SwiftUI
+
+// MARK: - Game Step Definition
+public enum IVGameStep: Int {
+    case ointment = 1
+    case bandage = 2
+    case removeBandage = 3
+    case washcloth = 4
+    case tourniquet = 5
+    case completed = 6
+}
+
+// MARK: - IV Game View (Numbing Ointment, Clear Bandage, Washcloth Wipe & Tourniquet Band)
+public struct IVGameView: View {
+    @Environment(\.presentationMode) var presentationMode
+    public var onDismiss: (() -> Void)? = nil
+    
+    // Game State
+    @State private var currentStep: IVGameStep = .ointment
+    @State private var isBandPlaced: Bool = false
+    @State private var isBandagePlaced: Bool = false
+    @State private var bandDragOffset: CGSize = .zero
+    @State private var isBandDragging: Bool = false
+    @State private var isBandOverTarget: Bool = false
+    
+    // Step 1: Numbing Ointment State
+    @State private var ointmentDragOffset: CGSize = .zero
+    @State private var isOintmentDragging: Bool = false
+    @State private var isOintmentOverElbow: Bool = false
+    @State private var isSqueezing: Bool = false
+    @State private var squeezeProgress: CGFloat = 0.0
+    @State private var squeezeTimer: Timer? = nil
+    
+    // Step 2: Clear Bandage State
+    @State private var bandageDragOffset: CGSize = .zero
+    @State private var isBandageDragging: Bool = false
+    @State private var isBandageOverElbow: Bool = false
+    
+    // Step 3: Remove Bandage State
+    @State private var isBandagePeeled: Bool = false
+    @State private var bandagePeelOffset: CGSize = .zero
+    @State private var bandagePeelRotation: Double = 0.0
+    @State private var bandagePeelOpacity: Double = 1.0
+    
+    // Step 4: Washcloth Wipe State
+    @State private var washclothDragOffset: CGSize = .zero
+    @State private var isWashclothDragging: Bool = false
+    @State private var washclothPivotAngle: Double = 0.0
+    @State private var isWashclothOverLotion: Bool = false
+    @State private var washclothCursorSide: Int = 0 // -1: left, 1: right, 0: unset
+    @State private var washclothCursorSideY: Int = 0 // -1: top, 1: bottom, 0: unset
+    @State private var washclothSweepCount: Int = 0
+    private let totalWipeSweeps: Int = 6
+    
+    @State private var showSuccessModal: Bool = false
+    @State private var isFloating: Bool = false
+    
+    public init(onDismiss: (() -> Void)? = nil) {
+        self.onDismiss = onDismiss
+    }
+    
+    public var body: some View {
+        GeometryReader { geometry in
+            let screenSize = geometry.size
+            let isLandscape = screenSize.width > screenSize.height
+            let bottomBarHeight: CGFloat = min(max(screenSize.height * 0.09, 48), 85)
+            let availableHeight = max(screenSize.height - bottomBarHeight, 100)
+            
+            // Stage sizing to preserve 1366 x 1024 aspect ratio
+            let stageAspectRatio: CGFloat = 1366.0 / 1024.0
+            let stageSize = calculateStageSize(containerWidth: screenSize.width, containerHeight: availableHeight, aspectRatio: stageAspectRatio)
+            
+            ZStack(alignment: .bottom) {
+                // Background Fill
+                Color(red: 35/255, green: 18/255, blue: 71/255)
+                    .ignoresSafeArea()
+                
+                // MARK: - Game Stage Area
+                VStack(spacing: 0) {
+                    // Top Navigation Header
+                    topGameHeader(screenSize: screenSize)
+                    
+                    // Centered Game Canvas
+                    ZStack {
+                        gameCanvas(stageSize: stageSize)
+                            .frame(width: stageSize.width, height: stageSize.height)
+                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                            .shadow(color: Color.black.opacity(0.45), radius: 24, x: 0, y: 10)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding(.bottom, 8)
+                }
+                .padding(.bottom, bottomBarHeight)
+                
+                // MARK: - Fixed Bottom 5-Tab Navigation Bar (Games Highlighted)
+                bottomBarView(availableWidth: screenSize.width, height: bottomBarHeight)
+                
+                // MARK: - Success Modal Celebration Overlay
+                if showSuccessModal {
+                    successOverlayView
+                        .transition(.opacity.combined(with: .scale(scale: 0.92)))
+                }
+            }
+        }
+        .onAppear {
+            withAnimation(.easeInOut(duration: 1.4).repeatForever(autoreverses: true)) {
+                isFloating = true
+            }
+        }
+    }
+    
+    // MARK: - Top Navigation Header
+    @ViewBuilder
+    private func topGameHeader(screenSize: CGSize) -> some View {
+        HStack {
+            Button(action: {
+                HapticManager.shared.lightTap()
+                if let onDismiss = onDismiss {
+                    onDismiss()
+                } else {
+                    presentationMode.wrappedValue.dismiss()
+                }
+            }) {
+                HStack(spacing: 6) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 16, weight: .bold))
+                    Text("Home")
+                        .font(.system(size: 15, weight: .bold))
+                }
+                .foregroundColor(.white)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .background(Color.white.opacity(0.18))
+                .clipShape(Capsule())
+            }
+            
+            Spacer()
+            
+            // Educational Activity Title Badge
+            HStack(spacing: 6) {
+                Image(systemName: headerBadgeIcon)
+                    .foregroundColor(Color.yellow)
+                Text(headerBadgeTitle)
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundColor(.white)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(Color.white.opacity(0.18))
+            .clipShape(Capsule())
+            
+            Spacer()
+            
+            // Reset Button
+            Button(action: {
+                resetGame()
+            }) {
+                Image(systemName: "arrow.counterclockwise")
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundColor(.white)
+                    .padding(9)
+                    .background(Color.white.opacity(0.18))
+                    .clipShape(Circle())
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 12)
+        .padding(.bottom, 6)
+    }
+    
+    private var headerBadgeIcon: String {
+        switch currentStep {
+        case .ointment: return "cross.case.fill"
+        case .bandage: return "bandage.fill"
+        case .removeBandage: return "hand.tap.fill"
+        case .washcloth: return "sparkles"
+        case .tourniquet: return "hand.draw.fill"
+        case .completed: return "checkmark.circle.fill"
+        }
+    }
+    
+    private var headerBadgeTitle: String {
+        switch currentStep {
+        case .ointment: return "Step 1: Apply Numbing Ointment"
+        case .bandage: return "Step 2: Place Clear Bandage"
+        case .removeBandage: return "Step 3: Tap Bandage to Remove"
+        case .washcloth: return "Step 4: Wipe Away Lotion"
+        case .tourniquet: return "Step 5: Place Tourniquet Band"
+        case .completed: return "Arm Prepared!"
+        }
+    }
+    
+    // MARK: - Interactive Game Canvas (1366x1024 native layers)
+    @ViewBuilder
+    private func gameCanvas(stageSize: CGSize) -> some View {
+        ZStack {
+            // Layer 1: Background (Window, Wall, Counter)
+            Image("GameBackground")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: stageSize.width, height: stageSize.height)
+                .allowsHitTesting(false)
+            
+            // Layer 2: Table
+            Image("GameTable")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: stageSize.width, height: stageSize.height)
+                .allowsHitTesting(false)
+            
+            // Layer 3: Medical Supply Kit Bag
+            Image("GameBag")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: stageSize.width, height: stageSize.height)
+                .allowsHitTesting(false)
+            
+            // Layer 4 & 5: Arm Layers (Bare vs Arm With Band)
+            Image("GameArm")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: stageSize.width, height: stageSize.height)
+                .opacity(isBandPlaced ? 0 : 1)
+                .animation(.easeInOut(duration: 0.35), value: isBandPlaced)
+                .allowsHitTesting(false)
+            
+            Image("GameArmWithBand")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: stageSize.width, height: stageSize.height)
+                .opacity(isBandPlaced ? 1 : 0)
+                .animation(.easeInOut(duration: 0.35), value: isBandPlaced)
+                .allowsHitTesting(false)
+            
+            // Layer 6: Numbing Lotion on Elbow (dispensed during Step 1, centered under Clear Bandage)
+            let lotionCenter = CGPoint(x: stageSize.width * 0.742, y: stageSize.height * 0.551)
+            let lotionWidth = stageSize.width * 0.145
+            let lotionHeight = stageSize.height * 0.181
+            
+            let wipeFactor = max(0.0, 1.0 - Double(washclothSweepCount) / Double(totalWipeSweeps))
+            let lotionOpacity: Double = {
+                switch currentStep {
+                case .ointment:
+                    return squeezeProgress > 0 ? min(1.0, Double(0.25 + squeezeProgress * 0.75)) : 0.0
+                case .bandage, .removeBandage:
+                    return 1.0
+                case .washcloth:
+                    return wipeFactor * 0.95
+                case .tourniquet, .completed:
+                    return 0.0
+                }
+            }()
+            let lotionScale: CGFloat = {
+                switch currentStep {
+                case .ointment:
+                    return squeezeProgress
+                case .bandage, .removeBandage:
+                    return 1.0
+                case .washcloth:
+                    return 0.35 + CGFloat(wipeFactor) * 0.65
+                case .tourniquet, .completed:
+                    return 0.0
+                }
+            }()
+            
+            Image("GameLotionItem")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: lotionWidth, height: lotionHeight)
+                .scaleEffect(lotionScale)
+                .opacity(lotionOpacity)
+                .position(lotionCenter)
+                .shadow(color: Color.black.opacity(0.18), radius: 6, x: 0, y: 3)
+                .animation(.easeInOut(duration: 0.22), value: washclothSweepCount)
+                .allowsHitTesting(false)
+            
+            // Layer 7: Clear Bandage Wrapped on Arm (placed during Step 2, tapped to peel off in Step 3)
+            if isBandagePlaced && !isBandagePeeled {
+                Image("GameBandageWrapped")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: stageSize.width, height: stageSize.height)
+                    .offset(bandagePeelOffset)
+                    .rotationEffect(.degrees(bandagePeelRotation))
+                    .opacity(bandagePeelOpacity)
+                    .animation(.easeInOut(duration: 0.35), value: isBandagePlaced)
+                    .allowsHitTesting(currentStep == .removeBandage)
+                    .onTapGesture {
+                        removeBandageAction()
+                    }
+                
+                if currentStep == .removeBandage {
+                    Button(action: {
+                        removeBandageAction()
+                    }) {
+                        HStack(spacing: 6) {
+                            Text("👆")
+                            Text("Tap to peel off!")
+                                .font(.system(size: 12, weight: .heavy))
+                                .foregroundColor(.white)
+                        }
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 7)
+                        .background(Color.black.opacity(0.82))
+                        .overlay(
+                            Capsule().stroke(Color(red: 0/255, green: 229/255, blue: 255/255), lineWidth: 2)
+                        )
+                        .clipShape(Capsule())
+                        .shadow(color: Color(red: 0/255, green: 229/255, blue: 255/255).opacity(0.7), radius: 10, x: 0, y: 3)
+                    }
+                    .position(lotionCenter)
+                    .transition(.opacity.combined(with: .scale))
+                }
+            }
+            
+            // Target Drop Zone Highlight on Elbow for Ointment (Step 1) and Bandage (Step 2)
+            let elbowDropZoneRect = CGRect(
+                x: stageSize.width * 0.652,
+                y: stageSize.height * 0.451,
+                width: stageSize.width * 0.18,
+                height: stageSize.height * 0.20
+            )
+            
+            if currentStep == .ointment || currentStep == .bandage {
+                let isHighlighted = currentStep == .ointment ? isOintmentOverElbow : isBandageOverElbow
+                Circle()
+                    .strokeBorder(
+                        isHighlighted ? Color(red: 0/255, green: 215/255, blue: 255/255) : Color.clear,
+                        style: StrokeStyle(lineWidth: 3, dash: [8, 4])
+                    )
+                    .background(
+                        Circle()
+                            .fill(isHighlighted ? Color(red: 0/255, green: 215/255, blue: 255/255).opacity(0.22) : Color.clear)
+                    )
+                    .frame(width: elbowDropZoneRect.width, height: elbowDropZoneRect.height)
+                    .position(x: elbowDropZoneRect.midX, y: elbowDropZoneRect.midY)
+                    .animation(.easeInOut(duration: 0.2), value: isHighlighted)
+                    .allowsHitTesting(false)
+            }
+            
+            // Target Drop Zone Highlight on Arm for Tourniquet (Step 5)
+            let bandDropZoneRect = CGRect(
+                x: stageSize.width * 0.70,
+                y: stageSize.height * 0.26,
+                width: stageSize.width * 0.27,
+                height: stageSize.height * 0.35
+            )
+            
+            if currentStep == .tourniquet {
+                RoundedRectangle(cornerRadius: 24)
+                    .strokeBorder(
+                        isBandOverTarget ? Color.yellow : Color.clear,
+                        style: StrokeStyle(lineWidth: 3, dash: [8, 4])
+                    )
+                    .background(
+                        RoundedRectangle(cornerRadius: 24)
+                            .fill(isBandOverTarget ? Color.yellow.opacity(0.2) : Color.clear)
+                    )
+                    .frame(width: bandDropZoneRect.width, height: bandDropZoneRect.height)
+                    .position(x: bandDropZoneRect.midX, y: bandDropZoneRect.midY)
+                    .animation(.easeInOut(duration: 0.2), value: isBandOverTarget)
+                    .allowsHitTesting(false)
+            }
+            
+            // Layer 8: Floating Interactive Numbing Ointment Tube (Step 1)
+            if currentStep == .ointment {
+                floatingOintmentItem(stageSize: stageSize, elbowZoneRect: elbowDropZoneRect)
+            }
+            
+            // Layer 9: Floating Interactive Clear Bandage (Step 2)
+            if currentStep == .bandage {
+                floatingBandageItem(stageSize: stageSize, elbowZoneRect: elbowDropZoneRect)
+            }
+            
+            // Layer 10: Floating Interactive Washcloth (Step 4)
+            if currentStep == .washcloth {
+                floatingWashclothItem(stageSize: stageSize, lotionCenter: lotionCenter, lotionSize: CGSize(width: lotionWidth, height: lotionHeight))
+            }
+            
+            // Layer 11: Floating Interactive Elastic Tourniquet Band (Step 5)
+            if currentStep == .tourniquet {
+                floatingBandItem(stageSize: stageSize, dropZoneRect: bandDropZoneRect)
+            }
+        }
+    }
+    
+    // MARK: - Floating Tourniquet Band Component (Step 3)
+    @ViewBuilder
+    private func floatingBandItem(stageSize: CGSize, dropZoneRect: CGRect) -> some View {
+        let bandWidth = stageSize.width * 0.143
+        let bandHeight = stageSize.height * 0.325
+        let initialX = stageSize.width * 0.254
+        let initialY = stageSize.height * 0.188
+        
+        let floatOffset: CGFloat = (isFloating && !isBandDragging) ? -10 : 0
+        
+        VStack(spacing: 6) {
+            Image("GameBandItem")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: bandWidth, height: bandHeight)
+                .shadow(
+                    color: Color.yellow.opacity(isBandDragging ? 1.0 : 0.85),
+                    radius: isBandDragging ? 26 : 14
+                )
+                .shadow(
+                    color: Color(red: 1.0, green: 0.9, blue: 0.3).opacity(isBandDragging ? 0.8 : 0.6),
+                    radius: isBandDragging ? 40 : 26
+                )
+                .scaleEffect(isBandDragging ? 1.10 : 1.0)
+            
+            if !isBandDragging {
+                Text("Drag band to arm!")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundColor(Color.yellow)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 3)
+                    .background(Color.black.opacity(0.72))
+                    .clipShape(Capsule())
+                    .transition(.opacity)
+            }
+        }
+        .position(x: initialX, y: initialY)
+        .offset(x: bandDragOffset.width, y: bandDragOffset.height + floatOffset)
+        .gesture(
+            DragGesture(coordinateSpace: .local)
+                .onChanged { value in
+                    isBandDragging = true
+                    bandDragOffset = value.translation
+                    
+                    let currentX = initialX + bandDragOffset.width
+                    let currentY = initialY + bandDragOffset.height
+                    
+                    let buffer: CGFloat = 40
+                    let isInside = (
+                        currentX >= dropZoneRect.minX - buffer &&
+                        currentX <= dropZoneRect.maxX + buffer &&
+                        currentY >= dropZoneRect.minY - buffer &&
+                        currentY <= dropZoneRect.maxY + buffer
+                    )
+                    
+                    if isInside != isBandOverTarget {
+                        isBandOverTarget = isInside
+                        if isInside {
+                            HapticManager.shared.lightTap()
+                        }
+                    }
+                }
+                .onEnded { _ in
+                    if isBandOverTarget {
+                        HapticManager.shared.successNotification()
+                        withAnimation(.easeOut(duration: 0.25)) {
+                            isBandPlaced = true
+                            isBandDragging = false
+                            isBandOverTarget = false
+                        }
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                            withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
+                                currentStep = .completed
+                            }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                                if currentStep == .completed {
+                                    withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
+                                        showSuccessModal = true
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        withAnimation(.spring(response: 0.42, dampingFraction: 0.72)) {
+                            bandDragOffset = .zero
+                            isBandDragging = false
+                            isBandOverTarget = false
+                        }
+                    }
+                }
+        )
+    }
+    
+    // MARK: - Floating Clear Bandage Component (Step 2)
+    @ViewBuilder
+    private func floatingBandageItem(stageSize: CGSize, elbowZoneRect: CGRect) -> some View {
+        let bandageWidth = stageSize.width * 0.221
+        let bandageHeight = stageSize.height * 0.200
+        let initialX = stageSize.width * 0.254
+        let initialY = stageSize.height * 0.145
+        
+        let floatOffset: CGFloat = (isFloating && !isBandageDragging) ? -10 : 0
+        
+        VStack(spacing: 6) {
+            Image("GameBandageItem")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: bandageWidth, height: bandageHeight)
+                .shadow(
+                    color: Color(red: 0/255, green: 229/255, blue: 255/255).opacity(isBandageDragging ? 1.0 : 0.85),
+                    radius: isBandageDragging ? 26 : 14
+                )
+                .shadow(
+                    color: Color(red: 0/255, green: 168/255, blue: 255/255).opacity(isBandageDragging ? 0.8 : 0.6),
+                    radius: isBandageDragging ? 40 : 26
+                )
+                .scaleEffect(isBandageDragging ? 1.10 : 1.0)
+            
+            if !isBandageDragging {
+                Text("Drag bandage to elbow!")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundColor(Color(red: 0/255, green: 229/255, blue: 255/255))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 3)
+                    .background(Color.black.opacity(0.72))
+                    .clipShape(Capsule())
+                    .transition(.opacity)
+            }
+        }
+        .position(x: initialX, y: initialY)
+        .offset(x: bandageDragOffset.width, y: bandageDragOffset.height + floatOffset)
+        .gesture(
+            DragGesture(coordinateSpace: .local)
+                .onChanged { value in
+                    isBandageDragging = true
+                    bandageDragOffset = value.translation
+                    
+                    let currentX = initialX + bandageDragOffset.width
+                    let currentY = initialY + bandageDragOffset.height
+                    
+                    let buffer: CGFloat = 45
+                    let isInside = (
+                        currentX >= elbowZoneRect.minX - buffer &&
+                        currentX <= elbowZoneRect.maxX + buffer &&
+                        currentY >= elbowZoneRect.minY - buffer &&
+                        currentY <= elbowZoneRect.maxY + buffer
+                    )
+                    
+                    if isInside != isBandageOverElbow {
+                        isBandageOverElbow = isInside
+                        if isInside {
+                            HapticManager.shared.lightTap()
+                        }
+                    }
+                }
+                .onEnded { _ in
+                    if isBandageOverElbow {
+                        HapticManager.shared.successNotification()
+                        withAnimation(.easeOut(duration: 0.25)) {
+                            isBandagePlaced = true
+                            isBandageDragging = false
+                            isBandageOverElbow = false
+                        }
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                            withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
+                                currentStep = .removeBandage
+                            }
+                        }
+                    } else {
+                        withAnimation(.spring(response: 0.42, dampingFraction: 0.72)) {
+                            bandageDragOffset = .zero
+                            isBandageDragging = false
+                            isBandageOverElbow = false
+                        }
+                    }
+                }
+        )
+    }
+    
+    // MARK: - Remove Bandage Action (Step 3)
+    private func removeBandageAction() {
+        guard currentStep == .removeBandage else { return }
+        HapticManager.shared.lightTap()
+        withAnimation(.easeInOut(duration: 0.55)) {
+            bandagePeelOffset = CGSize(width: -85, height: -110)
+            bandagePeelRotation = -24
+            bandagePeelOpacity = 0.0
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.58) {
+            isBandagePeeled = true
+            isBandagePlaced = false
+            withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
+                currentStep = .washcloth
+                washclothDragOffset = .zero
+                washclothSweepCount = 0
+                washclothCursorSide = 0
+                washclothCursorSideY = 0
+            }
+        }
+    }
+
+    // MARK: - Floating Washcloth Component (Step 4)
+    @ViewBuilder
+    private func floatingWashclothItem(stageSize: CGSize, lotionCenter: CGPoint, lotionSize: CGSize) -> some View {
+        let washclothWidth = stageSize.width * 0.175
+        let washclothHeight = stageSize.height * 0.255
+        let initialX = stageSize.width * 0.254
+        let initialY = stageSize.height * 0.165
+        
+        let floatOffset: CGFloat = (isFloating && !isWashclothDragging) ? -10 : 0
+        
+        VStack(spacing: 6) {
+            Image("GameWashclothItem")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: washclothWidth, height: washclothHeight)
+                .rotationEffect(.degrees(washclothPivotAngle))
+                .shadow(
+                    color: Color(red: 0/255, green: 229/255, blue: 255/255).opacity(isWashclothDragging ? 1.0 : 0.85),
+                    radius: isWashclothDragging ? 26 : 14
+                )
+                .shadow(
+                    color: Color(red: 0/255, green: 168/255, blue: 255/255).opacity(isWashclothDragging ? 0.8 : 0.6),
+                    radius: isWashclothDragging ? 40 : 26
+                )
+                .scaleEffect(isWashclothDragging ? 1.08 : 1.0)
+            
+            Text(washclothPromptText)
+                .font(.system(size: 11, weight: .bold))
+                .foregroundColor(isWashclothDragging ? .white : Color(red: 0/255, green: 229/255, blue: 255/255))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 3)
+                .background(isWashclothDragging ? Color(red: 0/255, green: 114/255, blue: 255/255).opacity(0.9) : Color.black.opacity(0.72))
+                .clipShape(Capsule())
+                .transition(.opacity)
+        }
+        .position(x: initialX, y: initialY)
+        .offset(x: washclothDragOffset.width, y: washclothDragOffset.height + floatOffset)
+        .gesture(
+            DragGesture(coordinateSpace: .local)
+                .onChanged { value in
+                    isWashclothDragging = true
+                    let prevX = washclothDragOffset.width
+                    washclothDragOffset = value.translation
+                    
+                    let moveDx = value.translation.width - prevX
+                    let targetPivot = max(-18.0, min(18.0, Double(moveDx * 2.2)))
+                    withAnimation(.interactiveSpring(response: 0.12, dampingFraction: 0.65)) {
+                        washclothPivotAngle = targetPivot
+                    }
+                    
+                    let cursorX = (initialX - washclothWidth / 2) + value.startLocation.x + value.translation.width
+                    let cursorY = (initialY - washclothHeight / 2) + value.startLocation.y + value.translation.height
+                    
+                    checkCursorWipeSwiftUI(
+                        cursor: CGPoint(x: cursorX, y: cursorY),
+                        lotionCenter: lotionCenter,
+                        lotionSize: lotionSize
+                    )
+                }
+                .onEnded { _ in
+                    isWashclothDragging = false
+                    washclothCursorSide = 0
+                    washclothCursorSideY = 0
+                    withAnimation(.easeOut(duration: 0.2)) {
+                        washclothPivotAngle = 0
+                    }
+                    if washclothSweepCount < totalWipeSweeps {
+                        withAnimation(.spring(response: 0.42, dampingFraction: 0.72)) {
+                            washclothDragOffset = .zero
+                        }
+                    }
+                }
+        )
+    }
+
+    private var washclothPromptText: String {
+        if washclothSweepCount >= totalWipeSweeps {
+            return "✨ Arm clean and ready! ✨"
+        }
+        let completedPasses = washclothSweepCount / 2
+        let remainingPasses = 3 - completedPasses
+        if remainingPasses == 2 {
+            return "Wipe 2 more times!"
+        } else if remainingPasses == 1 {
+            return "Almost clean! 1 more time!"
+        } else if isWashclothDragging {
+            return "Wipe back and forth over lotion!"
+        } else {
+            return "Wipe away the lotion!"
+        }
+    }
+
+    private func checkCursorWipeSwiftUI(cursor: CGPoint, lotionCenter: CGPoint, lotionSize: CGSize) {
+        let deadbandX: CGFloat = max(24, lotionSize.width * 0.18)
+        let deadbandY: CGFloat = max(24, lotionSize.height * 0.18)
+        let maxHoriz: CGFloat = max(lotionSize.width * 0.95, 80)
+        let maxVert: CGFloat = max(lotionSize.height * 0.95, 70)
+        
+        let distX = abs(cursor.x - lotionCenter.x)
+        let distY = abs(cursor.y - lotionCenter.y)
+        let isOver = distX <= maxHoriz && distY <= maxVert
+        isWashclothOverLotion = isOver
+        
+        guard isOver else {
+            washclothCursorSide = 0
+            washclothCursorSideY = 0
+            return
+        }
+        
+        // 1. Horizontal crossing across lotion center
+        if washclothCursorSide == 0 {
+            if cursor.x < lotionCenter.x - deadbandX {
+                washclothCursorSide = -1 // left
+            } else if cursor.x > lotionCenter.x + deadbandX {
+                washclothCursorSide = 1 // right
+            }
+        } else if washclothCursorSide == -1 && cursor.x > lotionCenter.x + deadbandX {
+            washclothCursorSide = 1
+            registerSweepSwiftUI()
+        } else if washclothCursorSide == 1 && cursor.x < lotionCenter.x - deadbandX {
+            washclothCursorSide = -1
+            registerSweepSwiftUI()
+        }
+        
+        // 2. Vertical crossing across lotion center (along arm axis)
+        if washclothCursorSideY == 0 {
+            if cursor.y < lotionCenter.y - deadbandY {
+                washclothCursorSideY = -1 // top
+            } else if cursor.y > lotionCenter.y + deadbandY {
+                washclothCursorSideY = 1 // bottom
+            }
+        } else if washclothCursorSideY == -1 && cursor.y > lotionCenter.y + deadbandY {
+            washclothCursorSideY = 1
+            registerSweepSwiftUI()
+        } else if washclothCursorSideY == 1 && cursor.y < lotionCenter.y - deadbandY {
+            washclothCursorSideY = -1
+            registerSweepSwiftUI()
+        }
+    }
+
+    private func registerSweepSwiftUI() {
+        guard washclothSweepCount < totalWipeSweeps else { return }
+        washclothSweepCount += 1
+        HapticManager.shared.lightTap()
+        
+        if washclothSweepCount >= totalWipeSweeps {
+            HapticManager.shared.successNotification()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
+                    currentStep = .tourniquet
+                    isWashclothDragging = false
+                    washclothDragOffset = .zero
+                    washclothCursorSide = 0
+                    washclothCursorSideY = 0
+                }
+            }
+        }
+    }
+    
+    // MARK: - Floating Ointment Component (Step 1)
+    @ViewBuilder
+    private func floatingOintmentItem(stageSize: CGSize, elbowZoneRect: CGRect) -> some View {
+        let tubeWidth = stageSize.width * 0.143
+        let tubeHeight = stageSize.height * 0.325
+        let initialX = stageSize.width * 0.254
+        let initialY = stageSize.height * 0.188
+        
+        let floatOffset: CGFloat = (isFloating && !isOintmentDragging) ? -10 : 0
+        
+        VStack(spacing: 6) {
+            ZStack {
+                Image("GameOintmentItem")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: tubeWidth, height: tubeHeight)
+                    .shadow(
+                        color: Color(red: 0/255, green: 215/255, blue: 255/255).opacity(isOintmentDragging ? 1.0 : 0.85),
+                        radius: isOintmentDragging ? 26 : 14
+                    )
+                    .shadow(
+                        color: Color(red: 0/255, green: 168/255, blue: 255/255).opacity(isOintmentDragging ? 0.8 : 0.6),
+                        radius: isOintmentDragging ? 40 : 26
+                    )
+                    .scaleEffect(isSqueezing ? 0.94 : (isOintmentDragging ? 1.10 : 1.0))
+                    .rotationEffect(.degrees(isSqueezing ? -3 : 0))
+                
+                // Circular Squeeze Progress Gauge
+                if isSqueezing || squeezeProgress > 0 {
+                    ZStack {
+                        Circle()
+                            .stroke(Color.black.opacity(0.55), lineWidth: 4.5)
+                        Circle()
+                            .trim(from: 0, to: squeezeProgress)
+                            .stroke(Color(red: 0/255, green: 229/255, blue: 255/255), style: StrokeStyle(lineWidth: 4.5, lineCap: .round))
+                            .rotationEffect(.degrees(-90))
+                        Text("\(Int(squeezeProgress * 100))%")
+                            .font(.system(size: 11, weight: .heavy))
+                            .foregroundColor(.white)
+                    }
+                    .frame(width: 48, height: 48)
+                    .transition(.opacity)
+                }
+            }
+            
+            if !isOintmentDragging && !isSqueezing {
+                Text("Drag ointment to elbow!")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundColor(Color(red: 0/255, green: 229/255, blue: 255/255))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 3)
+                    .background(Color.black.opacity(0.72))
+                    .clipShape(Capsule())
+                    .transition(.opacity)
+            } else if isSqueezing {
+                Text("Hold to squeeze!")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 3)
+                    .background(Color(red: 0/255, green: 114/255, blue: 255/255).opacity(0.92))
+                    .clipShape(Capsule())
+                    .transition(.opacity)
+            }
+        }
+        .position(x: initialX, y: initialY)
+        .offset(x: ointmentDragOffset.width, y: ointmentDragOffset.height + floatOffset)
+        .gesture(
+            DragGesture(coordinateSpace: .local)
+                .onChanged { value in
+                    isOintmentDragging = true
+                    ointmentDragOffset = value.translation
+                    
+                    let currentNozzleX = initialX + ointmentDragOffset.width
+                    let currentNozzleY = initialY + ointmentDragOffset.height + tubeHeight * 0.35
+                    
+                    let buffer: CGFloat = 45
+                    let isInside = (
+                        currentNozzleX >= elbowZoneRect.minX - buffer &&
+                        currentNozzleX <= elbowZoneRect.maxX + buffer &&
+                        currentNozzleY >= elbowZoneRect.minY - buffer &&
+                        currentNozzleY <= elbowZoneRect.maxY + buffer
+                    )
+                    
+                    if isInside {
+                        if !isOintmentOverElbow {
+                            isOintmentOverElbow = true
+                            HapticManager.shared.lightTap()
+                        }
+                        startSwiftUISqueeze()
+                    } else {
+                        if isOintmentOverElbow {
+                            isOintmentOverElbow = false
+                        }
+                        stopSwiftUISqueeze()
+                    }
+                }
+                .onEnded { _ in
+                    isOintmentDragging = false
+                    stopSwiftUISqueeze()
+                    
+                    if squeezeProgress >= 1.0 {
+                        completeOintmentStep()
+                    } else if isOintmentOverElbow {
+                        // User can press again to continue squeezing
+                    } else {
+                        withAnimation(.spring(response: 0.42, dampingFraction: 0.72)) {
+                            ointmentDragOffset = .zero
+                            isOintmentOverElbow = false
+                        }
+                    }
+                }
+        )
+    }
+    
+    private func startSwiftUISqueeze() {
+        guard squeezeTimer == nil, squeezeProgress < 1.0 else { return }
+        isSqueezing = true
+        squeezeTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { timer in
+            squeezeProgress = min(1.0, squeezeProgress + 0.05 / 1.2)
+            if squeezeProgress >= 1.0 {
+                timer.invalidate()
+                squeezeTimer = nil
+                completeOintmentStep()
+            }
+        }
+    }
+    
+    private func stopSwiftUISqueeze() {
+        isSqueezing = false
+        squeezeTimer?.invalidate()
+        squeezeTimer = nil
+    }
+    
+    private func completeOintmentStep() {
+        stopSwiftUISqueeze()
+        HapticManager.shared.successNotification()
+        withAnimation(.easeOut(duration: 0.35)) {
+            currentStep = .bandage
+            isOintmentDragging = false
+            isOintmentOverElbow = false
+        }
+    }
+    
+    // MARK: - Success Celebration Modal
+    @ViewBuilder
+    private var successOverlayView: some View {
+        ZStack {
+            Color.black.opacity(0.45)
+                .ignoresSafeArea()
+            
+            VStack(spacing: 12) {
+                Text("✨ 🩺 🩹 🧴 ✨")
+                    .font(.system(size: 44))
+                
+                Text("Great Job!")
+                    .font(.system(size: 26, weight: .heavy))
+                    .foregroundColor(AppTheme.primaryPurple)
+                
+                Text("You applied soothing numbing ointment, wrapped the clear bandage, wiped the arm clean with the washcloth, and placed the tourniquet band gently around the arm!")
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundColor(Color(red: 71/255, green: 85/255, blue: 105/255))
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(3)
+                    .padding(.horizontal, 10)
+                
+                Button(action: {
+                    HapticManager.shared.buttonTap()
+                    resetGame()
+                }) {
+                    Text("Play Again")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 32)
+                        .padding(.vertical, 12)
+                        .background(
+                            LinearGradient(
+                                colors: [Color(red: 0/255, green: 198/255, blue: 255/255), Color(red: 0/255, green: 114/255, blue: 255/255)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .clipShape(Capsule())
+                        .shadow(color: Color(red: 0, green: 114/255, blue: 255/255).opacity(0.4), radius: 10, x: 0, y: 5)
+                }
+                .padding(.top, 8)
+            }
+            .padding(28)
+            .frame(maxWidth: 380)
+            .background(Color.white)
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .shadow(color: Color.black.opacity(0.3), radius: 25, x: 0, y: 12)
+            .padding(.horizontal, 30)
+        }
+    }
+    
+    // MARK: - Bottom Navigation Bar (5 Tabs)
+    @ViewBuilder
+    private func bottomBarView(availableWidth: CGFloat, height: CGFloat) -> some View {
+        ZStack {
+            Image("BottomBarGames")
+                .resizable()
+                .aspectRatio(AppTheme.bottomBarAspectRatio, contentMode: .fit)
+                .frame(width: availableWidth)
+            
+            // Tap zones for bottom bar tabs
+            HStack(spacing: 0) {
+                // Preparations Tab
+                Button(action: {
+                    HapticManager.shared.buttonTap()
+                    if let onDismiss = onDismiss {
+                        onDismiss()
+                    } else {
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                }) {
+                    Color.clear
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .accessibilityLabel("Preparations tab")
+                
+                // Glossary Tab
+                Button(action: {
+                    HapticManager.shared.buttonTap()
+                }) {
+                    Color.clear
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .accessibilityLabel("Glossary tab")
+                
+                // Anatomy Explorer Tab
+                Button(action: {
+                    HapticManager.shared.buttonTap()
+                }) {
+                    Color.clear
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .accessibilityLabel("Anatomy Explorer tab")
+                
+                // Gallery Tab
+                Button(action: {
+                    HapticManager.shared.buttonTap()
+                }) {
+                    Color.clear
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .accessibilityLabel("Gallery tab")
+                
+                // Games Tab (Current Active)
+                Button(action: {
+                    HapticManager.shared.buttonTap()
+                    resetGame()
+                }) {
+                    Color.clear
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .accessibilityLabel("Games tab, currently active. Tap to reset game.")
+            }
+        }
+        .frame(height: height)
+    }
+    
+    // MARK: - Helper Methods
+    private func resetGame() {
+        stopSwiftUISqueeze()
+        withAnimation(.spring()) {
+            currentStep = .ointment
+            isBandPlaced = false
+            bandDragOffset = .zero
+            isBandDragging = false
+            isBandOverTarget = false
+            
+            isBandagePlaced = false
+            isBandagePeeled = false
+            bandageDragOffset = .zero
+            bandagePeelOffset = .zero
+            bandagePeelRotation = 0.0
+            bandagePeelOpacity = 1.0
+            isBandageDragging = false
+            isBandageOverElbow = false
+            
+            washclothDragOffset = .zero
+            isWashclothDragging = false
+            washclothPivotAngle = 0.0
+            isWashclothOverLotion = false
+            washclothCursorSide = 0
+            washclothCursorSideY = 0
+            washclothSweepCount = 0
+            
+            ointmentDragOffset = .zero
+            isOintmentDragging = false
+            isOintmentOverElbow = false
+            isSqueezing = false
+            squeezeProgress = 0.0
+            showSuccessModal = false
+        }
+    }
+    
+    private func calculateStageSize(containerWidth: CGFloat, containerHeight: CGFloat, aspectRatio: CGFloat) -> CGSize {
+        let widthBasedHeight = containerWidth / aspectRatio
+        if widthBasedHeight <= containerHeight {
+            return CGSize(width: containerWidth, height: widthBasedHeight)
+        } else {
+            return CGSize(width: containerHeight * aspectRatio, height: containerHeight)
+        }
+    }
+}
+
+#if DEBUG
+struct IVGameView_Previews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            IVGameView()
+                .previewDevice("iPad Pro (12.9-inch) (6th generation)")
+                .previewDisplayName("iPad Pro Landscape")
+                .previewInterfaceOrientation(.landscapeLeft)
+            
+            IVGameView()
+                .previewDevice("iPhone 16 Pro")
+                .previewDisplayName("iPhone 16 Pro")
+        }
+    }
+}
+#endif
