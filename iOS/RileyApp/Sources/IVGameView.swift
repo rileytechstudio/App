@@ -518,7 +518,7 @@ public struct IVGameView: View {
         
         let floatOffset: CGFloat = (isFloating && !isPacketRipped) ? -10 : 0
         
-        VStack(spacing: 16) {
+        VStack(spacing: 6) {
             ZStack(alignment: .topTrailing) {
                 // Packet Image (Swaps to Ripped on gesture)
                 Image(isPacketRipped ? "GamePacketRippedItem" : "GamePacketItem")
@@ -551,7 +551,7 @@ public struct IVGameView: View {
                     
                     Path { path in
                         path.move(to: CGPoint(x: ripLineX, y: -packetHeight * 0.44))
-                        path.addLine(to: CGPoint(x: ripLineX, y: packetHeight * 0.40))
+                        path.addLine(to: CGPoint(x: ripLineX, y: packetHeight * 0.32))
                     }
                     .stroke(
                         Color(red: 1.0, green: 0.9, blue: 0.0),
