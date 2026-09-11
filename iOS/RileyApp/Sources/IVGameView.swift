@@ -9,10 +9,11 @@ public enum IVGameStep: Int {
     case tourniquet = 5
     case cleanWipePacket = 6
     case cleanWipeArm = 7
-    case completed = 8
+    case insertIV = 8
+    case completed = 9
 }
 
-// MARK: - IV Game View (Numbing Ointment, Clear Bandage, Washcloth Wipe, Tourniquet Band & Clean Wipe)
+// MARK: - IV Game View (Numbing Ointment, Clear Bandage, Washcloth Wipe, Tourniquet Band, Clean Wipe & IV Placement)
 public struct IVGameView: View {
     @Environment(\.presentationMode) var presentationMode
     public var onDismiss: (() -> Void)? = nil
@@ -57,6 +58,21 @@ public struct IVGameView: View {
     // Step 6: Clean Wipe Packet State
     @State private var isPacketRipped: Bool = false
     @State private var showRipEffect: Bool = false
+    
+    // Step 8: IV Needle & Catheter State
+    @State private var ivDragOffset: CGSize = .zero
+    @State private var isIVDragging: Bool = false
+    @State private var isIVLockedToVein: Bool = false
+    @State private var isIVOverVein: Bool = false
+    @State private var ivCountdownValue: Int = 3
+    @State private var isCountingDown: Bool = false
+    @State private var canPokeIV: Bool = false
+    @State private var isIVInserted: Bool = false
+    @State private var canPullOutNeedle: Bool = false
+    @State private var isNeedlePulledOut: Bool = false
+    @State private var needleRetractOffset: CGSize = .zero
+    @State private var needleRetractOpacity: Double = 1.0
+    @State private var catheterOpacity: Double = 0.0
     
     // Step 7: Clean Wipe Arm State
     @State private var packetWipeDragOffset: CGSize = .zero
@@ -193,6 +209,7 @@ public struct IVGameView: View {
         case .tourniquet: return "hand.draw.fill"
         case .cleanWipePacket: return "scissors"
         case .cleanWipeArm: return "sparkles"
+        case .insertIV: return "cross.vial.fill"
         case .completed: return "checkmark.circle.fill"
         }
     }
@@ -206,7 +223,8 @@ public struct IVGameView: View {
         case .tourniquet: return "Step 5: Place Tourniquet Band"
         case .cleanWipePacket: return "Step 6: Rip Open Clean Wipe"
         case .cleanWipeArm: return "Step 7: Wipe Arm Clean"
-        case .completed: return "Arm Prepared!"
+        case .insertIV: return "Step 8: Place the IV"
+        case .completed: return "Arm Prepared & IV Placed!"
         }
     }
     
@@ -266,7 +284,7 @@ public struct IVGameView: View {
                     return 1.0
                 case .washcloth:
                     return wipeFactor * 0.95
-                case .tourniquet, .cleanWipePacket, .cleanWipeArm, .completed:
+                case .tourniquet, .cleanWipePacket, .cleanWipeArm, .insertIV, .completed:
                     return 0.0
                 }
             }()
@@ -278,7 +296,7 @@ public struct IVGameView: View {
                     return 1.0
                 case .washcloth:
                     return 0.35 + CGFloat(wipeFactor) * 0.65
-                case .tourniquet, .cleanWipePacket, .cleanWipeArm, .completed:
+                case .tourniquet, .cleanWipePacket, .cleanWipeArm, .insertIV, .completed:
                     return 0.0
                 }
             }()
@@ -414,6 +432,13 @@ public struct IVGameView: View {
             // Layer 13: Floating Interactive Clean Wipe Cloth (Step 7)
             if currentStep == .cleanWipeArm {
                 floatingPacketWipeItem(stageSize: stageSize, elbowCenter: CGPoint(x: elbowDropZoneRect.midX, y: elbowDropZoneRect.midY), elbowSize: elbowDropZoneRect.size)
+            }
+            
+            // Layer 14: Floating Interactive IV Needle & Catheter (Step 8)
+            if currentStep == .insertIV {
+                veinDropZoneView(stageSize: stageSize)
+                ivExtensionTubeView(stageSize: stageSize)
+                floatingIVItem(stageSize: stageSize)
             }
         }
     }
@@ -758,19 +783,251 @@ public struct IVGameView: View {
             HapticManager.shared.successNotification()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                 withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
-                    currentStep = .completed
+                    currentStep = .insertIV
                     isPacketWipeDragging = false
                     packetWipeDragOffset = .zero
                     packetWipeCursorSide = 0
                     packetWipeCursorSideY = 0
                 }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                    if currentStep == .completed {
+            }
+        }
+    }
+    
+    // MARK: - Step 8: IV Needle Guiding, Countdown, Poke & Catheter Placement
+    @ViewBuilder
+    private func veinDropZoneView(stageSize: CGSize) -> some View {
+        let veinCenter = CGPoint(x: stageSize.width * 0.526, y: stageSize.height * 0.500)
+        let zoneWidth = stageSize.width * 0.15
+        let zoneHeight = stageSize.height * 0.19
+        
+        Circle()
+            .stroke(
+                isIVOverVein ? Color(red: 0/255, green: 255/255, blue: 180/255) : Color(red: 0/255, green: 229/255, blue: 255/255).opacity(0.65),
+                style: StrokeStyle(lineWidth: 3, dash: [8, 6])
+            )
+            .background(
+                Circle()
+                    .fill(isIVOverVein ? Color(red: 0/255, green: 255/255, blue: 180/255).opacity(0.22) : Color(red: 0/255, green: 229/255, blue: 255/255).opacity(0.08))
+            )
+            .frame(width: zoneWidth, height: zoneHeight)
+            .position(veinCenter)
+            .shadow(
+                color: isIVOverVein ? Color(red: 0/255, green: 255/255, blue: 180/255).opacity(0.85) : Color(red: 0/255, green: 229/255, blue: 255/255).opacity(0.35),
+                radius: isIVOverVein ? 24 : 12
+            )
+            .scaleEffect(isIVOverVein ? 1.06 : 1.0)
+            .animation(.easeInOut(duration: 0.25), value: isIVOverVein)
+            .allowsHitTesting(false)
+    }
+    
+    @ViewBuilder
+    private func ivExtensionTubeView(stageSize: CGSize) -> some View {
+        let bagPoint = CGPoint(x: stageSize.width * (200 / 1366), y: stageSize.height * (664 / 1024))
+        let initialNeedleCenter = CGPoint(x: stageSize.width * 0.337, y: stageSize.height * 0.325)
+        let targetCenter = CGPoint(x: stageSize.width * 0.526, y: stageSize.height * 0.500)
+        
+        let needleCenter: CGPoint = {
+            if isIVLockedToVein {
+                let adv: CGSize = isIVInserted ? CGSize(width: stageSize.width * 0.015, height: -stageSize.height * 0.015) : .zero
+                return CGPoint(x: targetCenter.x + adv.width, y: targetCenter.y + adv.height)
+            } else {
+                return CGPoint(x: initialNeedleCenter.x + ivDragOffset.width, y: initialNeedleCenter.y + ivDragOffset.height)
+            }
+        }()
+        
+        let hubPoint = CGPoint(x: needleCenter.x - stageSize.width * 0.078, y: needleCenter.y + stageSize.height * 0.066)
+        
+        let cp1 = CGPoint(x: bagPoint.x + (hubPoint.x - bagPoint.x) * 0.22, y: max(bagPoint.y, hubPoint.y) + stageSize.height * 0.11)
+        let cp2 = CGPoint(x: hubPoint.x - stageSize.width * 0.065, y: hubPoint.y + stageSize.height * 0.06)
+        
+        ZStack {
+            // Drop shadow
+            Path { path in
+                path.move(to: CGPoint(x: bagPoint.x, y: bagPoint.y + 3))
+                path.addCurve(to: CGPoint(x: hubPoint.x, y: hubPoint.y + 3), control1: CGPoint(x: cp1.x, y: cp1.y + 3), control2: CGPoint(x: cp2.x, y: cp2.y + 3))
+            }
+            .stroke(Color.black.opacity(0.18), style: StrokeStyle(lineWidth: 9, lineCap: .round, lineJoin: .round))
+            
+            // Tube line
+            Path { path in
+                path.move(to: bagPoint)
+                path.addCurve(to: hubPoint, control1: cp1, control2: cp2)
+            }
+            .stroke(Color(red: 110/255, green: 187/255, blue: 178/255), style: StrokeStyle(lineWidth: 7.5, lineCap: .round, lineJoin: .round))
+            .shadow(color: Color.black.opacity(0.25), radius: 3, x: 0, y: 1)
+        }
+        .allowsHitTesting(false)
+    }
+    
+    @ViewBuilder
+    private func floatingIVItem(stageSize: CGSize) -> some View {
+        let itemWidth = stageSize.width * 0.2489
+        let itemHeight = stageSize.height * 0.3164
+        let initialX = stageSize.width * 0.337
+        let initialY = stageSize.height * 0.325
+        let targetCenter = CGPoint(x: stageSize.width * 0.526, y: stageSize.height * 0.500)
+        
+        let floatOffset: CGFloat = (isFloating && !isIVDragging && !isIVLockedToVein) ? -10 : 0
+        let currentPos: CGPoint = isIVLockedToVein ? targetCenter : CGPoint(x: initialX + ivDragOffset.width, y: initialY + ivDragOffset.height + floatOffset)
+        let advanceOffset: CGSize = isIVInserted ? CGSize(width: stageSize.width * 0.015, height: -stageSize.height * 0.015) : .zero
+        
+        ZStack {
+            // Soft Catheter cannula + wings (cross-faded when needle is pulled out)
+            Image("GameIVCatheterItem")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: itemWidth, height: itemHeight)
+                .opacity(catheterOpacity)
+            
+            // Needle plunger + catheter assembly
+            Image("GameIVNeedleItem")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: itemWidth, height: itemHeight)
+                .offset(needleRetractOffset)
+                .opacity(needleRetractOpacity)
+                .shadow(
+                    color: Color(red: 0/255, green: 229/255, blue: 255/255).opacity(isIVDragging ? 1.0 : (canPokeIV ? 0.95 : 0.75)),
+                    radius: isIVDragging ? 26 : (canPokeIV ? 22 : 14)
+                )
+            
+            // 3-Second Countdown Badge
+            if isCountingDown {
+                Text("\(ivCountdownValue)")
+                    .font(.system(size: 22, weight: .black, design: .rounded))
+                    .foregroundColor(Color(red: 0/255, green: 229/255, blue: 255/255))
+                    .frame(width: 44, height: 44)
+                    .background(Color.black.opacity(0.85))
+                    .overlay(
+                        Circle().stroke(Color(red: 0/255, green: 229/255, blue: 255/255), lineWidth: 2.5)
+                    )
+                    .clipShape(Circle())
+                    .shadow(color: Color(red: 0/255, green: 229/255, blue: 255/255).opacity(0.85), radius: 10)
+                    .offset(y: -itemHeight * 0.5 - 18)
+            }
+            
+            // Prompt Text Box
+            Text(ivPromptText)
+                .font(.system(size: 11, weight: .bold))
+                .foregroundColor(Color.white)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 5)
+                .background(Color.black.opacity(0.78))
+                .clipShape(Capsule())
+                .shadow(color: Color.black.opacity(0.35), radius: 4, x: 0, y: 2)
+                .offset(y: itemHeight * 0.5 + 16)
+        }
+        .position(x: currentPos.x + advanceOffset.width, y: currentPos.y + advanceOffset.height)
+        .gesture(
+            DragGesture(coordinateSpace: .local)
+                .onChanged { value in
+                    guard !isIVLockedToVein else { return }
+                    isIVDragging = true
+                    ivDragOffset = value.translation
+                    
+                    let curX = initialX + ivDragOffset.width
+                    let curY = initialY + ivDragOffset.height
+                    let dist = hypot(curX - targetCenter.x, curY - targetCenter.y)
+                    isIVOverVein = dist <= max(85, stageSize.width * 0.08)
+                }
+                .onEnded { value in
+                    guard !isIVLockedToVein else { return }
+                    isIVDragging = false
+                    let curX = initialX + ivDragOffset.width
+                    let curY = initialY + ivDragOffset.height
+                    let dist = hypot(curX - targetCenter.x, curY - targetCenter.y)
+                    if dist <= max(85, stageSize.width * 0.08) {
+                        lockIVToVeinSwiftUI()
+                    } else {
                         withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
-                            showSuccessModal = true
+                            ivDragOffset = .zero
+                            isIVOverVein = false
                         }
                     }
                 }
+        )
+        .onTapGesture {
+            if canPokeIV && !isIVInserted {
+                pokeInsertNeedleSwiftUI()
+            } else if canPullOutNeedle && !isNeedlePulledOut {
+                pullOutNeedleSwiftUI()
+            }
+        }
+    }
+    
+    private var ivPromptText: String {
+        if isNeedlePulledOut {
+            return "IV placed safely!"
+        } else if isIVInserted {
+            return "Tap to pull out needle!"
+        } else if canPokeIV {
+            return "Poke to insert!"
+        } else if isCountingDown {
+            return "Ready in \(ivCountdownValue)..."
+        } else {
+            return "Guide the needle to the vein!"
+        }
+    }
+    
+    private func lockIVToVeinSwiftUI() {
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+            isIVLockedToVein = true
+            isIVOverVein = true
+        }
+        HapticManager.shared.mediumTap()
+        startIVCountdownSwiftUI()
+    }
+    
+    private func startIVCountdownSwiftUI() {
+        ivCountdownValue = 3
+        isCountingDown = true
+        
+        Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
+            if ivCountdownValue > 1 {
+                ivCountdownValue -= 1
+                HapticManager.shared.lightTap()
+            } else {
+                timer.invalidate()
+                withAnimation {
+                    isCountingDown = false
+                    canPokeIV = true
+                }
+                HapticManager.shared.successNotification()
+            }
+        }
+    }
+    
+    private func pokeInsertNeedleSwiftUI() {
+        guard canPokeIV && !isIVInserted else { return }
+        canPokeIV = false
+        HapticManager.shared.mediumTap()
+        
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+            isIVInserted = true
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+            canPullOutNeedle = true
+        }
+    }
+    
+    private func pullOutNeedleSwiftUI() {
+        guard canPullOutNeedle && !isNeedlePulledOut else { return }
+        canPullOutNeedle = false
+        isNeedlePulledOut = true
+        HapticManager.shared.successNotification()
+        
+        withAnimation(.easeOut(duration: 0.45)) {
+            needleRetractOffset = CGSize(width: -45, height: 35)
+            needleRetractOpacity = 0.0
+            catheterOpacity = 1.0
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.85) {
+            withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
+                currentStep = .completed
+                showSuccessModal = true
             }
         }
     }
@@ -1195,14 +1452,14 @@ public struct IVGameView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 12) {
-                Text("✨ 🩺 🩹 🧴 ✨")
+                Text("✨ 🩺 🩹 🧴 🧼 ✨")
                     .font(.system(size: 44))
                 
                 Text("Great Job!")
                     .font(.system(size: 26, weight: .heavy))
                     .foregroundColor(AppTheme.primaryPurple)
                 
-                Text("You applied soothing numbing ointment, wrapped the clear bandage, wiped the arm clean with the washcloth, and placed the tourniquet band gently around the arm!")
+                Text("You applied numbing ointment, wrapped the clear bandage, wiped off the lotion, placed the tourniquet band, cleaned the arm with the wipe, and safely guided and placed the IV catheter with its soft tube!")
                     .font(.system(size: 15, weight: .medium))
                     .foregroundColor(Color(red: 71/255, green: 85/255, blue: 105/255))
                     .multilineTextAlignment(.center)
@@ -1341,6 +1598,20 @@ public struct IVGameView: View {
             packetWipeCursorSide = 0
             packetWipeCursorSideY = 0
             packetWipeSweepCount = 0
+            
+            ivDragOffset = .zero
+            isIVDragging = false
+            isIVLockedToVein = false
+            isIVOverVein = false
+            ivCountdownValue = 3
+            isCountingDown = false
+            canPokeIV = false
+            isIVInserted = false
+            canPullOutNeedle = false
+            isNeedlePulledOut = false
+            needleRetractOffset = .zero
+            needleRetractOpacity = 1.0
+            catheterOpacity = 0.0
             
             ointmentDragOffset = .zero
             isOintmentDragging = false
