@@ -1278,16 +1278,16 @@
       }
     }
 
-    /* Vein Drop Zone & Target Highlight (Step 8) */
+    /* Vein Drop Zone & Target Highlight (Step 8: Clean area of arm) */
     .vein-drop-zone {
       position: absolute;
-      left: 46%;
-      top: 41%;
-      width: 15%;
+      left: 66.2%;
+      top: 45.5%;
+      width: 16%;
       height: 19%;
       border-radius: 50%;
       pointer-events: none;
-      border: 3px dashed rgba(0, 229, 255, 0.5);
+      border: 3px dashed rgba(0, 229, 255, 0.6);
       background: rgba(0, 229, 255, 0.08);
       transition: all 0.28s ease;
       z-index: 26;
@@ -1342,14 +1342,13 @@
       filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.25));
     }
 
-    /* Floating Interactive IV Needle & Catheter (Step 8) */
+    /* Floating Interactive IV Needle & Catheter (Step 8: Centered above bag) */
     .game-iv-wrapper {
       position: absolute;
-      left: 33.7%;
-      top: 32.5%;
-      width: 24.89%;
-      height: 31.64%;
-      transform: translate(-50%, -50%);
+      left: 16%;
+      top: 5.5%;
+      width: 19%;
+      height: 24.5%;
       cursor: grab;
       z-index: 35;
       touch-action: none;
@@ -3523,6 +3522,9 @@
     }
 
     // --- STEP 8: IV NEEDLE GUIDING, COUNTDOWN, POKE & CATHETER PLACEMENT ---
+    let lockedVeinDeltaX = 0;
+    let lockedVeinDeltaY = 0;
+
     function initIVNeedleStep() {
       currentStep = 8;
       isDraggingIV = false;
@@ -3532,6 +3534,10 @@
       isIVInserted = false;
       canPullOutNeedle = false;
       isNeedlePulledOut = false;
+      ivDeltaX = 0;
+      ivDeltaY = 0;
+      lockedVeinDeltaX = 0;
+      lockedVeinDeltaY = 0;
 
       const ivWrapper = document.getElementById('gameIVWrapper');
       const needleImg = document.getElementById('gameIVNeedleImg');
@@ -3549,6 +3555,7 @@
       if (veinZone) {
         veinZone.style.display = 'block';
         veinZone.classList.remove('highlight');
+        veinZone.style.boxShadow = '';
       }
 
       if (countdownBadge) {
@@ -3564,6 +3571,7 @@
         needleImg.style.display = 'block';
         needleImg.style.transform = 'translate3d(0, 0, 0)';
         needleImg.style.opacity = '1';
+        needleImg.style.transition = 'none';
       }
       if (catheterImg) {
         catheterImg.style.display = 'none';
@@ -3572,9 +3580,7 @@
 
       if (ivWrapper) {
         ivWrapper.style.display = 'block';
-        ivWrapper.style.left = '33.7%';
-        ivWrapper.style.top = '32.5%';
-        ivWrapper.style.transform = 'translate(-50%, -50%)';
+        ivWrapper.style.transform = 'translate3d(0, 0, 0)';
         ivWrapper.style.transition = 'opacity 0.3s ease';
         ivWrapper.classList.remove('is-dragging', 'spring-back', 'locked-vein', 'can-poke', 'is-inserted');
         setTimeout(() => {
@@ -3591,32 +3597,32 @@
     }
 
     function updateIVTubePath() {
-      const container = document.getElementById('screenInteractiveContent');
+      const stage = document.getElementById('gameStage');
       const ivWrapper = document.getElementById('gameIVWrapper');
       const tubePath = document.getElementById('gameIVTubePath');
       const tubeShadow = document.getElementById('gameIVTubeShadow');
-      if (!container || !ivWrapper || !tubePath) return;
+      if (!stage || !ivWrapper || !tubePath) return;
 
-      const cRect = container.getBoundingClientRect();
+      const sRect = stage.getBoundingClientRect();
       const wRect = ivWrapper.getBoundingClientRect();
-      if (cRect.width === 0 || cRect.height === 0) return;
+      if (sRect.width === 0 || sRect.height === 0) return;
 
-      const scaleX = 1366 / cRect.width;
-      const scaleY = 1024 / cRect.height;
+      const scaleX = 1366 / sRect.width;
+      const scaleY = 1024 / sRect.height;
 
       // Bag anchor point in 1366x1024 coordinates
       const bagX = 200;
       const bagY = 664;
 
       // IV needle hub anchor: near bottom-left of wrapper (approx 16% width, 68% height)
-      const hubX = ((wRect.left - cRect.left) + wRect.width * 0.16) * scaleX;
-      const hubY = ((wRect.top - cRect.top) + wRect.height * 0.68) * scaleY;
+      const hubX = ((wRect.left - sRect.left) + wRect.width * 0.16) * scaleX;
+      const hubY = ((wRect.top - sRect.top) + wRect.height * 0.68) * scaleY;
 
-      // Smooth loop from bag under arm to the IV hub
-      const cp1x = bagX + (hubX - bagX) * 0.22;
-      const cp1y = Math.max(bagY, hubY) + 120;
-      const cp2x = hubX - 90;
-      const cp2y = hubY + 65;
+      // Smooth flexible loop from bag under arm to the IV hub
+      const cp1x = bagX + (hubX - bagX) * 0.22 - 30;
+      const cp1y = Math.max(bagY, hubY) + 90;
+      const cp2x = hubX - 80;
+      const cp2y = hubY + 60;
 
       const d = `M ${bagX.toFixed(1)} ${bagY.toFixed(1)} C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${hubX.toFixed(1)} ${hubY.toFixed(1)}`;
       tubePath.setAttribute('d', d);
@@ -3624,33 +3630,36 @@
     }
 
     function startIVNeedleDrag(e) {
-      if (currentStep !== 8 || isIVLockedToVein) return;
+      if (currentStep !== 8) return;
+
+      // If already locked over vein, clicks/taps trigger insertion or extraction
+      if (isIVLockedToVein) {
+        e.preventDefault();
+        e.stopPropagation();
+        handleIVAction();
+        return;
+      }
+
       e.preventDefault();
       e.stopPropagation();
 
       const ivWrapper = document.getElementById('gameIVWrapper');
-      const container = document.getElementById('screenInteractiveContent');
-      if (!ivWrapper || !container) return;
+      const stage = document.getElementById('gameStage');
+      if (!ivWrapper || !stage) return;
 
       isDraggingIV = true;
-      const rect = container.getBoundingClientRect();
-      const pointerX = e.clientX ?? (e.touches && e.touches[0].clientX);
-      const pointerY = e.clientY ?? (e.touches && e.touches[0].clientY);
+      ivPointerStartX = e.clientX;
+      ivPointerStartY = e.clientY;
+      ivDeltaX = 0;
+      ivDeltaY = 0;
 
-      ivPointerStartX = pointerX;
-      ivPointerStartY = pointerY;
-
+      ivWrapper.style.transition = 'none';
       ivWrapper.classList.add('is-dragging');
       ivWrapper.classList.remove('spring-back');
 
-      // Center wrapper under finger/cursor
-      const relX = pointerX - rect.left;
-      const relY = pointerY - rect.top;
-      ivWrapper.style.left = relX + 'px';
-      ivWrapper.style.top = relY + 'px';
-      ivWrapper.style.transform = 'translate(-50%, -50%)';
-
-      updateIVTubePath();
+      if (e.pointerId !== undefined) {
+        try { ivWrapper.setPointerCapture(e.pointerId); } catch (err) {}
+      }
 
       window.addEventListener('pointermove', onIVNeedlePointerMove);
       window.addEventListener('pointerup', onIVNeedlePointerUp);
@@ -3661,35 +3670,34 @@
       if (!isDraggingIV) return;
       e.preventDefault();
 
+      ivDeltaX = e.clientX - ivPointerStartX;
+      ivDeltaY = e.clientY - ivPointerStartY;
+
       const ivWrapper = document.getElementById('gameIVWrapper');
-      const container = document.getElementById('screenInteractiveContent');
-      if (!ivWrapper || !container) return;
-
-      const rect = container.getBoundingClientRect();
-      const pointerX = e.clientX;
-      const pointerY = e.clientY;
-
-      const relX = pointerX - rect.left;
-      const relY = pointerY - rect.top;
-      ivWrapper.style.left = relX + 'px';
-      ivWrapper.style.top = relY + 'px';
+      if (ivWrapper) {
+        ivWrapper.style.transform = `translate3d(${ivDeltaX}px, ${ivDeltaY}px, 0)`;
+      }
 
       updateIVTubePath();
-      checkVeinAlignment(pointerX, pointerY);
+      checkVeinAlignment();
     }
 
-    function checkVeinAlignment(pointerX, pointerY) {
-      const container = document.getElementById('screenInteractiveContent');
+    function checkVeinAlignment() {
+      const ivWrapper = document.getElementById('gameIVWrapper');
       const veinZone = document.getElementById('veinDropZone');
-      if (!container || !veinZone) return false;
+      if (!ivWrapper || !veinZone) return false;
 
-      const cRect = container.getBoundingClientRect();
-      // Target insertion center: 52.6% x, 50.0% y
-      const targetX = cRect.left + cRect.width * 0.526;
-      const targetY = cRect.top + cRect.height * 0.500;
+      const ivRect = ivWrapper.getBoundingClientRect();
+      const veinRect = veinZone.getBoundingClientRect();
 
-      const dist = Math.hypot(pointerX - targetX, pointerY - targetY);
-      const isAligned = dist <= Math.max(75, cRect.width * 0.08);
+      const ivCenterX = ivRect.left + ivRect.width * 0.5;
+      const ivCenterY = ivRect.top + ivRect.height * 0.5;
+
+      const veinCenterX = veinRect.left + veinRect.width * 0.5;
+      const veinCenterY = veinRect.top + veinRect.height * 0.5;
+
+      const dist = Math.hypot(ivCenterX - veinCenterX, ivCenterY - veinCenterY);
+      const isAligned = dist <= Math.max(90, veinRect.width * 0.85);
 
       if (isAligned) {
         veinZone.classList.add('highlight');
@@ -3709,27 +3717,24 @@
       window.removeEventListener('pointercancel', onIVNeedlePointerUp);
 
       const ivWrapper = document.getElementById('gameIVWrapper');
-      const container = document.getElementById('screenInteractiveContent');
       const veinZone = document.getElementById('veinDropZone');
-      if (!ivWrapper || !container) return;
+      const stage = document.getElementById('gameStage');
+      if (!ivWrapper || !stage) return;
 
-      const pointerX = e.clientX ?? ivPointerStartX;
-      const pointerY = e.clientY ?? ivPointerStartY;
-      const isAligned = checkVeinAlignment(pointerX, pointerY);
+      const isAligned = checkVeinAlignment();
 
       if (isAligned) {
         lockIVToVein();
       } else {
-        // Spring back to floating position
+        // Spring back to bag
         ivWrapper.classList.remove('is-dragging');
         ivWrapper.classList.add('spring-back');
-        ivWrapper.style.left = '33.7%';
-        ivWrapper.style.top = '32.5%';
-        ivWrapper.style.transform = 'translate(-50%, -50%)';
+        ivWrapper.style.transform = 'translate3d(0, 0, 0)';
         if (veinZone) veinZone.classList.remove('highlight');
 
         setTimeout(() => {
           ivWrapper.classList.remove('spring-back');
+          ivWrapper.style.transform = '';
           updateIVTubePath();
         }, 420);
       }
@@ -3739,18 +3744,33 @@
       isIVLockedToVein = true;
       const ivWrapper = document.getElementById('gameIVWrapper');
       const veinZone = document.getElementById('veinDropZone');
+      const stage = document.getElementById('gameStage');
+      if (!ivWrapper || !stage) return;
 
-      if (ivWrapper) {
-        ivWrapper.classList.remove('is-dragging', 'spring-back');
-        ivWrapper.classList.add('locked-vein');
-        ivWrapper.style.left = '52.6%';
-        ivWrapper.style.top = '50.0%';
-        ivWrapper.style.transform = 'translate(-50%, -50%)';
-      }
+      const stageRect = stage.getBoundingClientRect();
+      const veinRect = veinZone ? veinZone.getBoundingClientRect() : null;
+
+      // Vein target center
+      const veinCenterX = veinRect ? (veinRect.left + veinRect.width / 2) : (stageRect.left + stageRect.width * 0.742);
+      const veinCenterY = veinRect ? (veinRect.top + veinRect.height / 2) : (stageRect.top + stageRect.height * 0.551);
+
+      // Wrapper center when floating above bag
+      const wrapCenterX = stageRect.left + stageRect.width * 0.255;
+      const wrapCenterY = stageRect.top + stageRect.height * 0.1775;
+
+      lockedVeinDeltaX = veinCenterX - wrapCenterX;
+      lockedVeinDeltaY = veinCenterY - wrapCenterY;
+
+      ivWrapper.classList.remove('is-dragging', 'spring-back');
+      ivWrapper.classList.add('locked-vein');
+      ivWrapper.style.transition = 'transform 0.35s cubic-bezier(0.25, 1, 0.5, 1)';
+      ivWrapper.style.transform = `translate3d(${lockedVeinDeltaX}px, ${lockedVeinDeltaY}px, 0)`;
 
       if (veinZone) {
         veinZone.classList.add('highlight');
       }
+
+      triggerHapticFeedback(true);
 
       setTimeout(() => {
         updateIVTubePath();
@@ -3778,9 +3798,11 @@
         if (ivCountdownValue === 2) {
           if (countdownBadge) countdownBadge.textContent = '2';
           if (ivPrompt) ivPrompt.textContent = 'Ready in 2...';
+          triggerHapticFeedback(false);
         } else if (ivCountdownValue === 1) {
           if (countdownBadge) countdownBadge.textContent = '1';
           if (ivPrompt) ivPrompt.textContent = 'Ready in 1...';
+          triggerHapticFeedback(false);
         } else if (ivCountdownValue <= 0) {
           clearInterval(ivCountdownTimer);
           ivCountdownTimer = null;
@@ -3795,20 +3817,23 @@
           if (ivWrapper) {
             ivWrapper.classList.add('can-poke');
           }
+          triggerHapticFeedback(true);
         }
       }, 1000);
     }
 
-    function onIVWrapperClick(e) {
+    function handleIVAction() {
       if (canPokeIV && !isIVInserted) {
-        e.preventDefault();
-        e.stopPropagation();
         pokeInsertNeedle();
       } else if (canPullOutNeedle && !isNeedlePulledOut) {
-        e.preventDefault();
-        e.stopPropagation();
         pullOutNeedle();
       }
+    }
+
+    function onIVWrapperClick(e) {
+      if (currentStep !== 8) return;
+      e.stopPropagation();
+      handleIVAction();
     }
 
     function pokeInsertNeedle() {
@@ -3824,17 +3849,19 @@
         ivWrapper.classList.remove('can-poke');
         ivWrapper.classList.add('is-inserted');
         // Forward gliding insertion motion along the cannula angle
-        ivWrapper.style.transition = 'transform 0.38s cubic-bezier(0.25, 1, 0.5, 1)';
-        ivWrapper.style.transform = 'translate(-50%, -50%) translate3d(20px, -15px, 0)';
+        ivWrapper.style.transition = 'transform 0.28s cubic-bezier(0.25, 1, 0.5, 1)';
+        ivWrapper.style.transform = `translate3d(${lockedVeinDeltaX + 16}px, ${lockedVeinDeltaY - 10}px, 0)`;
       }
 
       setTimeout(() => {
         updateIVTubePath();
-      }, 380);
+      }, 300);
 
       if (veinZone) {
         veinZone.style.boxShadow = '0 0 45px rgba(0, 255, 180, 1)';
       }
+
+      triggerHapticFeedback(true);
 
       if (ivPrompt) {
         ivPrompt.textContent = 'Tap to pull out needle!';
@@ -3842,7 +3869,7 @@
 
       setTimeout(() => {
         canPullOutNeedle = true;
-      }, 300);
+      }, 350);
     }
 
     function pullOutNeedle() {
@@ -3853,39 +3880,39 @@
       const needleImg = document.getElementById('gameIVNeedleImg');
       const catheterImg = document.getElementById('gameIVCatheterImg');
       const ivPrompt = document.getElementById('ivPrompt');
-      const stepBadgeText = document.getElementById('gameStepBadgeText');
 
       // Slide metal needle plunger backwards and fade out
       if (needleImg) {
         needleImg.style.transition = 'transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.45s ease';
-        needleImg.style.transform = 'translate3d(-45px, 35px, 0)';
+        needleImg.style.transform = 'translate3d(-50px, -35px, 0)';
         needleImg.style.opacity = '0';
       }
 
-      // Seamlessly cross-fade to the soft IV catheter in place
+      // Seamlessly show the soft IV catheter in place
       if (catheterImg) {
         catheterImg.style.display = 'block';
         catheterImg.style.opacity = '0';
         catheterImg.style.transition = 'opacity 0.3s ease';
         setTimeout(() => {
           catheterImg.style.opacity = '1';
-          if (needleImg) needleImg.style.display = 'none';
-        }, 120);
+        }, 30);
       }
+
+      triggerHapticFeedback(true);
 
       if (ivPrompt) {
         ivPrompt.textContent = 'IV placed safely!';
       }
 
+      const stepBadgeText = document.getElementById('gameStepBadgeText');
       if (stepBadgeText) {
         stepBadgeText.textContent = 'IV Placed! Great Job!';
       }
 
-      // Trigger final success modal celebration after short delay
       if (ivAdvanceTimeout) clearTimeout(ivAdvanceTimeout);
       ivAdvanceTimeout = setTimeout(() => {
         completeIVStep();
-      }, 850);
+      }, 1200);
     }
 
     function completeIVStep() {
@@ -4138,6 +4165,10 @@
       isNeedlePulledOut = false;
       ivPointerStartX = 0;
       ivPointerStartY = 0;
+      ivDeltaX = 0;
+      ivDeltaY = 0;
+      lockedVeinDeltaX = 0;
+      lockedVeinDeltaY = 0;
 
       const ivWrapper = document.getElementById('gameIVWrapper');
       const needleImg = document.getElementById('gameIVNeedleImg');
@@ -4149,9 +4180,7 @@
 
       if (ivWrapper) {
         ivWrapper.style.display = 'none';
-        ivWrapper.style.left = '33.7%';
-        ivWrapper.style.top = '32.5%';
-        ivWrapper.style.transform = 'translate(-50%, -50%)';
+        ivWrapper.style.transform = 'translate3d(0, 0, 0)';
         ivWrapper.style.transition = 'none';
         ivWrapper.classList.remove('is-dragging', 'spring-back', 'visible', 'locked-vein', 'can-poke', 'is-inserted');
       }

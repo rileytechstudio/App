@@ -796,8 +796,8 @@ public struct IVGameView: View {
     // MARK: - Step 8: IV Needle Guiding, Countdown, Poke & Catheter Placement
     @ViewBuilder
     private func veinDropZoneView(stageSize: CGSize) -> some View {
-        let veinCenter = CGPoint(x: stageSize.width * 0.526, y: stageSize.height * 0.500)
-        let zoneWidth = stageSize.width * 0.15
+        let veinCenter = CGPoint(x: stageSize.width * 0.742, y: stageSize.height * 0.551)
+        let zoneWidth = stageSize.width * 0.16
         let zoneHeight = stageSize.height * 0.19
         
         Circle()
@@ -822,9 +822,9 @@ public struct IVGameView: View {
     
     @ViewBuilder
     private func ivExtensionTubeView(stageSize: CGSize) -> some View {
-        let bagPoint = CGPoint(x: stageSize.width * (200 / 1366), y: stageSize.height * (664 / 1024))
-        let initialNeedleCenter = CGPoint(x: stageSize.width * 0.337, y: stageSize.height * 0.325)
-        let targetCenter = CGPoint(x: stageSize.width * 0.526, y: stageSize.height * 0.500)
+        let bagPoint = CGPoint(x: stageSize.width * (200.0 / 1366.0), y: stageSize.height * (664.0 / 1024.0))
+        let initialNeedleCenter = CGPoint(x: stageSize.width * 0.254, y: stageSize.height * 0.188)
+        let targetCenter = CGPoint(x: stageSize.width * 0.742, y: stageSize.height * 0.551)
         
         let needleCenter: CGPoint = {
             if isIVLockedToVein {
@@ -835,10 +835,10 @@ public struct IVGameView: View {
             }
         }()
         
-        let hubPoint = CGPoint(x: needleCenter.x - stageSize.width * 0.078, y: needleCenter.y + stageSize.height * 0.066)
+        let hubPoint = CGPoint(x: needleCenter.x - stageSize.width * 0.065, y: needleCenter.y + stageSize.height * 0.045)
         
-        let cp1 = CGPoint(x: bagPoint.x + (hubPoint.x - bagPoint.x) * 0.22, y: max(bagPoint.y, hubPoint.y) + stageSize.height * 0.11)
-        let cp2 = CGPoint(x: hubPoint.x - stageSize.width * 0.065, y: hubPoint.y + stageSize.height * 0.06)
+        let cp1 = CGPoint(x: bagPoint.x + (hubPoint.x - bagPoint.x) * 0.22 - stageSize.width * 0.02, y: max(bagPoint.y, hubPoint.y) + stageSize.height * 0.09)
+        let cp2 = CGPoint(x: hubPoint.x - stageSize.width * 0.06, y: hubPoint.y + stageSize.height * 0.06)
         
         ZStack {
             // Drop shadow
@@ -861,11 +861,11 @@ public struct IVGameView: View {
     
     @ViewBuilder
     private func floatingIVItem(stageSize: CGSize) -> some View {
-        let itemWidth = stageSize.width * 0.2489
-        let itemHeight = stageSize.height * 0.3164
-        let initialX = stageSize.width * 0.337
-        let initialY = stageSize.height * 0.325
-        let targetCenter = CGPoint(x: stageSize.width * 0.526, y: stageSize.height * 0.500)
+        let itemWidth = stageSize.width * 0.19
+        let itemHeight = itemWidth * (324.0 / 340.0)
+        let initialX = stageSize.width * 0.254
+        let initialY = stageSize.height * 0.188
+        let targetCenter = CGPoint(x: stageSize.width * 0.742, y: stageSize.height * 0.551)
         
         let floatOffset: CGFloat = (isFloating && !isIVDragging && !isIVLockedToVein) ? -10 : 0
         let currentPos: CGPoint = isIVLockedToVein ? targetCenter : CGPoint(x: initialX + ivDragOffset.width, y: initialY + ivDragOffset.height + floatOffset)
@@ -918,9 +918,10 @@ public struct IVGameView: View {
                 .shadow(color: Color.black.opacity(0.35), radius: 4, x: 0, y: 2)
                 .offset(y: itemHeight * 0.5 + 16)
         }
+        .contentShape(Rectangle())
         .position(x: currentPos.x + advanceOffset.width, y: currentPos.y + advanceOffset.height)
         .gesture(
-            DragGesture(coordinateSpace: .local)
+            DragGesture(minimumDistance: isIVLockedToVein ? 1000 : 0, coordinateSpace: .local)
                 .onChanged { value in
                     guard !isIVLockedToVein else { return }
                     isIVDragging = true
@@ -929,7 +930,7 @@ public struct IVGameView: View {
                     let curX = initialX + ivDragOffset.width
                     let curY = initialY + ivDragOffset.height
                     let dist = hypot(curX - targetCenter.x, curY - targetCenter.y)
-                    isIVOverVein = dist <= max(85, stageSize.width * 0.08)
+                    isIVOverVein = dist <= max(90, stageSize.width * 0.08)
                 }
                 .onEnded { value in
                     guard !isIVLockedToVein else { return }
@@ -937,7 +938,7 @@ public struct IVGameView: View {
                     let curX = initialX + ivDragOffset.width
                     let curY = initialY + ivDragOffset.height
                     let dist = hypot(curX - targetCenter.x, curY - targetCenter.y)
-                    if dist <= max(85, stageSize.width * 0.08) {
+                    if dist <= max(90, stageSize.width * 0.08) {
                         lockIVToVeinSwiftUI()
                     } else {
                         withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
@@ -947,13 +948,18 @@ public struct IVGameView: View {
                     }
                 }
         )
-        .onTapGesture {
-            if canPokeIV && !isIVInserted {
-                pokeInsertNeedleSwiftUI()
-            } else if canPullOutNeedle && !isNeedlePulledOut {
-                pullOutNeedleSwiftUI()
-            }
-        }
+        .simultaneousGesture(
+            TapGesture()
+                .onEnded {
+                    if isIVLockedToVein {
+                        if canPokeIV && !isIVInserted {
+                            pokeInsertNeedleSwiftUI()
+                        } else if canPullOutNeedle && !isNeedlePulledOut {
+                            pullOutNeedleSwiftUI()
+                        }
+                    }
+                }
+        )
     }
     
     private var ivPromptText: String {
