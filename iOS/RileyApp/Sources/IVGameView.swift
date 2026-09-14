@@ -1549,37 +1549,29 @@ public struct IVGameView: View {
         }
     }
     
-    // MARK: - Success Celebration Modal
+    // MARK: - Success Celebration Overlay
     @ViewBuilder
     private var successOverlayView: some View {
         ZStack {
-            Color.black.opacity(0.45)
+            Color.black.opacity(0.50)
                 .ignoresSafeArea()
             
-            VStack(spacing: 12) {
-                Text("✨ 🩺 🩹 🧴 🧼 ✨")
-                    .font(.system(size: 44))
-                
-                Text("Great Job!")
-                    .font(.system(size: 26, weight: .heavy))
-                    .foregroundColor(AppTheme.primaryPurple)
-                
-                Text("You applied numbing ointment, wrapped the clear bandage, wiped off the lotion, placed the tourniquet band, cleaned the arm with the wipe, guided and placed the IV catheter, and secured it with tape!")
-                    .font(.system(size: 15, weight: .medium))
-                    .foregroundColor(Color(red: 71/255, green: 85/255, blue: 105/255))
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(3)
-                    .padding(.horizontal, 10)
+            VStack(spacing: 22) {
+                Image("GameYouDidIt")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: 460)
+                    .shadow(color: Color.black.opacity(0.7), radius: 20, x: 0, y: 10)
                 
                 Button(action: {
                     HapticManager.shared.buttonTap()
                     resetGame()
                 }) {
                     Text("Play Again")
-                        .font(.system(size: 16, weight: .bold))
+                        .font(.system(size: 17, weight: .bold))
                         .foregroundColor(.white)
-                        .padding(.horizontal, 32)
-                        .padding(.vertical, 12)
+                        .padding(.horizontal, 36)
+                        .padding(.vertical, 13)
                         .background(
                             LinearGradient(
                                 colors: [Color(red: 0/255, green: 198/255, blue: 255/255), Color(red: 0/255, green: 114/255, blue: 255/255)],
@@ -1588,16 +1580,12 @@ public struct IVGameView: View {
                             )
                         )
                         .clipShape(Capsule())
-                        .shadow(color: Color(red: 0, green: 114/255, blue: 255/255).opacity(0.4), radius: 10, x: 0, y: 5)
+                        .shadow(color: Color(red: 0, green: 114/255, blue: 255/255).opacity(0.45), radius: 12, x: 0, y: 6)
                 }
-                .padding(.top, 8)
             }
-            .padding(28)
-            .frame(maxWidth: 380)
-            .background(Color.white)
-            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-            .shadow(color: Color.black.opacity(0.3), radius: 25, x: 0, y: 12)
             .padding(.horizontal, 30)
+            .scaleEffect(isSuccessModalPresented ? 1.0 : 0.85)
+            .animation(.spring(response: 0.45, dampingFraction: 0.75), value: isSuccessModalPresented)
         }
     }
     
