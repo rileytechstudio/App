@@ -2088,6 +2088,22 @@
       }
     }
 
+    // Sound Effect: Slime 2 for Step 1 Ointment Squeeze (Volume 0.90)
+    let slimeSound = null;
+
+    function playSlimeSound() {
+      try {
+        if (!slimeSound) {
+          slimeSound = new Audio('assets/Slime2.mp3');
+          slimeSound.volume = 0.90;
+        }
+        slimeSound.currentTime = 0;
+        slimeSound.play().catch(err => {
+          console.log('Slime audio playback waiting for user gesture or error:', err);
+        });
+      } catch (err) {}
+    }
+
     // Screen Switching
     function switchScreen(screenName) {
       const screenHome = document.getElementById('screenHome');
@@ -2274,6 +2290,10 @@
       window.addEventListener('pointermove', onOintmentPointerMove);
       window.addEventListener('pointerup', onOintmentPointerUp);
       window.addEventListener('pointercancel', onOintmentPointerCancel);
+
+      if (isOintmentOverElbow) {
+        startSqueezing();
+      }
     }
 
     function onOintmentPointerMove(e) {
@@ -2333,6 +2353,7 @@
     function startSqueezing() {
       if (isSqueezing || squeezeProgress >= 1.0) return;
       isSqueezing = true;
+      playSlimeSound();
       lastSqueezeTimestamp = performance.now();
 
       const ointmentWrapper = document.getElementById('gameOintmentWrapper');

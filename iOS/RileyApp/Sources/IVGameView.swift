@@ -5,6 +5,7 @@ import AVFoundation
 public final class IVAudioManager {
     public static let shared = IVAudioManager()
     private var player: AVAudioPlayer?
+    private var sfxPlayer: AVAudioPlayer?
     
     private init() {}
     
@@ -59,6 +60,44 @@ public final class IVAudioManager {
         player?.stop()
         player?.currentTime = 0
         player = nil
+    }
+    
+    // MARK: - Step 1 Ointment Squeeze Sound Effect (Volume 0.90)
+    public func playSlimeSound() {
+        // Priority 1: Load from Asset Catalog NSDataAsset
+        if let dataAsset = NSDataAsset(name: "Slime2") {
+            do {
+                sfxPlayer = try AVAudioPlayer(data: dataAsset.data)
+                sfxPlayer?.volume = 0.90
+                sfxPlayer?.prepareToPlay()
+                sfxPlayer?.play()
+                return
+            } catch {
+                print("Failed to initialize Slime2 player from data asset: \(error)")
+            }
+        }
+        
+        // Priority 2: Fallback to Bundle resource URLs
+        var soundURL: URL? = Bundle.main.url(forResource: "Slime 2", withExtension: "mp3")
+            ?? Bundle.main.url(forResource: "Slime2", withExtension: "mp3")
+        
+        #if SWIFT_PACKAGE
+        if soundURL == nil {
+            soundURL = Bundle.module.url(forResource: "Slime 2", withExtension: "mp3")
+                ?? Bundle.module.url(forResource: "Slime2", withExtension: "mp3")
+        }
+        #endif
+        
+        if let url = soundURL {
+            do {
+                sfxPlayer = try AVAudioPlayer(contentsOf: url)
+                sfxPlayer?.volume = 0.90
+                sfxPlayer?.prepareToPlay()
+                sfxPlayer?.play()
+            } catch {
+                print("Failed to initialize Slime2 player from URL: \(error)")
+            }
+        }
     }
 }
 
@@ -1590,6 +1629,7 @@ public struct IVGameView: View {
     private func startSwiftUISqueeze() {
         guard squeezeTimer == nil, squeezeProgress < 1.0 else { return }
         isSqueezing = true
+        IVAudioManager.shared.playSlimeSound()
         squeezeTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { timer in
             squeezeProgress = min(1.0, squeezeProgress + 0.05 / 1.2)
             if squeezeProgress >= 1.0 {
