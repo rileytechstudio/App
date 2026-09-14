@@ -4092,8 +4092,8 @@
       tapeWrapper.classList.remove('is-dragging', 'spring-back', 'visible');
       tapeWrapper.classList.add('locked-arm');
       tapeWrapper.style.transition = 'transform 0.35s cubic-bezier(0.25, 1, 0.5, 1)';
-      // Perpendicular to the IV on the arm (-47deg)
-      tapeWrapper.style.transform = `translate3d(${lockedTapeDeltaX}px, ${lockedTapeDeltaY}px, 0) rotate(-47deg)`;
+      // Perpendicular to the IV on the arm (rotated 90deg from stem: 43deg)
+      tapeWrapper.style.transform = `translate3d(${lockedTapeDeltaX}px, ${lockedTapeDeltaY}px, 0) rotate(43deg)`;
 
       if (tapeZone) {
         tapeZone.classList.add('highlight');

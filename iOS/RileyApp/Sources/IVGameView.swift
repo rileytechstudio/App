@@ -1073,7 +1073,7 @@ public struct IVGameView: View {
                     .offset(y: itemHeight * 0.5 + 16)
             }
         }
-        .rotationEffect(.degrees(isTapePlaced ? -47 : 0))
+        .rotationEffect(.degrees(isTapePlaced ? 43 : 0))
         .contentShape(Rectangle())
         .position(x: currentPos.x, y: currentPos.y)
         .gesture(
