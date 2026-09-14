@@ -26,6 +26,7 @@ const PRECACHE_ASSETS = [
   './assets/GameIVNeedleItem.png',
   './assets/GameIVCatheterItem.png',
   './assets/GameTapeItem.png',
+  './assets/GameTapeWrapped.png',
   './assets/GameTubeItem.png',
   './assets/HeaderBanner.jpg',
   './assets/Home.png',

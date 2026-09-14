@@ -459,6 +459,15 @@ public struct IVGameView: View {
             
             // Layer 15: Floating Interactive IV Tape (Step 9) & Placed Tape (Completed)
             if currentStep >= .tapeIV {
+                if isTapePlaced {
+                    Image("GameTapeWrapped")
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: stageSize.width, height: stageSize.height)
+                        .allowsHitTesting(false)
+                        .transition(.opacity)
+                }
+                
                 if currentStep == .tapeIV && !isTapePlaced {
                     tapeDropZoneView(stageSize: stageSize)
                 }
@@ -1054,6 +1063,7 @@ public struct IVGameView: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: itemWidth, height: itemHeight)
+                .opacity(isTapePlaced ? 0 : 1)
                 .shadow(
                     color: isTapePlaced ? Color.black.opacity(0.25) : Color(red: 0/255, green: 229/255, blue: 255/255).opacity(isTapeDragging ? 0.95 : 0.7),
                     radius: isTapePlaced ? 6 : (isTapeDragging ? 22 : 14)

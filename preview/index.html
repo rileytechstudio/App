@@ -2105,6 +2105,7 @@
 
                 <!-- Layer 7h: Tape Drop Zone & Floating Interactive IV Tape (Step 9) -->
                 <div id="tapeDropZone" class="tape-drop-zone" style="display: none;"></div>
+                <img id="gameTapeWrapped" class="game-layer" src="assets/GameTapeWrapped.png" alt="IV Tape Wrapped on Arm" style="z-index: 38; opacity: 0; pointer-events: none; transition: opacity 0.35s ease;" />
                 <div id="gameTapeWrapper" class="game-tape-wrapper" style="display: none;" onpointerdown="startTapeDrag(event)">
                   <img id="gameTapeImg" class="tape-img" src="assets/GameTapeItem.png" alt="Medical IV Tape" draggable="false" />
                   <div class="band-drag-prompt" id="tapePrompt">Tape the IV down!</div>
@@ -3965,6 +3966,11 @@
         tapePrompt.textContent = 'Tape the IV down!';
       }
 
+      const tapeWrapped = document.getElementById('gameTapeWrapped');
+      const tapeImg = document.getElementById('gameTapeImg');
+      if (tapeWrapped) tapeWrapped.style.opacity = '0';
+      if (tapeImg) tapeImg.style.opacity = '1';
+
       if (tapeWrapper) {
         tapeWrapper.style.display = 'block';
         tapeWrapper.style.transform = 'translate3d(0, 0, 0)';
@@ -4094,6 +4100,16 @@
       tapeWrapper.style.transition = 'transform 0.35s cubic-bezier(0.25, 1, 0.5, 1)';
       // Perpendicular to the IV on the arm (rotated 90deg from stem: 43deg)
       tapeWrapper.style.transform = `translate3d(${lockedTapeDeltaX}px, ${lockedTapeDeltaY}px, 0) rotate(43deg)`;
+
+      const tapeWrapped = document.getElementById('gameTapeWrapped');
+      const tapeImg = document.getElementById('gameTapeImg');
+      if (tapeWrapped) {
+        tapeWrapped.style.opacity = '1';
+      }
+      if (tapeImg) {
+        tapeImg.style.transition = 'opacity 0.25s ease';
+        tapeImg.style.opacity = '0';
+      }
 
       if (tapeZone) {
         tapeZone.classList.add('highlight');
@@ -4428,6 +4444,14 @@
       const tapeWrapper = document.getElementById('gameTapeWrapper');
       const tapeZone = document.getElementById('tapeDropZone');
       const tapePrompt = document.getElementById('tapePrompt');
+      const tapeWrapped = document.getElementById('gameTapeWrapped');
+      const tapeImg = document.getElementById('gameTapeImg');
+
+      if (tapeWrapped) tapeWrapped.style.opacity = '0';
+      if (tapeImg) {
+        tapeImg.style.transition = 'none';
+        tapeImg.style.opacity = '1';
+      }
 
       if (tapeWrapper) {
         tapeWrapper.style.display = 'none';
