@@ -68,9 +68,6 @@ public struct IVGameView: View {
     @State private var isCountingDown: Bool = false
     @State private var canPokeIV: Bool = false
     @State private var isIVInserted: Bool = false
-    @State private var canPullOutNeedle: Bool = false
-    @State private var isNeedlePulledOut: Bool = false
-    @State private var needleRetractOffset: CGSize = .zero
     @State private var needleRetractOpacity: Double = 1.0
     @State private var catheterOpacity: Double = 0.0
     
@@ -437,15 +434,14 @@ public struct IVGameView: View {
             // Layer 14: Floating Interactive IV Needle & Catheter (Step 8)
             if currentStep == .insertIV {
                 veinDropZoneView(stageSize: stageSize)
-                ivExtensionTubeView(stageSize: stageSize)
                 floatingIVItem(stageSize: stageSize)
                 
-                // If inserted and awaiting needle removal, tap anywhere to pull out
-                if isIVInserted && !isNeedlePulledOut {
+                // When ready to poke, tapping anywhere on screen inserts the needle
+                if canPokeIV && !isIVInserted {
                     Color.clear
                         .contentShape(Rectangle())
                         .onTapGesture {
-                            pullOutNeedleSwiftUI()
+                            pokeInsertNeedleSwiftUI()
                         }
                 }
             }
@@ -830,61 +826,6 @@ public struct IVGameView: View {
     }
     
     @ViewBuilder
-    private func ivExtensionTubeView(stageSize: CGSize) -> some View {
-        let bagPoint = CGPoint(x: stageSize.width * (200.0 / 1366.0), y: stageSize.height * (664.0 / 1024.0))
-        let initialNeedleCenter = CGPoint(x: stageSize.width * 0.254, y: stageSize.height * 0.188)
-        let targetCenter = CGPoint(x: stageSize.width * 0.742, y: stageSize.height * 0.551)
-        
-        let itemWidth = stageSize.width * 0.19
-        let itemHeight = itemWidth * (324.0 / 340.0)
-        
-        let needleCenter: CGPoint = {
-            if isIVLockedToVein {
-                let adv: CGSize = isIVInserted ? CGSize(width: stageSize.width * 0.015, height: -stageSize.height * 0.015) : .zero
-                return CGPoint(x: targetCenter.x + adv.width, y: targetCenter.y + adv.height)
-            } else {
-                return CGPoint(x: initialNeedleCenter.x + ivDragOffset.width, y: initialNeedleCenter.y + ivDragOffset.height)
-            }
-        }()
-        
-        // Catheter hub collar at (30.9% width, 74.1% height) relative to wrapper
-        let hubPoint = CGPoint(
-            x: needleCenter.x - itemWidth * 0.191,
-            y: needleCenter.y + itemHeight * 0.241
-        )
-        
-        let dx = hubPoint.x - bagPoint.x
-        let cp1: CGPoint
-        let cp2: CGPoint
-        if dx > stageSize.width * 0.12 {
-            cp1 = CGPoint(x: bagPoint.x + dx * 0.38, y: max(bagPoint.y, hubPoint.y) + stageSize.height * 0.115)
-            cp2 = CGPoint(x: hubPoint.x - stageSize.width * 0.062, y: hubPoint.y + stageSize.height * 0.063)
-        } else {
-            let t = max(0.0, min(1.0, dx / (stageSize.width * 0.12)))
-            cp1 = CGPoint(x: bagPoint.x - stageSize.width * 0.018 * (1.0 - t) + dx * 0.38 * t, y: bagPoint.y + stageSize.height * 0.039 * t - stageSize.height * 0.048 * (1.0 - t))
-            cp2 = CGPoint(x: hubPoint.x - stageSize.width * 0.036 * (1.0 - t) - stageSize.width * 0.062 * t, y: hubPoint.y + stageSize.height * 0.117 * (1.0 - t) + stageSize.height * 0.063 * t)
-        }
-        
-        ZStack {
-            // Drop shadow
-            Path { path in
-                path.move(to: CGPoint(x: bagPoint.x, y: bagPoint.y + 3))
-                path.addCurve(to: CGPoint(x: hubPoint.x, y: hubPoint.y + 3), control1: CGPoint(x: cp1.x, y: cp1.y + 3), control2: CGPoint(x: cp2.x, y: cp2.y + 3))
-            }
-            .stroke(Color.black.opacity(0.18), style: StrokeStyle(lineWidth: 9, lineCap: .round, lineJoin: .round))
-            
-            // Tube line
-            Path { path in
-                path.move(to: bagPoint)
-                path.addCurve(to: hubPoint, control1: cp1, control2: cp2)
-            }
-            .stroke(Color(red: 110/255, green: 187/255, blue: 178/255), style: StrokeStyle(lineWidth: 7.5, lineCap: .round, lineJoin: .round))
-            .shadow(color: Color.black.opacity(0.25), radius: 3, x: 0, y: 1)
-        }
-        .allowsHitTesting(false)
-    }
-    
-    @ViewBuilder
     private func floatingIVItem(stageSize: CGSize) -> some View {
         let itemWidth = stageSize.width * 0.19
         let itemHeight = itemWidth * (324.0 / 340.0)
@@ -897,7 +838,7 @@ public struct IVGameView: View {
         let advanceOffset: CGSize = isIVInserted ? CGSize(width: stageSize.width * 0.015, height: -stageSize.height * 0.015) : .zero
         
         ZStack {
-            // Soft Catheter cannula + wings (cross-faded when needle is pulled out)
+            // Soft Catheter cannula + wings (becomes visible when inserted into arm)
             Image("GameIVCatheterItem")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
@@ -909,7 +850,6 @@ public struct IVGameView: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: itemWidth, height: itemHeight)
-                .offset(needleRetractOffset)
                 .opacity(needleRetractOpacity)
                 .shadow(
                     color: Color(red: 0/255, green: 229/255, blue: 255/255).opacity(isIVDragging ? 1.0 : (canPokeIV ? 0.95 : 0.75)),
@@ -957,6 +897,10 @@ public struct IVGameView: View {
                     let curY = initialY + ivDragOffset.height
                     let dist = hypot(curX - targetCenter.x, curY - targetCenter.y)
                     isIVOverVein = dist <= max(90, stageSize.width * 0.08)
+                    
+                    if dist <= max(55, stageSize.width * 0.045) {
+                        lockIVToVeinSwiftUI()
+                    }
                 }
                 .onEnded { value in
                     guard !isIVLockedToVein else { return }
@@ -977,22 +921,16 @@ public struct IVGameView: View {
         .simultaneousGesture(
             TapGesture()
                 .onEnded {
-                    if isIVLockedToVein {
-                        if canPokeIV && !isIVInserted {
-                            pokeInsertNeedleSwiftUI()
-                        } else if isIVInserted && !isNeedlePulledOut {
-                            pullOutNeedleSwiftUI()
-                        }
+                    if isIVLockedToVein && canPokeIV && !isIVInserted {
+                        pokeInsertNeedleSwiftUI()
                     }
                 }
         )
     }
     
     private var ivPromptText: String {
-        if isNeedlePulledOut {
+        if isIVInserted {
             return "IV placed safely!"
-        } else if isIVInserted {
-            return "Tap to pull out needle!"
         } else if canPokeIV {
             return "Poke to insert!"
         } else if isCountingDown {
@@ -1003,7 +941,9 @@ public struct IVGameView: View {
     }
     
     private func lockIVToVeinSwiftUI() {
-        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+        guard !isIVLockedToVein else { return }
+        isIVDragging = false
+        withAnimation(.spring(response: 0.32, dampingFraction: 0.8)) {
             isIVLockedToVein = true
             isIVOverVein = true
         }
@@ -1033,30 +973,16 @@ public struct IVGameView: View {
     private func pokeInsertNeedleSwiftUI() {
         guard canPokeIV && !isIVInserted else { return }
         canPokeIV = false
-        HapticManager.shared.mediumTap()
-        
-        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-            isIVInserted = true
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-            canPullOutNeedle = true
-        }
-    }
-    
-    private func pullOutNeedleSwiftUI() {
-        guard !isNeedlePulledOut else { return }
-        canPullOutNeedle = false
-        isNeedlePulledOut = true
+        isIVInserted = true
         HapticManager.shared.successNotification()
         
-        withAnimation(.easeOut(duration: 0.45)) {
-            needleRetractOffset = CGSize(width: -60, height: 45)
+        // Needle plunges and immediately becomes the soft IV catheter asset
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
             needleRetractOpacity = 0.0
             catheterOpacity = 1.0
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.85) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
             withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
                 currentStep = .completed
                 showSuccessModal = true
@@ -1491,7 +1417,7 @@ public struct IVGameView: View {
                     .font(.system(size: 26, weight: .heavy))
                     .foregroundColor(AppTheme.primaryPurple)
                 
-                Text("You applied numbing ointment, wrapped the clear bandage, wiped off the lotion, placed the tourniquet band, cleaned the arm with the wipe, and safely guided and placed the IV catheter with its soft tube!")
+                Text("You applied numbing ointment, wrapped the clear bandage, wiped off the lotion, placed the tourniquet band, cleaned the arm with the wipe, and safely guided and placed the IV catheter!")
                     .font(.system(size: 15, weight: .medium))
                     .foregroundColor(Color(red: 71/255, green: 85/255, blue: 105/255))
                     .multilineTextAlignment(.center)
@@ -1639,9 +1565,6 @@ public struct IVGameView: View {
             isCountingDown = false
             canPokeIV = false
             isIVInserted = false
-            canPullOutNeedle = false
-            isNeedlePulledOut = false
-            needleRetractOffset = .zero
             needleRetractOpacity = 1.0
             catheterOpacity = 0.0
             
