@@ -2090,11 +2090,17 @@
 
     // Sound Effect: Slime 2 for Step 1 Ointment Squeeze (Volume 0.90)
     let slimeSound = null;
+    try {
+      slimeSound = new Audio('assets/Slime2.mp3');
+      slimeSound.preload = 'auto';
+      slimeSound.volume = 0.90;
+    } catch (e) {}
 
     function playSlimeSound() {
       try {
         if (!slimeSound) {
           slimeSound = new Audio('assets/Slime2.mp3');
+          slimeSound.preload = 'auto';
           slimeSound.volume = 0.90;
         }
         slimeSound.currentTime = 0;
@@ -2106,11 +2112,17 @@
 
     // Sound Effect: Bandage for Step 2 Placement & Step 3 Removal (Volume 0.90)
     let bandageSound = null;
+    try {
+      bandageSound = new Audio('assets/Bandage.mp3');
+      bandageSound.preload = 'auto';
+      bandageSound.volume = 0.90;
+    } catch (e) {}
 
     function playBandageSound() {
       try {
         if (!bandageSound) {
           bandageSound = new Audio('assets/Bandage.mp3');
+          bandageSound.preload = 'auto';
           bandageSound.volume = 0.90;
         }
         bandageSound.currentTime = 0;
