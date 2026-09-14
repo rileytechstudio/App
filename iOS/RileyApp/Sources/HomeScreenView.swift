@@ -65,10 +65,6 @@ public struct HomeScreenView: View {
                             navState.navigate(to: .games)
                         }
                     )
-                } else if destination == .games {
-                    IVGameView(onDismiss: {
-                        navState.resetToHome()
-                    })
                 } else {
                     DestinationDetailSheet(destination: destination)
                 }

@@ -1729,7 +1729,7 @@
                   <button class="card-btn" onclick="openSheet('Gallery')" style="width: 250px;">
                     <img src="assets/Gallery.png" alt="Gallery" />
                   </button>
-                  <button class="card-btn" onclick="goToGames()" style="width: 250px;">
+                  <button class="card-btn" onclick="openSheet('Games')" style="width: 250px;">
                     <img src="assets/Games.png" alt="Games" />
                   </button>
                 </div>
@@ -1763,7 +1763,7 @@
                   </button>
                 </div>
                 <div class="portrait-grid-row">
-                  <button class="card-btn" onclick="goToGames()" style="width: 190px;">
+                  <button class="card-btn" onclick="openSheet('Games')" style="width: 190px;">
                     <img src="assets/Games.png" alt="Games" />
                   </button>
                 </div>
@@ -1887,7 +1887,7 @@
               <button class="bottom-tab-btn" onclick="openSheet('Glossary')" title="Glossary"></button>
               <button class="bottom-tab-btn" onclick="openSheet('Anatomy Explorer')" title="Anatomy Explorer"></button>
               <button class="bottom-tab-btn" onclick="openSheet('Gallery')" title="Gallery"></button>
-              <button class="bottom-tab-btn" onclick="goToGames()" title="Games"></button>
+              <button class="bottom-tab-btn" onclick="openSheet('Games')" title="Games"></button>
             </div>
           </div>
         </div>
@@ -1899,9 +1899,9 @@
           <div class="game-content">
             <!-- Top Navigation Header with Step Badge -->
             <div class="game-top-bar">
-              <button class="game-top-btn" onclick="goToHome()">
+              <button class="game-top-btn" onclick="goToPreparations()">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                <span>Home</span>
+                <span>Procedures</span>
               </button>
               <div class="game-header-badge" id="gameStepBadge">
                 <span id="gameStepBadgeIcon">🧴</span>
@@ -2023,15 +2023,15 @@
               </div>
             </div>
 
-            <!-- Fixed Bottom 5-Tab Navigation Bar with Games Highlighted -->
+            <!-- Fixed Bottom 5-Tab Navigation Bar with Preparations Highlighted -->
             <div class="game-bottom-bar" id="gameBottomBar">
-              <img src="assets/BottomBarGames.png" alt="Games Bottom Navigation Bar" />
+              <img src="assets/BottomBarPreparations.png" alt="Preparations Bottom Navigation Bar" />
               <div class="bottom-bar-hit-tabs">
                 <button class="bottom-tab-btn" onclick="goToPreparations()" title="Preparations"></button>
                 <button class="bottom-tab-btn" onclick="openSheet('Glossary')" title="Glossary"></button>
                 <button class="bottom-tab-btn" onclick="openSheet('Anatomy Explorer')" title="Anatomy Explorer"></button>
                 <button class="bottom-tab-btn" onclick="openSheet('Gallery')" title="Gallery"></button>
-                <button class="bottom-tab-btn" onclick="resetGame()" title="Reset IV Game"></button>
+                <button class="bottom-tab-btn" onclick="openSheet('Games')" title="Games"></button>
               </div>
             </div>
           </div>
@@ -2080,10 +2080,10 @@
       screenPrep.classList.remove('active');
       if (screenGame) screenGame.classList.remove('active');
 
-      if (screenName === 'games') {
+      if (screenName === 'games' || screenName === 'iv-start') {
         if (screenGame) screenGame.classList.add('active');
-        if (select) select.value = 'games';
-        if (statusSpan) statusSpan.textContent = 'IV Game Screen Active • Drag Band onto Arm to Secure';
+        if (select) select.value = 'iv-start';
+        if (statusSpan) statusSpan.textContent = 'IV Start Procedure Active • Complete interactive steps';
       } else if (screenName === 'preparations') {
         screenPrep.classList.add('active');
         if (select) select.value = 'preparations';
@@ -2104,8 +2104,12 @@
       switchScreen('home');
     }
 
+    function goToIVStart() {
+      switchScreen('iv-start');
+    }
+
     function goToGames() {
-      switchScreen('games');
+      openSheet('Games');
     }
 
     // =========================================================
@@ -4739,7 +4743,11 @@
     };
 
     function openProcedure(name) {
-      openSheet(name);
+      if (name === 'IV Start') {
+        goToIVStart();
+      } else {
+        openSheet(name);
+      }
     }
 
     function openSheet(key) {

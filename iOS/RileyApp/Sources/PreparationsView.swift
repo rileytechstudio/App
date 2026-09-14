@@ -27,7 +27,7 @@ public struct PreparationsView: View {
     @State private var selectedTab: RibbonTab = .procedures
     @State private var currentScrollIndex: Int = 0
     @State private var selectedProcedure: ProcedureItem? = nil
-    @State private var isShowingGames: Bool = false
+    @State private var isShowingIVGame: Bool = false
     
     public enum RibbonTab {
         case procedures
@@ -137,9 +137,9 @@ public struct PreparationsView: View {
             .sheet(item: $selectedProcedure) { item in
                 procedureDetailSheet(for: item)
             }
-            .fullScreenCover(isPresented: $isShowingGames) {
+            .fullScreenCover(isPresented: $isShowingIVGame) {
                 IVGameView(onDismiss: {
-                    isShowingGames = false
+                    isShowingIVGame = false
                 })
             }
         }
@@ -288,7 +288,11 @@ public struct PreparationsView: View {
                     ForEach(Array(filteredProcedures.enumerated()), id: \.element.id) { index, item in
                         Button(action: {
                             HapticManager.shared.buttonTap()
-                            selectedProcedure = item
+                            if item.id == "iv-start" {
+                                isShowingIVGame = true
+                            } else {
+                                selectedProcedure = item
+                            }
                         }) {
                             Image(item.imageName)
                                 .resizable()
@@ -444,8 +448,6 @@ public struct PreparationsView: View {
                     HapticManager.shared.buttonTap()
                     if let onOpenGames = onOpenGames {
                         onOpenGames()
-                    } else {
-                        isShowingGames = true
                     }
                 }) {
                     Color.clear

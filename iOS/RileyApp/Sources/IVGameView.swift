@@ -160,7 +160,7 @@ public struct IVGameView: View {
                 HStack(spacing: 6) {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 16, weight: .bold))
-                    Text("Home")
+                    Text("Procedures")
                         .font(.system(size: 15, weight: .bold))
                 }
                 .foregroundColor(.white)
@@ -1598,7 +1598,7 @@ public struct IVGameView: View {
     @ViewBuilder
     private func bottomBarView(availableWidth: CGFloat, height: CGFloat) -> some View {
         ZStack {
-            Image("BottomBarGames")
+            Image("BottomBarPreparations")
                 .resizable()
                 .aspectRatio(AppTheme.bottomBarAspectRatio, contentMode: .fit)
                 .frame(width: availableWidth)
