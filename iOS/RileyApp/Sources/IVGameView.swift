@@ -6,6 +6,7 @@ public final class IVAudioManager {
     public static let shared = IVAudioManager()
     private var player: AVAudioPlayer?
     private var sfxPlayer: AVAudioPlayer?
+    private var wipePlayer: AVAudioPlayer?
     
     private init() {}
     
@@ -60,6 +61,7 @@ public final class IVAudioManager {
         player?.stop()
         player?.currentTime = 0
         player = nil
+        stopClothWipeSound(reset: true)
     }
     
     // MARK: - Step 1 Ointment Squeeze Sound Effect (Volume 0.90)
@@ -133,6 +135,58 @@ public final class IVAudioManager {
             } catch {
                 print("Failed to play Bandage audio: \(error)")
             }
+        }
+    }
+    
+    // MARK: - Step 4 Cloth Wipe Sound Effect (Volume 0.90)
+    public func startClothWipeSound() {
+        if wipePlayer == nil {
+            // Priority 1: Load from Asset Catalog NSDataAsset
+            if let dataAsset = NSDataAsset(name: "ClothWipe") {
+                do {
+                    wipePlayer = try AVAudioPlayer(data: dataAsset.data)
+                    wipePlayer?.numberOfLoops = -1
+                    wipePlayer?.volume = 0.90
+                    wipePlayer?.prepareToPlay()
+                } catch {
+                    print("Failed to initialize ClothWipe player from data asset: \(error)")
+                }
+            }
+            
+            // Priority 2: Fallback to Bundle resource URLs
+            if wipePlayer == nil {
+                var soundURL: URL? = Bundle.main.url(forResource: "Cloth Wipe", withExtension: "mp3")
+                    ?? Bundle.main.url(forResource: "ClothWipe", withExtension: "mp3")
+                
+                #if SWIFT_PACKAGE
+                if soundURL == nil {
+                    soundURL = Bundle.module.url(forResource: "Cloth Wipe", withExtension: "mp3")
+                        ?? Bundle.module.url(forResource: "ClothWipe", withExtension: "mp3")
+                }
+                #endif
+                
+                if let url = soundURL {
+                    do {
+                        wipePlayer = try AVAudioPlayer(contentsOf: url)
+                        wipePlayer?.numberOfLoops = -1
+                        wipePlayer?.volume = 0.90
+                        wipePlayer?.prepareToPlay()
+                    } catch {
+                        print("Failed to initialize Cloth Wipe player from URL: \(error)")
+                    }
+                }
+            }
+        }
+        
+        if let player = wipePlayer, !player.isPlaying {
+            player.play()
+        }
+    }
+    
+    public func stopClothWipeSound(reset: Bool = false) {
+        wipePlayer?.pause()
+        if reset {
+            wipePlayer?.currentTime = 0
         }
     }
 }
@@ -1451,6 +1505,7 @@ public struct IVGameView: View {
                 }
                 .onEnded { _ in
                     isWashclothDragging = false
+                    IVAudioManager.shared.stopClothWipeSound()
                     washclothCursorSide = 0
                     washclothCursorSideY = 0
                     withAnimation(.easeOut(duration: 0.2)) {
@@ -1496,7 +1551,12 @@ public struct IVGameView: View {
         guard isOver else {
             washclothCursorSide = 0
             washclothCursorSideY = 0
+            IVAudioManager.shared.stopClothWipeSound()
             return
+        }
+        
+        if isWashclothDragging && washclothSweepCount < totalWipeSweeps {
+            IVAudioManager.shared.startClothWipeSound()
         }
         
         // 1. Horizontal crossing across lotion center
@@ -1536,6 +1596,7 @@ public struct IVGameView: View {
         HapticManager.shared.lightTap()
         
         if washclothSweepCount >= totalWipeSweeps {
+            IVAudioManager.shared.stopClothWipeSound(reset: true)
             HapticManager.shared.successNotification()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                 withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
@@ -1809,6 +1870,7 @@ public struct IVGameView: View {
     // MARK: - Helper Methods
     private func resetGame() {
         stopSwiftUISqueeze()
+        IVAudioManager.shared.stopClothWipeSound(reset: true)
         withAnimation(.spring()) {
             currentStep = .ointment
             isBandPlaced = false

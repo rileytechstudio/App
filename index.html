@@ -2132,6 +2132,42 @@
       } catch (err) {}
     }
 
+    // Sound Effect: Cloth Wipe for Step 4 Washcloth (Volume 0.90)
+    let clothWipeSound = null;
+    try {
+      clothWipeSound = new Audio('assets/ClothWipe.mp3');
+      clothWipeSound.preload = 'auto';
+      clothWipeSound.loop = true;
+      clothWipeSound.volume = 0.90;
+    } catch (e) {}
+
+    function playClothWipeSound() {
+      try {
+        if (!clothWipeSound) {
+          clothWipeSound = new Audio('assets/ClothWipe.mp3');
+          clothWipeSound.preload = 'auto';
+          clothWipeSound.loop = true;
+          clothWipeSound.volume = 0.90;
+        }
+        if (clothWipeSound.paused) {
+          clothWipeSound.play().catch(err => {
+            console.log('Cloth wipe audio playback waiting for user gesture or error:', err);
+          });
+        }
+      } catch (err) {}
+    }
+
+    function stopClothWipeSound(reset = false) {
+      try {
+        if (clothWipeSound && !clothWipeSound.paused) {
+          clothWipeSound.pause();
+        }
+        if (reset && clothWipeSound) {
+          clothWipeSound.currentTime = 0;
+        }
+      } catch (err) {}
+    }
+
     // Screen Switching
     function switchScreen(screenName) {
       const screenHome = document.getElementById('screenHome');
@@ -2151,8 +2187,9 @@
         if (statusSpan) statusSpan.textContent = 'IV Start Procedure Active • Complete interactive steps';
         playIVBackgroundMusic();
       } else {
-        // Navigating away from the IV Start preparation stops the background music
+        // Navigating away from the IV Start preparation stops the background music and wipe audio
         stopIVBackgroundMusic();
+        stopClothWipeSound(true);
         if (screenName === 'preparations') {
           screenPrep.classList.add('active');
           if (select) select.value = 'preparations';
@@ -2859,7 +2896,12 @@
         // Leaving lotion zone resets side tracking
         washclothCursorSide = null;
         washclothCursorSideY = null;
+        stopClothWipeSound();
         return;
+      }
+
+      if (isDraggingWashcloth && washclothSweepCount < TOTAL_WIPE_SWEEPS) {
+        playClothWipeSound();
       }
 
       // Deadband around center to require clear cursor traversal across the lotion
@@ -2931,6 +2973,7 @@
     function onWashclothPointerUp(e) {
       if (!isDraggingWashcloth) return;
       isDraggingWashcloth = false;
+      stopClothWipeSound();
 
       window.removeEventListener('pointermove', onWashclothPointerMove);
       window.removeEventListener('pointerup', onWashclothPointerUp);
@@ -2968,6 +3011,7 @@
     }
 
     function completeWashclothStep() {
+      stopClothWipeSound(true);
       const washclothWrapper = document.getElementById('gameWashclothWrapper');
       const lotionImg = document.getElementById('gameLotionImg');
       const stepBadge = document.getElementById('gameStepBadge');
@@ -4278,6 +4322,7 @@
       }
 
       // Reset Step 4: Washcloth Wipe
+      stopClothWipeSound(true);
       isDraggingWashcloth = false;
       washclothStartX = 0;
       washclothStartY = 0;
