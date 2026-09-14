@@ -1556,6 +1556,11 @@ public struct IVGameView: View {
             Color.black.opacity(0.50)
                 .ignoresSafeArea()
             
+            // Confetti animation behind You Did It asset
+            ConfettiAnimationView()
+                .ignoresSafeArea()
+                .allowsHitTesting(false)
+            
             VStack(spacing: 22) {
                 Image("GameYouDidIt")
                     .resizable()
@@ -1724,6 +1729,92 @@ public struct IVGameView: View {
         } else {
             return CGSize(width: containerHeight * aspectRatio, height: containerHeight)
         }
+    }
+}
+
+// MARK: - Confetti Particle Animation (Behind You Did It)
+struct ConfettiParticle: Identifiable {
+    let id: Int
+    var x: CGFloat
+    var y: CGFloat
+    var width: CGFloat
+    var height: CGFloat
+    var color: Color
+    var rotation: Double
+    var rotationSpeed: Double
+    var vx: CGFloat
+    var vy: CGFloat
+    var wobble: Double
+    var wobbleSpeed: Double
+    var isCircle: Bool
+}
+
+struct ConfettiAnimationView: View {
+    @State private var particles: [ConfettiParticle] = []
+    
+    private static let colors: [Color] = [
+        Color(red: 1.0, green: 0.30, blue: 0.43), // Bright Pink
+        Color(red: 1.0, green: 0.72, blue: 0.01), // Sunny Gold
+        Color(red: 0.0, green: 0.78, blue: 1.0),  // Electric Cyan
+        Color(red: 0.62, green: 0.31, blue: 0.87),// Riley Purple
+        Color(red: 0.02, green: 0.84, blue: 0.63),// Mint Green
+        Color(red: 1.0, green: 0.62, blue: 0.0),  // Bright Orange
+        Color(red: 0.28, green: 0.79, blue: 0.90) // Sky Blue
+    ]
+    
+    var body: some View {
+        TimelineView(.animation) { timeline in
+            Canvas { context, size in
+                let now = timeline.date.timeIntervalSinceReferenceDate
+                for particle in particles {
+                    let animY = (particle.y + particle.vy * CGFloat(now * 60)).truncatingRemainder(dividingBy: max(size.height + 60, 100)) - 30
+                    let animX = particle.x + sin(particle.wobble + now * particle.wobbleSpeed) * 15
+                    let rot = particle.rotation + particle.rotationSpeed * now * 60
+                    let flip = cos(particle.wobble + now * particle.wobbleSpeed)
+                    
+                    var pContext = context
+                    pContext.translateBy(x: animX, y: animY)
+                    pContext.rotate(by: Angle.degrees(rot))
+                    pContext.scaleBy(x: flip, y: 1.0)
+                    
+                    let rect = CGRect(x: -particle.width / 2, y: -particle.height / 2, width: particle.width, height: particle.height)
+                    if particle.isCircle {
+                        pContext.fill(Path(ellipseIn: rect), with: .color(particle.color))
+                    } else {
+                        pContext.fill(Path(roundedRect: rect, cornerRadius: 2.5), with: .color(particle.color))
+                    }
+                }
+            }
+        }
+        .onAppear {
+            setupParticles()
+        }
+    }
+    
+    private func setupParticles() {
+        var newParticles: [ConfettiParticle] = []
+        for i in 0..<110 {
+            let color = Self.colors[i % Self.colors.count]
+            let w = CGFloat.random(in: 8...14)
+            let h = CGFloat.random(in: 12...22)
+            let p = ConfettiParticle(
+                id: i,
+                x: CGFloat.random(in: 10...1356),
+                y: CGFloat.random(in: 0...1024),
+                width: w,
+                height: h,
+                color: color,
+                rotation: Double.random(in: 0...360),
+                rotationSpeed: Double.random(in: -3...3),
+                vx: CGFloat.random(in: -1.5...1.5),
+                vy: CGFloat.random(in: 2.2...4.5),
+                wobble: Double.random(in: 0...(2 * .pi)),
+                wobbleSpeed: Double.random(in: 2.5...5.0),
+                isCircle: i % 4 == 0
+            )
+            newParticles.append(p)
+        }
+        particles = newParticles
     }
 }
 

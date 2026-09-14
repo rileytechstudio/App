@@ -1704,7 +1704,18 @@
       pointer-events: auto;
     }
 
+    .game-confetti-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
     .success-content {
+      position: relative;
+      z-index: 2;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -2140,6 +2151,7 @@
 
                 <!-- Layer 11: Success Celebration Overlay -->
                 <div id="gameSuccessOverlay" class="game-success-overlay">
+                  <canvas id="gameConfettiCanvas" class="game-confetti-canvas"></canvas>
                   <div class="success-content">
                     <img class="game-you-did-it-img" src="assets/GameYouDidIt.png" alt="You Did It!" draggable="false" />
                     <button class="game-btn-replay" onclick="resetGame()">Play Again</button>
@@ -4125,9 +4137,120 @@
       }, 1200);
     }
 
+    // Confetti Animation Engine (Behind You Did It Overlay)
+    let confettiAnimationId = null;
+    const CONFETTI_COLORS = [
+      '#FF4D6D', // Bright Pink
+      '#FFB703', // Sunny Gold
+      '#00C6FF', // Electric Cyan
+      '#9D4EDD', // Riley Purple
+      '#06D6A0', // Mint Green
+      '#FF9E00', // Bright Orange
+      '#48CAE4'  // Sky Blue
+    ];
+
+    function startConfetti() {
+      const canvas = document.getElementById('gameConfettiCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = 1366;
+      const h = 1024;
+      canvas.width = w;
+      canvas.height = h;
+
+      const particles = [];
+      const particleCount = 110;
+
+      for (let i = 0; i < particleCount; i++) {
+        const isBurst = i < 55;
+        const angle = isBurst ? Math.random() * Math.PI * 2 : 0;
+        const speed = isBurst ? Math.random() * 14 + 5 : 0;
+        particles.push({
+          x: isBurst ? w / 2 + (Math.random() - 0.5) * 220 : Math.random() * w,
+          y: isBurst ? h / 2 + (Math.random() - 0.5) * 90 : Math.random() * -h,
+          w: Math.random() * 12 + 10,
+          h: Math.random() * 20 + 12,
+          color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+          rotation: Math.random() * 360,
+          rotationSpeed: (Math.random() - 0.5) * 8,
+          vx: isBurst ? Math.cos(angle) * speed : (Math.random() - 0.5) * 2.5,
+          vy: isBurst ? Math.sin(angle) * speed - 2.5 : Math.random() * 3.2 + 2.5,
+          gravity: 0.18,
+          drag: isBurst ? 0.94 : 0.99,
+          wobble: Math.random() * Math.PI * 2,
+          wobbleSpeed: Math.random() * 0.09 + 0.03,
+          isCircle: Math.random() > 0.78
+        });
+      }
+
+      function render() {
+        ctx.clearRect(0, 0, w, h);
+
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          p.vx *= p.drag;
+          p.vy = p.vy * p.drag + p.gravity;
+          p.x += p.vx + Math.sin(p.wobble) * 2;
+          p.y += p.vy;
+          p.rotation += p.rotationSpeed;
+          p.wobble += p.wobbleSpeed;
+
+          // Recycle when falling below stage
+          if (p.y > h + 40) {
+            p.y = -30;
+            p.x = Math.random() * w;
+            p.vy = Math.random() * 3.2 + 2.5;
+            p.vx = (Math.random() - 0.5) * 2.5;
+            p.drag = 0.99;
+          }
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rotation * Math.PI) / 180);
+          ctx.scale(Math.cos(p.wobble), 1);
+
+          ctx.fillStyle = p.color;
+          if (p.isCircle) {
+            ctx.beginPath();
+            ctx.arc(0, 0, p.w / 2, 0, Math.PI * 2);
+            ctx.fill();
+          } else {
+            ctx.beginPath();
+            const rw = p.w;
+            const rh = p.h;
+            if (ctx.roundRect) {
+              ctx.roundRect(-rw / 2, -rh / 2, rw, rh, 3);
+            } else {
+              ctx.rect(-rw / 2, -rh / 2, rw, rh);
+            }
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+
+        confettiAnimationId = requestAnimationFrame(render);
+      }
+
+      if (confettiAnimationId) cancelAnimationFrame(confettiAnimationId);
+      confettiAnimationId = requestAnimationFrame(render);
+    }
+
+    function stopConfetti() {
+      if (confettiAnimationId) {
+        cancelAnimationFrame(confettiAnimationId);
+        confettiAnimationId = null;
+      }
+      const canvas = document.getElementById('gameConfettiCanvas');
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
     function completeTapeStep() {
       const overlay = document.getElementById('gameSuccessOverlay');
       if (overlay) overlay.classList.add('visible');
+      startConfetti();
     }
 
     function resetGame() {
@@ -4267,6 +4390,7 @@
       const ointmentPrompt = document.getElementById('ointmentPrompt');
 
       if (overlay) overlay.classList.remove('visible');
+      stopConfetti();
 
       // In Step 1, hide arm drop zone and show elbow drop zone
       if (armZone) {
