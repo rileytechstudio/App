@@ -886,7 +886,6 @@ public struct IVGameView: View {
         .contentShape(Rectangle())
         .position(x: currentPos.x + advanceOffset.width, y: currentPos.y + advanceOffset.height)
         .gesture(
-            isIVLockedToVein ? nil :
             DragGesture(coordinateSpace: .local)
                 .onChanged { value in
                     guard !isIVLockedToVein else { return }
@@ -955,7 +954,7 @@ public struct IVGameView: View {
         ivCountdownValue = 3
         isCountingDown = true
         
-        Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
+        let timer = Timer(timeInterval: 1.0, repeats: true) { timer in
             if ivCountdownValue > 1 {
                 ivCountdownValue -= 1
                 HapticManager.shared.lightTap()
@@ -968,6 +967,7 @@ public struct IVGameView: View {
                 HapticManager.shared.successNotification()
             }
         }
+        RunLoop.main.add(timer, forMode: .common)
     }
     
     private func pokeInsertNeedleSwiftUI() {

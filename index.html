@@ -2097,6 +2097,16 @@
     let ivDeltaY = 0;
     let ivAdvanceTimeout = null;
 
+    function triggerHapticFeedback(isStrong = false) {
+      try {
+        if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+          navigator.vibrate(isStrong ? 40 : 20);
+        }
+      } catch (err) {
+        // Ignore haptic errors on unsupported devices
+      }
+    }
+
     // --- STEP 1: NUMBING OINTMENT DRAG & SQUEEZE ---
     function startOintmentDrag(e) {
       if (currentStep !== 1) return;
