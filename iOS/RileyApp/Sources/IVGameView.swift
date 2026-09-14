@@ -227,6 +227,42 @@ public final class IVAudioManager {
             }
         }
     }
+    
+    // MARK: - Step 6 Packet Rip Sound Effect (Volume 0.90)
+    public func playRipSound() {
+        // Priority 1: Load from Asset Catalog NSDataAsset
+        if let dataAsset = NSDataAsset(name: "Rip") {
+            do {
+                sfxPlayer = try AVAudioPlayer(data: dataAsset.data)
+                sfxPlayer?.volume = 0.90
+                sfxPlayer?.prepareToPlay()
+                sfxPlayer?.play()
+                return
+            } catch {
+                print("Failed to initialize Rip player from data asset: \(error)")
+            }
+        }
+        
+        // Priority 2: Fallback to Bundle resource URLs
+        var soundURL: URL? = Bundle.main.url(forResource: "Rip", withExtension: "mp3")
+        
+        #if SWIFT_PACKAGE
+        if soundURL == nil {
+            soundURL = Bundle.module.url(forResource: "Rip", withExtension: "mp3")
+        }
+        #endif
+        
+        if let url = soundURL {
+            do {
+                sfxPlayer = try AVAudioPlayer(contentsOf: url)
+                sfxPlayer?.volume = 0.90
+                sfxPlayer?.prepareToPlay()
+                sfxPlayer?.play()
+            } catch {
+                print("Failed to play Rip audio: \(error)")
+            }
+        }
+    }
 }
 
 // MARK: - Game Step Definition
@@ -887,6 +923,7 @@ public struct IVGameView: View {
     
     private func ripOpenPacketAction() {
         guard !isPacketRipped else { return }
+        IVAudioManager.shared.playRipSound()
         HapticManager.shared.lightTap()
         withAnimation(.spring(response: 0.4, dampingFraction: 0.65)) {
             isPacketRipped = true

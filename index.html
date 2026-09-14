@@ -2190,6 +2190,28 @@
       } catch (err) {}
     }
 
+    // Sound Effect: Rip for Step 6 Packet Tear (Volume 0.90)
+    let ripSound = null;
+    try {
+      ripSound = new Audio('assets/Rip.mp3');
+      ripSound.preload = 'auto';
+      ripSound.volume = 0.90;
+    } catch (e) {}
+
+    function playRipSound() {
+      try {
+        if (!ripSound) {
+          ripSound = new Audio('assets/Rip.mp3');
+          ripSound.preload = 'auto';
+          ripSound.volume = 0.90;
+        }
+        ripSound.currentTime = 0;
+        ripSound.play().catch(err => {
+          console.log('Rip audio playback waiting for user gesture or error:', err);
+        });
+      } catch (err) {}
+    }
+
     // Screen Switching
     function switchScreen(screenName) {
       const screenHome = document.getElementById('screenHome');
@@ -3329,6 +3351,7 @@
       if (isPacketRipped) return;
       isPacketRipped = true;
       isTracingRip = false;
+      playRipSound();
 
       window.removeEventListener('pointermove', onPacketRipPointerMove);
       window.removeEventListener('pointerup', onPacketRipPointerUp);
