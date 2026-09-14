@@ -2242,6 +2242,22 @@
       } catch (err) {}
     }
 
+    // Sound Effect: Bandage for Step 2 Placement & Step 3 Removal (Volume 0.90)
+    let bandageSound = null;
+
+    function playBandageSound() {
+      try {
+        if (!bandageSound) {
+          bandageSound = new Audio('assets/Bandage.mp3');
+          bandageSound.volume = 0.90;
+        }
+        bandageSound.currentTime = 0;
+        bandageSound.play().catch(err => {
+          console.log('Bandage audio playback waiting for user gesture or error:', err);
+        });
+      } catch (err) {}
+    }
+
     // Screen Switching
     function switchScreen(screenName) {
       const screenHome = document.getElementById('screenHome');
@@ -2768,6 +2784,7 @@
     }
 
     function completeBandagePlacement() {
+      playBandageSound();
       const bandageWrapper = document.getElementById('gameBandageWrapper');
       const bandageWrapped = document.getElementById('gameBandageWrapped');
       const elbowZone = document.getElementById('elbowDropZone');
@@ -2833,6 +2850,7 @@
         e.preventDefault();
         e.stopPropagation();
       }
+      playBandageSound();
 
       const tapPrompt = document.getElementById('bandageTapPrompt');
       const bandageWrapped = document.getElementById('gameBandageWrapped');

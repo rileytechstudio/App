@@ -99,6 +99,42 @@ public final class IVAudioManager {
             }
         }
     }
+    
+    // MARK: - Step 2 & 3 Bandage Placement & Removal Sound Effect (Volume 0.90)
+    public func playBandageSound() {
+        // Priority 1: Load from Asset Catalog NSDataAsset
+        if let dataAsset = NSDataAsset(name: "Bandage") {
+            do {
+                sfxPlayer = try AVAudioPlayer(data: dataAsset.data)
+                sfxPlayer?.volume = 0.90
+                sfxPlayer?.prepareToPlay()
+                sfxPlayer?.play()
+                return
+            } catch {
+                print("Failed to initialize Bandage player from data asset: \(error)")
+            }
+        }
+        
+        // Priority 2: Fallback to Bundle resource URLs
+        var soundURL: URL? = Bundle.main.url(forResource: "Bandage", withExtension: "mp3")
+        
+        #if SWIFT_PACKAGE
+        if soundURL == nil {
+            soundURL = Bundle.module.url(forResource: "Bandage", withExtension: "mp3")
+        }
+        #endif
+        
+        if let url = soundURL {
+            do {
+                sfxPlayer = try AVAudioPlayer(contentsOf: url)
+                sfxPlayer?.volume = 0.90
+                sfxPlayer?.prepareToPlay()
+                sfxPlayer?.play()
+            } catch {
+                print("Failed to play Bandage audio: \(error)")
+            }
+        }
+    }
 }
 
 // MARK: - Game Step Definition
@@ -1307,6 +1343,7 @@ public struct IVGameView: View {
                 }
                 .onEnded { _ in
                     if isBandageOverElbow {
+                        IVAudioManager.shared.playBandageSound()
                         HapticManager.shared.successNotification()
                         withAnimation(.easeOut(duration: 0.25)) {
                             isBandagePlaced = true
@@ -1333,6 +1370,7 @@ public struct IVGameView: View {
     // MARK: - Remove Bandage Action (Step 3)
     private func removeBandageAction() {
         guard currentStep == .removeBandage else { return }
+        IVAudioManager.shared.playBandageSound()
         HapticManager.shared.lightTap()
         withAnimation(.easeInOut(duration: 0.55)) {
             bandagePeelOffset = CGSize(width: -85, height: -110)
