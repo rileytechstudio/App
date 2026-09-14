@@ -1429,6 +1429,93 @@
       100% { transform: translateX(-50%) scale(1.18); box-shadow: 0 0 26px rgba(0, 229, 255, 1); }
     }
 
+    /* Floating Interactive IV Tape (Step 9: Centered above bag) */
+    .game-tape-wrapper {
+      position: absolute;
+      left: 15.25%;
+      top: 11.8%;
+      width: 20.5%;
+      height: 12.0%;
+      cursor: grab;
+      z-index: 40;
+      touch-action: none;
+      user-select: none;
+      transition: opacity 0.3s ease;
+      display: none;
+      opacity: 0;
+    }
+
+    .game-tape-wrapper.visible {
+      display: block;
+      opacity: 1;
+      animation: tapeFloatGlow 2.6s ease-in-out infinite;
+    }
+
+    .game-tape-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.18));
+    }
+
+    .game-tape-wrapper.is-dragging {
+      animation: none !important;
+      cursor: grabbing !important;
+      z-index: 60 !important;
+      filter: drop-shadow(0 0 25px rgba(0, 229, 255, 1)) drop-shadow(0 0 45px rgba(0, 180, 255, 0.85)) !important;
+    }
+
+    .game-tape-wrapper.spring-back {
+      transition: transform 0.42s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .game-tape-wrapper.locked-arm {
+      animation: none !important;
+      cursor: default;
+      z-index: 38 !important;
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.25)) drop-shadow(0 0 16px rgba(0, 255, 180, 0.6));
+      transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    @keyframes tapeFloatGlow {
+      0%, 100% {
+        transform: translate3d(0, 0, 0);
+        filter: drop-shadow(0 0 14px rgba(0, 229, 255, 0.8)) drop-shadow(0 0 28px rgba(0, 180, 255, 0.55));
+      }
+      50% {
+        transform: translate3d(0, -10px, 0);
+        filter: drop-shadow(0 0 24px rgba(0, 229, 255, 1)) drop-shadow(0 0 42px rgba(0, 180, 255, 0.75));
+      }
+    }
+
+    /* Tape Drop Zone & Target Highlight (Step 9: Over IV Catheter) */
+    .tape-drop-zone {
+      position: absolute;
+      left: 66.2%;
+      top: 45.5%;
+      width: 16%;
+      height: 19%;
+      border-radius: 50%;
+      pointer-events: none;
+      border: 3px dashed rgba(0, 229, 255, 0.6);
+      background: rgba(0, 229, 255, 0.08);
+      transition: all 0.28s ease;
+      z-index: 28;
+      display: none;
+      animation: veinGuidePulse 2s ease-in-out infinite;
+    }
+
+    .tape-drop-zone.highlight {
+      border-color: rgba(0, 255, 180, 0.95);
+      background: rgba(0, 255, 180, 0.22);
+      box-shadow: 0 0 35px rgba(0, 255, 180, 0.85);
+      transform: scale(1.06);
+    }
+
     .game-band-wrapper {
       position: absolute;
       left: 18.2%;
@@ -2016,6 +2103,13 @@
                   <div class="band-drag-prompt" id="ivPrompt">Guide the needle to the vein!</div>
                 </div>
 
+                <!-- Layer 7h: Tape Drop Zone & Floating Interactive IV Tape (Step 9) -->
+                <div id="tapeDropZone" class="tape-drop-zone" style="display: none;"></div>
+                <div id="gameTapeWrapper" class="game-tape-wrapper" style="display: none;" onpointerdown="startTapeDrag(event)">
+                  <img id="gameTapeImg" class="tape-img" src="assets/GameTapeItem.png" alt="Medical IV Tape" draggable="false" />
+                  <div class="band-drag-prompt" id="tapePrompt">Tape the IV down!</div>
+                </div>
+
                 <!-- Layer 8: Floating Interactive Elastic Tourniquet Band (Step 5) -->
                 <div id="gameBandWrapper" class="game-band-wrapper" style="display: none;" onpointerdown="startBandDrag(event)">
                   <img id="gameBandImg" src="assets/GameBandItem.png" alt="Elastic Tourniquet Band" draggable="false" />
@@ -2052,7 +2146,7 @@
                   <div class="success-card">
                     <div class="success-icon">✨ 🩺 🩹 🧴 🧼 ✨</div>
                     <div class="success-title">Great Job!</div>
-                    <div class="success-desc">You applied numbing ointment, wrapped the clear bandage, wiped off the lotion, placed the tourniquet band, cleaned the arm with the wipe, and safely guided and placed the IV catheter!</div>
+                    <div class="success-desc">You applied numbing ointment, wrapped the clear bandage, wiped off the lotion, placed the tourniquet band, cleaned the arm with the wipe, guided and placed the IV catheter, and secured it with tape!</div>
                     <button class="game-btn-replay" onclick="resetGame()">Play Again</button>
                   </div>
                 </div>
@@ -2234,6 +2328,17 @@
     let ivDeltaX = 0;
     let ivDeltaY = 0;
     let ivAdvanceTimeout = null;
+
+    // Step 9: IV Tape Placement Variables
+    let isDraggingTape = false;
+    let isTapePlaced = false;
+    let tapePointerStartX = 0;
+    let tapePointerStartY = 0;
+    let tapeDeltaX = 0;
+    let tapeDeltaY = 0;
+    let lockedTapeDeltaX = 0;
+    let lockedTapeDeltaY = 0;
+    let tapeAdvanceTimeout = null;
 
     function triggerHapticFeedback(isStrong = false) {
       try {
@@ -3822,11 +3927,195 @@
 
       if (ivAdvanceTimeout) clearTimeout(ivAdvanceTimeout);
       ivAdvanceTimeout = setTimeout(() => {
-        completeIVStep();
+        initTapeStep();
       }, 1200);
     }
 
-    function completeIVStep() {
+    // --- STEP 9: IV TAPE PLACEMENT ---
+    function initTapeStep() {
+      currentStep = 9;
+      isDraggingTape = false;
+      isTapePlaced = false;
+      tapeDeltaX = 0;
+      tapeDeltaY = 0;
+      lockedTapeDeltaX = 0;
+      lockedTapeDeltaY = 0;
+
+      const tapeWrapper = document.getElementById('gameTapeWrapper');
+      const tapeZone = document.getElementById('tapeDropZone');
+      const tapePrompt = document.getElementById('tapePrompt');
+      const stepBadgeIcon = document.getElementById('gameStepBadgeIcon');
+      const stepBadgeText = document.getElementById('gameStepBadgeText');
+      const ivPrompt = document.getElementById('ivPrompt');
+      const veinZone = document.getElementById('veinDropZone');
+
+      if (veinZone) veinZone.style.display = 'none';
+      if (ivPrompt) ivPrompt.style.display = 'none';
+
+      if (stepBadgeIcon) stepBadgeIcon.textContent = '🩹';
+      if (stepBadgeText) stepBadgeText.textContent = 'Step 9: Tape the IV';
+
+      if (tapeZone) {
+        tapeZone.style.display = 'block';
+        tapeZone.classList.remove('highlight');
+        tapeZone.style.boxShadow = '';
+      }
+
+      if (tapePrompt) {
+        tapePrompt.textContent = 'Tape the IV down!';
+      }
+
+      if (tapeWrapper) {
+        tapeWrapper.style.display = 'block';
+        tapeWrapper.style.transform = 'translate3d(0, 0, 0)';
+        tapeWrapper.style.transition = 'opacity 0.3s ease';
+        tapeWrapper.classList.remove('is-dragging', 'spring-back', 'locked-arm');
+        setTimeout(() => {
+          tapeWrapper.classList.add('visible');
+          tapeWrapper.style.opacity = '1';
+        }, 50);
+      }
+    }
+
+    function startTapeDrag(e) {
+      if (currentStep !== 9 || isTapePlaced) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      const tapeWrapper = document.getElementById('gameTapeWrapper');
+      const stage = document.getElementById('gameStage');
+      if (!tapeWrapper || !stage) return;
+
+      isDraggingTape = true;
+      tapePointerStartX = e.clientX;
+      tapePointerStartY = e.clientY;
+      tapeDeltaX = 0;
+      tapeDeltaY = 0;
+
+      tapeWrapper.style.transition = 'none';
+      tapeWrapper.classList.add('is-dragging');
+      tapeWrapper.classList.remove('spring-back', 'visible');
+
+      window.addEventListener('pointermove', onTapePointerMove);
+      window.addEventListener('pointerup', onTapePointerUp);
+      window.addEventListener('pointercancel', onTapePointerUp);
+    }
+
+    function onTapePointerMove(e) {
+      if (!isDraggingTape) return;
+      e.preventDefault();
+
+      tapeDeltaX = e.clientX - tapePointerStartX;
+      tapeDeltaY = e.clientY - tapePointerStartY;
+
+      const tapeWrapper = document.getElementById('gameTapeWrapper');
+      const stage = document.getElementById('gameStage');
+      const tapeZone = document.getElementById('tapeDropZone');
+      if (!tapeWrapper || !stage) return;
+
+      tapeWrapper.style.transform = `translate3d(${tapeDeltaX}px, ${tapeDeltaY}px, 0)`;
+
+      const sRect = stage.getBoundingClientRect();
+      const targetDeltaX = sRect.width * (0.742 - 0.255) + 16;
+      const targetDeltaY = sRect.height * (0.551 - 0.178) - 10;
+      const distToTarget = Math.hypot(tapeDeltaX - targetDeltaX, tapeDeltaY - targetDeltaY);
+
+      if (distToTarget <= Math.max(120, sRect.width * 0.12)) {
+        if (tapeZone) tapeZone.classList.add('highlight');
+      } else {
+        if (tapeZone) tapeZone.classList.remove('highlight');
+      }
+
+      if (distToTarget <= Math.max(65, sRect.width * 0.065)) {
+        lockTapeToArm();
+      }
+    }
+
+    function onTapePointerUp(e) {
+      if (!isDraggingTape) return;
+
+      const tapeWrapper = document.getElementById('gameTapeWrapper');
+      const stage = document.getElementById('gameStage');
+      const tapeZone = document.getElementById('tapeDropZone');
+      if (!tapeWrapper || !stage) {
+        isDraggingTape = false;
+        return;
+      }
+
+      const sRect = stage.getBoundingClientRect();
+      const targetDeltaX = sRect.width * (0.742 - 0.255) + 16;
+      const targetDeltaY = sRect.height * (0.551 - 0.178) - 10;
+      const distToTarget = Math.hypot(tapeDeltaX - targetDeltaX, tapeDeltaY - targetDeltaY);
+
+      if (distToTarget <= Math.max(120, sRect.width * 0.12)) {
+        lockTapeToArm();
+      } else {
+        isDraggingTape = false;
+        window.removeEventListener('pointermove', onTapePointerMove);
+        window.removeEventListener('pointerup', onTapePointerUp);
+        window.removeEventListener('pointercancel', onTapePointerUp);
+
+        // Spring back to bag
+        tapeWrapper.classList.remove('is-dragging');
+        tapeWrapper.classList.add('spring-back');
+        tapeWrapper.style.transform = 'translate3d(0, 0, 0)';
+        if (tapeZone) tapeZone.classList.remove('highlight');
+
+        setTimeout(() => {
+          tapeWrapper.classList.remove('spring-back');
+          tapeWrapper.classList.add('visible');
+          tapeWrapper.style.transform = '';
+        }, 420);
+      }
+    }
+
+    function lockTapeToArm() {
+      if (isTapePlaced) return;
+      isTapePlaced = true;
+      isDraggingTape = false;
+
+      window.removeEventListener('pointermove', onTapePointerMove);
+      window.removeEventListener('pointerup', onTapePointerUp);
+      window.removeEventListener('pointercancel', onTapePointerUp);
+
+      const tapeWrapper = document.getElementById('gameTapeWrapper');
+      const tapeZone = document.getElementById('tapeDropZone');
+      const tapePrompt = document.getElementById('tapePrompt');
+      const stage = document.getElementById('gameStage');
+      const stepBadgeText = document.getElementById('gameStepBadgeText');
+      if (!tapeWrapper || !stage) return;
+
+      const sRect = stage.getBoundingClientRect();
+      lockedTapeDeltaX = sRect.width * (0.742 - 0.255) + 16;
+      lockedTapeDeltaY = sRect.height * (0.551 - 0.178) - 10;
+
+      tapeWrapper.classList.remove('is-dragging', 'spring-back', 'visible');
+      tapeWrapper.classList.add('locked-arm');
+      tapeWrapper.style.transition = 'transform 0.35s cubic-bezier(0.25, 1, 0.5, 1)';
+      // Perpendicular to the IV on the arm (-47deg)
+      tapeWrapper.style.transform = `translate3d(${lockedTapeDeltaX}px, ${lockedTapeDeltaY}px, 0) rotate(-47deg)`;
+
+      if (tapeZone) {
+        tapeZone.classList.add('highlight');
+        tapeZone.style.boxShadow = '0 0 40px rgba(0, 255, 180, 0.9)';
+      }
+
+      triggerHapticFeedback(true);
+
+      if (tapePrompt) {
+        tapePrompt.textContent = 'IV secured safely!';
+      }
+      if (stepBadgeText) {
+        stepBadgeText.textContent = 'IV Taped & Secured! Great Job!';
+      }
+
+      if (tapeAdvanceTimeout) clearTimeout(tapeAdvanceTimeout);
+      tapeAdvanceTimeout = setTimeout(() => {
+        completeTapeStep();
+      }, 1200);
+    }
+
+    function completeTapeStep() {
       const overlay = document.getElementById('gameSuccessOverlay');
       if (overlay) overlay.classList.add('visible');
     }
@@ -3864,6 +4153,9 @@
       window.removeEventListener('pointermove', onIVNeedlePointerMove);
       window.removeEventListener('pointerup', onIVNeedlePointerUp);
       window.removeEventListener('pointercancel', onIVNeedlePointerUp);
+      window.removeEventListener('pointermove', onTapePointerMove);
+      window.removeEventListener('pointerup', onTapePointerUp);
+      window.removeEventListener('pointercancel', onTapePointerUp);
       document.removeEventListener('pointerdown', onStagePokePointerDown, { capture: true });
       const stageReset = document.getElementById('gameStage');
       if (stageReset) stageReset.style.cursor = '';
@@ -3875,6 +4167,10 @@
       if (ivAdvanceTimeout) {
         clearTimeout(ivAdvanceTimeout);
         ivAdvanceTimeout = null;
+      }
+      if (tapeAdvanceTimeout) {
+        clearTimeout(tapeAdvanceTimeout);
+        tapeAdvanceTimeout = null;
       }
 
       currentStep = 1;
@@ -4117,6 +4413,35 @@
       }
       if (ivPrompt) {
         ivPrompt.textContent = 'Guide the needle to the vein!';
+      }
+
+      // Reset Step 9: IV Tape
+      isDraggingTape = false;
+      isTapePlaced = false;
+      tapePointerStartX = 0;
+      tapePointerStartY = 0;
+      tapeDeltaX = 0;
+      tapeDeltaY = 0;
+      lockedTapeDeltaX = 0;
+      lockedTapeDeltaY = 0;
+
+      const tapeWrapper = document.getElementById('gameTapeWrapper');
+      const tapeZone = document.getElementById('tapeDropZone');
+      const tapePrompt = document.getElementById('tapePrompt');
+
+      if (tapeWrapper) {
+        tapeWrapper.style.display = 'none';
+        tapeWrapper.style.transform = 'translate3d(0, 0, 0)';
+        tapeWrapper.style.transition = 'none';
+        tapeWrapper.classList.remove('is-dragging', 'spring-back', 'visible', 'locked-arm');
+      }
+      if (tapeZone) {
+        tapeZone.style.display = 'none';
+        tapeZone.classList.remove('highlight');
+        tapeZone.style.boxShadow = '';
+      }
+      if (tapePrompt) {
+        tapePrompt.textContent = 'Tape the IV down!';
       }
 
       // Ointment is visible and floating in Step 1

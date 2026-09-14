@@ -10,7 +10,8 @@ public enum IVGameStep: Int {
     case cleanWipePacket = 6
     case cleanWipeArm = 7
     case insertIV = 8
-    case completed = 9
+    case tapeIV = 9
+    case completed = 10
 }
 
 // MARK: - IV Game View (Numbing Ointment, Clear Bandage, Washcloth Wipe, Tourniquet Band, Clean Wipe & IV Placement)
@@ -70,6 +71,12 @@ public struct IVGameView: View {
     @State private var isIVInserted: Bool = false
     @State private var needleRetractOpacity: Double = 1.0
     @State private var catheterOpacity: Double = 0.0
+    
+    // Step 9: IV Tape State
+    @State private var tapeDragOffset: CGSize = .zero
+    @State private var isTapeDragging: Bool = false
+    @State private var isTapePlaced: Bool = false
+    @State private var isTapeOverTarget: Bool = false
     
     // Step 7: Clean Wipe Arm State
     @State private var packetWipeDragOffset: CGSize = .zero
@@ -207,6 +214,7 @@ public struct IVGameView: View {
         case .cleanWipePacket: return "scissors"
         case .cleanWipeArm: return "sparkles"
         case .insertIV: return "cross.vial.fill"
+        case .tapeIV: return "bandage.fill"
         case .completed: return "checkmark.circle.fill"
         }
     }
@@ -221,6 +229,7 @@ public struct IVGameView: View {
         case .cleanWipePacket: return "Step 6: Rip Open Clean Wipe"
         case .cleanWipeArm: return "Step 7: Wipe Arm Clean"
         case .insertIV: return "Step 8: Place the IV"
+        case .tapeIV: return "Step 9: Tape the IV"
         case .completed: return "Arm Prepared & IV Placed!"
         }
     }
@@ -431,19 +440,29 @@ public struct IVGameView: View {
                 floatingPacketWipeItem(stageSize: stageSize, elbowCenter: CGPoint(x: elbowDropZoneRect.midX, y: elbowDropZoneRect.midY), elbowSize: elbowDropZoneRect.size)
             }
             
-            // Layer 14: Floating Interactive IV Needle & Catheter (Step 8)
-            if currentStep == .insertIV {
-                veinDropZoneView(stageSize: stageSize)
+            // Layer 14: Floating Interactive IV Needle & Placed Catheter (Step 8, Step 9 & Completed)
+            if currentStep >= .insertIV {
+                if currentStep == .insertIV {
+                    veinDropZoneView(stageSize: stageSize)
+                }
                 floatingIVItem(stageSize: stageSize)
                 
                 // When ready to poke, tapping anywhere on screen inserts the needle
-                if canPokeIV && !isIVInserted {
+                if currentStep == .insertIV && canPokeIV && !isIVInserted {
                     Color.clear
                         .contentShape(Rectangle())
                         .onTapGesture {
                             pokeInsertNeedleSwiftUI()
                         }
                 }
+            }
+            
+            // Layer 15: Floating Interactive IV Tape (Step 9) & Placed Tape (Completed)
+            if currentStep >= .tapeIV {
+                if currentStep == .tapeIV && !isTapePlaced {
+                    tapeDropZoneView(stageSize: stageSize)
+                }
+                floatingTapeItem(stageSize: stageSize)
             }
         }
     }
@@ -872,23 +891,25 @@ public struct IVGameView: View {
             }
             
             // Prompt Text Box
-            Text(ivPromptText)
-                .font(.system(size: 11, weight: .bold))
-                .foregroundColor(Color.white)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 5)
-                .background(Color.black.opacity(0.78))
-                .clipShape(Capsule())
-                .shadow(color: Color.black.opacity(0.35), radius: 4, x: 0, y: 2)
-                .offset(y: itemHeight * 0.5 + 16)
+            if currentStep == .insertIV {
+                Text(ivPromptText)
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundColor(Color.white)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 5)
+                    .background(Color.black.opacity(0.78))
+                    .clipShape(Capsule())
+                    .shadow(color: Color.black.opacity(0.35), radius: 4, x: 0, y: 2)
+                    .offset(y: itemHeight * 0.5 + 16)
+            }
         }
         .contentShape(Rectangle())
         .position(x: currentPos.x + advanceOffset.width, y: currentPos.y + advanceOffset.height)
         .gesture(
             DragGesture(coordinateSpace: .local)
                 .onChanged { value in
-                    guard !isIVLockedToVein else { return }
+                    guard currentStep == .insertIV && !isIVLockedToVein else { return }
                     isIVDragging = true
                     ivDragOffset = value.translation
                     
@@ -902,7 +923,7 @@ public struct IVGameView: View {
                     }
                 }
                 .onEnded { value in
-                    guard !isIVLockedToVein else { return }
+                    guard currentStep == .insertIV && !isIVLockedToVein else { return }
                     isIVDragging = false
                     let curX = initialX + ivDragOffset.width
                     let curY = initialY + ivDragOffset.height
@@ -920,7 +941,7 @@ public struct IVGameView: View {
         .simultaneousGesture(
             TapGesture()
                 .onEnded {
-                    if isIVLockedToVein && canPokeIV && !isIVInserted {
+                    if currentStep == .insertIV && isIVLockedToVein && canPokeIV && !isIVInserted {
                         pokeInsertNeedleSwiftUI()
                     }
                 }
@@ -981,6 +1002,122 @@ public struct IVGameView: View {
             needleRetractOpacity = 0.0
             catheterOpacity = 1.0
         }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+            withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
+                currentStep = .tapeIV
+            }
+        }
+    }
+    
+    // MARK: - Floating Interactive IV Tape Component (Step 9)
+    @ViewBuilder
+    private func tapeDropZoneView(stageSize: CGSize) -> some View {
+        let zoneWidth = stageSize.width * 0.16
+        let zoneHeight = stageSize.height * 0.19
+        let centerX = stageSize.width * 0.742 + stageSize.width * 0.015
+        let centerY = stageSize.height * 0.551 - stageSize.height * 0.015
+        
+        Circle()
+            .strokeBorder(
+                isTapeOverTarget ? Color(red: 0/255, green: 255/255, blue: 180/255) : Color(red: 0/255, green: 229/255, blue: 255/255).opacity(0.6),
+                style: StrokeStyle(lineWidth: 3, dash: [8, 6])
+            )
+            .background(
+                Circle()
+                    .fill(isTapeOverTarget ? Color(red: 0/255, green: 255/255, blue: 180/255).opacity(0.22) : Color(red: 0/255, green: 229/255, blue: 255/255).opacity(0.08))
+            )
+            .frame(width: zoneWidth, height: zoneHeight)
+            .position(x: centerX, y: centerY)
+            .shadow(
+                color: isTapeOverTarget ? Color(red: 0/255, green: 255/255, blue: 180/255).opacity(0.85) : Color(red: 0/255, green: 229/255, blue: 255/255).opacity(0.35),
+                radius: isTapeOverTarget ? 24 : 12
+            )
+            .scaleEffect(isTapeOverTarget ? 1.06 : 1.0)
+            .animation(.easeInOut(duration: 0.25), value: isTapeOverTarget)
+            .allowsHitTesting(false)
+    }
+    
+    @ViewBuilder
+    private func floatingTapeItem(stageSize: CGSize) -> some View {
+        let itemWidth = stageSize.width * 0.205
+        let itemHeight = itemWidth * (192.0 / 439.0)
+        let initialX = stageSize.width * 0.255
+        let initialY = stageSize.height * 0.178
+        let targetCenter = CGPoint(x: stageSize.width * 0.742 + stageSize.width * 0.015, y: stageSize.height * 0.551 - stageSize.height * 0.015)
+        
+        let floatOffset: CGFloat = (isFloating && !isTapeDragging && !isTapePlaced) ? -10 : 0
+        let currentPos: CGPoint = isTapePlaced ? targetCenter : CGPoint(x: initialX + tapeDragOffset.width, y: initialY + tapeDragOffset.height + floatOffset)
+        
+        ZStack {
+            Image("GameTapeItem")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: itemWidth, height: itemHeight)
+                .shadow(
+                    color: isTapePlaced ? Color.black.opacity(0.25) : Color(red: 0/255, green: 229/255, blue: 255/255).opacity(isTapeDragging ? 0.95 : 0.7),
+                    radius: isTapePlaced ? 6 : (isTapeDragging ? 22 : 14)
+                )
+            
+            // Prompt Text Box
+            if currentStep == .tapeIV {
+                Text(isTapePlaced ? "IV secured safely!" : "Tape the IV down!")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundColor(Color.white)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 5)
+                    .background(Color.black.opacity(0.78))
+                    .clipShape(Capsule())
+                    .shadow(color: Color.black.opacity(0.35), radius: 4, x: 0, y: 2)
+                    .offset(y: itemHeight * 0.5 + 16)
+            }
+        }
+        .rotationEffect(.degrees(isTapePlaced ? -47 : 0))
+        .contentShape(Rectangle())
+        .position(x: currentPos.x, y: currentPos.y)
+        .gesture(
+            DragGesture(coordinateSpace: .local)
+                .onChanged { value in
+                    guard currentStep == .tapeIV && !isTapePlaced else { return }
+                    isTapeDragging = true
+                    tapeDragOffset = value.translation
+                    
+                    let curX = initialX + tapeDragOffset.width
+                    let curY = initialY + tapeDragOffset.height
+                    let dist = hypot(curX - targetCenter.x, curY - targetCenter.y)
+                    isTapeOverTarget = dist <= max(90, stageSize.width * 0.08)
+                    
+                    if dist <= max(55, stageSize.width * 0.045) {
+                        lockTapeToArmSwiftUI()
+                    }
+                }
+                .onEnded { value in
+                    guard currentStep == .tapeIV && !isTapePlaced else { return }
+                    isTapeDragging = false
+                    let curX = initialX + tapeDragOffset.width
+                    let curY = initialY + tapeDragOffset.height
+                    let dist = hypot(curX - targetCenter.x, curY - targetCenter.y)
+                    if dist <= max(90, stageSize.width * 0.08) {
+                        lockTapeToArmSwiftUI()
+                    } else {
+                        withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
+                            tapeDragOffset = .zero
+                            isTapeOverTarget = false
+                        }
+                    }
+                }
+        )
+    }
+    
+    private func lockTapeToArmSwiftUI() {
+        guard !isTapePlaced else { return }
+        isTapeDragging = false
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+            isTapePlaced = true
+            isTapeOverTarget = true
+        }
+        HapticManager.shared.successNotification()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
             withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
@@ -1417,7 +1554,7 @@ public struct IVGameView: View {
                     .font(.system(size: 26, weight: .heavy))
                     .foregroundColor(AppTheme.primaryPurple)
                 
-                Text("You applied numbing ointment, wrapped the clear bandage, wiped off the lotion, placed the tourniquet band, cleaned the arm with the wipe, and safely guided and placed the IV catheter!")
+                Text("You applied numbing ointment, wrapped the clear bandage, wiped off the lotion, placed the tourniquet band, cleaned the arm with the wipe, guided and placed the IV catheter, and secured it with tape!")
                     .font(.system(size: 15, weight: .medium))
                     .foregroundColor(Color(red: 71/255, green: 85/255, blue: 105/255))
                     .multilineTextAlignment(.center)
@@ -1567,6 +1704,11 @@ public struct IVGameView: View {
             isIVInserted = false
             needleRetractOpacity = 1.0
             catheterOpacity = 0.0
+            
+            tapeDragOffset = .zero
+            isTapeDragging = false
+            isTapePlaced = false
+            isTapeOverTarget = false
             
             ointmentDragOffset = .zero
             isOintmentDragging = false
