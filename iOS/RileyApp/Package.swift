@@ -18,7 +18,8 @@ let package = Package(
             dependencies: [],
             path: "Sources",
             resources: [
-                .process("../Assets.xcassets")
+                .process("../Assets.xcassets"),
+                .process("../Resources")
             ]
         ),
     ]

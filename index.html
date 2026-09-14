@@ -2067,6 +2067,27 @@
     }
     
 
+    // Background Music for IV Start Preparation (Looped, Quiet Volume 0.22)
+    let ivBgMusic = null;
+
+    function playIVBackgroundMusic() {
+      if (!ivBgMusic) {
+        ivBgMusic = new Audio('assets/MusicBG.mp3');
+        ivBgMusic.loop = true;
+        ivBgMusic.volume = 0.22; // Discreet ambient volume so subsequent sound effects take prominence
+      }
+      ivBgMusic.play().catch(err => {
+        console.log('Background music waiting for user gesture:', err);
+      });
+    }
+
+    function stopIVBackgroundMusic() {
+      if (ivBgMusic) {
+        ivBgMusic.pause();
+        ivBgMusic.currentTime = 0;
+      }
+    }
+
     // Screen Switching
     function switchScreen(screenName) {
       const screenHome = document.getElementById('screenHome');
@@ -2084,14 +2105,19 @@
         if (screenGame) screenGame.classList.add('active');
         if (select) select.value = 'iv-start';
         if (statusSpan) statusSpan.textContent = 'IV Start Procedure Active • Complete interactive steps';
-      } else if (screenName === 'preparations') {
-        screenPrep.classList.add('active');
-        if (select) select.value = 'preparations';
-        if (statusSpan) statusSpan.textContent = 'Preparations Screen Active • Up/Down Arrow Scrolling Enabled';
+        playIVBackgroundMusic();
       } else {
-        screenHome.classList.add('active');
-        if (select) select.value = 'home';
-        if (statusSpan) statusSpan.textContent = 'Home Screen Active • Responsive Grid View';
+        // Navigating away from the IV Start preparation stops the background music
+        stopIVBackgroundMusic();
+        if (screenName === 'preparations') {
+          screenPrep.classList.add('active');
+          if (select) select.value = 'preparations';
+          if (statusSpan) statusSpan.textContent = 'Preparations Screen Active • Up/Down Arrow Scrolling Enabled';
+        } else {
+          screenHome.classList.add('active');
+          if (select) select.value = 'home';
+          if (statusSpan) statusSpan.textContent = 'Home Screen Active • Responsive Grid View';
+        }
       }
       setTimeout(updateResponsiveLayout, 50);
     }

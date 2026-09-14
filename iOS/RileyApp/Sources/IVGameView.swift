@@ -1,4 +1,66 @@
 import SwiftUI
+import AVFoundation
+
+// MARK: - IV Background Audio Manager (Looped, Quiet Volume)
+public final class IVAudioManager {
+    public static let shared = IVAudioManager()
+    private var player: AVAudioPlayer?
+    
+    private init() {}
+    
+    public func startBackgroundMusic() {
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.ambient, mode: .default)
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            print("Audio session configuration error: \(error)")
+        }
+        
+        if player == nil {
+            // Priority 1: Load from Asset Catalog NSDataAsset
+            if let dataAsset = NSDataAsset(name: "MusicBG") {
+                do {
+                    player = try AVAudioPlayer(data: dataAsset.data)
+                } catch {
+                    print("Failed to initialize player from data asset: \(error)")
+                }
+            }
+            
+            // Priority 2: Fallback to Bundle resource URLs
+            if player == nil {
+                var soundURL: URL? = Bundle.main.url(forResource: "Music BG", withExtension: "mp3")
+                    ?? Bundle.main.url(forResource: "MusicBG", withExtension: "mp3")
+                
+                #if SWIFT_PACKAGE
+                if soundURL == nil {
+                    soundURL = Bundle.module.url(forResource: "Music BG", withExtension: "mp3")
+                        ?? Bundle.module.url(forResource: "MusicBG", withExtension: "mp3")
+                }
+                #endif
+                
+                if let url = soundURL {
+                    do {
+                        player = try AVAudioPlayer(contentsOf: url)
+                    } catch {
+                        print("Failed to initialize player from URL: \(error)")
+                    }
+                }
+            }
+            
+            player?.numberOfLoops = -1 // Continuous loop throughout preparation
+            player?.volume = 0.22      // Discreet background volume so sound effects take prominence
+            player?.prepareToPlay()
+        }
+        
+        player?.play()
+    }
+    
+    public func stopBackgroundMusic() {
+        player?.stop()
+        player?.currentTime = 0
+        player = nil
+    }
+}
 
 // MARK: - Game Step Definition
 public enum IVGameStep: Int {
@@ -142,6 +204,10 @@ public struct IVGameView: View {
             withAnimation(.easeInOut(duration: 1.4).repeatForever(autoreverses: true)) {
                 isFloating = true
             }
+            IVAudioManager.shared.startBackgroundMusic()
+        }
+        .onDisappear {
+            IVAudioManager.shared.stopBackgroundMusic()
         }
     }
     
@@ -151,6 +217,7 @@ public struct IVGameView: View {
         HStack {
             Button(action: {
                 HapticManager.shared.lightTap()
+                IVAudioManager.shared.stopBackgroundMusic()
                 if let onDismiss = onDismiss {
                     onDismiss()
                 } else {
@@ -1608,6 +1675,7 @@ public struct IVGameView: View {
                 // Preparations Tab
                 Button(action: {
                     HapticManager.shared.buttonTap()
+                    IVAudioManager.shared.stopBackgroundMusic()
                     if let onDismiss = onDismiss {
                         onDismiss()
                     } else {
