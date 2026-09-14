@@ -189,6 +189,44 @@ public final class IVAudioManager {
             wipePlayer?.currentTime = 0
         }
     }
+    
+    // MARK: - Step 5 Tourniquet Band Sound Effect (Volume 0.90)
+    public func playRubberBandSound() {
+        // Priority 1: Load from Asset Catalog NSDataAsset
+        if let dataAsset = NSDataAsset(name: "RubberBand") {
+            do {
+                sfxPlayer = try AVAudioPlayer(data: dataAsset.data)
+                sfxPlayer?.volume = 0.90
+                sfxPlayer?.prepareToPlay()
+                sfxPlayer?.play()
+                return
+            } catch {
+                print("Failed to initialize RubberBand player from data asset: \(error)")
+            }
+        }
+        
+        // Priority 2: Fallback to Bundle resource URLs
+        var soundURL: URL? = Bundle.main.url(forResource: "Rubber Band", withExtension: "mp3")
+            ?? Bundle.main.url(forResource: "RubberBand", withExtension: "mp3")
+        
+        #if SWIFT_PACKAGE
+        if soundURL == nil {
+            soundURL = Bundle.module.url(forResource: "Rubber Band", withExtension: "mp3")
+                ?? Bundle.module.url(forResource: "RubberBand", withExtension: "mp3")
+        }
+        #endif
+        
+        if let url = soundURL {
+            do {
+                sfxPlayer = try AVAudioPlayer(contentsOf: url)
+                sfxPlayer?.volume = 0.90
+                sfxPlayer?.prepareToPlay()
+                sfxPlayer?.play()
+            } catch {
+                print("Failed to play Rubber Band audio: \(error)")
+            }
+        }
+    }
 }
 
 // MARK: - Game Step Definition
@@ -736,6 +774,7 @@ public struct IVGameView: View {
                 }
                 .onEnded { _ in
                     if isBandOverTarget {
+                        IVAudioManager.shared.playRubberBandSound()
                         HapticManager.shared.successNotification()
                         withAnimation(.easeOut(duration: 0.25)) {
                             isBandPlaced = true

@@ -2168,6 +2168,28 @@
       } catch (err) {}
     }
 
+    // Sound Effect: Rubber Band for Step 5 Tourniquet Band (Volume 0.90)
+    let rubberBandSound = null;
+    try {
+      rubberBandSound = new Audio('assets/RubberBand.mp3');
+      rubberBandSound.preload = 'auto';
+      rubberBandSound.volume = 0.90;
+    } catch (e) {}
+
+    function playRubberBandSound() {
+      try {
+        if (!rubberBandSound) {
+          rubberBandSound = new Audio('assets/RubberBand.mp3');
+          rubberBandSound.preload = 'auto';
+          rubberBandSound.volume = 0.90;
+        }
+        rubberBandSound.currentTime = 0;
+        rubberBandSound.play().catch(err => {
+          console.log('Rubber band audio playback waiting for user gesture or error:', err);
+        });
+      } catch (err) {}
+    }
+
     // Screen Switching
     function switchScreen(screenName) {
       const screenHome = document.getElementById('screenHome');
@@ -3180,6 +3202,7 @@
     }
 
     function completeTourniquetPlacement() {
+      playRubberBandSound();
       currentStep = 6;
       isDraggingBand = false;
 
