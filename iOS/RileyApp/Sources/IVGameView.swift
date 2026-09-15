@@ -317,6 +317,42 @@ public final class IVAudioManager {
             wetWipePlayer?.currentTime = 0
         }
     }
+    
+    // MARK: - Step 8 IV Shot Insertion Sound Effect (Volume 0.90)
+    public func playShotSound() {
+        // Priority 1: Load from Asset Catalog NSDataAsset
+        if let dataAsset = NSDataAsset(name: "Shot") {
+            do {
+                sfxPlayer = try AVAudioPlayer(data: dataAsset.data)
+                sfxPlayer?.volume = 0.90
+                sfxPlayer?.prepareToPlay()
+                sfxPlayer?.play()
+                return
+            } catch {
+                print("Failed to initialize Shot player from data asset: \(error)")
+            }
+        }
+        
+        // Priority 2: Fallback to Bundle resource URLs
+        var soundURL: URL? = Bundle.main.url(forResource: "Shot", withExtension: "mp3")
+        
+        #if SWIFT_PACKAGE
+        if soundURL == nil {
+            soundURL = Bundle.module.url(forResource: "Shot", withExtension: "mp3")
+        }
+        #endif
+        
+        if let url = soundURL {
+            do {
+                sfxPlayer = try AVAudioPlayer(contentsOf: url)
+                sfxPlayer?.volume = 0.90
+                sfxPlayer?.prepareToPlay()
+                sfxPlayer?.play()
+            } catch {
+                print("Failed to play Shot audio: \(error)")
+            }
+        }
+    }
 }
 
 // MARK: - Game Step Definition
@@ -1337,6 +1373,7 @@ public struct IVGameView: View {
         guard canPokeIV && !isIVInserted else { return }
         canPokeIV = false
         isIVInserted = true
+        IVAudioManager.shared.playShotSound()
         HapticManager.shared.successNotification()
         
         // Needle plunges and immediately becomes the soft IV catheter asset

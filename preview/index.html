@@ -2386,6 +2386,28 @@
       } catch (err) {}
     }
 
+    // Sound Effect: Shot for Step 8 Needle Insertion (Volume 0.90)
+    let shotSound = null;
+    try {
+      shotSound = new Audio('assets/Shot.mp3');
+      shotSound.preload = 'auto';
+      shotSound.volume = 0.90;
+    } catch (e) {}
+
+    function playShotSound() {
+      try {
+        if (!shotSound) {
+          shotSound = new Audio('assets/Shot.mp3');
+          shotSound.preload = 'auto';
+          shotSound.volume = 0.90;
+        }
+        shotSound.currentTime = 0;
+        shotSound.play().catch(err => {
+          console.log('Shot audio playback waiting for user gesture or error:', err);
+        });
+      } catch (err) {}
+    }
+
     // Screen Switching
     function switchScreen(screenName) {
       const screenHome = document.getElementById('screenHome');
@@ -4098,6 +4120,7 @@
       if (!canPokeIV || isIVInserted) return;
       isIVInserted = true;
       canPokeIV = false;
+      playShotSound();
 
       document.removeEventListener('pointerdown', onStagePokePointerDown, { capture: true });
 

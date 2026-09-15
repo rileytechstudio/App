@@ -1,5 +1,5 @@
 // Riley PWA Service Worker
-const CACHE_NAME = 'riley-pwa-v12';
+const CACHE_NAME = 'riley-pwa-v13';
 const PRECACHE_ASSETS = [
   './',
   './index.html',
@@ -53,6 +53,7 @@ const PRECACHE_ASSETS = [
   './assets/Rip.mp3',
   './assets/ClothWetWipe.mp3',
   './assets/Cloth Wet Wipe.mp3',
+  './assets/Shot.mp3',
   './Music/Music BG.mp3',
   './Music/alex-morgan-toddler-kids-background-music-583241.mp3',
   './Music/atlasaudio-happy-kids-593047.mp3',
