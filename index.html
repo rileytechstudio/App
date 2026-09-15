@@ -2212,6 +2212,42 @@
       } catch (err) {}
     }
 
+    // Sound Effect: Cloth Wet Wipe for Step 6B Clean Wipe (Volume 0.90)
+    let clothWetWipeSound = null;
+    try {
+      clothWetWipeSound = new Audio('assets/ClothWetWipe.mp3');
+      clothWetWipeSound.preload = 'auto';
+      clothWetWipeSound.loop = true;
+      clothWetWipeSound.volume = 0.90;
+    } catch (e) {}
+
+    function playClothWetWipeSound() {
+      try {
+        if (!clothWetWipeSound) {
+          clothWetWipeSound = new Audio('assets/ClothWetWipe.mp3');
+          clothWetWipeSound.preload = 'auto';
+          clothWetWipeSound.loop = true;
+          clothWetWipeSound.volume = 0.90;
+        }
+        if (clothWetWipeSound.paused) {
+          clothWetWipeSound.play().catch(err => {
+            console.log('Cloth wet wipe audio playback waiting for user gesture or error:', err);
+          });
+        }
+      } catch (err) {}
+    }
+
+    function stopClothWetWipeSound(reset = false) {
+      try {
+        if (clothWetWipeSound && !clothWetWipeSound.paused) {
+          clothWetWipeSound.pause();
+        }
+        if (reset && clothWetWipeSound) {
+          clothWetWipeSound.currentTime = 0;
+        }
+      } catch (err) {}
+    }
+
     // Screen Switching
     function switchScreen(screenName) {
       const screenHome = document.getElementById('screenHome');
@@ -2234,6 +2270,7 @@
         // Navigating away from the IV Start preparation stops the background music and wipe audio
         stopIVBackgroundMusic();
         stopClothWipeSound(true);
+        stopClothWetWipeSound(true);
         if (screenName === 'preparations') {
           screenPrep.classList.add('active');
           if (select) select.value = 'preparations';
@@ -3510,7 +3547,12 @@
       if (!isOver) {
         packetWipeCursorSide = null;
         packetWipeCursorSideY = null;
+        stopClothWetWipeSound();
         return;
+      }
+
+      if (isDraggingPacketWipe && packetWipeSweepCount < TOTAL_PACKET_WIPE_SWEEPS) {
+        playClothWetWipeSound();
       }
 
       const deadbandX = Math.max(24, eRect.width * 0.18);
@@ -3567,6 +3609,7 @@
     function onPacketWipePointerUp(e) {
       if (!isDraggingPacketWipe) return;
       isDraggingPacketWipe = false;
+      stopClothWetWipeSound();
 
       window.removeEventListener('pointermove', onPacketWipePointerMove);
       window.removeEventListener('pointerup', onPacketWipePointerUp);
@@ -3607,6 +3650,7 @@
     }
 
     function completePacketWipeStep() {
+      stopClothWetWipeSound(true);
       currentStep = 7;
       isDraggingPacketWipe = false;
 
@@ -4390,6 +4434,7 @@
       isBandOverTarget = false;
 
       // Reset Step 6: Clean Wipe Packet & Wipe
+      stopClothWetWipeSound(true);
       isPacketRipped = false;
       isTracingRip = false;
       ripTraceStartY = 0;
