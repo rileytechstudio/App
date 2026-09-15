@@ -4185,6 +4185,7 @@
       if (isTapePlaced) return;
       isTapePlaced = true;
       isDraggingTape = false;
+      playBandageSound();
 
       window.removeEventListener('pointermove', onTapePointerMove);
       window.removeEventListener('pointerup', onTapePointerUp);

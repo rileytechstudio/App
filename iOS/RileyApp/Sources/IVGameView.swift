@@ -1497,6 +1497,7 @@ public struct IVGameView: View {
             isTapePlaced = true
             isTapeOverTarget = true
         }
+        IVAudioManager.shared.playBandageSound()
         HapticManager.shared.successNotification()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
