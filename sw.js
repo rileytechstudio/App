@@ -1,5 +1,5 @@
 // Riley PWA Service Worker
-const CACHE_NAME = 'riley-pwa-v14';
+const CACHE_NAME = 'riley-pwa-v15';
 const PRECACHE_ASSETS = [
   './',
   './index.html',
@@ -45,6 +45,14 @@ const PRECACHE_ASSETS = [
   './assets/PurpleFade.png',
   './assets/RibbonEducationSelected.png',
   './assets/RibbonProceduresSelected.png',
+  './assets/MaskBackground.png',
+  './assets/Mask.png',
+  './assets/ChapstickBoxClosed.png',
+  './assets/ChapstickBoxOpen.png',
+  './assets/BubblegumChapstick.png',
+  './assets/StrawberryChapstick.png',
+  './assets/BlueberryChapstick.png',
+  './assets/CokeChapstick.png',
   './assets/MusicBG.mp3',
   './assets/Slime2.mp3',
   './assets/Bandage.mp3',
@@ -63,12 +71,13 @@ const PRECACHE_ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(PRECACHE_ASSETS).catch((err) => {
         console.warn('Precache individual asset warning:', err);
       });
-    }).then(() => self.skipWaiting())
+    })
   );
 });
 
@@ -78,6 +87,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((name) => {
           if (name !== CACHE_NAME) {
+            console.log('Purging legacy cache:', name);
             return caches.delete(name);
           }
         })
@@ -89,6 +99,25 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
+  // Network-First for Navigation (HTML) requests so fresh deploys load immediately
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+        }
+        return networkResponse;
+      }).catch(() => {
+        return caches.match('./index.html');
+      })
+    );
+    return;
+  }
+
+  // Cache-First for static assets
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
@@ -103,11 +132,6 @@ self.addEventListener('fetch', (event) => {
           cache.put(event.request, responseToCache);
         });
         return networkResponse;
-      }).catch(() => {
-        // Offline fallback for navigation requests
-        if (event.request.mode === 'navigate') {
-          return caches.match('./index.html');
-        }
       });
     })
   );

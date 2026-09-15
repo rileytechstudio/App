@@ -176,7 +176,10 @@ def build_distribution():
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js', { scope: './' })
-          .then(reg => console.log('Riley PWA ServiceWorker active with scope:', reg.scope))
+          .then(reg => {
+            console.log('Riley PWA ServiceWorker active with scope:', reg.scope);
+            reg.update();
+          })
           .catch(err => console.warn('ServiceWorker registration error:', err));
       });
     }
