@@ -2037,22 +2037,28 @@
 
     .active-chapstick-halo {
       position: absolute;
-      top: -15px;
+      top: 40%;
       left: 50%;
-      transform: translateX(-50%);
-      width: 145%;
-      height: 75%; /* Stops before reaching the badge */
+      transform: translate(-50%, -50%);
+      width: clamp(120px, 18vw, 165px);
+      height: clamp(120px, 18vw, 165px);
       border-radius: 50%;
       background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(255, 248, 185, 0.8) 40%, rgba(255, 225, 120, 0.35) 65%, transparent 85%);
       pointer-events: none;
       z-index: 1;
       animation: haloGlow 2.2s ease-in-out infinite alternate;
-      filter: blur(6px);
+      filter: blur(8px);
     }
 
     @keyframes haloGlow {
-      from { opacity: 0.65; transform: scale(0.92); }
-      to { opacity: 1; transform: scale(1.15); }
+      from {
+        opacity: 0.65;
+        transform: translate(-50%, -50%) scale(0.92);
+      }
+      to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.15);
+      }
     }
 
     .selected-chapstick-stage-wrapper img {
