@@ -37,16 +37,34 @@ def build_distribution():
     css = style_match.group(1)
 
     # Clean out simulator-only CSS rules
-    # Remove header.sim-toolbar, main.sim-workspace, .device-shell, .phone-notch, footer.sim-status
-    css = re.sub(r"/\* Top Simulator Toolbar \*/.*?/\* Main Simulator Canvas Area \*/", "", css, flags=re.DOTALL)
-    css = re.sub(r"main\.sim-workspace\s*\{[^}]*\}", "", css)
-    css = re.sub(r"\.phone-notch\s*\{[^}]*\}", "", css)
-    css = re.sub(r"\.device-shell[^{]*\{[^}]*\}", "", css)
+    # Remove header.sim-toolbar, main.sim-workspace, .device-shell
+    css = re.sub(r"/\* Top Simulator Toolbar \*/.*?/\* Screen Bezel and Display Area \*/", "/* Screen Bezel and Display Area */", css, flags=re.DOTALL)
     css = re.sub(r"/\* Bottom Info Status Bar \*/.*?footer\.sim-status\s*\{[^}]*\}", "", css, flags=re.DOTALL)
 
-    # Injected full-screen and safe-area styles
+    # Injected responsive distribution styles
     dist_css_overrides = """
-    /* Full-Screen Distribution App Styles (PWA) */
+    /* App Screen Stacking & Absolute Bounds - Guarantees correct screen layering */
+    .app-screen {
+      width: 100% !important;
+      height: 100% !important;
+      position: absolute !important;
+      inset: 0 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      overflow: hidden !important;
+      background-color: var(--riley-purple) !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      transition: opacity 0.28s ease !important;
+    }
+
+    .app-screen.active {
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      z-index: 10 !important;
+    }
+
+    /* Base Full-Screen & Safe-Area Styles */
     html, body {
       width: 100vw;
       height: 100vh;
@@ -64,6 +82,7 @@ def build_distribution():
       inset: 0;
     }
 
+    /* Mobile / Tablet / PWA default: edge-to-edge responsive canvas */
     .device-screen {
       background: var(--riley-purple);
       border-radius: 0 !important;
@@ -83,6 +102,44 @@ def build_distribution():
 
     .prep-bottom-bar, .game-bottom-bar {
       padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    /* Desktop Chrome / Web View Scaling & Responsiveness */
+    /* When viewed on wide desktop monitors, frame the app to reflect the authentic iPad/tablet view */
+    @media (min-width: 960px) and (min-aspect-ratio: 1.25) and (hover: hover) {
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(circle at center, #351772 0%, #15082d 100%);
+      }
+
+      .device-screen {
+        width: min(1366px, 96vw) !important;
+        height: min(1024px, 94vh) !important;
+        max-width: calc(94vh * (1366 / 1024)) !important;
+        max-height: calc(96vw * (1024 / 1366)) !important;
+        aspect-ratio: 1366 / 1024;
+        border-radius: 28px !important;
+        box-shadow: 0 25px 70px -10px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.12) !important;
+      }
+    }
+
+    /* Standalone PWA on devices stays full screen */
+    @media all and (display-mode: standalone) {
+      body {
+        display: block !important;
+        background: var(--riley-dark-purple, #411e8c) !important;
+      }
+      .device-screen {
+        width: 100vw !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        max-width: none !important;
+        max-height: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+      }
     }
     """
     css += dist_css_overrides

@@ -1760,13 +1760,441 @@
       filter: brightness(1.08);
       box-shadow: 0 8px 24px rgba(0, 114, 255, 0.55);
     }
-      transform: scale(1.05);
-      filter: brightness(1.08);
-    }
 
     .game-btn-replay:active {
       transform: scale(0.96);
     }
+
+    /* ========================================================= */
+    /* MASK DECORATION GAME SCREEN STYLES                        */
+    /* ========================================================= */
+    .mask-game-content {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      background: #1e1338;
+      overflow: hidden;
+    }
+
+    .mask-stage {
+      position: relative;
+      width: 100%;
+      max-width: 960px;
+      aspect-ratio: 1366 / 1024;
+      max-height: 100%;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 32px rgba(0, 0, 0, 0.45);
+      background: #0f0920;
+    }
+
+    /* Mask Container: starts dead center, scaled up 50%, moves smoothly to right */
+    .mask-focal-wrapper {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 78%;
+      height: 78%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      transition: left 1.2s cubic-bezier(0.34, 1.25, 0.64, 1), transform 1.2s cubic-bezier(0.34, 1.25, 0.64, 1);
+      pointer-events: none;
+    }
+
+    .mask-focal-wrapper.moved-right {
+      left: 70%;
+    }
+
+    .mask-focal-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.35));
+      user-select: none;
+      -webkit-user-drag: none;
+      pointer-events: none;
+    }
+
+    /* Darker Blur Overlay over the Mask Layer and Background */
+    .mask-dark-blur-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(10, 6, 24, 0.52);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 15;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.85s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .mask-dark-blur-overlay.active {
+      opacity: 1;
+    }
+
+    /* Chapstick Box Container on the left (overlaps in front of mask) */
+    .chapstick-box-stage-wrapper {
+      position: absolute;
+      left: 28%;
+      top: 52%;
+      width: 48%;
+      height: 48%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease,
+                  transform 0.75s cubic-bezier(0.34, 1.25, 0.64, 1),
+                  left 0.75s cubic-bezier(0.34, 1.25, 0.64, 1),
+                  top 0.75s cubic-bezier(0.34, 1.25, 0.64, 1);
+    }
+
+    .chapstick-box-stage-wrapper.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Minimized corner state: shrunk ~50%, bottom-left corner */
+    .chapstick-box-stage-wrapper.minimized-corner {
+      left: 14%;
+      top: 80%;
+      transform: translate(-50%, -50%) scale(0.5);
+      cursor: pointer;
+      pointer-events: auto;
+      z-index: 28;
+    }
+
+    .chapstick-box-stage-wrapper.minimized-corner:hover {
+      transform: translate(-50%, -50%) scale(0.56);
+      filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.65));
+    }
+
+    .chapstick-box-stage-wrapper.minimized-corner:active {
+      transform: translate(-50%, -50%) scale(0.48);
+    }
+
+    /* Minimized Box Hint Badge */
+    .box-minimized-hint {
+      position: absolute;
+      bottom: -15%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(20, 14, 42, 0.90);
+      border: 1.5px solid rgba(255, 255, 255, 0.45);
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 999px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+    }
+
+    .chapstick-box-stage-wrapper.minimized-corner .box-minimized-hint {
+      opacity: 1;
+      animation: hintPulse 2.2s ease-in-out infinite;
+    }
+
+    @keyframes hintPulse {
+      0%, 100% { transform: translateX(-50%) scale(1); }
+      50% { transform: translateX(-50%) scale(1.06); }
+    }
+
+    /* Shaking animation */
+    .chapstick-box-stage-wrapper.shaking {
+      animation: boxWiggleShake 0.75s ease-in-out;
+    }
+
+    @keyframes boxWiggleShake {
+      0%, 100% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+      15% { transform: translate(-50%, -50%) rotate(-7deg) scale(1.06); }
+      30% { transform: translate(-50%, -50%) rotate(7deg) scale(1.06); }
+      45% { transform: translate(-50%, -50%) rotate(-5deg) scale(1.04); }
+      60% { transform: translate(-50%, -50%) rotate(5deg) scale(1.04); }
+      75% { transform: translate(-50%, -50%) rotate(-2deg) scale(1.02); }
+      90% { transform: translate(-50%, -50%) rotate(2deg) scale(1.01); }
+    }
+
+    /* Closed and Open images */
+    .box-img-closed {
+      width: 86%;
+      height: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.35));
+      transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: absolute;
+    }
+
+    .box-img-open {
+      width: 96%;
+      height: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.38));
+      transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: absolute;
+      opacity: 0;
+      transform: scale(0.92);
+      pointer-events: none;
+    }
+
+    .chapstick-box-stage-wrapper.opened .box-img-closed {
+      opacity: 0;
+      transform: scale(1.08) translateY(-10px);
+      pointer-events: none;
+    }
+
+    .chapstick-box-stage-wrapper.opened .box-img-open {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+    }
+
+    /* Floating Chapsticks Tray above the open box */
+    .floating-chapsticks-tray {
+      position: absolute;
+      top: -14%;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 12px;
+      z-index: 25;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+      width: 110%;
+    }
+
+    .chapstick-box-stage-wrapper.opened .floating-chapsticks-tray {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .floating-chapstick-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      opacity: 0;
+      transform: translateY(45px) scale(0.65);
+      transition: transform 0.65s cubic-bezier(0.34, 1.45, 0.64, 1), opacity 0.5s ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Staggered entrance when box is opened */
+    .chapstick-box-stage-wrapper.opened .floating-chapstick-item {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      transition-delay: calc(var(--item-index) * 0.1s + 0.15s);
+    }
+
+    .chapstick-float-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      animation: chapstickFloatBob 2.8s ease-in-out infinite;
+      animation-delay: calc(var(--item-index) * 0.4s);
+      transition: transform 0.25s cubic-bezier(0.34, 1.5, 0.64, 1), filter 0.25s ease;
+    }
+
+    /* Lighter warm golden-sunlight tube aura behind each chapstick for stark contrast against blue box */
+    .chapstick-tube-glow {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 140%;
+      height: 76%; /* Constrained to tube area so it never bleeds down over the label */
+      border-radius: 50%;
+      background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.95) 0%, rgba(255, 248, 195, 0.85) 35%, rgba(255, 225, 120, 0.45) 60%, transparent 80%);
+      pointer-events: none;
+      z-index: 1;
+      filter: blur(4px);
+      animation: tubeGlowPulse 2.4s ease-in-out infinite alternate;
+    }
+
+    @keyframes tubeGlowPulse {
+      0% { opacity: 0.75; transform: translateX(-50%) scale(0.94); }
+      100% { opacity: 1; transform: translateX(-50%) scale(1.08); }
+    }
+
+    .chapstick-float-inner img {
+      position: relative;
+      z-index: 5;
+      height: clamp(80px, 13vw, 135px);
+      max-height: 135px;
+      width: auto;
+      object-fit: contain;
+      /* Triple-layer luminous glow: crisp white rim + warm golden halo + subtle grounding shadow */
+      filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.95))
+              drop-shadow(0 0 20px rgba(255, 242, 160, 0.90))
+              drop-shadow(0 8px 16px rgba(15, 23, 42, 0.45));
+      pointer-events: none;
+      -webkit-user-drag: none;
+      transition: filter 0.25s ease;
+    }
+
+    .floating-chapstick-item:hover .chapstick-float-inner img,
+    .floating-chapstick-item:active .chapstick-float-inner img {
+      filter: drop-shadow(0 0 14px rgba(255, 255, 255, 1))
+              drop-shadow(0 0 32px rgba(255, 245, 175, 0.95))
+              drop-shadow(0 12px 24px rgba(15, 23, 42, 0.5));
+    }
+
+    .floating-chapstick-item:hover .chapstick-float-inner,
+    .floating-chapstick-item:active .chapstick-float-inner {
+      transform: translateY(-8px) scale(1.08);
+      /* Do not apply drop-shadow filter to the wrapper so badge is never blurred */
+    }
+
+    /* High-contrast luminous golden-cream badge: guaranteed on a layer ABOVE the glow */
+    .chapstick-name-badge {
+      position: relative;
+      z-index: 20;
+      isolation: isolate;
+      margin-top: 8px;
+      font-size: 11px;
+      font-weight: 800;
+      color: #1a0b33;
+      background: #ffffff;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1.5px solid rgba(255, 215, 90, 0.95);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(0, 0, 0, 0.08);
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+      pointer-events: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .floating-chapstick-item:hover .chapstick-name-badge {
+      transform: scale(1.06);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 0, 0, 0.1);
+    }
+
+    /* When a selection is made: unselected chapsticks sink back down into the box */
+    .floating-chapsticks-tray.has-selection .floating-chapstick-item:not(.selected-chapstick) {
+      opacity: 0 !important;
+      transform: translateY(60px) scale(0.32) !important;
+      pointer-events: none !important;
+      transition: transform 0.42s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.32s ease !important;
+    }
+
+    .floating-chapsticks-tray.has-selection .floating-chapstick-item.selected-chapstick {
+      transform: translateY(-24px) scale(1.18) !important;
+      z-index: 30;
+      transition: transform 0.45s cubic-bezier(0.34, 1.45, 0.64, 1) !important;
+    }
+
+    .floating-chapsticks-tray.has-selection .floating-chapstick-item.selected-chapstick .chapstick-float-inner img {
+      filter: drop-shadow(0 0 24px rgba(255, 255, 255, 1))
+              drop-shadow(0 0 40px rgba(255, 245, 175, 1))
+              drop-shadow(0 14px 28px rgba(0, 0, 0, 0.55));
+    }
+
+    /* Active Selected Chapstick on Stage (Outside the closed corner box) */
+    .selected-chapstick-stage-wrapper {
+      position: absolute;
+      left: 33%;
+      top: 48%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 22;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.34, 1.3, 0.64, 1);
+    }
+
+    .selected-chapstick-stage-wrapper.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .active-chapstick-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      animation: chapstickFloatBob 2.6s ease-in-out infinite;
+    }
+
+    .active-chapstick-halo {
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 145%;
+      height: 75%; /* Stops before reaching the badge */
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(255, 248, 185, 0.8) 40%, rgba(255, 225, 120, 0.35) 65%, transparent 85%);
+      pointer-events: none;
+      z-index: 1;
+      animation: haloGlow 2.2s ease-in-out infinite alternate;
+      filter: blur(6px);
+    }
+
+    @keyframes haloGlow {
+      from { opacity: 0.65; transform: scale(0.92); }
+      to { opacity: 1; transform: scale(1.15); }
+    }
+
+    .selected-chapstick-stage-wrapper img {
+      position: relative;
+      z-index: 5;
+      height: clamp(85px, 14vw, 145px);
+      max-height: 145px;
+      width: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.95))
+              drop-shadow(0 0 28px rgba(255, 242, 160, 0.85))
+              drop-shadow(0 10px 22px rgba(0, 0, 0, 0.48));
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .active-chapstick-badge {
+      position: relative;
+      z-index: 20;
+      isolation: isolate;
+      margin-top: 10px;
+      font-size: 13px;
+      font-weight: 800;
+      color: #1a0b33;
+      background: #ffffff;
+      padding: 4px 14px;
+      border-radius: 999px;
+      border: 1.5px solid rgba(255, 215, 90, 0.95);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(0, 0, 0, 0.08);
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+    }
+
+    @keyframes chapstickFloatBob {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
 
     /* Bottom Info Status Bar */
     footer.sim-status {
@@ -1796,6 +2224,7 @@
         <option value="home">Screen: Home</option>
         <option value="preparations" selected>Screen: Preparations (Procedures)</option>
         <option value="iv-start">Screen: IV Start (Interactive Procedure)</option>
+        <option value="mask-game">Screen: Mask Decoration Game</option>
       </select>
 
       <!-- Device Selector -->
@@ -1866,7 +2295,7 @@
                   <button class="card-btn" onclick="openSheet('Gallery')" style="width: 250px;">
                     <img src="assets/Gallery.png" alt="Gallery" />
                   </button>
-                  <button class="card-btn" onclick="openSheet('Games')" style="width: 250px;">
+                  <button class="card-btn" onclick="goToGames()" style="width: 250px;">
                     <img src="assets/Games.png" alt="Games" />
                   </button>
                 </div>
@@ -1900,7 +2329,7 @@
                   </button>
                 </div>
                 <div class="portrait-grid-row">
-                  <button class="card-btn" onclick="openSheet('Games')" style="width: 190px;">
+                  <button class="card-btn" onclick="goToGames()" style="width: 190px;">
                     <img src="assets/Games.png" alt="Games" />
                   </button>
                 </div>
@@ -2024,7 +2453,7 @@
               <button class="bottom-tab-btn" onclick="openSheet('Glossary')" title="Glossary"></button>
               <button class="bottom-tab-btn" onclick="openSheet('Anatomy Explorer')" title="Anatomy Explorer"></button>
               <button class="bottom-tab-btn" onclick="openSheet('Gallery')" title="Gallery"></button>
-              <button class="bottom-tab-btn" onclick="openSheet('Games')" title="Games"></button>
+              <button class="bottom-tab-btn" onclick="goToGames()" title="Games"></button>
             </div>
           </div>
         </div>
@@ -2168,7 +2597,114 @@
                 <button class="bottom-tab-btn" onclick="openSheet('Glossary')" title="Glossary"></button>
                 <button class="bottom-tab-btn" onclick="openSheet('Anatomy Explorer')" title="Anatomy Explorer"></button>
                 <button class="bottom-tab-btn" onclick="openSheet('Gallery')" title="Gallery"></button>
-                <button class="bottom-tab-btn" onclick="openSheet('Games')" title="Games"></button>
+                <button class="bottom-tab-btn" onclick="goToGames()" title="Games"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- SCREEN 4: MASK DECORATION GAME                            -->
+        <!-- ========================================================= -->
+        <div id="screenMaskGame" class="app-screen">
+          <div class="mask-game-content">
+            <!-- Top Navigation Header -->
+            <div class="game-top-bar">
+              <button class="game-top-btn" onclick="goToHome()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                <span>Home</span>
+              </button>
+
+              <div class="game-header-badge" id="maskStepBadge">
+                <span id="maskStepBadgeIcon">🎭</span>
+                <span id="maskStepBadgeText">Mask Decoration Game</span>
+              </div>
+
+              <button class="game-top-btn" onclick="playMaskSceneSequence()" title="Replay Animation">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                <span>Replay</span>
+              </button>
+            </div>
+
+            <!-- Game Stage Wrapper (maintains 1366x1024 aspect ratio, scales responsively) -->
+            <div class="game-stage-wrapper" id="maskStageWrapper">
+              <div class="mask-stage" id="maskStage">
+                <!-- Layer 1: Mask Hospital Background -->
+                <img class="game-layer" src="assets/MaskBackground.png" alt="Mask Background" style="z-index: 1;" />
+
+                <!-- Layer 2: Focal Mask (Enlarged by 50%, starts dead center, moves smoothly to the right) -->
+                <div class="mask-focal-wrapper" id="maskFocalWrapper">
+                  <img id="maskFocalImg" class="mask-focal-img" src="assets/Mask.png" alt="Anesthesia Mask" draggable="false" />
+                </div>
+
+                <!-- Layer 3: Dark Blur Overlay (Fades in over the mask layer and background when the box opens) -->
+                <div class="mask-dark-blur-overlay" id="maskDarkBlurOverlay"></div>
+
+                <!-- Layer 4: Active Selected Chapstick (Floats proudly near the mask once selected and box is closed) -->
+                <div class="selected-chapstick-stage-wrapper" id="selectedChapstickStageWrapper">
+                  <div class="active-chapstick-inner">
+                    <div class="active-chapstick-halo" id="activeChapstickHalo"></div>
+                    <img id="selectedChapstickImg" src="assets/StrawberryChapstick.png" alt="Selected Chapstick" draggable="false" />
+                    <span class="active-chapstick-badge" id="selectedChapstickBadge">🍓 Strawberry</span>
+                  </div>
+                </div>
+
+                <!-- Layer 5: Chapstick Box Container on the Left (Overlaps mask, shrinks into bottom-left corner) -->
+                <div class="chapstick-box-stage-wrapper" id="chapstickBoxStageWrapper" onclick="handleBoxClick()">
+                  <!-- Closed Box Image -->
+                  <img id="chapstickBoxClosedImg" class="box-img-closed" src="assets/ChapstickBoxClosedCropped.png" alt="Closed Chapstick Box" draggable="false" />
+                  <!-- Open Box Image -->
+                  <img id="chapstickBoxOpenImg" class="box-img-open" src="assets/ChapstickBoxCropped.png" alt="Open Chapstick Box" draggable="false" />
+
+                  <!-- Minimized Corner Helper Badge -->
+                  <div class="box-minimized-hint" id="boxMinimizedHint">
+                    <span>🔄 Change Scent</span>
+                  </div>
+
+                  <!-- Floating Chapsticks Tray (Reveals all 4 chapstick assets floating above the opening) -->
+                  <div class="floating-chapsticks-tray" id="floatingChapsticksTray">
+                    <div class="floating-chapstick-item item-strawberry" data-flavor="strawberry" onclick="selectChapstick('strawberry', event)" style="--item-index: 0;" title="Strawberry">
+                      <div class="chapstick-float-inner">
+                        <div class="chapstick-tube-glow"></div>
+                        <img src="assets/StrawberryChapstick.png" alt="Strawberry Chapstick" draggable="false" />
+                        <span class="chapstick-name-badge">Strawberry</span>
+                      </div>
+                    </div>
+                    <div class="floating-chapstick-item item-blueberry" data-flavor="blueberry" onclick="selectChapstick('blueberry', event)" style="--item-index: 1;" title="Blueberry">
+                      <div class="chapstick-float-inner">
+                        <div class="chapstick-tube-glow"></div>
+                        <img src="assets/BlueberryChapstick.png" alt="Blueberry Chapstick" draggable="false" />
+                        <span class="chapstick-name-badge">Blueberry</span>
+                      </div>
+                    </div>
+                    <div class="floating-chapstick-item item-bubblegum" data-flavor="bubblegum" onclick="selectChapstick('bubblegum', event)" style="--item-index: 2;" title="Bubblegum">
+                      <div class="chapstick-float-inner">
+                        <div class="chapstick-tube-glow"></div>
+                        <img src="assets/BubblegumChapstick.png" alt="Bubblegum Chapstick" draggable="false" />
+                        <span class="chapstick-name-badge">Bubblegum</span>
+                      </div>
+                    </div>
+                    <div class="floating-chapstick-item item-coke" data-flavor="coke" onclick="selectChapstick('coke', event)" style="--item-index: 3;" title="Coke">
+                      <div class="chapstick-float-inner">
+                        <div class="chapstick-tube-glow"></div>
+                        <img src="assets/CokeChapstick.png" alt="Coke Chapstick" draggable="false" />
+                        <span class="chapstick-name-badge">Coke</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fixed Bottom 5-Tab Navigation Bar with Games Highlighted -->
+            <div class="game-bottom-bar" id="maskBottomBar">
+              <img src="assets/BottomBarGames.png" alt="Games Bottom Navigation Bar" />
+              <div class="bottom-bar-hit-tabs">
+                <button class="bottom-tab-btn" onclick="goToPreparations()" title="Preparations"></button>
+                <button class="bottom-tab-btn" onclick="openSheet('Glossary')" title="Glossary"></button>
+                <button class="bottom-tab-btn" onclick="openSheet('Anatomy Explorer')" title="Anatomy Explorer"></button>
+                <button class="bottom-tab-btn" onclick="openSheet('Gallery')" title="Gallery"></button>
+                <button class="bottom-tab-btn" onclick="goToGames()" title="Games"></button>
               </div>
             </div>
           </div>
@@ -2446,6 +2982,7 @@
       const screenHome = document.getElementById('screenHome');
       const screenPrep = document.getElementById('screenPreparations');
       const screenGame = document.getElementById('screenIVGame');
+      const screenMask = document.getElementById('screenMaskGame');
       const select = document.getElementById('screenSelect');
       const statusSpan = document.querySelector('.sim-status div:last-child span');
 
@@ -2453,15 +2990,30 @@
       screenHome.classList.remove('active');
       screenPrep.classList.remove('active');
       if (screenGame) screenGame.classList.remove('active');
+      if (screenMask) screenMask.classList.remove('active');
 
-      if (screenName === 'games' || screenName === 'iv-start') {
+      if (screenName === 'mask-game' || screenName === 'games') {
+        if (screenMask) screenMask.classList.add('active');
+        if (select) select.value = 'mask-game';
+        if (statusSpan) statusSpan.textContent = 'Mask Decoration Game Active • Decorate your pediatric anesthesia mask';
+        stopIVBackgroundMusic();
+        stopClothWipeSound(true);
+        stopClothWetWipeSound(true);
+        stopYouDidItSound(true);
+        playMaskBackgroundMusic();
+        playMaskSceneSequence();
+      } else if (screenName === 'iv-start') {
         if (screenGame) screenGame.classList.add('active');
         if (select) select.value = 'iv-start';
         if (statusSpan) statusSpan.textContent = 'IV Start Procedure Active • Complete interactive steps';
+        stopMaskBackgroundMusic();
+        resetMaskScene();
         playIVBackgroundMusic();
       } else {
-        // Navigating away from the IV Start preparation stops the background music and wipe audio
+        // Navigating away from games stops background music and audio
         stopIVBackgroundMusic();
+        stopMaskBackgroundMusic();
+        resetMaskScene();
         stopClothWipeSound(true);
         stopClothWetWipeSound(true);
         stopYouDidItSound(true);
@@ -2491,7 +3043,298 @@
     }
 
     function goToGames() {
-      openSheet('Games');
+      switchScreen('mask-game');
+    }
+
+    function goToMaskGame() {
+      switchScreen('mask-game');
+    }
+
+    // =========================================================
+    // MASK DECORATION GAME - SEQUENCE CONTROLLER
+    // Flow:
+    // 1. Mask starts directly in center screen
+    // 2. Mask smoothly moves to the right side
+    // 3. Chapstick Box appears closed on the left side
+    // 4. Closed box gives a playful little shake
+    // 5. Box opens up cleanly to display Chapstick Box Open
+    // =========================================================
+    let maskBgMusic = null;
+    let maskPopSound = null;
+    let maskSequenceTimers = [];
+
+    function playMaskBackgroundMusic() {
+      if (!maskBgMusic) {
+        try {
+          maskBgMusic = new Audio('assets/MusicBG.mp3');
+          maskBgMusic.loop = true;
+          maskBgMusic.volume = 0.20;
+        } catch (e) {}
+      }
+      if (maskBgMusic) {
+        maskBgMusic.play().catch(() => {});
+      }
+    }
+
+    function stopMaskBackgroundMusic() {
+      if (maskBgMusic) {
+        try {
+          maskBgMusic.pause();
+          maskBgMusic.currentTime = 0;
+        } catch (e) {}
+      }
+    }
+
+    function playMaskPopSound() {
+      try {
+        if (!maskPopSound) {
+          maskPopSound = new Audio('assets/Bandage.mp3');
+          maskPopSound.volume = 0.85;
+        }
+        maskPopSound.currentTime = 0;
+        maskPopSound.play().catch(() => {});
+      } catch (e) {}
+    }
+
+    function clearMaskSequenceTimers() {
+      maskSequenceTimers.forEach(t => clearTimeout(t));
+      maskSequenceTimers = [];
+    }
+
+    const chapstickData = {
+      strawberry: {
+        name: 'Strawberry',
+        icon: '🍓',
+        img: 'assets/StrawberryChapstick.png',
+        color: '#f43f5e'
+      },
+      blueberry: {
+        name: 'Blueberry',
+        icon: '🫐',
+        img: 'assets/BlueberryChapstick.png',
+        color: '#3b82f6'
+      },
+      bubblegum: {
+        name: 'Bubblegum',
+        icon: '🍬',
+        img: 'assets/BubblegumChapstick.png',
+        color: '#ec4899'
+      },
+      coke: {
+        name: 'Coke',
+        icon: '🥤',
+        img: 'assets/CokeChapstick.png',
+        color: '#ef4444'
+      }
+    };
+
+    let currentSelectedFlavor = null;
+    let isTransitioningBox = false;
+
+    function clearMaskSequenceTimers() {
+      maskSequenceTimers.forEach(t => clearTimeout(t));
+      maskSequenceTimers = [];
+    }
+
+    function resetMaskScene() {
+      clearMaskSequenceTimers();
+      isTransitioningBox = false;
+      currentSelectedFlavor = null;
+
+      const maskWrapper = document.getElementById('maskFocalWrapper');
+      const boxWrapper = document.getElementById('chapstickBoxStageWrapper');
+      const blurOverlay = document.getElementById('maskDarkBlurOverlay');
+      const tray = document.getElementById('floatingChapsticksTray');
+      const activeChapstick = document.getElementById('selectedChapstickStageWrapper');
+      const badgeIcon = document.getElementById('maskStepBadgeIcon');
+      const badgeText = document.getElementById('maskStepBadgeText');
+
+      if (maskWrapper) {
+        maskWrapper.classList.remove('moved-right');
+      }
+      if (boxWrapper) {
+        boxWrapper.classList.remove('visible', 'shaking', 'opened', 'minimized-corner');
+      }
+      if (blurOverlay) {
+        blurOverlay.classList.remove('active');
+      }
+      if (tray) {
+        tray.classList.remove('has-selection');
+        tray.querySelectorAll('.floating-chapstick-item').forEach(item => {
+          item.classList.remove('selected-chapstick');
+        });
+      }
+      if (activeChapstick) {
+        activeChapstick.classList.remove('visible');
+      }
+      if (badgeIcon) badgeIcon.textContent = '🎭';
+      if (badgeText) badgeText.textContent = 'Mask Decoration Game';
+    }
+
+    function playMaskSceneSequence() {
+      resetMaskScene();
+      const maskWrapper = document.getElementById('maskFocalWrapper');
+      const boxWrapper = document.getElementById('chapstickBoxStageWrapper');
+      const blurOverlay = document.getElementById('maskDarkBlurOverlay');
+      if (!maskWrapper || !boxWrapper) return;
+
+      // 1. Mask starts at center (reset state)
+      // 2. After 800ms, mask smoothly glides to the right side
+      const t1 = setTimeout(() => {
+        maskWrapper.classList.add('moved-right');
+
+        // 3. After 450ms into mask movement, closed box appears on the left
+        const t2 = setTimeout(() => {
+          boxWrapper.classList.add('visible');
+
+          // 4. After 500ms, closed box gives a little shake
+          const t3 = setTimeout(() => {
+            boxWrapper.classList.add('shaking');
+            playMaskPopSound();
+
+            // 5. After shake completes (750ms), box opens and reveals floating chapsticks
+            const t4 = setTimeout(() => {
+              boxWrapper.classList.remove('shaking');
+              boxWrapper.classList.add('opened');
+              playMaskPopSound();
+
+              // 6. As the box opens, darker blur overlay covers the mask layer and background
+              if (blurOverlay) {
+                blurOverlay.classList.add('active');
+              }
+            }, 750);
+            maskSequenceTimers.push(t4);
+          }, 500);
+          maskSequenceTimers.push(t3);
+        }, 450);
+        maskSequenceTimers.push(t2);
+      }, 800);
+      maskSequenceTimers.push(t1);
+    }
+
+    // Select a chapstick: others sink back into box, box closes, shrinks ~50% to bottom-left corner
+    function selectChapstick(flavor, event) {
+      if (event) event.stopPropagation();
+      if (isTransitioningBox) return;
+
+      const data = chapstickData[flavor];
+      if (!data) return;
+      currentSelectedFlavor = flavor;
+      isTransitioningBox = true;
+
+      playMaskPopSound();
+
+      const tray = document.getElementById('floatingChapsticksTray');
+      const boxWrapper = document.getElementById('chapstickBoxStageWrapper');
+      const blurOverlay = document.getElementById('maskDarkBlurOverlay');
+      const activeChapstick = document.getElementById('selectedChapstickStageWrapper');
+      const activeImg = document.getElementById('selectedChapstickImg');
+      const activeBadge = document.getElementById('selectedChapstickBadge');
+      const badgeIcon = document.getElementById('maskStepBadgeIcon');
+      const badgeText = document.getElementById('maskStepBadgeText');
+
+      // 1. Mark selected item and trigger sinking animation for the other 3
+      if (tray) {
+        tray.classList.add('has-selection');
+        tray.querySelectorAll('.floating-chapstick-item').forEach(item => {
+          if (item.getAttribute('data-flavor') === flavor) {
+            item.classList.add('selected-chapstick');
+          } else {
+            item.classList.remove('selected-chapstick');
+          }
+        });
+      }
+
+      // 2. After others sink into box (~400ms), box snaps closed
+      setTimeout(() => {
+        if (boxWrapper) {
+          boxWrapper.classList.remove('opened');
+          playMaskPopSound();
+        }
+
+        // 3. After box closes (~250ms), shrink box ~50% and move into bottom-left corner
+        setTimeout(() => {
+          if (boxWrapper) {
+            boxWrapper.classList.add('minimized-corner');
+          }
+
+          // 4. Remove dark blur overlay so the mask is clear again
+          if (blurOverlay) {
+            blurOverlay.classList.remove('active');
+          }
+
+          // 5. Present the selected chapstick floating proudly near the mask
+          if (activeChapstick && activeImg && activeBadge) {
+            activeImg.src = data.img;
+            activeImg.alt = data.name + ' Chapstick';
+            activeBadge.textContent = `${data.icon} ${data.name}`;
+            activeChapstick.classList.add('visible');
+          }
+
+          // 6. Update header badge
+          if (badgeIcon) badgeIcon.textContent = data.icon;
+          if (badgeText) badgeText.textContent = `${data.name} Scent Selected`;
+
+          isTransitioningBox = false;
+        }, 250);
+      }, 400);
+    }
+
+    // Click on the box in the bottom-left corner to reopen and make a different selection
+    function handleBoxClick() {
+      const boxWrapper = document.getElementById('chapstickBoxStageWrapper');
+      if (!boxWrapper || isTransitioningBox) return;
+
+      // Only respond if the box is currently minimized in the corner
+      if (boxWrapper.classList.contains('minimized-corner')) {
+        isTransitioningBox = true;
+
+        const tray = document.getElementById('floatingChapsticksTray');
+        const blurOverlay = document.getElementById('maskDarkBlurOverlay');
+        const activeChapstick = document.getElementById('selectedChapstickStageWrapper');
+        const badgeIcon = document.getElementById('maskStepBadgeIcon');
+        const badgeText = document.getElementById('maskStepBadgeText');
+
+        // 1. Hide active floating chapstick
+        if (activeChapstick) {
+          activeChapstick.classList.remove('visible');
+        }
+
+        // 2. Glide box back to full size and original stage position
+        boxWrapper.classList.remove('minimized-corner');
+
+        // Reset tray state so all 4 chapsticks can float again
+        if (tray) {
+          tray.classList.remove('has-selection');
+          tray.querySelectorAll('.floating-chapstick-item').forEach(item => {
+            item.classList.remove('selected-chapstick');
+          });
+        }
+
+        // 3. After moving into place (~600ms), give a little shake
+        setTimeout(() => {
+          boxWrapper.classList.add('shaking');
+          playMaskPopSound();
+
+          // 4. After shake completes (~650ms), box opens
+          setTimeout(() => {
+            boxWrapper.classList.remove('shaking');
+            boxWrapper.classList.add('opened');
+            playMaskPopSound();
+
+            // 5. Re-activate dark blur overlay over the mask
+            if (blurOverlay) {
+              blurOverlay.classList.add('active');
+            }
+
+            // Reset header badge
+            if (badgeIcon) badgeIcon.textContent = '🎭';
+            if (badgeText) badgeText.textContent = 'Choose Your Calming Scent';
+
+            isTransitioningBox = false;
+          }, 650);
+        }, 600);
+      }
     }
 
     // =========================================================
@@ -5028,8 +5871,9 @@
 
     function updateResponsiveLayout() {
       const shell = document.getElementById('deviceShell');
-      const w = shell ? (parseInt(shell.style.width) || shell.clientWidth || 960) : window.innerWidth;
-      const h = shell ? (parseInt(shell.style.height) || shell.clientHeight || 720) : window.innerHeight;
+      const container = document.querySelector('.device-screen') || shell;
+      const w = shell ? (parseInt(shell.style.width) || shell.clientWidth || 960) : (container ? container.clientWidth : window.innerWidth);
+      const h = shell ? (parseInt(shell.style.height) || shell.clientHeight || 720) : (container ? container.clientHeight : window.innerHeight);
       const isLandscape = w > h;
       const isCompact = w < 580 && !isLandscape;
 
@@ -5083,10 +5927,14 @@
         bar.style.height = barH + 'px';
       });
 
-      // IV Game Stage padding
+      // IV Game & Mask Game Stage padding
       const gameWrapper = document.getElementById('gameStageWrapper');
       if (gameWrapper) {
         gameWrapper.style.paddingBottom = (barH + 10) + 'px';
+      }
+      const maskWrapper = document.getElementById('maskStageWrapper');
+      if (maskWrapper) {
+        maskWrapper.style.paddingBottom = (barH + 10) + 'px';
       }
 
       // Arrow position scaling: up arrow distance to ribbon equals down arrow distance to bottom toolbar
@@ -5178,9 +6026,24 @@
 
     // Initialize layout on load
     window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const screenParam = urlParams.get('screen');
+      if (screenParam) {
+        switchScreen(screenParam);
+      }
       updateResponsiveLayout();
     });
     window.addEventListener('resize', updateResponsiveLayout);
+    window.addEventListener('orientationchange', () => {
+      setTimeout(updateResponsiveLayout, 100);
+    });
+    const deviceScreenEl = document.querySelector('.device-screen');
+    if (deviceScreenEl && window.ResizeObserver) {
+      const ro = new ResizeObserver(() => {
+        updateResponsiveLayout();
+      });
+      ro.observe(deviceScreenEl);
+    }
   </script>
 </body>
 </html>
