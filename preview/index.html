@@ -2408,6 +2408,39 @@
       } catch (err) {}
     }
 
+    // Sound Effect: You Did It Celebration (Volume 0.90)
+    let youDidItSound = null;
+    try {
+      youDidItSound = new Audio('assets/YouDidIt.mp3');
+      youDidItSound.preload = 'auto';
+      youDidItSound.volume = 0.90;
+    } catch (e) {}
+
+    function playYouDidItSound() {
+      try {
+        if (!youDidItSound) {
+          youDidItSound = new Audio('assets/YouDidIt.mp3');
+          youDidItSound.preload = 'auto';
+          youDidItSound.volume = 0.90;
+        }
+        youDidItSound.currentTime = 0;
+        youDidItSound.play().catch(err => {
+          console.log('You Did It audio playback waiting for user gesture or error:', err);
+        });
+      } catch (err) {}
+    }
+
+    function stopYouDidItSound(reset = false) {
+      try {
+        if (youDidItSound && !youDidItSound.paused) {
+          youDidItSound.pause();
+        }
+        if (reset && youDidItSound) {
+          youDidItSound.currentTime = 0;
+        }
+      } catch (err) {}
+    }
+
     // Screen Switching
     function switchScreen(screenName) {
       const screenHome = document.getElementById('screenHome');
@@ -2431,6 +2464,7 @@
         stopIVBackgroundMusic();
         stopClothWipeSound(true);
         stopClothWetWipeSound(true);
+        stopYouDidItSound(true);
         if (screenName === 'preparations') {
           screenPrep.classList.add('active');
           if (select) select.value = 'preparations';
@@ -4490,6 +4524,7 @@
       const overlay = document.getElementById('gameSuccessOverlay');
       if (overlay) overlay.classList.add('visible');
       startConfetti();
+      playYouDidItSound();
     }
 
     function resetGame() {
@@ -4632,6 +4667,7 @@
 
       if (overlay) overlay.classList.remove('visible');
       stopConfetti();
+      stopYouDidItSound(true);
 
       // In Step 1, hide arm drop zone and show elbow drop zone
       if (armZone) {

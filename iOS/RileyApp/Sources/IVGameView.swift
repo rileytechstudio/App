@@ -8,6 +8,7 @@ public final class IVAudioManager {
     private var sfxPlayer: AVAudioPlayer?
     private var wipePlayer: AVAudioPlayer?
     private var wetWipePlayer: AVAudioPlayer?
+    private var youDidItPlayer: AVAudioPlayer?
     
     private init() {}
     
@@ -64,6 +65,7 @@ public final class IVAudioManager {
         player = nil
         stopClothWipeSound(reset: true)
         stopClothWetWipeSound(reset: true)
+        stopYouDidItSound(reset: true)
     }
     
     // MARK: - Step 1 Ointment Squeeze Sound Effect (Volume 0.90)
@@ -351,6 +353,55 @@ public final class IVAudioManager {
             } catch {
                 print("Failed to play Shot audio: \(error)")
             }
+        }
+    }
+    
+    // MARK: - Step 10 You Did It Celebration Sound Effect (Volume 0.90)
+    public func playYouDidItSound() {
+        if youDidItPlayer == nil {
+            // Priority 1: Load from Asset Catalog NSDataAsset
+            if let dataAsset = NSDataAsset(name: "YouDidIt") {
+                do {
+                    youDidItPlayer = try AVAudioPlayer(data: dataAsset.data)
+                    youDidItPlayer?.volume = 0.90
+                    youDidItPlayer?.prepareToPlay()
+                } catch {
+                    print("Failed to initialize YouDidIt player from data asset: \(error)")
+                }
+            }
+            
+            // Priority 2: Fallback to Bundle resource URLs
+            if youDidItPlayer == nil {
+                var soundURL: URL? = Bundle.main.url(forResource: "You Did It", withExtension: "mp3")
+                    ?? Bundle.main.url(forResource: "YouDidIt", withExtension: "mp3")
+                
+                #if SWIFT_PACKAGE
+                if soundURL == nil {
+                    soundURL = Bundle.module.url(forResource: "You Did It", withExtension: "mp3")
+                        ?? Bundle.module.url(forResource: "YouDidIt", withExtension: "mp3")
+                }
+                #endif
+                
+                if let url = soundURL {
+                    do {
+                        youDidItPlayer = try AVAudioPlayer(contentsOf: url)
+                        youDidItPlayer?.volume = 0.90
+                        youDidItPlayer?.prepareToPlay()
+                    } catch {
+                        print("Failed to play You Did It audio: \(error)")
+                    }
+                }
+            }
+        }
+        
+        youDidItPlayer?.currentTime = 0
+        youDidItPlayer?.play()
+    }
+    
+    public func stopYouDidItSound(reset: Bool = false) {
+        youDidItPlayer?.pause()
+        if reset {
+            youDidItPlayer?.currentTime = 0
         }
     }
 }
@@ -1505,6 +1556,7 @@ public struct IVGameView: View {
                 currentStep = .completed
                 showSuccessModal = true
             }
+            IVAudioManager.shared.playYouDidItSound()
         }
     }
     
@@ -2047,6 +2099,7 @@ public struct IVGameView: View {
         stopSwiftUISqueeze()
         IVAudioManager.shared.stopClothWipeSound(reset: true)
         IVAudioManager.shared.stopClothWetWipeSound(reset: true)
+        IVAudioManager.shared.stopYouDidItSound(reset: true)
         withAnimation(.spring()) {
             currentStep = .ointment
             isBandPlaced = false
