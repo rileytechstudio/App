@@ -82,7 +82,7 @@ def build_distribution():
       inset: 0;
     }
 
-    /* Mobile / Tablet / PWA default: edge-to-edge responsive canvas */
+    /* Edge-to-Edge Responsive Canvas Across All Devices (iPad, Desktop & Mobile) */
     .device-screen {
       background: var(--riley-purple);
       border-radius: 0 !important;
@@ -100,46 +100,26 @@ def build_distribution():
       padding-top: env(safe-area-inset-top, 0px);
     }
 
+    /* Bottom Bar Anchored Directly to Screen Bottom with Zero Padding Distortion */
     .prep-bottom-bar, .game-bottom-bar {
-      padding-bottom: env(safe-area-inset-bottom, 0px);
+      position: absolute !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: var(--riley-purple) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
     }
 
-    /* Desktop Chrome / Web View Scaling & Responsiveness */
-    /* When viewed on wide desktop monitors, frame the app to reflect the authentic iPad/tablet view */
-    @media (min-width: 960px) and (min-aspect-ratio: 1.25) and (hover: hover) {
-      body {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: radial-gradient(circle at center, #351772 0%, #15082d 100%);
-      }
-
-      .device-screen {
-        width: min(1366px, 96vw) !important;
-        height: min(1024px, 94vh) !important;
-        max-width: calc(94vh * (1366 / 1024)) !important;
-        max-height: calc(96vw * (1024 / 1366)) !important;
-        aspect-ratio: 1366 / 1024;
-        border-radius: 28px !important;
-        box-shadow: 0 25px 70px -10px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.12) !important;
-      }
-    }
-
-    /* Standalone PWA on devices stays full screen */
-    @media all and (display-mode: standalone) {
-      body {
-        display: block !important;
-        background: var(--riley-dark-purple, #411e8c) !important;
-      }
-      .device-screen {
-        width: 100vw !important;
-        height: 100vh !important;
-        height: 100dvh !important;
-        max-width: none !important;
-        max-height: none !important;
-        border-radius: 0 !important;
-        box-shadow: none !important;
-      }
+    .prep-bottom-bar img, .game-bottom-bar img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: fill !important;
+      display: block !important;
     }
     """
     css += dist_css_overrides

@@ -5919,10 +5919,10 @@
         card.style.width = prepCardW + 'px';
       });
 
-      // Bottom Bar scaling
+      // Bottom Bar scaling (maintains authentic 1366:92 aspect ratio without distortion)
       const bottomBars = document.querySelectorAll('.prep-bottom-bar, .game-bottom-bar');
-      let barH = 65;
-      barH = isLandscape ? Math.min(Math.max(w * (92 / 1366), 46), 75) : Math.min(Math.max(w * (92 / 1366), 42), 65);
+      const naturalBarH = Math.round(w * (92 / 1366));
+      let barH = isLandscape ? Math.min(Math.max(naturalBarH, 48), 96) : Math.min(Math.max(naturalBarH, 44), 92);
       bottomBars.forEach(bar => {
         bar.style.height = barH + 'px';
       });
