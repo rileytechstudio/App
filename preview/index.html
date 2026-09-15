@@ -2651,7 +2651,7 @@
                   <div class="active-chapstick-inner">
                     <div class="active-chapstick-halo" id="activeChapstickHalo"></div>
                     <img id="selectedChapstickImg" src="assets/StrawberryChapstick.png" alt="Selected Chapstick" draggable="false" />
-                    <span class="active-chapstick-badge" id="selectedChapstickBadge">🍓 Strawberry</span>
+                    <span class="active-chapstick-badge" id="selectedChapstickBadge">Strawberry</span>
                   </div>
                 </div>
 
@@ -2664,7 +2664,7 @@
 
                   <!-- Minimized Corner Helper Badge -->
                   <div class="box-minimized-hint" id="boxMinimizedHint">
-                    <span>🔄 Change Scent</span>
+                    <span>Change Scent</span>
                   </div>
 
                   <!-- Floating Chapsticks Tray (Reveals all 4 chapstick assets floating above the opening) -->
@@ -3273,12 +3273,12 @@
           if (activeChapstick && activeImg && activeBadge) {
             activeImg.src = data.img;
             activeImg.alt = data.name + ' Chapstick';
-            activeBadge.textContent = `${data.icon} ${data.name}`;
+            activeBadge.textContent = data.name;
             activeChapstick.classList.add('visible');
           }
 
           // 6. Update header badge
-          if (badgeIcon) badgeIcon.textContent = data.icon;
+          if (badgeIcon) badgeIcon.textContent = '';
           if (badgeText) badgeText.textContent = `${data.name} Scent Selected`;
 
           isTransitioningBox = false;
