@@ -2007,6 +2007,7 @@
     }
 
     /* Active Selected Chapstick on Stage (Outside the closed corner box) */
+    /* Active Selected Chapstick on Stage (Outside the closed corner box) */
     .selected-chapstick-stage-wrapper {
       position: absolute;
       left: 33%;
@@ -2020,11 +2021,27 @@
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.34, 1.3, 0.64, 1);
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
     .selected-chapstick-stage-wrapper.visible {
       opacity: 1;
       pointer-events: auto;
+    }
+
+    .selected-chapstick-stage-wrapper.is-dragging {
+      cursor: grabbing;
+      z-index: 60;
+      transition: none !important;
+    }
+
+    .selected-chapstick-stage-wrapper.spring-back {
+      transition: left 0.5s cubic-bezier(0.34, 1.4, 0.64, 1),
+                  top 0.5s cubic-bezier(0.34, 1.4, 0.64, 1),
+                  transform 0.5s cubic-bezier(0.34, 1.4, 0.64, 1) !important;
     }
 
     .active-chapstick-inner {
@@ -2033,6 +2050,33 @@
       align-items: center;
       position: relative;
       animation: chapstickFloatBob 2.6s ease-in-out infinite;
+      transform-origin: 50% 50%;
+      transition: transform 0.28s cubic-bezier(0.34, 1.35, 0.64, 1);
+    }
+
+    /* 180° Face-Down Orientation when interacted with or dragging */
+    .selected-chapstick-stage-wrapper.face-down .active-chapstick-inner {
+      animation: none !important;
+      transform: rotate(180deg) scale(1.05);
+    }
+
+    .selected-chapstick-stage-wrapper.face-down .active-chapstick-halo {
+      opacity: 0 !important;
+      transform: translate(-50%, -50%) scale(0.6);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .selected-chapstick-stage-wrapper.face-down .active-chapstick-badge {
+      opacity: 0 !important;
+      transform: translateY(10px);
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .selected-chapstick-stage-wrapper.face-down .mask-draw-prompt-bubble {
+      opacity: 0 !important;
+      transform: translateX(-50%) translateY(8px);
+      pointer-events: none;
     }
 
     .active-chapstick-halo {
@@ -2073,6 +2117,7 @@
               drop-shadow(0 10px 22px rgba(0, 0, 0, 0.48));
       user-select: none;
       -webkit-user-drag: none;
+      pointer-events: none;
     }
 
     .active-chapstick-badge {
@@ -2090,6 +2135,119 @@
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(0, 0, 0, 0.08);
       letter-spacing: 0.3px;
       white-space: nowrap;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    /* Child-friendly Prompt Speech Bubble */
+    .mask-draw-prompt-bubble {
+      position: absolute;
+      bottom: calc(100% + 14px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ffffff;
+      color: #260e48;
+      font-size: 13px;
+      font-weight: 800;
+      padding: 8px 18px;
+      border-radius: 999px;
+      border: 2px solid #ffcc00;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.42), 0 0 16px rgba(255, 204, 0, 0.45);
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      animation: promptBob 2.2s ease-in-out infinite;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .mask-draw-prompt-bubble::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 8px 8px 0 8px;
+      border-style: solid;
+      border-color: #ffcc00 transparent transparent transparent;
+    }
+
+    @keyframes promptBob {
+      0%, 100% {
+        transform: translateX(-50%) translateY(0);
+      }
+      50% {
+        transform: translateX(-50%) translateY(-7px);
+      }
+    }
+
+    /* Waxy Drawing Canvas */
+    .mask-draw-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+      z-index: 6;
+    }
+
+    /* Scent Celebration Floating Badge */
+    .mask-scent-badge {
+      position: absolute;
+      top: 18%;
+      left: 70%;
+      transform: translate(-50%, -50%) scale(0);
+      z-index: 25;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      pointer-events: none;
+      transition: transform 0.5s cubic-bezier(0.34, 1.45, 0.64, 1), opacity 0.5s ease;
+      opacity: 0;
+    }
+
+    .mask-scent-badge.visible {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+
+    .mask-scent-badge img {
+      width: clamp(75px, 11vw, 115px);
+      height: auto;
+      filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.45))
+              drop-shadow(0 0 20px rgba(255, 255, 255, 0.75));
+      animation: scentBadgeFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes scentBadgeFloat {
+      0%, 100% {
+        transform: translateY(0) rotate(0deg);
+      }
+      50% {
+        transform: translateY(-8px) rotate(4deg);
+      }
+    }
+
+    /* Dynamic Scent Aroma Sparkle Particle */
+    .mask-scent-sparkle {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 25;
+      animation: sparkleRise 0.85s ease-out forwards;
+    }
+
+    @keyframes sparkleRise {
+      0% {
+        opacity: 0.9;
+        transform: translate(-50%, -50%) scale(0.6);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -120%) scale(1.6);
+      }
     }
 
     @keyframes chapstickFloatBob {
@@ -2566,14 +2724,25 @@
                 <!-- Layer 2: Focal Mask (Enlarged by 50%, starts dead center, moves smoothly to the right) -->
                 <div class="mask-focal-wrapper" id="maskFocalWrapper">
                   <img id="maskFocalImg" class="mask-focal-img" src="assets/Mask.png" alt="Anesthesia Mask" draggable="false" />
+                  <canvas id="maskDrawCanvas" class="mask-draw-canvas" width="1366" height="1024"></canvas>
+                </div>
+
+                <!-- Layer: Floating Scent Badge after Rubbing -->
+                <div class="mask-scent-badge" id="maskScentBadge">
+                  <img id="maskScentBadgeImg" src="assets/StrawberryScent.png" alt="Mask Scent" draggable="false" />
                 </div>
 
                 <!-- Layer 3: Dark Blur Overlay (Fades in over the mask layer and background when the box opens) -->
                 <div class="mask-dark-blur-overlay" id="maskDarkBlurOverlay"></div>
 
                 <!-- Layer 4: Active Selected Chapstick (Floats proudly near the mask once selected and box is closed) -->
-                <div class="selected-chapstick-stage-wrapper" id="selectedChapstickStageWrapper">
-                  <div class="active-chapstick-inner">
+                <div class="selected-chapstick-stage-wrapper" id="selectedChapstickStageWrapper" onpointerdown="startChapstickDrag(event)">
+                  <!-- Child-friendly Prompt Speech Bubble -->
+                  <div class="mask-draw-prompt-bubble" id="maskDrawPromptBubble">
+                    <span class="prompt-icon">✨</span>
+                    <span class="prompt-text">Rub the chapstick on the mask to add your scent!</span>
+                  </div>
+                  <div class="active-chapstick-inner" id="activeChapstickInner">
                     <div class="active-chapstick-halo" id="activeChapstickHalo"></div>
                     <img id="selectedChapstickImg" src="assets/StrawberryChapstick.png" alt="Selected Chapstick" draggable="false" />
                     <span class="active-chapstick-badge" id="selectedChapstickBadge">Strawberry</span>
@@ -3018,6 +3187,12 @@
       }
     }
 
+    let boxOpenAudio = null;
+    let boxCloseAudio = null;
+    let chapstickSelectAudio = null;
+    let chapstickRubAudio = null;
+    let chapstickRubAudioStopTimer = null;
+
     function playMaskPopSound() {
       try {
         if (!maskPopSound) {
@@ -3027,6 +3202,68 @@
         maskPopSound.currentTime = 0;
         maskPopSound.play().catch(() => {});
       } catch (e) {}
+    }
+
+    function playBoxOpenSound() {
+      try {
+        if (!boxOpenAudio) {
+          boxOpenAudio = new Audio('assets/BoxOpen.mp3');
+          boxOpenAudio.volume = 0.85;
+        }
+        boxOpenAudio.currentTime = 0;
+        boxOpenAudio.play().catch(() => {});
+      } catch (e) {}
+    }
+
+    function playBoxCloseSound() {
+      try {
+        if (!boxCloseAudio) {
+          boxCloseAudio = new Audio('assets/BoxClose.mp3');
+          boxCloseAudio.volume = 0.85;
+        }
+        boxCloseAudio.currentTime = 0;
+        boxCloseAudio.play().catch(() => {});
+      } catch (e) {}
+    }
+
+    function playChapstickSelectSound() {
+      try {
+        if (!chapstickSelectAudio) {
+          chapstickSelectAudio = new Audio('assets/ChapstickSelect.mp3');
+          chapstickSelectAudio.volume = 0.9;
+        }
+        chapstickSelectAudio.currentTime = 0;
+        chapstickSelectAudio.play().catch(() => {});
+      } catch (e) {}
+    }
+
+    function playChapstickRubbingSound() {
+      try {
+        if (!chapstickRubAudio) {
+          chapstickRubAudio = new Audio('assets/Chapstick.mp3');
+          chapstickRubAudio.loop = true;
+          chapstickRubAudio.volume = 0.85;
+        }
+        if (chapstickRubAudio.paused) {
+          chapstickRubAudio.play().catch(() => {});
+        }
+        if (chapstickRubAudioStopTimer) {
+          clearTimeout(chapstickRubAudioStopTimer);
+          chapstickRubAudioStopTimer = null;
+        }
+      } catch (e) {}
+    }
+
+    function pauseChapstickRubbingSound(delay = 140) {
+      if (chapstickRubAudioStopTimer) clearTimeout(chapstickRubAudioStopTimer);
+      chapstickRubAudioStopTimer = setTimeout(() => {
+        try {
+          if (chapstickRubAudio && !chapstickRubAudio.paused) {
+            chapstickRubAudio.pause();
+          }
+        } catch (e) {}
+        chapstickRubAudioStopTimer = null;
+      }, delay);
     }
 
     function clearMaskSequenceTimers() {
@@ -3039,46 +3276,71 @@
         name: 'Strawberry',
         icon: '🍓',
         img: 'assets/StrawberryChapstick.png',
-        color: '#f43f5e'
+        trailImg: 'assets/StrawberryTrailEx.png',
+        scentImg: 'assets/StrawberryScent.png',
+        color: '#F30B36',
+        colorRgb: [243, 11, 54]
       },
       blueberry: {
         name: 'Blueberry',
         icon: '🫐',
         img: 'assets/BlueberryChapstick.png',
-        color: '#3b82f6'
+        trailImg: 'assets/BlueberryTrailEx.png',
+        scentImg: 'assets/BlueberryScent.png',
+        color: '#65B3F1',
+        colorRgb: [101, 179, 241]
       },
       bubblegum: {
         name: 'Bubblegum',
         icon: '🍬',
         img: 'assets/BubblegumChapstick.png',
-        color: '#ec4899'
+        trailImg: 'assets/BubblegumTrailEx.png',
+        scentImg: 'assets/BubblegumScent.png',
+        color: '#FD92F2',
+        colorRgb: [253, 146, 242]
       },
       coke: {
         name: 'Soda',
         icon: '🥤',
         img: 'assets/CokeChapstick.png',
-        color: '#ef4444'
+        trailImg: 'assets/CokeTrailEx.png',
+        scentImg: 'assets/CokeScent.png',
+        color: '#A45F3E',
+        colorRgb: [164, 95, 62]
       }
     };
 
     let currentSelectedFlavor = null;
     let isTransitioningBox = false;
-
-    function clearMaskSequenceTimers() {
-      maskSequenceTimers.forEach(t => clearTimeout(t));
-      maskSequenceTimers = [];
-    }
+    let isDraggingChapstick = false;
+    let isDrawingOnMask = false;
+    let lastDrawPoint = null;
+    let cumulativeRubDistance = 0;
+    let isScentApplied = false;
 
     function resetMaskScene() {
       clearMaskSequenceTimers();
       isTransitioningBox = false;
       currentSelectedFlavor = null;
+      isDraggingChapstick = false;
+      isDrawingOnMask = false;
+      lastDrawPoint = null;
+      cumulativeRubDistance = 0;
+      isScentApplied = false;
+      pauseChapstickRubbingSound(0);
+
+      window.removeEventListener('pointermove', onChapstickPointerMove);
+      window.removeEventListener('pointerup', onChapstickPointerUp);
+      window.removeEventListener('pointercancel', onChapstickPointerCancel);
 
       const maskWrapper = document.getElementById('maskFocalWrapper');
       const boxWrapper = document.getElementById('chapstickBoxStageWrapper');
       const blurOverlay = document.getElementById('maskDarkBlurOverlay');
       const tray = document.getElementById('floatingChapsticksTray');
       const activeChapstick = document.getElementById('selectedChapstickStageWrapper');
+      const promptBubble = document.getElementById('maskDrawPromptBubble');
+      const scentBadge = document.getElementById('maskScentBadge');
+      const canvas = document.getElementById('maskDrawCanvas');
       const badgeIcon = document.getElementById('maskStepBadgeIcon');
       const badgeText = document.getElementById('maskStepBadgeText');
 
@@ -3098,7 +3360,20 @@
         });
       }
       if (activeChapstick) {
-        activeChapstick.classList.remove('visible');
+        activeChapstick.classList.remove('visible', 'face-down', 'is-dragging', 'spring-back');
+        activeChapstick.style.left = '33%';
+        activeChapstick.style.top = '48%';
+        activeChapstick.style.transform = 'translate(-50%, -50%)';
+      }
+      if (promptBubble) {
+        promptBubble.style.display = 'flex';
+      }
+      if (scentBadge) {
+        scentBadge.classList.remove('visible');
+      }
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
       }
       if (badgeIcon) badgeIcon.textContent = '🎭';
       if (badgeText) badgeText.textContent = 'Mask Decoration Game';
@@ -3129,7 +3404,7 @@
             const t4 = setTimeout(() => {
               boxWrapper.classList.remove('shaking');
               boxWrapper.classList.add('opened');
-              playMaskPopSound();
+              playBoxOpenSound();
 
               // 6. As the box opens, darker blur overlay covers the mask layer and background
               if (blurOverlay) {
@@ -3154,8 +3429,23 @@
       if (!data) return;
       currentSelectedFlavor = flavor;
       isTransitioningBox = true;
+      cumulativeRubDistance = 0;
+      isScentApplied = false;
 
-      playMaskPopSound();
+      // Clear drawing canvas for freshly selected scent
+      const canvas = document.getElementById('maskDrawCanvas');
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+
+      // Hide scent celebration badge if previously showing
+      const scentBadge = document.getElementById('maskScentBadge');
+      if (scentBadge) {
+        scentBadge.classList.remove('visible');
+      }
+
+      playChapstickSelectSound();
 
       const tray = document.getElementById('floatingChapsticksTray');
       const boxWrapper = document.getElementById('chapstickBoxStageWrapper');
@@ -3163,6 +3453,7 @@
       const activeChapstick = document.getElementById('selectedChapstickStageWrapper');
       const activeImg = document.getElementById('selectedChapstickImg');
       const activeBadge = document.getElementById('selectedChapstickBadge');
+      const promptBubble = document.getElementById('maskDrawPromptBubble');
       const badgeIcon = document.getElementById('maskStepBadgeIcon');
       const badgeText = document.getElementById('maskStepBadgeText');
 
@@ -3182,7 +3473,7 @@
       setTimeout(() => {
         if (boxWrapper) {
           boxWrapper.classList.remove('opened');
-          playMaskPopSound();
+          playBoxCloseSound();
         }
 
         // 3. After box closes (~250ms), shrink box ~50% and move into bottom-left corner
@@ -3201,12 +3492,21 @@
             activeImg.src = data.img;
             activeImg.alt = data.name + ' Chapstick';
             activeBadge.textContent = data.name;
+            activeChapstick.style.left = '33%';
+            activeChapstick.style.top = '48%';
+            activeChapstick.style.transform = 'translate(-50%, -50%)';
+            activeChapstick.classList.remove('face-down', 'is-dragging', 'spring-back');
             activeChapstick.classList.add('visible');
           }
 
-          // 6. Update header badge
+          // 6. Show friendly speech bubble prompt
+          if (promptBubble) {
+            promptBubble.style.display = 'flex';
+          }
+
+          // 7. Update header badge with encouraging prompt
           if (badgeIcon) badgeIcon.textContent = '';
-          if (badgeText) badgeText.textContent = `${data.name} Scent Selected`;
+          if (badgeText) badgeText.textContent = `Use the chapstick to put a smell on your mask!`;
 
           isTransitioningBox = false;
         }, 250);
@@ -3221,16 +3521,25 @@
       // Only respond if the box is currently minimized in the corner
       if (boxWrapper.classList.contains('minimized-corner')) {
         isTransitioningBox = true;
+        pauseChapstickRubbingSound(0);
 
         const tray = document.getElementById('floatingChapsticksTray');
         const blurOverlay = document.getElementById('maskDarkBlurOverlay');
         const activeChapstick = document.getElementById('selectedChapstickStageWrapper');
+        const promptBubble = document.getElementById('maskDrawPromptBubble');
+        const scentBadge = document.getElementById('maskScentBadge');
         const badgeIcon = document.getElementById('maskStepBadgeIcon');
         const badgeText = document.getElementById('maskStepBadgeText');
 
-        // 1. Hide active floating chapstick
+        // 1. Hide active floating chapstick and badges
         if (activeChapstick) {
-          activeChapstick.classList.remove('visible');
+          activeChapstick.classList.remove('visible', 'face-down', 'is-dragging', 'spring-back');
+        }
+        if (promptBubble) {
+          promptBubble.style.display = 'none';
+        }
+        if (scentBadge) {
+          scentBadge.classList.remove('visible');
         }
 
         // 2. Glide box back to full size and original stage position
@@ -3253,7 +3562,7 @@
           setTimeout(() => {
             boxWrapper.classList.remove('shaking');
             boxWrapper.classList.add('opened');
-            playMaskPopSound();
+            playBoxOpenSound();
 
             // 5. Re-activate dark blur overlay over the mask
             if (blurOverlay) {
@@ -3268,6 +3577,308 @@
           }, 650);
         }, 600);
       }
+    }
+
+    // =========================================================
+    // INTERACTIVE CHAPSTICK DRAG & CONTOUR DRAWING ENGINE
+    // =========================================================
+
+    function startChapstickDrag(e) {
+      if (!currentSelectedFlavor || isTransitioningBox) return;
+      const chapstickWrapper = document.getElementById('selectedChapstickStageWrapper');
+      const stage = document.getElementById('maskStage');
+      if (!chapstickWrapper || !stage) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      isDraggingChapstick = true;
+
+      // Pointer capture for robust touch/mouse tracking across window
+      if (e.pointerId !== undefined) {
+        try { chapstickWrapper.setPointerCapture(e.pointerId); } catch (err) {}
+      }
+
+      playChapstickSelectSound();
+
+      // 180° Face-Down Orientation when interacted with
+      chapstickWrapper.classList.remove('spring-back');
+      chapstickWrapper.classList.add('face-down', 'is-dragging');
+
+      // Hide prompt bubble
+      const promptBubble = document.getElementById('maskDrawPromptBubble');
+      if (promptBubble) promptBubble.style.display = 'none';
+
+      // Update position under finger/cursor
+      updateChapstickDragPosition(e.clientX, e.clientY);
+
+      window.addEventListener('pointermove', onChapstickPointerMove);
+      window.addEventListener('pointerup', onChapstickPointerUp);
+      window.addEventListener('pointercancel', onChapstickPointerCancel);
+    }
+
+    function onChapstickPointerMove(e) {
+      if (!isDraggingChapstick) return;
+      e.preventDefault();
+
+      updateChapstickDragPosition(e.clientX, e.clientY);
+      checkMaskDomeDrawing(e.clientX, e.clientY);
+    }
+
+    function updateChapstickDragPosition(clientX, clientY) {
+      const chapstickWrapper = document.getElementById('selectedChapstickStageWrapper');
+      const stage = document.getElementById('maskStage');
+      if (!chapstickWrapper || !stage) return;
+
+      const stageRect = stage.getBoundingClientRect();
+      const posX = clientX - stageRect.left;
+      const posY = clientY - stageRect.top;
+
+      // Inverted 180°: wax tip points downward at the contact point (posX, posY)
+      chapstickWrapper.style.left = `${posX}px`;
+      chapstickWrapper.style.top = `${posY}px`;
+      chapstickWrapper.style.transform = 'translate(-50%, -88%) rotate(180deg)';
+    }
+
+    function checkMaskDomeDrawing(clientX, clientY) {
+      const canvas = document.getElementById('maskDrawCanvas');
+      if (!canvas || !currentSelectedFlavor) return;
+
+      const canvasRect = canvas.getBoundingClientRect();
+      if (canvasRect.width === 0 || canvasRect.height === 0) return;
+
+      const scaleX = canvas.width / canvasRect.width;
+      const scaleY = canvas.height / canvasRect.height;
+      const rawCanvasX = (clientX - canvasRect.left) * scaleX;
+      const rawCanvasY = (clientY - canvasRect.top) * scaleY;
+
+      // Check if wax tip is over clear mask dome
+      if (isPointInMaskDome(rawCanvasX, rawCanvasY)) {
+        // Apply 3D Contour Distortion along the mask curvature
+        const distortedPt = getDistortedContourPoint(rawCanvasX, rawCanvasY);
+
+        // Play and sustain rubbing audio
+        playChapstickRubbingSound();
+
+        const ctx = canvas.getContext('2d');
+        if (lastDrawPoint) {
+          drawWaxyStroke(ctx, lastDrawPoint, distortedPt, currentSelectedFlavor);
+
+          const dist = Math.hypot(distortedPt.x - lastDrawPoint.x, distortedPt.y - lastDrawPoint.y);
+          cumulativeRubDistance += dist;
+
+          // Emit aromatic scent sparkles occasionally
+          if (Math.random() < 0.28) {
+            emitScentSparkle(clientX, clientY, currentSelectedFlavor);
+          }
+
+          // Trigger celebratory scented milestone
+          if (cumulativeRubDistance > 550 && !isScentApplied) {
+            triggerScentCompletion();
+          }
+        } else {
+          drawWaxyDab(ctx, distortedPt, currentSelectedFlavor);
+        }
+
+        lastDrawPoint = distortedPt;
+        isDrawingOnMask = true;
+      } else {
+        lastDrawPoint = null;
+        isDrawingOnMask = false;
+        pauseChapstickRubbingSound(120);
+      }
+    }
+
+    function onChapstickPointerUp(e) {
+      if (!isDraggingChapstick) return;
+      isDraggingChapstick = false;
+      lastDrawPoint = null;
+      pauseChapstickRubbingSound(0);
+
+      window.removeEventListener('pointermove', onChapstickPointerMove);
+      window.removeEventListener('pointerup', onChapstickPointerUp);
+      window.removeEventListener('pointercancel', onChapstickPointerCancel);
+
+      const chapstickWrapper = document.getElementById('selectedChapstickStageWrapper');
+      if (!chapstickWrapper) return;
+
+      if (e && e.pointerId !== undefined) {
+        try { chapstickWrapper.releasePointerCapture(e.pointerId); } catch (err) {}
+      }
+
+      // Smoothly spring back to stage position and return upright
+      chapstickWrapper.classList.remove('is-dragging');
+      chapstickWrapper.classList.add('spring-back');
+      chapstickWrapper.style.left = '33%';
+      chapstickWrapper.style.top = '48%';
+      chapstickWrapper.style.transform = 'translate(-50%, -50%) rotate(0deg)';
+      chapstickWrapper.classList.remove('face-down');
+
+      // Re-show prompt bubble if user has not finished rubbing
+      if (!isScentApplied) {
+        const promptBubble = document.getElementById('maskDrawPromptBubble');
+        if (promptBubble) {
+          setTimeout(() => {
+            if (!isDraggingChapstick) promptBubble.style.display = 'flex';
+          }, 450);
+        }
+      }
+    }
+
+    function onChapstickPointerCancel(e) {
+      onChapstickPointerUp(e);
+    }
+
+    // Mathematical Contour Distortion Engine
+    function isPointInMaskDome(x, y) {
+      const cx = 685;
+      const cy = 495;
+      const rx = 240;
+      const ry = 180;
+      const dx = (x - cx) / rx;
+      const dy = (y - cy) / ry;
+      return (dx * dx + dy * dy) <= 1.0;
+    }
+
+    function getDistortedContourPoint(rawX, rawY) {
+      const cx = 685;
+      const cy = 490;
+      const rx = 240;
+      const ry = 180;
+
+      const u = Math.max(-1.1, Math.min(1.1, (rawX - cx) / rx));
+      const v = Math.max(-1.1, Math.min(1.1, (rawY - cy) / ry));
+
+      // 1. Downward spherical curvature along dome front face
+      const domeBulge = Math.max(0, 1 - (u * u));
+      const downwardBow = 28 * domeBulge * (0.6 + 0.4 * v);
+
+      // 2. 3/4 Perspective slant along mask contour orientation
+      const slantX = -0.16 * (rawY - cy);
+      const slantY = -0.14 * (rawX - cx);
+
+      return {
+        x: rawX + slantX,
+        y: rawY + downwardBow + slantY
+      };
+    }
+
+    // Authentic Waxy Crayon Stroke Rendering
+    function drawWaxyDab(ctx, pt, flavor) {
+      const data = chapstickData[flavor];
+      if (!data) return;
+      const rgb = data.colorRgb;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(pt.x, pt.y, 9, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.65)`;
+      ctx.fill();
+
+      for (let k = 0; k < 4; k++) {
+        const ang = Math.random() * Math.PI * 2;
+        const dist = 3 + Math.random() * 7;
+        const r = 1.2 + Math.random() * 1.6;
+        ctx.beginPath();
+        ctx.arc(pt.x + Math.cos(ang) * dist, pt.y + Math.sin(ang) * dist, r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${0.4 + Math.random() * 0.4})`;
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    function drawWaxyStroke(ctx, p1, p2, flavor) {
+      const data = chapstickData[flavor];
+      if (!data) return;
+      const rgb = data.colorRgb;
+
+      const dist = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+      const steps = Math.max(1, Math.ceil(dist / 3.2));
+
+      ctx.save();
+      // Soft continuous core line
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.lineWidth = 15;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.52)`;
+      ctx.stroke();
+
+      // Textured waxy grain dabs along the interpolated segment
+      for (let i = 0; i <= steps; i++) {
+        const t = i / steps;
+        const x = p1.x + (p2.x - p1.x) * t;
+        const y = p1.y + (p2.y - p1.y) * t;
+
+        // Semi-translucent wax body
+        ctx.beginPath();
+        ctx.arc(x, y, 7 + (Math.random() - 0.5) * 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${0.35 + Math.random() * 0.25})`;
+        ctx.fill();
+
+        // Edge micro-fleck for crayon texture matching Trail Ex assets
+        if (Math.random() < 0.65) {
+          const ang = Math.random() * Math.PI * 2;
+          const rad = 6.0 + Math.random() * 4.5;
+          const fleckR = 1.0 + Math.random() * 1.8;
+          ctx.beginPath();
+          ctx.arc(x + Math.cos(ang) * rad, y + Math.sin(ang) * rad, fleckR, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${0.4 + Math.random() * 0.4})`;
+          ctx.fill();
+        }
+      }
+      ctx.restore();
+    }
+
+    function emitScentSparkle(clientX, clientY, flavor) {
+      const stage = document.getElementById('maskStage');
+      const data = chapstickData[flavor];
+      if (!stage || !data) return;
+
+      const stageRect = stage.getBoundingClientRect();
+      const sparkle = document.createElement('div');
+      sparkle.className = 'mask-scent-sparkle';
+      const size = 10 + Math.random() * 12;
+      const offsetX = (Math.random() - 0.5) * 30;
+      const offsetY = (Math.random() - 0.5) * 30;
+
+      sparkle.style.width = `${size}px`;
+      sparkle.style.height = `${size}px`;
+      sparkle.style.left = `${clientX - stageRect.left + offsetX}px`;
+      sparkle.style.top = `${clientY - stageRect.top + offsetY}px`;
+      sparkle.style.backgroundColor = data.color;
+      sparkle.style.boxShadow = `0 0 14px ${data.color}`;
+      sparkle.style.opacity = '0.85';
+
+      stage.appendChild(sparkle);
+      setTimeout(() => {
+        if (sparkle.parentNode) sparkle.parentNode.removeChild(sparkle);
+      }, 850);
+    }
+
+    function triggerScentCompletion() {
+      if (isScentApplied) return;
+      isScentApplied = true;
+
+      const data = chapstickData[currentSelectedFlavor];
+      if (!data) return;
+
+      const badgeIcon = document.getElementById('maskStepBadgeIcon');
+      const badgeText = document.getElementById('maskStepBadgeText');
+      if (badgeIcon) badgeIcon.textContent = '✨';
+      if (badgeText) badgeText.textContent = `Mask is scented with ${data.name}! Great job!`;
+
+      const scentBadge = document.getElementById('maskScentBadge');
+      const scentImg = document.getElementById('maskScentBadgeImg');
+      if (scentBadge && scentImg) {
+        scentImg.src = data.scentImg;
+        scentBadge.classList.add('visible');
+      }
+
+      triggerHapticFeedback(true);
+      playMaskPopSound();
     }
 
     // =========================================================
