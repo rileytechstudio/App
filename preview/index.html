@@ -3369,7 +3369,13 @@
         trailImg: 'assets/StrawberryTrailEx.png',
         scentImg: 'assets/StrawberryScent.png',
         color: '#F30B36',
-        colorRgb: [243, 11, 54]
+        colorRgb: [243, 11, 54],
+        scentCrops: [
+          { sx: 620, sy: 470, sw: 70, sh: 80, aspect: 70 / 80, scale: 28 },   // Left Strawberry
+          { sx: 675, sy: 446, sw: 71, sh: 75, aspect: 71 / 75, scale: 28 },   // Top Strawberry
+          { sx: 665, sy: 502, sw: 60, sh: 75, aspect: 60 / 75, scale: 26 },   // Bottom Strawberry
+          { sx: 620, sy: 446, sw: 126, sh: 132, aspect: 126 / 132, scale: 35 } // Trio Strawberry Cluster
+        ]
       },
       blueberry: {
         name: 'Blueberry',
@@ -3378,7 +3384,14 @@
         trailImg: 'assets/BlueberryTrailEx.png',
         scentImg: 'assets/BlueberryScent.png',
         color: '#65B3F1',
-        colorRgb: [101, 179, 241]
+        colorRgb: [101, 179, 241],
+        scentCrops: [
+          { sx: 635, sy: 454, sw: 75, sh: 75, aspect: 1.0, scale: 26 },       // Top-Mid Berry
+          { sx: 580, sy: 470, sw: 75, sh: 80, aspect: 75 / 80, scale: 28 },   // Left Berry
+          { sx: 715, sy: 485, sw: 74, sh: 65, aspect: 74 / 65, scale: 27 },   // Right Berry
+          { sx: 640, sy: 505, sw: 60, sh: 65, aspect: 60 / 65, scale: 25 },   // Bottom-Mid Berry
+          { sx: 580, sy: 454, sw: 209, sh: 123, aspect: 209 / 123, scale: 36 } // Berry Cluster
+        ]
       },
       bubblegum: {
         name: 'Bubblegum',
@@ -3387,7 +3400,12 @@
         trailImg: 'assets/BubblegumTrailEx.png',
         scentImg: 'assets/BubblegumScent.png',
         color: '#FD92F2',
-        colorRgb: [253, 146, 242]
+        colorRgb: [253, 146, 242],
+        scentCrops: [
+          { sx: 638, sy: 429, sw: 127, sh: 125, aspect: 1.0, scale: 30 },     // Large Bubble
+          { sx: 596, sy: 526, sw: 73, sh: 76, aspect: 73 / 76, scale: 22 },   // Small Bubble
+          { sx: 596, sy: 429, sw: 169, sh: 173, aspect: 169 / 173, scale: 35 } // Double Bubble
+        ]
       },
       coke: {
         name: 'Soda',
@@ -3396,9 +3414,24 @@
         trailImg: 'assets/CokeTrailEx.png',
         scentImg: 'assets/CokeScent.png',
         color: '#A45F3E',
-        colorRgb: [164, 95, 62]
+        colorRgb: [164, 95, 62],
+        scentCrops: [
+          { sx: 633, sy: 465, sw: 75, sh: 75, aspect: 1.0, scale: 26 },       // Main Effervescent Bubble
+          { sx: 600, sy: 413, sw: 60, sh: 60, aspect: 1.0, scale: 22 },       // Top-Left Sparkle Bubble
+          { sx: 617, sy: 545, sw: 60, sh: 65, aspect: 60 / 65, scale: 24 },   // Bottom Bubble Pair
+          { sx: 718, sy: 442, sw: 52, sh: 55, aspect: 52 / 55, scale: 22 },   // Right Floating Bubble
+          { sx: 596, sy: 413, sw: 173, sh: 198, aspect: 173 / 198, scale: 35 } // Full Carbonation Cluster
+        ]
       }
     };
+
+    // Preload matching scent trail images for instant zero-latency canvas rendering
+    const scentImages = {};
+    Object.keys(chapstickData).forEach(flavor => {
+      const img = new Image();
+      img.src = chapstickData[flavor].scentImg;
+      scentImages[flavor] = img;
+    });
 
     let currentSelectedFlavor = null;
     let isTransitioningBox = false;
@@ -3407,6 +3440,8 @@
     let lastDrawPoint = null;
     let cumulativeRubDistance = 0;
     let isScentApplied = false;
+    let strokeScentDistance = 0;
+    let scentPatternIndex = 0;
 
     function resetMaskScene() {
       clearMaskSequenceTimers();
@@ -3417,6 +3452,8 @@
       lastDrawPoint = null;
       cumulativeRubDistance = 0;
       isScentApplied = false;
+      strokeScentDistance = 0;
+      scentPatternIndex = 0;
       pauseChapstickRubbingSound(0);
 
       window.removeEventListener('pointermove', onChapstickPointerMove);
@@ -3521,6 +3558,8 @@
       isTransitioningBox = true;
       cumulativeRubDistance = 0;
       isScentApplied = false;
+      strokeScentDistance = 0;
+      scentPatternIndex = 0;
 
       // Clear drawing canvas for freshly selected scent
       const canvas = document.getElementById('maskDrawCanvas');
@@ -3783,6 +3822,7 @@
       if (!isDraggingChapstick) return;
       isDraggingChapstick = false;
       lastDrawPoint = null;
+      strokeScentDistance = 0;
       pauseChapstickRubbingSound(0);
 
       window.removeEventListener('pointermove', onChapstickPointerMove);
@@ -3856,7 +3896,38 @@
       };
     }
 
-    // Authentic Waxy Crayon Stroke Rendering
+    // Authentic Waxy Crayon Stroke Rendering & Scent Asset Trail
+    function drawScentStamp(ctx, flavor, crop, x, y, angle, patternIdx) {
+      const img = scentImages[flavor];
+      if (!img || !img.complete || img.naturalWidth === 0) return;
+
+      const data = chapstickData[flavor];
+      const rgb = data ? data.colorRgb : [255, 255, 255];
+      const baseScale = crop.scale || 28;
+      // Slight scale breathing variation for delightful visual rhythm
+      const scaleMod = 1.0 + Math.sin(patternIdx * 1.4) * 0.12;
+      const targetH = baseScale * scaleMod;
+      const targetW = targetH * (crop.aspect || 1.0);
+
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+
+      // Subtle luminous glow around each scent asset stamp
+      ctx.shadowColor = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.45)`;
+      ctx.shadowBlur = 6;
+      ctx.globalAlpha = 0.92;
+
+      ctx.drawImage(
+        img,
+        crop.sx, crop.sy, crop.sw, crop.sh,
+        -targetW / 2, -targetH / 2,
+        targetW, targetH
+      );
+
+      ctx.restore();
+    }
+
     function drawWaxyDab(ctx, pt, flavor) {
       const data = chapstickData[flavor];
       if (!data) return;
@@ -3878,6 +3949,12 @@
         ctx.fill();
       }
       ctx.restore();
+
+      // Initial cute scent stamp on contact
+      if (data.scentCrops && data.scentCrops.length > 0) {
+        const crop = data.scentCrops[scentPatternIndex % data.scentCrops.length];
+        drawScentStamp(ctx, flavor, crop, pt.x, pt.y, 0, scentPatternIndex++);
+      }
     }
 
     function drawWaxyStroke(ctx, p1, p2, flavor) {
@@ -3923,6 +4000,35 @@
         }
       }
       ctx.restore();
+
+      // Scent Assets Trail: Repeating pattern with modified crops, tilt, and natural offset
+      if (data.scentCrops && data.scentCrops.length > 0 && dist > 0.5) {
+        strokeScentDistance += dist;
+        const scentInterval = 38; // canvas pixels between scent stamps
+        const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+        const nx = -Math.sin(angle);
+        const ny = Math.cos(angle);
+
+        while (strokeScentDistance >= scentInterval) {
+          const t = Math.max(0, Math.min(1, 1 - ((strokeScentDistance - scentInterval) / dist)));
+          const stampX = p1.x + (p2.x - p1.x) * t;
+          const stampY = p1.y + (p2.y - p1.y) * t;
+
+          const crop = data.scentCrops[scentPatternIndex % data.scentCrops.length];
+          // Subtle lateral dancing offset (-6px, 0px, +6px) perpendicular to motion
+          const lateralOffset = ((scentPatternIndex % 3) - 1) * 6.5;
+          const posX = stampX + nx * lateralOffset;
+          const posY = stampY + ny * lateralOffset;
+
+          // Gentle tilt following stroke trajectory with playful alternating angle
+          const tilt = angle + ((scentPatternIndex % 2 === 0 ? 0.18 : -0.18) + Math.sin(scentPatternIndex * 1.5) * 0.15);
+
+          drawScentStamp(ctx, flavor, crop, posX, posY, tilt, scentPatternIndex);
+
+          strokeScentDistance -= scentInterval;
+          scentPatternIndex++;
+        }
+      }
     }
 
     function emitScentSparkle(clientX, clientY, flavor) {
