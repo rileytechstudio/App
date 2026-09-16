@@ -1,5 +1,5 @@
 // Riley PWA Service Worker
-const CACHE_NAME = 'riley-pwa-v24';
+const CACHE_NAME = 'riley-pwa-v25';
 const PRECACHE_ASSETS = [
   './',
   './index.html',
@@ -58,9 +58,26 @@ const PRECACHE_ASSETS = [
   './assets/BubblegumTrailEx.png',
   './assets/CokeTrailEx.png',
   './assets/StrawberryScent.png',
+  './assets/StrawberryScentCrop1.png',
+  './assets/StrawberryScentCrop2.png',
+  './assets/StrawberryScentCrop3.png',
+  './assets/StrawberryScentCrop4.png',
   './assets/BlueberryScent.png',
+  './assets/BlueberryScentCrop1.png',
+  './assets/BlueberryScentCrop2.png',
+  './assets/BlueberryScentCrop3.png',
+  './assets/BlueberryScentCrop4.png',
+  './assets/BlueberryScentCrop5.png',
   './assets/BubblegumScent.png',
+  './assets/BubblegumScentCrop1.png',
+  './assets/BubblegumScentCrop2.png',
+  './assets/BubblegumScentCrop3.png',
   './assets/CokeScent.png',
+  './assets/CokeScentCrop1.png',
+  './assets/CokeScentCrop2.png',
+  './assets/CokeScentCrop3.png',
+  './assets/CokeScentCrop4.png',
+  './assets/CokeScentCrop5.png',
   './assets/Chapstick.mp3',
   './assets/ChapstickSelect.mp3',
   './assets/BoxOpen.mp3',
