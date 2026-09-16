@@ -199,21 +199,34 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
       width: 100%;
       overflow-y: auto;
       overflow-x: hidden;
-      padding: 16px 24px;
-      gap: 20px;
+      padding: 12px 24px 20px 24px;
+      box-sizing: border-box;
     }
 
     .cards-container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 18px;
+      justify-content: space-between;
       width: 100%;
-      max-width: 1100px;
+      height: 100%;
+      max-width: 1320px;
+      flex: 1;
+    }
+
+    .home-main-cards {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      gap: 24px;
+      margin-top: auto;
+      margin-bottom: auto;
     }
 
     .card-btn, .pill-btn {
@@ -246,7 +259,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 20px;
+      gap: 28px;
       width: 100%;
     }
 
@@ -254,25 +267,48 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 16px;
+      gap: 24px;
       width: 100%;
-      margin-top: 36px;
+      margin-top: auto;
+      padding-top: 16px;
+      padding-bottom: 12px;
     }
 
     .portrait-grid {
       display: none;
       flex-direction: column;
       align-items: center;
-      gap: 14px;
+      justify-content: space-between;
       width: 100%;
+      height: 100%;
+      flex: 1;
+      padding-top: 8px;
+      padding-bottom: 16px;
+    }
+
+    .portrait-grid-cards {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      gap: 14px;
+      margin-top: auto;
+      margin-bottom: auto;
     }
 
     .portrait-grid-row {
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
       width: 100%;
+    }
+
+    .portrait-grid-bottom {
+      margin-top: auto;
+      padding-top: 16px;
+      padding-bottom: 8px;
     }
 
     /* ========================================================= */
@@ -1822,6 +1858,52 @@
       50% { transform: translateX(-50%) scale(1.06); }
     }
 
+    /* Minimized Box Put-Away Cue (Pulsing glowing target) */
+    .chapstick-box-stage-wrapper.minimized-corner.target-put-away {
+      animation: boxPutAwayPulse 1.8s ease-in-out infinite;
+    }
+
+    .chapstick-box-stage-wrapper.minimized-corner.target-put-away .box-minimized-hint {
+      background: rgba(46, 16, 85, 0.95);
+      border-color: #ffd700;
+      color: #ffe066;
+      box-shadow: 0 0 16px rgba(255, 215, 0, 0.6);
+      animation: hintPulse 1.4s ease-in-out infinite;
+    }
+
+    @keyframes boxPutAwayPulse {
+      0%, 100% {
+        filter: drop-shadow(0 0 14px rgba(255, 204, 0, 0.75))
+                drop-shadow(0 6px 18px rgba(0, 0, 0, 0.45));
+        transform: translate(-50%, -50%) scale(0.5);
+      }
+      50% {
+        filter: drop-shadow(0 0 28px rgba(255, 204, 0, 1))
+                drop-shadow(0 8px 22px rgba(0, 0, 0, 0.55));
+        transform: translate(-50%, -50%) scale(0.55);
+      }
+    }
+
+    /* Box Drag Hover State (Active drop target feedback) */
+    .chapstick-box-stage-wrapper.minimized-corner.box-drag-hover {
+      transform: translate(-50%, -50%) scale(0.60) !important;
+      filter: drop-shadow(0 0 32px rgba(255, 220, 50, 1))
+              drop-shadow(0 12px 28px rgba(0, 0, 0, 0.6)) !important;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease;
+    }
+
+    /* Box Snap/Bounce on Successful Put-Away */
+    .chapstick-box-stage-wrapper.box-put-away-success {
+      animation: boxPutAwaySnap 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes boxPutAwaySnap {
+      0% { transform: translate(-50%, -50%) scale(0.5); }
+      35% { transform: translate(-50%, -50%) scale(0.64) translateY(-14px); }
+      70% { transform: translate(-50%, -50%) scale(0.46); }
+      100% { transform: translate(-50%, -50%) scale(0.5); }
+    }
+
     /* Shaking animation */
     .chapstick-box-stage-wrapper.shaking {
       animation: boxWiggleShake 0.75s ease-in-out;
@@ -2174,17 +2256,21 @@
       transform: translateX(-50%);
       background: #ffffff;
       color: #260e48;
-      font-size: 13px;
+      font-size: clamp(12px, 1.4vw, 14px);
       font-weight: 800;
       padding: 8px 18px;
       border-radius: 999px;
       border: 2px solid #ffcc00;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.42), 0 0 16px rgba(255, 204, 0, 0.45);
-      white-space: nowrap;
+      white-space: normal;
+      width: max-content;
+      max-width: min(340px, 85vw);
+      text-align: center;
       pointer-events: none;
       z-index: 30;
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
       animation: promptBob 2.2s ease-in-out infinite;
       transition: opacity 0.3s ease, transform 0.3s ease;
@@ -2367,25 +2453,27 @@
 
             <div id="homeBody" class="home-body">
               <div id="landscapeGrid" class="cards-container">
-                <div class="grid-row-top">
-                  <button class="card-btn" onclick="goToPreparations()" style="width: 250px;">
-                    <img src="assets/Preparations.png" alt="Preparations" />
-                  </button>
-                  <button class="card-btn" onclick="openSheet('Glossary')" style="width: 250px;">
-                    <img src="assets/Glossary.png" alt="Glossary" />
-                  </button>
-                  <button class="card-btn" onclick="openSheet('Anatomy Explorer')" style="width: 250px;">
-                    <img src="assets/Anatomy Explorer.png" alt="Anatomy Explorer" />
-                  </button>
-                </div>
+                <div class="home-main-cards">
+                  <div class="grid-row-top">
+                    <button class="card-btn" onclick="goToPreparations()" style="width: 250px;">
+                      <img src="assets/Preparations.png" alt="Preparations" />
+                    </button>
+                    <button class="card-btn" onclick="openSheet('Glossary')" style="width: 250px;">
+                      <img src="assets/Glossary.png" alt="Glossary" />
+                    </button>
+                    <button class="card-btn" onclick="openSheet('Anatomy Explorer')" style="width: 250px;">
+                      <img src="assets/Anatomy Explorer.png" alt="Anatomy Explorer" />
+                    </button>
+                  </div>
 
-                <div class="grid-row-mid">
-                  <button class="card-btn" onclick="openSheet('Gallery')" style="width: 250px;">
-                    <img src="assets/Gallery.png" alt="Gallery" />
-                  </button>
-                  <button class="card-btn" onclick="goToGames()" style="width: 250px;">
-                    <img src="assets/Games.png" alt="Games" />
-                  </button>
+                  <div class="grid-row-mid">
+                    <button class="card-btn" onclick="openSheet('Gallery')" style="width: 250px;">
+                      <img src="assets/Gallery.png" alt="Gallery" />
+                    </button>
+                    <button class="card-btn" onclick="goToGames()" style="width: 250px;">
+                      <img src="assets/Games.png" alt="Games" />
+                    </button>
+                  </div>
                 </div>
 
                 <div class="grid-row-bottom">
@@ -2400,28 +2488,30 @@
 
               <!-- Compact Portrait Grid -->
               <div id="portraitGrid" class="portrait-grid">
-                <div class="portrait-grid-row">
-                  <button class="card-btn" onclick="goToPreparations()" style="width: 150px;">
-                    <img src="assets/Preparations.png" alt="Preparations" />
-                  </button>
-                  <button class="card-btn" onclick="openSheet('Glossary')" style="width: 150px;">
-                    <img src="assets/Glossary.png" alt="Glossary" />
-                  </button>
+                <div class="portrait-grid-cards">
+                  <div class="portrait-grid-row">
+                    <button class="card-btn" onclick="goToPreparations()" style="width: 150px;">
+                      <img src="assets/Preparations.png" alt="Preparations" />
+                    </button>
+                    <button class="card-btn" onclick="openSheet('Glossary')" style="width: 150px;">
+                      <img src="assets/Glossary.png" alt="Glossary" />
+                    </button>
+                  </div>
+                  <div class="portrait-grid-row">
+                    <button class="card-btn" onclick="openSheet('Anatomy Explorer')" style="width: 150px;">
+                      <img src="assets/Anatomy Explorer.png" alt="Anatomy Explorer" />
+                    </button>
+                    <button class="card-btn" onclick="openSheet('Gallery')" style="width: 150px;">
+                      <img src="assets/Gallery.png" alt="Gallery" />
+                    </button>
+                  </div>
+                  <div class="portrait-grid-row">
+                    <button class="card-btn" onclick="goToGames()" style="width: 190px;">
+                      <img src="assets/Games.png" alt="Games" />
+                    </button>
+                  </div>
                 </div>
-                <div class="portrait-grid-row">
-                  <button class="card-btn" onclick="openSheet('Anatomy Explorer')" style="width: 150px;">
-                    <img src="assets/Anatomy Explorer.png" alt="Anatomy Explorer" />
-                  </button>
-                  <button class="card-btn" onclick="openSheet('Gallery')" style="width: 150px;">
-                    <img src="assets/Gallery.png" alt="Gallery" />
-                  </button>
-                </div>
-                <div class="portrait-grid-row">
-                  <button class="card-btn" onclick="goToGames()" style="width: 190px;">
-                    <img src="assets/Games.png" alt="Games" />
-                  </button>
-                </div>
-                <div class="portrait-grid-row" style="margin-top: 18px;">
+                <div class="portrait-grid-row portrait-grid-bottom">
                   <button class="pill-btn" onclick="openSheet('About')" style="width: 120px;">
                     <img src="assets/About.png" alt="About" />
                   </button>
@@ -3398,7 +3488,11 @@
         maskWrapper.classList.remove('moved-right');
       }
       if (boxWrapper) {
-        boxWrapper.classList.remove('visible', 'shaking', 'opened', 'minimized-corner');
+        boxWrapper.classList.remove('visible', 'shaking', 'opened', 'minimized-corner', 'target-put-away', 'box-drag-hover', 'box-put-away-success');
+      }
+      const boxHint = document.getElementById('boxMinimizedHint');
+      if (boxHint) {
+        boxHint.innerHTML = '<span>Change Scent</span>';
       }
       if (blurOverlay) {
         blurOverlay.classList.remove('active');
@@ -3414,9 +3508,16 @@
         activeChapstick.style.left = '33%';
         activeChapstick.style.top = '48%';
         activeChapstick.style.transform = 'translate(-50%, -50%)';
+        activeChapstick.style.opacity = '';
+        activeChapstick.style.transition = '';
       }
       if (promptBubble) {
+        const promptIcon = promptBubble.querySelector('.prompt-icon');
+        const promptText = promptBubble.querySelector('.prompt-text');
+        if (promptIcon) promptIcon.textContent = '✨';
+        if (promptText) promptText.textContent = 'Rub the chapstick on the mask to add your scent!';
         promptBubble.style.display = 'flex';
+        promptBubble.style.opacity = '1';
       }
       if (canvas) {
         const ctx = canvas.getContext('2d');
@@ -3522,7 +3623,12 @@
         // 3. After box closes (~250ms), shrink box ~50% and move into bottom-left corner
         setTimeout(() => {
           if (boxWrapper) {
+            boxWrapper.classList.remove('target-put-away', 'box-drag-hover', 'box-put-away-success');
             boxWrapper.classList.add('minimized-corner');
+            const boxHint = document.getElementById('boxMinimizedHint');
+            if (boxHint) {
+              boxHint.innerHTML = '<span>Change Scent</span>';
+            }
           }
 
           // 4. Remove dark blur overlay so the mask is clear again
@@ -3538,13 +3644,20 @@
             activeChapstick.style.left = '33%';
             activeChapstick.style.top = '48%';
             activeChapstick.style.transform = 'translate(-50%, -50%)';
+            activeChapstick.style.opacity = '';
+            activeChapstick.style.transition = '';
             activeChapstick.classList.remove('is-dragging', 'spring-back', 'face-down');
             activeChapstick.classList.add('visible');
           }
 
           // 6. Show friendly speech bubble prompt
           if (promptBubble) {
+            const promptIcon = promptBubble.querySelector('.prompt-icon');
+            const promptText = promptBubble.querySelector('.prompt-text');
+            if (promptIcon) promptIcon.textContent = '✨';
+            if (promptText) promptText.textContent = 'Rub the chapstick on the mask to add your scent!';
             promptBubble.style.display = 'flex';
+            promptBubble.style.opacity = '1';
           }
 
           // 7. Update header badge with encouraging prompt
@@ -3662,6 +3775,16 @@
 
       updateChapstickDragPosition(e.clientX, e.clientY);
       checkMaskDomeDrawing(e.clientX, e.clientY);
+
+      // Check proximity / hover over minimized closed box
+      const boxWrapper = document.getElementById('chapstickBoxStageWrapper');
+      if (boxWrapper && boxWrapper.classList.contains('minimized-corner')) {
+        if (checkIsOverClosedBox(e.clientX, e.clientY)) {
+          boxWrapper.classList.add('box-drag-hover');
+        } else {
+          boxWrapper.classList.remove('box-drag-hover');
+        }
+      }
     }
 
     function updateChapstickDragPosition(clientX, clientY) {
@@ -3731,6 +3854,83 @@
       }
     }
 
+    function checkIsOverClosedBox(clientX, clientY) {
+      const boxWrapper = document.getElementById('chapstickBoxStageWrapper');
+      if (!boxWrapper || !boxWrapper.classList.contains('minimized-corner')) return false;
+      const rect = boxWrapper.getBoundingClientRect();
+      const pad = 35; // Generous hit padding for easy mobile/touch interaction
+      return (
+        clientX >= rect.left - pad &&
+        clientX <= rect.right + pad &&
+        clientY >= rect.top - pad &&
+        clientY <= rect.bottom + pad
+      );
+    }
+
+    function putChapstickAwayInBox() {
+      const chapstickWrapper = document.getElementById('selectedChapstickStageWrapper');
+      const boxWrapper = document.getElementById('chapstickBoxStageWrapper');
+      const promptBubble = document.getElementById('maskDrawPromptBubble');
+      const stage = document.getElementById('maskStage');
+      if (!chapstickWrapper || !boxWrapper || !stage) return;
+
+      boxWrapper.classList.remove('box-drag-hover', 'target-put-away');
+
+      if (promptBubble) {
+        promptBubble.style.display = 'none';
+      }
+
+      // Center of minimized box relative to mask stage
+      const stageRect = stage.getBoundingClientRect();
+      const boxRect = boxWrapper.getBoundingClientRect();
+      const targetLeft = (boxRect.left + boxRect.width / 2) - stageRect.left;
+      const targetTop = (boxRect.top + boxRect.height / 2) - stageRect.top;
+
+      // Smooth flying and shrinking animation into the box
+      chapstickWrapper.classList.remove('is-dragging', 'face-down');
+      chapstickWrapper.style.transition = 'left 0.45s cubic-bezier(0.25, 1, 0.5, 1), top 0.45s cubic-bezier(0.25, 1, 0.5, 1), transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease';
+      chapstickWrapper.style.left = `${targetLeft}px`;
+      chapstickWrapper.style.top = `${targetTop}px`;
+      chapstickWrapper.style.transform = 'translate(-50%, -50%) scale(0.12) rotate(360deg)';
+      chapstickWrapper.style.opacity = '0';
+
+      playBoxCloseSound();
+      triggerHapticFeedback(true);
+
+      setTimeout(() => {
+        chapstickWrapper.classList.remove('visible');
+        chapstickWrapper.style.transition = '';
+        chapstickWrapper.style.opacity = '';
+        chapstickWrapper.style.transform = 'translate(-50%, -50%)';
+
+        // Celebratory box bump & aroma sparkles
+        boxWrapper.classList.add('box-put-away-success');
+        playMaskPopSound();
+
+        if (currentSelectedFlavor) {
+          emitScentSparkle(boxRect.left + boxRect.width / 2, boxRect.top + boxRect.height / 2, currentSelectedFlavor);
+          setTimeout(() => {
+            emitScentSparkle(boxRect.left + boxRect.width / 2 - 12, boxRect.top + boxRect.height / 2 - 8, currentSelectedFlavor);
+          }, 120);
+        }
+
+        setTimeout(() => {
+          boxWrapper.classList.remove('box-put-away-success');
+        }, 600);
+
+        // Update header badge and box hint
+        const badgeIcon = document.getElementById('maskStepBadgeIcon');
+        const badgeText = document.getElementById('maskStepBadgeText');
+        if (badgeIcon) badgeIcon.textContent = '🎉';
+        if (badgeText) badgeText.textContent = 'Great job! Mask is scented and chapstick is put away.';
+
+        const boxHint = document.getElementById('boxMinimizedHint');
+        if (boxHint) {
+          boxHint.innerHTML = '<span>Tap to Change</span>';
+        }
+      }, 450);
+    }
+
     function onChapstickPointerUp(e) {
       if (!isDraggingChapstick) return;
       isDraggingChapstick = false;
@@ -3749,6 +3949,18 @@
         try { chapstickWrapper.releasePointerCapture(e.pointerId); } catch (err) {}
       }
 
+      const boxWrapper = document.getElementById('chapstickBoxStageWrapper');
+      const isOverBox = checkIsOverClosedBox(e.clientX, e.clientY);
+
+      if (isOverBox) {
+        putChapstickAwayInBox();
+        return;
+      }
+
+      if (boxWrapper) {
+        boxWrapper.classList.remove('box-drag-hover');
+      }
+
       // Smoothly spring back to stage position, returning to right side up orientation
       chapstickWrapper.classList.remove('is-dragging', 'face-down');
       chapstickWrapper.classList.add('spring-back');
@@ -3760,14 +3972,23 @@
         chapstickWrapper.classList.remove('spring-back');
       }, 520);
 
-      // Re-show prompt bubble if user has not finished rubbing
-      if (!isScentApplied) {
-        const promptBubble = document.getElementById('maskDrawPromptBubble');
-        if (promptBubble) {
-          setTimeout(() => {
-            if (!isDraggingChapstick) promptBubble.style.display = 'flex';
-          }, 450);
+      // Re-show prompt bubble (with put away cue if scented, or drawing cue if not)
+      const promptBubble = document.getElementById('maskDrawPromptBubble');
+      if (promptBubble) {
+        const promptIcon = promptBubble.querySelector('.prompt-icon');
+        const promptText = promptBubble.querySelector('.prompt-text');
+        if (isScentApplied) {
+          if (promptIcon) promptIcon.textContent = '📦';
+          if (promptText) promptText.textContent = 'Drag the chapstick back over the box to put it away!';
+        } else {
+          if (promptIcon) promptIcon.textContent = '✨';
+          if (promptText) promptText.textContent = 'Rub the chapstick on the mask to add your scent!';
         }
+        setTimeout(() => {
+          if (!isDraggingChapstick && chapstickWrapper.classList.contains('visible')) {
+            promptBubble.style.display = 'flex';
+          }
+        }, 450);
       }
     }
 
@@ -3941,8 +4162,27 @@
 
       const badgeIcon = document.getElementById('maskStepBadgeIcon');
       const badgeText = document.getElementById('maskStepBadgeText');
-      if (badgeIcon) badgeIcon.textContent = '✨';
-      if (badgeText) badgeText.textContent = `Mask is scented with ${data.name}! Great job!`;
+      if (badgeIcon) badgeIcon.textContent = '📦';
+      if (badgeText) badgeText.textContent = `Mask is scented! Drag the chapstick back over the box to put it away.`;
+
+      // Update prompt bubble content
+      const promptBubble = document.getElementById('maskDrawPromptBubble');
+      if (promptBubble) {
+        const promptIcon = promptBubble.querySelector('.prompt-icon');
+        const promptText = promptBubble.querySelector('.prompt-text');
+        if (promptIcon) promptIcon.textContent = '📦';
+        if (promptText) promptText.textContent = 'Drag the chapstick back over the box to put it away!';
+      }
+
+      // Add target glow & hint to the minimized closed box
+      const boxWrapper = document.getElementById('chapstickBoxStageWrapper');
+      if (boxWrapper && boxWrapper.classList.contains('minimized-corner')) {
+        boxWrapper.classList.add('target-put-away');
+        const boxHint = document.getElementById('boxMinimizedHint');
+        if (boxHint) {
+          boxHint.innerHTML = '<span>Put Away Here</span>';
+        }
+      }
 
       triggerHapticFeedback(true);
       playMaskPopSound();
@@ -6506,21 +6746,53 @@
       if (isCompact) {
         landscapeGrid.style.display = 'none';
         portraitGrid.style.display = 'flex';
-        const cardW = Math.min(Math.max((w - 56) / 2, 140), 190);
+        const cardW = Math.min(Math.max((w - 56) / 2, 140), 195);
         document.querySelectorAll('#portraitGrid .card-btn').forEach((btn, idx) => {
           btn.style.width = (idx === 4 ? Math.min(cardW * 1.18, w - 48) : cardW) + 'px';
+        });
+        const pillW = Math.min(Math.max(cardW * 0.75, 110), 140);
+        document.querySelectorAll('#portraitGrid .pill-btn').forEach(btn => {
+          btn.style.width = pillW + 'px';
         });
       } else {
         portraitGrid.style.display = 'none';
         landscapeGrid.style.display = 'flex';
         const availH = h - headerH;
-        const cardW = Math.min((w - (w * 0.08) - 40) / 3, (availH * 0.72) / (2 / 2.24 + 0.65 / 3.44), 300);
+        
+        // Responsive card spacing and width:
+        const horizontalPadding = Math.min(Math.max(w * 0.04, 24), 64);
+        const cardGap = Math.min(Math.max(w * 0.03, 20), 46);
+        const maxCardByWidth = (w - (horizontalPadding * 2) - (cardGap * 2)) / 3;
+        // Allow cards to scale comfortably with height and width up to 380px (removes old 300px restriction)
+        const maxCardByHeight = (availH * 0.76) / (2 / 2.24 + 0.65 / 3.44);
+        const cardW = Math.round(Math.min(maxCardByWidth, maxCardByHeight, 380));
+        
         document.querySelectorAll('#landscapeGrid .card-btn').forEach(btn => {
           btn.style.width = cardW + 'px';
         });
+
+        const pillW = Math.round(Math.min(cardW * 0.65, 215));
+        document.querySelectorAll('#landscapeGrid .pill-btn').forEach(btn => {
+          btn.style.width = pillW + 'px';
+        });
+
+        const rowTop = document.querySelector('.grid-row-top');
+        const rowMid = document.querySelector('.grid-row-mid');
+        if (rowTop) rowTop.style.gap = cardGap + 'px';
+        if (rowMid) rowMid.style.gap = cardGap + 'px';
+
+        const mainCards = document.querySelector('.home-main-cards');
+        if (mainCards) {
+          const vRowGap = Math.min(Math.max(availH * 0.045, 18), 38);
+          mainCards.style.gap = vRowGap + 'px';
+        }
+
         const bottomRow = document.querySelector('.grid-row-bottom');
         if (bottomRow) {
-          bottomRow.style.marginTop = Math.min(Math.max(availH * 0.08, 28), 65) + 'px';
+          bottomRow.style.gap = Math.round(cardGap * 0.8) + 'px';
+          // About and Legal buttons anchored closer to the bottom
+          const bottomMargin = Math.min(Math.max(availH * 0.035, 12), 28);
+          bottomRow.style.paddingBottom = bottomMargin + 'px';
         }
       }
 
