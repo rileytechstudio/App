@@ -2154,29 +2154,38 @@
       transition: transform 0.28s cubic-bezier(0.34, 1.35, 0.64, 1);
     }
 
-    /* 180° Face-Down Orientation when interacted with or dragging */
-    .selected-chapstick-stage-wrapper.face-down .active-chapstick-inner {
-      animation: none !important;
-      transform: rotate(180deg) scale(1.05);
-    }
-
-    .selected-chapstick-stage-wrapper.face-down .active-chapstick-halo {
-      opacity: 0 !important;
-      transform: translate(-50%, -50%) scale(0.6);
-      transition: opacity 0.2s ease, transform 0.2s ease;
+    /* 180° Inversion: Chapstick asset turns face-down with wax tip pointing downward */
+    .selected-chapstick-stage-wrapper.face-down #selectedChapstickImg {
+      transform: rotate(180deg);
+      transition: transform 0.4s cubic-bezier(0.34, 1.35, 0.64, 1);
     }
 
     .selected-chapstick-stage-wrapper.face-down .active-chapstick-badge {
-      opacity: 0 !important;
-      transform: translateY(10px);
-      pointer-events: none;
-      transition: opacity 0.2s ease, transform 0.2s ease;
+      order: -1;
+      margin-top: 0;
+      margin-bottom: 10px;
     }
 
-    .selected-chapstick-stage-wrapper.face-down .mask-draw-prompt-bubble {
+    .selected-chapstick-stage-wrapper.face-down .active-chapstick-halo {
+      top: 58%;
+    }
+
+    /* While dragging: fade out halo, badge, and prompt bubble so only the inverted drawing tool is visible */
+    .selected-chapstick-stage-wrapper.is-dragging .active-chapstick-halo {
       opacity: 0 !important;
-      transform: translateX(-50%) translateY(8px);
+      transition: opacity 0.2s ease;
+    }
+
+    .selected-chapstick-stage-wrapper.is-dragging .active-chapstick-badge {
+      opacity: 0 !important;
       pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .selected-chapstick-stage-wrapper.is-dragging .mask-draw-prompt-bubble {
+      opacity: 0 !important;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
     }
 
     .active-chapstick-halo {
@@ -2218,6 +2227,8 @@
       user-select: none;
       -webkit-user-drag: none;
       pointer-events: none;
+      transform-origin: 50% 50%;
+      transition: transform 0.4s cubic-bezier(0.34, 1.35, 0.64, 1);
     }
 
     .active-chapstick-badge {
@@ -3568,8 +3579,8 @@
             activeChapstick.style.left = '33%';
             activeChapstick.style.top = '48%';
             activeChapstick.style.transform = 'translate(-50%, -50%)';
-            activeChapstick.classList.remove('face-down', 'is-dragging', 'spring-back');
-            activeChapstick.classList.add('visible');
+            activeChapstick.classList.remove('is-dragging', 'spring-back');
+            activeChapstick.classList.add('visible', 'face-down');
           }
 
           // 6. Show friendly speech bubble prompt
@@ -3710,7 +3721,7 @@
       // Inverted 180°: wax tip points downward at the contact point (posX, posY)
       chapstickWrapper.style.left = `${posX}px`;
       chapstickWrapper.style.top = `${posY}px`;
-      chapstickWrapper.style.transform = 'translate(-50%, -88%) rotate(180deg)';
+      chapstickWrapper.style.transform = 'translate(-50%, -88%)';
     }
 
     function checkMaskDomeDrawing(clientX, clientY) {
@@ -3779,13 +3790,13 @@
         try { chapstickWrapper.releasePointerCapture(e.pointerId); } catch (err) {}
       }
 
-      // Smoothly spring back to stage position and return upright
+      // Smoothly spring back to stage position, RETAINING the inverted face-down drawing orientation
       chapstickWrapper.classList.remove('is-dragging');
       chapstickWrapper.classList.add('spring-back');
       chapstickWrapper.style.left = '33%';
       chapstickWrapper.style.top = '48%';
-      chapstickWrapper.style.transform = 'translate(-50%, -50%) rotate(0deg)';
-      chapstickWrapper.classList.remove('face-down');
+      chapstickWrapper.style.transform = 'translate(-50%, -50%)';
+      chapstickWrapper.classList.add('face-down');
 
       // Re-show prompt bubble if user has not finished rubbing
       if (!isScentApplied) {
