@@ -2038,6 +2038,11 @@
       transition: none !important;
     }
 
+    .selected-chapstick-stage-wrapper.is-dragging .active-chapstick-inner {
+      animation: none !important;
+      transform: none !important;
+    }
+
     .selected-chapstick-stage-wrapper.spring-back {
       transition: left 0.5s cubic-bezier(0.34, 1.4, 0.64, 1),
                   top 0.5s cubic-bezier(0.34, 1.4, 0.64, 1),
@@ -2128,6 +2133,7 @@
       -webkit-user-drag: none;
       pointer-events: none;
       transform-origin: 50% 50%;
+      transform: rotate(0deg);
       transition: transform 0.4s cubic-bezier(0.34, 1.35, 0.64, 1);
     }
 
@@ -3506,8 +3512,8 @@
             activeChapstick.style.left = '33%';
             activeChapstick.style.top = '48%';
             activeChapstick.style.transform = 'translate(-50%, -50%)';
-            activeChapstick.classList.remove('is-dragging', 'spring-back');
-            activeChapstick.classList.add('visible', 'face-down');
+            activeChapstick.classList.remove('is-dragging', 'spring-back', 'face-down');
+            activeChapstick.classList.add('visible');
           }
 
           // 6. Show friendly speech bubble prompt
@@ -3717,13 +3723,16 @@
         try { chapstickWrapper.releasePointerCapture(e.pointerId); } catch (err) {}
       }
 
-      // Smoothly spring back to stage position, RETAINING the inverted face-down drawing orientation
-      chapstickWrapper.classList.remove('is-dragging');
+      // Smoothly spring back to stage position, returning to right side up orientation
+      chapstickWrapper.classList.remove('is-dragging', 'face-down');
       chapstickWrapper.classList.add('spring-back');
       chapstickWrapper.style.left = '33%';
       chapstickWrapper.style.top = '48%';
       chapstickWrapper.style.transform = 'translate(-50%, -50%)';
-      chapstickWrapper.classList.add('face-down');
+
+      setTimeout(() => {
+        chapstickWrapper.classList.remove('spring-back');
+      }, 520);
 
       // Re-show prompt bubble if user has not finished rubbing
       if (!isScentApplied) {
