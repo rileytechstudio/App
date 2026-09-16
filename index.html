@@ -131,6 +131,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      background-color: #f8a862;
     }
 
     .app-header img.banner-bg {
@@ -139,7 +140,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
       object-position: center;
     }
 
@@ -475,34 +476,44 @@
       left: 0;
       right: 0;
       z-index: 35;
-      background: var(--riley-purple);
-      box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.35);
+      background: #ececec;
+      box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.25);
       flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    .prep-bottom-bar img,
-    .game-bottom-bar img {
+    .bottom-bar-tabs {
+      display: flex;
       width: 100%;
       height: 100%;
-      object-fit: fill;
-      display: block;
-    }
-
-    .bottom-bar-hit-tabs {
-      position: absolute;
-      inset: 0;
-      display: flex;
+      max-width: 1366px;
+      margin: 0 auto;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      padding: 0 4px;
     }
 
     .bottom-tab-btn {
       flex: 1;
       height: 100%;
+      max-height: 92px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       background: transparent;
       border: none;
+      padding: 0;
       cursor: pointer;
+    }
+
+    .bottom-tab-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
     }
 
     /* Modal Navigation Sheet */
@@ -2210,42 +2221,6 @@
       z-index: 6;
     }
 
-    /* Scent Celebration Floating Badge */
-    .mask-scent-badge {
-      position: absolute;
-      top: 18%;
-      left: 70%;
-      transform: translate(-50%, -50%) scale(0);
-      z-index: 25;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      pointer-events: none;
-      transition: transform 0.5s cubic-bezier(0.34, 1.45, 0.64, 1), opacity 0.5s ease;
-      opacity: 0;
-    }
-
-    .mask-scent-badge.visible {
-      transform: translate(-50%, -50%) scale(1);
-      opacity: 1;
-    }
-
-    .mask-scent-badge img {
-      width: clamp(75px, 11vw, 115px);
-      height: auto;
-      filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.45))
-              drop-shadow(0 0 20px rgba(255, 255, 255, 0.75));
-      animation: scentBadgeFloat 3s ease-in-out infinite;
-    }
-
-    @keyframes scentBadgeFloat {
-      0%, 100% {
-        transform: translateY(0) rotate(0deg);
-      }
-      50% {
-        transform: translateY(-8px) rotate(4deg);
-      }
-    }
 
     /* Dynamic Scent Aroma Particle (Matching Scent Assets) */
     .mask-scent-sparkle {
@@ -2560,13 +2535,22 @@
 
           <!-- Fixed Bottom 5-Tab Navigation Bar (Anchored Directly to Bottom of Screen) -->
           <div class="prep-bottom-bar">
-            <img src="assets/BottomBarPreparations.png" alt="Preparations Bottom Navigation Bar" />
-            <div class="bottom-bar-hit-tabs">
-              <button class="bottom-tab-btn" onclick="goToPreparations()" title="Preparations"></button>
-              <button class="bottom-tab-btn" onclick="openSheet('Glossary')" title="Glossary"></button>
-              <button class="bottom-tab-btn" onclick="openSheet('Anatomy Explorer')" title="Anatomy Explorer"></button>
-              <button class="bottom-tab-btn" onclick="openSheet('Gallery')" title="Gallery"></button>
-              <button class="bottom-tab-btn" onclick="goToGames()" title="Games"></button>
+            <div class="bottom-bar-tabs">
+              <button class="bottom-tab-btn active" onclick="goToPreparations()" title="Preparations">
+                <img src="assets/Isolated_Preparations_Selected.png" alt="Preparations" />
+              </button>
+              <button class="bottom-tab-btn" onclick="openSheet('Glossary')" title="Glossary">
+                <img src="assets/Isolated_Glossary_Not_Selected.png" alt="Glossary" />
+              </button>
+              <button class="bottom-tab-btn" onclick="openSheet('Anatomy Explorer')" title="Anatomy Explorer">
+                <img src="assets/Isolated_Anat_Explorer_Not_Selected.png" alt="Anatomy Explorer" />
+              </button>
+              <button class="bottom-tab-btn" onclick="openSheet('Gallery')" title="Gallery">
+                <img src="assets/Isolated_Gallery_Not_Selected.png" alt="Gallery" />
+              </button>
+              <button class="bottom-tab-btn" onclick="goToGames()" title="Games">
+                <img src="assets/Isolated_Games_Not_Selected.png" alt="Games" />
+              </button>
             </div>
           </div>
         </div>
@@ -2704,13 +2688,22 @@
 
             <!-- Fixed Bottom 5-Tab Navigation Bar with Preparations Highlighted -->
             <div class="game-bottom-bar" id="gameBottomBar">
-              <img src="assets/BottomBarPreparations.png" alt="Preparations Bottom Navigation Bar" />
-              <div class="bottom-bar-hit-tabs">
-                <button class="bottom-tab-btn" onclick="goToPreparations()" title="Preparations"></button>
-                <button class="bottom-tab-btn" onclick="openSheet('Glossary')" title="Glossary"></button>
-                <button class="bottom-tab-btn" onclick="openSheet('Anatomy Explorer')" title="Anatomy Explorer"></button>
-                <button class="bottom-tab-btn" onclick="openSheet('Gallery')" title="Gallery"></button>
-                <button class="bottom-tab-btn" onclick="goToGames()" title="Games"></button>
+              <div class="bottom-bar-tabs">
+                <button class="bottom-tab-btn active" onclick="goToPreparations()" title="Preparations">
+                  <img src="assets/Isolated_Preparations_Selected.png" alt="Preparations" />
+                </button>
+                <button class="bottom-tab-btn" onclick="openSheet('Glossary')" title="Glossary">
+                  <img src="assets/Isolated_Glossary_Not_Selected.png" alt="Glossary" />
+                </button>
+                <button class="bottom-tab-btn" onclick="openSheet('Anatomy Explorer')" title="Anatomy Explorer">
+                  <img src="assets/Isolated_Anat_Explorer_Not_Selected.png" alt="Anatomy Explorer" />
+                </button>
+                <button class="bottom-tab-btn" onclick="openSheet('Gallery')" title="Gallery">
+                  <img src="assets/Isolated_Gallery_Not_Selected.png" alt="Gallery" />
+                </button>
+                <button class="bottom-tab-btn" onclick="goToGames()" title="Games">
+                  <img src="assets/Isolated_Games_Not_Selected.png" alt="Games" />
+                </button>
               </div>
             </div>
           </div>
@@ -2749,11 +2742,6 @@
                 <div class="mask-focal-wrapper" id="maskFocalWrapper">
                   <img id="maskFocalImg" class="mask-focal-img" src="assets/Mask.png" alt="Anesthesia Mask" draggable="false" />
                   <canvas id="maskDrawCanvas" class="mask-draw-canvas" width="1366" height="1024"></canvas>
-                </div>
-
-                <!-- Layer: Floating Scent Badge after Rubbing -->
-                <div class="mask-scent-badge" id="maskScentBadge">
-                  <img id="maskScentBadgeImg" src="assets/StrawberryScent.png" alt="Mask Scent" draggable="false" />
                 </div>
 
                 <!-- Layer 3: Dark Blur Overlay (Fades in over the mask layer and background when the box opens) -->
@@ -2822,13 +2810,22 @@
 
             <!-- Fixed Bottom 5-Tab Navigation Bar with Games Highlighted -->
             <div class="game-bottom-bar" id="maskBottomBar">
-              <img src="assets/BottomBarGames.png" alt="Games Bottom Navigation Bar" />
-              <div class="bottom-bar-hit-tabs">
-                <button class="bottom-tab-btn" onclick="goToPreparations()" title="Preparations"></button>
-                <button class="bottom-tab-btn" onclick="openSheet('Glossary')" title="Glossary"></button>
-                <button class="bottom-tab-btn" onclick="openSheet('Anatomy Explorer')" title="Anatomy Explorer"></button>
-                <button class="bottom-tab-btn" onclick="openSheet('Gallery')" title="Gallery"></button>
-                <button class="bottom-tab-btn" onclick="goToGames()" title="Games"></button>
+              <div class="bottom-bar-tabs">
+                <button class="bottom-tab-btn" onclick="goToPreparations()" title="Preparations">
+                  <img src="assets/Isolated_Preparations_Not_Selected.png" alt="Preparations" />
+                </button>
+                <button class="bottom-tab-btn" onclick="openSheet('Glossary')" title="Glossary">
+                  <img src="assets/Isolated_Glossary_Not_Selected.png" alt="Glossary" />
+                </button>
+                <button class="bottom-tab-btn" onclick="openSheet('Anatomy Explorer')" title="Anatomy Explorer">
+                  <img src="assets/Isolated_Anat_Explorer_Not_Selected.png" alt="Anatomy Explorer" />
+                </button>
+                <button class="bottom-tab-btn" onclick="openSheet('Gallery')" title="Gallery">
+                  <img src="assets/Isolated_Gallery_Not_Selected.png" alt="Gallery" />
+                </button>
+                <button class="bottom-tab-btn active" onclick="goToGames()" title="Games">
+                  <img src="assets/Isolated_Games_Selected.png" alt="Games" />
+                </button>
               </div>
             </div>
           </div>
@@ -3393,7 +3390,6 @@
       const tray = document.getElementById('floatingChapsticksTray');
       const activeChapstick = document.getElementById('selectedChapstickStageWrapper');
       const promptBubble = document.getElementById('maskDrawPromptBubble');
-      const scentBadge = document.getElementById('maskScentBadge');
       const canvas = document.getElementById('maskDrawCanvas');
       const badgeIcon = document.getElementById('maskStepBadgeIcon');
       const badgeText = document.getElementById('maskStepBadgeText');
@@ -3421,9 +3417,6 @@
       }
       if (promptBubble) {
         promptBubble.style.display = 'flex';
-      }
-      if (scentBadge) {
-        scentBadge.classList.remove('visible');
       }
       if (canvas) {
         const ctx = canvas.getContext('2d');
@@ -3493,12 +3486,6 @@
       if (canvas) {
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-      }
-
-      // Hide scent celebration badge if previously showing
-      const scentBadge = document.getElementById('maskScentBadge');
-      if (scentBadge) {
-        scentBadge.classList.remove('visible');
       }
 
       playChapstickSelectSound();
@@ -3583,7 +3570,6 @@
         const blurOverlay = document.getElementById('maskDarkBlurOverlay');
         const activeChapstick = document.getElementById('selectedChapstickStageWrapper');
         const promptBubble = document.getElementById('maskDrawPromptBubble');
-        const scentBadge = document.getElementById('maskScentBadge');
         const badgeIcon = document.getElementById('maskStepBadgeIcon');
         const badgeText = document.getElementById('maskStepBadgeText');
 
@@ -3593,9 +3579,6 @@
         }
         if (promptBubble) {
           promptBubble.style.display = 'none';
-        }
-        if (scentBadge) {
-          scentBadge.classList.remove('visible');
         }
 
         // 2. Glide box back to full size and original stage position
@@ -3960,13 +3943,6 @@
       const badgeText = document.getElementById('maskStepBadgeText');
       if (badgeIcon) badgeIcon.textContent = '✨';
       if (badgeText) badgeText.textContent = `Mask is scented with ${data.name}! Great job!`;
-
-      const scentBadge = document.getElementById('maskScentBadge');
-      const scentImg = document.getElementById('maskScentBadgeImg');
-      if (scentBadge && scentImg) {
-        scentImg.src = data.scentImg;
-        scentBadge.classList.add('visible');
-      }
 
       triggerHapticFeedback(true);
       playMaskPopSound();
