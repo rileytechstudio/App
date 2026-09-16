@@ -2385,8 +2385,8 @@
     <div class="toolbar-controls">
       <!-- Screen Switcher -->
       <select id="screenSelect" class="sim-select" onchange="switchScreen(this.value)">
-        <option value="home">Screen: Home</option>
-        <option value="preparations" selected>Screen: Preparations (Procedures)</option>
+        <option value="home" selected>Screen: Home</option>
+        <option value="preparations">Screen: Preparations (Procedures)</option>
         <option value="iv-start">Screen: IV Start (Interactive Procedure)</option>
         <option value="mask-game">Screen: Mask Decoration Game</option>
       </select>
@@ -2423,7 +2423,7 @@
         <!-- ========================================================= -->
         <!-- SCREEN 1: HOME SCREEN                                     -->
         <!-- ========================================================= -->
-        <div id="screenHome" class="app-screen">
+        <div id="screenHome" class="app-screen active">
           <div class="home-bg-layer"></div>
           <div class="home-bg-overlay"></div>
 
@@ -2513,7 +2513,7 @@
         <!-- ========================================================= -->
         <!-- SCREEN 2: PREPARATIONS SCREEN (Matches Screenshots)       -->
         <!-- ========================================================= -->
-        <div id="screenPreparations" class="app-screen active">
+        <div id="screenPreparations" class="app-screen">
           <div class="home-bg-layer"></div>
           <div class="home-bg-overlay"></div>
 
@@ -2911,7 +2911,7 @@
       <span id="screenDimensions">Current Screen: 960 × 720 pt (iPad Pro Landscape)</span>
     </div>
     <div>
-      <span>Preparations Screen Active • Up/Down Arrow Scrolling Enabled</span>
+      <span>Home Screen Active • Responsive Grid View</span>
     </div>
   </footer>
 
@@ -6647,6 +6647,8 @@
       const screenParam = urlParams.get('screen');
       if (screenParam) {
         switchScreen(screenParam);
+      } else {
+        switchScreen('home');
       }
       updateResponsiveLayout();
     });

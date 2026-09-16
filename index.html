@@ -2348,7 +2348,7 @@
         <!-- ========================================================= -->
         <!-- SCREEN 1: HOME SCREEN                                     -->
         <!-- ========================================================= -->
-        <div id="screenHome" class="app-screen">
+        <div id="screenHome" class="app-screen active">
           <div class="home-bg-layer"></div>
           <div class="home-bg-overlay"></div>
 
@@ -2438,7 +2438,7 @@
         <!-- ========================================================= -->
         <!-- SCREEN 2: PREPARATIONS SCREEN (Matches Screenshots)       -->
         <!-- ========================================================= -->
-        <div id="screenPreparations" class="app-screen active">
+        <div id="screenPreparations" class="app-screen">
           <div class="home-bg-layer"></div>
           <div class="home-bg-overlay"></div>
 
@@ -6574,6 +6574,8 @@
       const screenParam = urlParams.get('screen');
       if (screenParam) {
         switchScreen(screenParam);
+      } else {
+        switchScreen('home');
       }
       updateResponsiveLayout();
     });
