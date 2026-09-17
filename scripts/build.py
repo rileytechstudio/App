@@ -109,17 +109,12 @@ def build_distribution():
       width: 100% !important;
       margin: 0 !important;
       padding: 0 !important;
-      background: var(--riley-purple) !important;
+      background: url('assets/Bottom_Toolbar_Background.png') center bottom / 100% 100% no-repeat, rgba(28, 14, 56, 0.45) !important;
+      backdrop-filter: blur(12px) !important;
+      -webkit-backdrop-filter: blur(12px) !important;
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
-    }
-
-    .prep-bottom-bar img, .game-bottom-bar img {
-      width: 100% !important;
-      height: 100% !important;
-      object-fit: fill !important;
-      display: block !important;
     }
     """
     css += dist_css_overrides

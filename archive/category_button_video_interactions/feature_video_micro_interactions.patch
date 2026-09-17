@@ -1,0 +1,1105 @@
+diff --git a/iOS/RileyApp/Sources/HomeComponents.swift b/iOS/RileyApp/Sources/HomeComponents.swift
+index 17b6760..3860080 100644
+--- a/iOS/RileyApp/Sources/HomeComponents.swift
++++ b/iOS/RileyApp/Sources/HomeComponents.swift
+@@ -1,4 +1,6 @@
+ import SwiftUI
++import AVKit
++import AVFoundation
+ 
+ // MARK: - Bouncy Button Style
+ public struct BouncyButtonStyle: ButtonStyle {
+@@ -18,32 +20,130 @@ public struct BouncyButtonStyle: ButtonStyle {
+ 
+ // MARK: - Category Card Button
+ public struct CategoryCardButton: View {
++    @Environment(\.accessibilityReduceMotion) var reduceMotion
++    
+     public let imageName: String
+     public let title: String
+     public let width: CGFloat
++    public let videoName: String?
+     public let action: () -> Void
+     
+-    public init(imageName: String, title: String, width: CGFloat, action: @escaping () -> Void) {
++    @State private var isAnimating: Bool = false
++    @State private var player: AVPlayer? = nil
++    
++    public init(
++        imageName: String,
++        title: String,
++        width: CGFloat,
++        videoName: String? = nil,
++        action: @escaping () -> Void
++    ) {
+         self.imageName = imageName
+         self.title = title
+         self.width = width
++        self.videoName = videoName
+         self.action = action
+     }
+     
+     public var body: some View {
+-        Button(action: {
+-            HapticManager.shared.buttonTap()
+-            action()
+-        }) {
+-            Image(imageName)
+-                .resizable()
+-                .aspectRatio(AppTheme.cardAspectRatio, contentMode: .fit)
+-                .frame(width: width)
++        Button(action: handleTap) {
++            ZStack {
++                Image(imageName)
++                    .resizable()
++                    .aspectRatio(AppTheme.cardAspectRatio, contentMode: .fit)
++                
++                if isAnimating, let player = player {
++                    VideoOverlayView(player: player)
++                        .aspectRatio(AppTheme.cardAspectRatio, contentMode: .fit)
++                        .clipShape(RoundedRectangle(cornerRadius: width * 0.08, style: .continuous))
++                        .scaleEffect(1.15)
++                        .accessibilityHidden(true)
++                        .transition(.opacity)
++                }
++            }
++            .frame(width: width)
++            .scaleEffect(isAnimating ? 1.045 : 1.0)
++            .shadow(color: isAnimating ? Color.black.opacity(0.35) : Color.clear, radius: 12, y: 6)
++            .animation(.spring(response: 0.28, dampingFraction: 0.65), value: isAnimating)
+         }
+         .buttonStyle(BouncyButtonStyle())
+         .accessibilityLabel(Text(title))
+         .accessibilityHint(Text("Opens \(title)"))
+     }
++    
++    private func handleTap() {
++        HapticManager.shared.buttonTap()
++        
++        // WCAG 2.1 Criterion 2.3.3: Immediately trigger without animation if reduced motion is preferred
++        if reduceMotion || videoName == nil {
++            action()
++            return
++        }
++        
++        // If already animating, double tap cancels delay and opens destination immediately
++        if isAnimating {
++            stopAnimation()
++            action()
++            return
++        }
++        
++        // Setup & play video
++        if let videoName = videoName {
++            var targetURL: URL? = Bundle.main.url(forResource: videoName, withExtension: "mp4")
++            #if SWIFT_PACKAGE
++            if targetURL == nil {
++                targetURL = Bundle.module.url(forResource: videoName, withExtension: "mp4")
++            }
++            #endif
++            
++            if let url = targetURL {
++                let p = AVPlayer(url: url)
++                p.isMuted = true
++                self.player = p
++                p.play()
++            }
++        }
++        
++        isAnimating = true
++        
++        DispatchQueue.main.asyncAfter(deadline: .now() + 0.58) {
++            if isAnimating {
++                action()
++                DispatchQueue.main.asyncAfter(deadline: .now() + 0.20) {
++                    stopAnimation()
++                }
++            }
++        }
++    }
++    
++    private func stopAnimation() {
++        isAnimating = false
++        player?.pause()
++        player?.seek(to: .zero)
++        player = nil
++    }
++}
++
++// MARK: - Video Overlay View (Muted, without playback controls)
++public struct VideoOverlayView: UIViewControllerRepresentable {
++    public let player: AVPlayer
++    
++    public init(player: AVPlayer) {
++        self.player = player
++    }
++    
++    public func makeUIViewController(context: Context) -> AVPlayerViewController {
++        let controller = AVPlayerViewController()
++        controller.player = player
++        controller.showsPlaybackControls = false
++        controller.videoGravity = .resizeAspectFill
++        controller.view.backgroundColor = .clear
++        return controller
++    }
++    
++    public func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {
++        uiViewController.player = player
++    }
+ }
+ 
+ // MARK: - Footer Pill Button
+diff --git a/iOS/RileyApp/Sources/HomeHeaderView.swift b/iOS/RileyApp/Sources/HomeHeaderView.swift
+index d9dae32..a1654e9 100644
+--- a/iOS/RileyApp/Sources/HomeHeaderView.swift
++++ b/iOS/RileyApp/Sources/HomeHeaderView.swift
+@@ -48,12 +48,14 @@ public struct HomeHeaderView: View {
+     
+     public var body: some View {
+         ZStack(alignment: .trailing) {
++            // Background fill
++            Color(red: 248.0 / 255.0, green: 168.0 / 255.0, blue: 98.0 / 255.0)
++            
+             // Header Banner Background Image
+             Image("HeaderBanner")
+                 .resizable()
+-                .aspectRatio(contentMode: .fill)
++                .aspectRatio(contentMode: .fit)
+                 .frame(width: availableWidth, height: headerHeight)
+-                .clipped()
+                 .accessibilityLabel(Text("Riley Hospital for Children Header Banner"))
+             
+             // Top-right Action Buttons (Settings & Home)
+diff --git a/iOS/RileyApp/Sources/HomeScreenView.swift b/iOS/RileyApp/Sources/HomeScreenView.swift
+index 4b435af..15f520a 100644
+--- a/iOS/RileyApp/Sources/HomeScreenView.swift
++++ b/iOS/RileyApp/Sources/HomeScreenView.swift
+@@ -109,6 +109,8 @@ public struct HomeScreenView: View {
+         }
+     }
+     
++    // MARK: - Landscape & Tablet Layout (Matches Mockup)
++    @ViewBuilder
+     // MARK: - Landscape & Tablet Layout (Matches Mockup)
+     @ViewBuilder
+     private func landscapeMockupLayout(screenSize: CGSize) -> some View {
+@@ -118,27 +120,27 @@ public struct HomeScreenView: View {
+         let headerApproxHeight: CGFloat = isLandscape ? min(max(screenSize.height * 0.15, 64), 135) : min(max(screenSize.height * 0.11, 56), 95)
+         let availableHeight = max(screenSize.height - headerApproxHeight, 200)
+         
+-        // Horizontal padding: 4% - 6% of width
+-        let hPadding: CGFloat = min(max(screenSize.width * 0.045, 16), 64)
+-        // Spacing between cards: 2% - 3% of width
+-        let cardSpacing: CGFloat = min(max(screenSize.width * 0.024, 10), 32)
++        // Horizontal padding: 3.5% - 5.5% of width
++        let hPadding: CGFloat = min(max(screenSize.width * 0.04, 20), 56)
++        // Spacing between cards: 2.5% - 3.5% of width
++        let cardSpacing: CGFloat = min(max(screenSize.width * 0.03, 18), 46)
+         
+         // Width calculation for 3 cards across
+         let widthForThreeCards = (screenSize.width - (hPadding * 2) - (cardSpacing * 2)) / 3.0
+         
+         // Height constraint: ensure 2 rows of cards + footer + spacings fit vertically
+-        // Total needed height ≈ 2 * (w / 2.24) + (w * 0.65 / 3.44) + 4 * vSpacing
+-        let maxCardWidthByHeight = (availableHeight * 0.72) / (2.0 / AppTheme.cardAspectRatio + 0.65 / AppTheme.footerAspectRatio)
++        let maxCardWidthByHeight = (availableHeight * 0.76) / (2.0 / AppTheme.cardAspectRatio + 0.65 / AppTheme.footerAspectRatio)
+         
+-        let cardWidth: CGFloat = min(widthForThreeCards, maxCardWidthByHeight)
+-        let footerWidth: CGFloat = min(cardWidth * 0.65, 185)
++        // Allow cards to comfortably scale up to 380pt on iPad Pro (previously capped at 300pt)
++        let cardWidth: CGFloat = min(widthForThreeCards, maxCardWidthByHeight, 380)
++        let footerWidth: CGFloat = min(cardWidth * 0.65, 215)
+         
+-        // Dynamic vertical spacing
+-        let vSpacing: CGFloat = min(max(availableHeight * 0.04, 10), 28)
++        // Dynamic vertical spacing between Row 1 and Row 2
++        let vSpacing: CGFloat = min(max(availableHeight * 0.045, 18), 38)
+         
+         ScrollView(showsIndicators: false) {
+-            VStack(spacing: vSpacing) {
+-                Spacer(minLength: min(max(availableHeight * 0.05, 8), 40))
++            VStack(spacing: 0) {
++                Spacer(minLength: min(max(availableHeight * 0.04, 10), 36))
+                 
+                 // Row 1: Preparations, Glossary, Anatomy Explorer
+                 HStack(spacing: cardSpacing) {
+@@ -146,6 +148,7 @@ public struct HomeScreenView: View {
+                         imageName: "ButtonPreparations",
+                         title: "Preparations",
+                         width: cardWidth,
++                        videoName: "Preparations_Selected",
+                         action: { navState.navigate(to: .preparations) }
+                     )
+                     
+@@ -153,6 +156,7 @@ public struct HomeScreenView: View {
+                         imageName: "ButtonGlossary",
+                         title: "Glossary",
+                         width: cardWidth,
++                        videoName: "Glossary_Selected",
+                         action: { navState.navigate(to: .glossary) }
+                     )
+                     
+@@ -160,17 +164,21 @@ public struct HomeScreenView: View {
+                         imageName: "ButtonAnatomyExplorer",
+                         title: "Anatomy Explorer",
+                         width: cardWidth,
++                        videoName: "Anatomy_Explorer_Selected",
+                         action: { navState.navigate(to: .anatomyExplorer) }
+                     )
+                 }
+                 .frame(maxWidth: .infinity)
+                 
++                Spacer().frame(height: vSpacing)
++                
+                 // Row 2: Gallery, Games (Centered horizontally)
+                 HStack(spacing: cardSpacing) {
+                     CategoryCardButton(
+                         imageName: "ButtonGallery",
+                         title: "Gallery",
+                         width: cardWidth,
++                        videoName: "Gallery_Selected",
+                         action: { navState.navigate(to: .gallery) }
+                     )
+                     
+@@ -178,16 +186,17 @@ public struct HomeScreenView: View {
+                         imageName: "ButtonGames",
+                         title: "Games",
+                         width: cardWidth,
++                        videoName: "Games_Selected",
+                         action: { navState.navigate(to: .games) }
+                     )
+                 }
+                 .frame(maxWidth: .infinity)
+                 
+-                // Lower the bottom two buttons toward the bottom of the screen (approx halfway)
+-                Spacer(minLength: min(max(availableHeight * 0.08, 20), 64))
++                // Flexible spacer pushing About & Legal buttons right near the bottom of the page
++                Spacer(minLength: min(max(availableHeight * 0.08, 24), 140))
+                 
+                 // Row 3 (Bottom): About, Legal (Side by side, centered)
+-                HStack(spacing: cardSpacing * 0.9) {
++                HStack(spacing: cardSpacing * 0.8) {
+                     FooterPillButton(
+                         imageName: "ButtonAbout",
+                         title: "About",
+@@ -204,7 +213,7 @@ public struct HomeScreenView: View {
+                 }
+                 .frame(maxWidth: .infinity)
+                 
+-                Spacer(minLength: min(max(availableHeight * 0.035, 8), 22))
++                Spacer().frame(height: min(max(availableHeight * 0.035, 12), 28))
+             }
+             .padding(.horizontal, hPadding)
+             .frame(minHeight: availableHeight)
+@@ -214,6 +223,8 @@ public struct HomeScreenView: View {
+     // MARK: - Portrait Compact Layout (Mobile Phones)
+     @ViewBuilder
+     private func portraitCompactLayout(screenSize: CGSize) -> some View {
++        let headerApproxHeight: CGFloat = min(max(screenSize.height * 0.11, 56), 95)
++        let availableHeight = max(screenSize.height - headerApproxHeight, 200)
+         let hPadding: CGFloat = min(max(screenSize.width * 0.05, 16), 28)
+         let spacing: CGFloat = min(max(screenSize.width * 0.035, 12), 20)
+         
+@@ -223,7 +234,7 @@ public struct HomeScreenView: View {
+         let footerWidth = min(cardWidth * 0.85, 140)
+         
+         ScrollView(showsIndicators: false) {
+-            VStack(spacing: spacing * 1.2) {
++            VStack(spacing: 0) {
+                 Spacer(minLength: 16)
+                 
+                 // Row 1: Preparations, Glossary
+@@ -232,6 +243,7 @@ public struct HomeScreenView: View {
+                         imageName: "ButtonPreparations",
+                         title: "Preparations",
+                         width: cardWidth,
++                        videoName: "Preparations_Selected",
+                         action: { navState.navigate(to: .preparations) }
+                     )
+                     
+@@ -239,16 +251,20 @@ public struct HomeScreenView: View {
+                         imageName: "ButtonGlossary",
+                         title: "Glossary",
+                         width: cardWidth,
++                        videoName: "Glossary_Selected",
+                         action: { navState.navigate(to: .glossary) }
+                     )
+                 }
+                 
++                Spacer().frame(height: spacing * 1.2)
++                
+                 // Row 2: Anatomy Explorer, Gallery
+                 HStack(spacing: spacing) {
+                     CategoryCardButton(
+                         imageName: "ButtonAnatomyExplorer",
+                         title: "Anatomy Explorer",
+                         width: cardWidth,
++                        videoName: "Anatomy_Explorer_Selected",
+                         action: { navState.navigate(to: .anatomyExplorer) }
+                     )
+                     
+@@ -256,18 +272,25 @@ public struct HomeScreenView: View {
+                         imageName: "ButtonGallery",
+                         title: "Gallery",
+                         width: cardWidth,
++                        videoName: "Gallery_Selected",
+                         action: { navState.navigate(to: .gallery) }
+                     )
+                 }
+                 
++                Spacer().frame(height: spacing * 1.2)
++                
+                 // Row 3: Games (Centered)
+                 CategoryCardButton(
+                     imageName: "ButtonGames",
+                     title: "Games",
+                     width: singleCardWidth,
++                    videoName: "Games_Selected",
+                     action: { navState.navigate(to: .games) }
+                 )
+                 
++                // Flexible spacer pushing About & Legal near bottom on mobile
++                Spacer(minLength: 24)
++                
+                 // Row 4: About, Legal
+                 HStack(spacing: spacing) {
+                     FooterPillButton(
+@@ -284,11 +307,11 @@ public struct HomeScreenView: View {
+                         action: { navState.navigate(to: .legal) }
+                     )
+                 }
+-                .padding(.top, 22)
+                 
+-                Spacer(minLength: 24)
++                Spacer().frame(height: 16)
+             }
+             .padding(.horizontal, hPadding)
++            .frame(minHeight: availableHeight)
+         }
+     }
+ }
+diff --git a/iOS/RileyApp/Sources/IVGameView.swift b/iOS/RileyApp/Sources/IVGameView.swift
+index fe6b405..a1318e1 100644
+--- a/iOS/RileyApp/Sources/IVGameView.swift
++++ b/iOS/RileyApp/Sources/IVGameView.swift
+@@ -2031,13 +2031,9 @@ public struct IVGameView: View {
+     @ViewBuilder
+     private func bottomBarView(availableWidth: CGFloat, height: CGFloat) -> some View {
+         ZStack {
+-            Image("BottomBarPreparations")
+-                .resizable()
+-                .aspectRatio(AppTheme.bottomBarAspectRatio, contentMode: .fit)
+-                .frame(width: availableWidth)
++            Color(red: 236.0 / 255.0, green: 236.0 / 255.0, blue: 236.0 / 255.0)
+             
+-            // Tap zones for bottom bar tabs
+-            HStack(spacing: 0) {
++            HStack(spacing: 4) {
+                 // Preparations Tab
+                 Button(action: {
+                     HapticManager.shared.buttonTap()
+@@ -2048,36 +2044,44 @@ public struct IVGameView: View {
+                         presentationMode.wrappedValue.dismiss()
+                     }
+                 }) {
+-                    Color.clear
++                    Image("Isolated_Preparations_Not_Selected")
++                        .resizable()
++                        .aspectRatio(contentMode: .fit)
++                        .frame(maxWidth: .infinity, maxHeight: height)
+                 }
+-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                 .accessibilityLabel("Preparations tab")
+                 
+                 // Glossary Tab
+                 Button(action: {
+                     HapticManager.shared.buttonTap()
+                 }) {
+-                    Color.clear
++                    Image("Isolated_Glossary_Not_Selected")
++                        .resizable()
++                        .aspectRatio(contentMode: .fit)
++                        .frame(maxWidth: .infinity, maxHeight: height)
+                 }
+-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                 .accessibilityLabel("Glossary tab")
+                 
+                 // Anatomy Explorer Tab
+                 Button(action: {
+                     HapticManager.shared.buttonTap()
+                 }) {
+-                    Color.clear
++                    Image("Isolated_Anat_Explorer_Not_Selected")
++                        .resizable()
++                        .aspectRatio(contentMode: .fit)
++                        .frame(maxWidth: .infinity, maxHeight: height)
+                 }
+-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                 .accessibilityLabel("Anatomy Explorer tab")
+                 
+                 // Gallery Tab
+                 Button(action: {
+                     HapticManager.shared.buttonTap()
+                 }) {
+-                    Color.clear
++                    Image("Isolated_Gallery_Not_Selected")
++                        .resizable()
++                        .aspectRatio(contentMode: .fit)
++                        .frame(maxWidth: .infinity, maxHeight: height)
+                 }
+-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                 .accessibilityLabel("Gallery tab")
+                 
+                 // Games Tab (Current Active)
+@@ -2085,13 +2089,18 @@ public struct IVGameView: View {
+                     HapticManager.shared.buttonTap()
+                     resetGame()
+                 }) {
+-                    Color.clear
++                    Image("Isolated_Games_Selected")
++                        .resizable()
++                        .aspectRatio(contentMode: .fit)
++                        .frame(maxWidth: .infinity, maxHeight: height)
+                 }
+-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                 .accessibilityLabel("Games tab, currently active. Tap to reset game.")
+             }
++            .padding(.horizontal, 4)
++            .frame(maxWidth: 1366)
+         }
+-        .frame(height: height)
++        .frame(width: availableWidth, height: height)
++        .shadow(color: Color.black.opacity(0.12), radius: 4, x: 0, y: -2)
+     }
+     
+     // MARK: - Helper Methods
+diff --git a/iOS/RileyApp/Sources/PreparationsView.swift b/iOS/RileyApp/Sources/PreparationsView.swift
+index dd97888..e207ced 100644
+--- a/iOS/RileyApp/Sources/PreparationsView.swift
++++ b/iOS/RileyApp/Sources/PreparationsView.swift
+@@ -149,12 +149,14 @@ public struct PreparationsView: View {
+     @ViewBuilder
+     private func topHeaderBar(width: CGFloat, height: CGFloat, iconSize: CGFloat) -> some View {
+         ZStack {
++            // Background fill
++            Color(red: 248.0 / 255.0, green: 168.0 / 255.0, blue: 98.0 / 255.0)
++            
+             // Header Banner Background
+             Image("HeaderBanner")
+                 .resizable()
+-                .aspectRatio(contentMode: .fill)
++                .aspectRatio(contentMode: .fit)
+                 .frame(width: width, height: height)
+-                .clipped()
+             
+             // Header Action Buttons
+             HStack {
+@@ -403,44 +405,47 @@ public struct PreparationsView: View {
+     @ViewBuilder
+     private func bottomBarView(availableWidth: CGFloat, height: CGFloat) -> some View {
+         ZStack {
+-            Image("BottomBarPreparations")
+-                .resizable()
+-                .aspectRatio(AppTheme.bottomBarAspectRatio, contentMode: .fit)
+-                .frame(width: availableWidth)
++            Color(red: 236.0 / 255.0, green: 236.0 / 255.0, blue: 236.0 / 255.0)
+             
+-            // Tap zones for bottom bar tabs
+-            HStack(spacing: 0) {
++            HStack(spacing: 4) {
+                 // Preparations Tab (Current)
+-                Color.clear
+-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+-                    .contentShape(Rectangle())
++                Image("Isolated_Preparations_Selected")
++                    .resizable()
++                    .aspectRatio(contentMode: .fit)
++                    .frame(maxWidth: .infinity, maxHeight: height)
+                     .accessibilityLabel("Preparations tab, currently active")
+                 
+                 // Glossary Tab
+                 Button(action: {
+                     HapticManager.shared.buttonTap()
+                 }) {
+-                    Color.clear
++                    Image("Isolated_Glossary_Not_Selected")
++                        .resizable()
++                        .aspectRatio(contentMode: .fit)
++                        .frame(maxWidth: .infinity, maxHeight: height)
+                 }
+-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                 .accessibilityLabel("Glossary tab")
+                 
+                 // Anatomy Explorer Tab
+                 Button(action: {
+                     HapticManager.shared.buttonTap()
+                 }) {
+-                    Color.clear
++                    Image("Isolated_Anat_Explorer_Not_Selected")
++                        .resizable()
++                        .aspectRatio(contentMode: .fit)
++                        .frame(maxWidth: .infinity, maxHeight: height)
+                 }
+-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                 .accessibilityLabel("Anatomy Explorer tab")
+                 
+                 // Gallery Tab
+                 Button(action: {
+                     HapticManager.shared.buttonTap()
+                 }) {
+-                    Color.clear
++                    Image("Isolated_Gallery_Not_Selected")
++                        .resizable()
++                        .aspectRatio(contentMode: .fit)
++                        .frame(maxWidth: .infinity, maxHeight: height)
+                 }
+-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                 .accessibilityLabel("Gallery tab")
+                 
+                 // Games Tab
+@@ -450,13 +455,18 @@ public struct PreparationsView: View {
+                         onOpenGames()
+                     }
+                 }) {
+-                    Color.clear
++                    Image("Isolated_Games_Not_Selected")
++                        .resizable()
++                        .aspectRatio(contentMode: .fit)
++                        .frame(maxWidth: .infinity, maxHeight: height)
+                 }
+-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                 .accessibilityLabel("Games tab")
+             }
++            .padding(.horizontal, 4)
++            .frame(maxWidth: 1366)
+         }
+         .frame(width: availableWidth, height: height)
++        .shadow(color: Color.black.opacity(0.12), radius: 4, x: 0, y: -2)
+     }
+     
+     // MARK: - Procedure Detail Sheet
+diff --git a/preview/index.html b/preview/index.html
+index 3a17ed4..652e56f 100644
+--- a/preview/index.html
++++ b/preview/index.html
+@@ -299,30 +299,47 @@
+       display: flex;
+       flex-direction: column;
+       align-items: center;
+-      justify-content: center;
++      justify-content: space-between;
+       width: 100%;
+       overflow-y: auto;
+       overflow-x: hidden;
+-      padding: 16px 24px;
+-      gap: 20px;
++      padding: 12px 24px 20px 24px;
++      box-sizing: border-box;
+     }
+ 
+     .cards-container {
+       display: flex;
+       flex-direction: column;
+       align-items: center;
+-      gap: 18px;
++      justify-content: space-between;
++      width: 100%;
++      height: 100%;
++      max-width: 1320px;
++      flex: 1;
++    }
++
++    .home-main-cards {
++      display: flex;
++      flex-direction: column;
++      align-items: center;
++      justify-content: center;
+       width: 100%;
+-      max-width: 1100px;
++      gap: 24px;
++      margin-top: auto;
++      margin-bottom: auto;
+     }
+ 
+     .card-btn, .pill-btn {
+       background: transparent;
+       border: none;
+       outline: none;
++      padding: 0;
++      margin: 0;
+       cursor: pointer;
+       transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.15s ease;
+       display: block;
++      position: relative;
++      -webkit-tap-highlight-color: transparent;
+     }
+ 
+     .card-btn:hover, .pill-btn:hover {
+@@ -335,6 +352,19 @@
+       filter: brightness(0.94);
+     }
+ 
++    .card-btn.animating {
++      transform: scale(1.045);
++      filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.45));
++    }
++
++    .card-inner-frame {
++      position: relative;
++      width: 100%;
++      border-radius: 20px;
++      overflow: hidden;
++      display: block;
++    }
++
+     .card-btn img, .pill-btn img {
+       width: 100%;
+       height: auto;
+@@ -342,11 +372,55 @@
+       pointer-events: none;
+     }
+ 
++    .card-video-wrapper {
++      position: absolute;
++      inset: 0;
++      border-radius: inherit;
++      overflow: hidden;
++      opacity: 0;
++      pointer-events: none;
++      transition: opacity 0.18s ease-in-out;
++      z-index: 2;
++      background: transparent;
++    }
++
++    .card-btn.animating .card-video-wrapper {
++      opacity: 1;
++    }
++
++    .card-animated-video {
++      position: absolute;
++      top: 50%;
++      left: 50%;
++      width: 100%;
++      height: 100%;
++      object-fit: cover;
++      object-position: center;
++      transform: translate(-50%, -50%) scale(1.15);
++      pointer-events: none;
++    }
++
++    /* Accessibility: WCAG 2.1 Criterion 2.3.3 - Respect prefers-reduced-motion */
++    @media (prefers-reduced-motion: reduce) {
++      .card-btn, .pill-btn {
++        transition: none !important;
++      }
++      .card-btn:hover, .pill-btn:hover,
++      .card-btn:active, .pill-btn:active,
++      .card-btn.animating {
++        transform: none !important;
++        filter: none !important;
++      }
++      .card-video-wrapper {
++        display: none !important;
++      }
++    }
++
+     .grid-row-top, .grid-row-mid {
+       display: flex;
+       justify-content: center;
+       align-items: center;
+-      gap: 20px;
++      gap: 28px;
+       width: 100%;
+     }
+ 
+@@ -354,27 +428,50 @@
+       display: flex;
+       justify-content: center;
+       align-items: center;
+-      gap: 16px;
++      gap: 24px;
+       width: 100%;
+-      margin-top: 36px;
++      margin-top: auto;
++      padding-top: 16px;
++      padding-bottom: 12px;
+     }
+ 
+     .portrait-grid {
+       display: none;
+       flex-direction: column;
+       align-items: center;
+-      gap: 14px;
++      justify-content: space-between;
+       width: 100%;
++      height: 100%;
++      flex: 1;
++      padding-top: 8px;
++      padding-bottom: 16px;
++    }
++
++    .portrait-grid-cards {
++      display: flex;
++      flex-direction: column;
++      align-items: center;
++      justify-content: center;
++      width: 100%;
++      gap: 14px;
++      margin-top: auto;
++      margin-bottom: auto;
+     }
+ 
+     .portrait-grid-row {
+       display: flex;
+       justify-content: center;
+       align-items: center;
+-      gap: 12px;
++      gap: 14px;
+       width: 100%;
+     }
+ 
++    .portrait-grid-bottom {
++      margin-top: auto;
++      padding-top: 16px;
++      padding-bottom: 8px;
++    }
++
+     /* ========================================================= */
+     /* PREPARATIONS SCREEN STYLES                                */
+     /* ========================================================= */
+@@ -2442,25 +2539,62 @@
+ 
+             <div id="homeBody" class="home-body">
+               <div id="landscapeGrid" class="cards-container">
+-                <div class="grid-row-top">
+-                  <button class="card-btn" onclick="goToPreparations()" style="width: 250px;">
+-                    <img src="assets/Preparations.png" alt="Preparations" />
+-                  </button>
+-                  <button class="card-btn" onclick="openSheet('Glossary')" style="width: 250px;">
+-                    <img src="assets/Glossary.png" alt="Glossary" />
+-                  </button>
+-                  <button class="card-btn" onclick="openSheet('Anatomy Explorer')" style="width: 250px;">
+-                    <img src="assets/Anatomy Explorer.png" alt="Anatomy Explorer" />
+-                  </button>
+-                </div>
++                <div class="home-main-cards">
++                  <div class="grid-row-top">
++                    <button class="card-btn" onclick="handleCategoryCardClick(this, goToPreparations)" aria-label="Preparations" style="width: 250px;">
++                      <div class="card-inner-frame">
++                        <img src="assets/Preparations.png" alt="" />
++                        <div class="card-video-wrapper" aria-hidden="true">
++                          <video class="card-animated-video" playsinline muted preload="auto">
++                            <source src="assets/Preparations_Selected.mp4" type="video/mp4" />
++                          </video>
++                        </div>
++                      </div>
++                    </button>
++                    <button class="card-btn" onclick="handleCategoryCardClick(this, () => openSheet('Glossary'))" aria-label="Glossary" style="width: 250px;">
++                      <div class="card-inner-frame">
++                        <img src="assets/Glossary.png" alt="" />
++                        <div class="card-video-wrapper" aria-hidden="true">
++                          <video class="card-animated-video" playsinline muted preload="auto">
++                            <source src="assets/Glossary_Selected.mp4" type="video/mp4" />
++                          </video>
++                        </div>
++                      </div>
++                    </button>
++                    <button class="card-btn" onclick="handleCategoryCardClick(this, () => openSheet('Anatomy Explorer'))" aria-label="Anatomy Explorer" style="width: 250px;">
++                      <div class="card-inner-frame">
++                        <img src="assets/Anatomy Explorer.png" alt="" />
++                        <div class="card-video-wrapper" aria-hidden="true">
++                          <video class="card-animated-video" playsinline muted preload="auto">
++                            <source src="assets/Anatomy_Explorer_Selected.mp4" type="video/mp4" />
++                          </video>
++                        </div>
++                      </div>
++                    </button>
++                  </div>
+ 
+-                <div class="grid-row-mid">
+-                  <button class="card-btn" onclick="openSheet('Gallery')" style="width: 250px;">
+-                    <img src="assets/Gallery.png" alt="Gallery" />
+-                  </button>
+-                  <button class="card-btn" onclick="goToGames()" style="width: 250px;">
+-                    <img src="assets/Games.png" alt="Games" />
+-                  </button>
++                  <div class="grid-row-mid">
++                    <button class="card-btn" onclick="handleCategoryCardClick(this, () => openSheet('Gallery'))" aria-label="Gallery" style="width: 250px;">
++                      <div class="card-inner-frame">
++                        <img src="assets/Gallery.png" alt="" />
++                        <div class="card-video-wrapper" aria-hidden="true">
++                          <video class="card-animated-video" playsinline muted preload="auto">
++                            <source src="assets/Gallery_Selected.mp4" type="video/mp4" />
++                          </video>
++                        </div>
++                      </div>
++                    </button>
++                    <button class="card-btn" onclick="handleCategoryCardClick(this, goToGames)" aria-label="Games" style="width: 250px;">
++                      <div class="card-inner-frame">
++                        <img src="assets/Games.png" alt="" />
++                        <div class="card-video-wrapper" aria-hidden="true">
++                          <video class="card-animated-video" playsinline muted preload="auto">
++                            <source src="assets/Games_Selected.mp4" type="video/mp4" />
++                          </video>
++                        </div>
++                      </div>
++                    </button>
++                  </div>
+                 </div>
+ 
+                 <div class="grid-row-bottom">
+@@ -2475,28 +2609,65 @@
+ 
+               <!-- Compact Portrait Grid -->
+               <div id="portraitGrid" class="portrait-grid">
+-                <div class="portrait-grid-row">
+-                  <button class="card-btn" onclick="goToPreparations()" style="width: 150px;">
+-                    <img src="assets/Preparations.png" alt="Preparations" />
+-                  </button>
+-                  <button class="card-btn" onclick="openSheet('Glossary')" style="width: 150px;">
+-                    <img src="assets/Glossary.png" alt="Glossary" />
+-                  </button>
+-                </div>
+-                <div class="portrait-grid-row">
+-                  <button class="card-btn" onclick="openSheet('Anatomy Explorer')" style="width: 150px;">
+-                    <img src="assets/Anatomy Explorer.png" alt="Anatomy Explorer" />
+-                  </button>
+-                  <button class="card-btn" onclick="openSheet('Gallery')" style="width: 150px;">
+-                    <img src="assets/Gallery.png" alt="Gallery" />
+-                  </button>
+-                </div>
+-                <div class="portrait-grid-row">
+-                  <button class="card-btn" onclick="goToGames()" style="width: 190px;">
+-                    <img src="assets/Games.png" alt="Games" />
+-                  </button>
++                <div class="portrait-grid-cards">
++                  <div class="portrait-grid-row">
++                    <button class="card-btn" onclick="handleCategoryCardClick(this, goToPreparations)" aria-label="Preparations" style="width: 150px;">
++                      <div class="card-inner-frame">
++                        <img src="assets/Preparations.png" alt="" />
++                        <div class="card-video-wrapper" aria-hidden="true">
++                          <video class="card-animated-video" playsinline muted preload="auto">
++                            <source src="assets/Preparations_Selected.mp4" type="video/mp4" />
++                          </video>
++                        </div>
++                      </div>
++                    </button>
++                    <button class="card-btn" onclick="handleCategoryCardClick(this, () => openSheet('Glossary'))" aria-label="Glossary" style="width: 150px;">
++                      <div class="card-inner-frame">
++                        <img src="assets/Glossary.png" alt="" />
++                        <div class="card-video-wrapper" aria-hidden="true">
++                          <video class="card-animated-video" playsinline muted preload="auto">
++                            <source src="assets/Glossary_Selected.mp4" type="video/mp4" />
++                          </video>
++                        </div>
++                      </div>
++                    </button>
++                  </div>
++                  <div class="portrait-grid-row">
++                    <button class="card-btn" onclick="handleCategoryCardClick(this, () => openSheet('Anatomy Explorer'))" aria-label="Anatomy Explorer" style="width: 150px;">
++                      <div class="card-inner-frame">
++                        <img src="assets/Anatomy Explorer.png" alt="" />
++                        <div class="card-video-wrapper" aria-hidden="true">
++                          <video class="card-animated-video" playsinline muted preload="auto">
++                            <source src="assets/Anatomy_Explorer_Selected.mp4" type="video/mp4" />
++                          </video>
++                        </div>
++                      </div>
++                    </button>
++                    <button class="card-btn" onclick="handleCategoryCardClick(this, () => openSheet('Gallery'))" aria-label="Gallery" style="width: 150px;">
++                      <div class="card-inner-frame">
++                        <img src="assets/Gallery.png" alt="" />
++                        <div class="card-video-wrapper" aria-hidden="true">
++                          <video class="card-animated-video" playsinline muted preload="auto">
++                            <source src="assets/Gallery_Selected.mp4" type="video/mp4" />
++                          </video>
++                        </div>
++                      </div>
++                    </button>
++                  </div>
++                  <div class="portrait-grid-row">
++                    <button class="card-btn" onclick="handleCategoryCardClick(this, goToGames)" aria-label="Games" style="width: 190px;">
++                      <div class="card-inner-frame">
++                        <img src="assets/Games.png" alt="" />
++                        <div class="card-video-wrapper" aria-hidden="true">
++                          <video class="card-animated-video" playsinline muted preload="auto">
++                            <source src="assets/Games_Selected.mp4" type="video/mp4" />
++                          </video>
++                        </div>
++                      </div>
++                    </button>
++                  </div>
+                 </div>
+-                <div class="portrait-grid-row" style="margin-top: 18px;">
++                <div class="portrait-grid-row portrait-grid-bottom">
+                   <button class="pill-btn" onclick="openSheet('About')" style="width: 120px;">
+                     <img src="assets/About.png" alt="About" />
+                   </button>
+@@ -3223,14 +3394,99 @@
+           if (statusSpan) statusSpan.textContent = 'Home Screen Active • Responsive Grid View';
+         }
+       }
++      if (animatingCardBtn && screenName !== 'home') {
++        resetCardAnimation(animatingCardBtn);
++        animatingCardBtn = null;
++      }
+       setTimeout(updateResponsiveLayout, 50);
+     }
+ 
++    // =========================================================
++    // CATEGORY CARD VIDEO MICRO-INTERACTION CONTROLLER
++    // WCAG 2.1 Criterion 2.3.3: Respects prefers-reduced-motion
++    // Snappy, non-blocking, skippable on tap
++    // =========================================================
++    let currentCardAnimationTimeout = null;
++    let animatingCardBtn = null;
++
++    function handleCategoryCardClick(btnElement, navigationAction) {
++      const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
++
++      // Skip immediately if prefers-reduced-motion is active OR if user taps again
++      if (prefersReducedMotion || (animatingCardBtn && animatingCardBtn === btnElement)) {
++        if (currentCardAnimationTimeout) {
++          clearTimeout(currentCardAnimationTimeout);
++          currentCardAnimationTimeout = null;
++        }
++        resetCardAnimation(animatingCardBtn);
++        animatingCardBtn = null;
++        navigationAction();
++        return;
++      }
++
++      // Reset any previous animation
++      if (animatingCardBtn) {
++        if (currentCardAnimationTimeout) {
++          clearTimeout(currentCardAnimationTimeout);
++          currentCardAnimationTimeout = null;
++        }
++        resetCardAnimation(animatingCardBtn);
++        animatingCardBtn = null;
++      }
++
++      const video = btnElement ? btnElement.querySelector('video') : null;
++      if (!video) {
++        navigationAction();
++        return;
++      }
++
++      animatingCardBtn = btnElement;
++      btnElement.classList.add('animating');
++
++      try {
++        video.currentTime = 0;
++        const playPromise = video.play();
++        if (playPromise !== undefined) {
++          playPromise.catch(err => {
++            console.log('Category card video notice:', err);
++          });
++        }
++      } catch (e) {}
++
++      // Snappy micro-interaction: 560ms
++      currentCardAnimationTimeout = setTimeout(() => {
++        navigationAction();
++        setTimeout(() => {
++          resetCardAnimation(btnElement);
++          if (animatingCardBtn === btnElement) {
++            animatingCardBtn = null;
++          }
++        }, 150);
++        currentCardAnimationTimeout = null;
++      }, 560);
++    }
++
++    function resetCardAnimation(btnElement) {
++      if (!btnElement) return;
++      btnElement.classList.remove('animating');
++      const video = btnElement.querySelector('video');
++      if (video) {
++        try {
++          video.pause();
++          video.currentTime = 0;
++        } catch (e) {}
++      }
++    }
++
+     function goToPreparations() {
+       switchScreen('preparations');
+     }
+ 
+     function goToHome() {
++      if (animatingCardBtn) {
++        resetCardAnimation(animatingCardBtn);
++        animatingCardBtn = null;
++      }
+       switchScreen('home');
+     }
+ 
+@@ -6579,21 +6835,53 @@
+       if (isCompact) {
+         landscapeGrid.style.display = 'none';
+         portraitGrid.style.display = 'flex';
+-        const cardW = Math.min(Math.max((w - 56) / 2, 140), 190);
++        const cardW = Math.min(Math.max((w - 56) / 2, 140), 195);
+         document.querySelectorAll('#portraitGrid .card-btn').forEach((btn, idx) => {
+           btn.style.width = (idx === 4 ? Math.min(cardW * 1.18, w - 48) : cardW) + 'px';
+         });
++        const pillW = Math.min(Math.max(cardW * 0.75, 110), 140);
++        document.querySelectorAll('#portraitGrid .pill-btn').forEach(btn => {
++          btn.style.width = pillW + 'px';
++        });
+       } else {
+         portraitGrid.style.display = 'none';
+         landscapeGrid.style.display = 'flex';
+         const availH = h - headerH;
+-        const cardW = Math.min((w - (w * 0.08) - 40) / 3, (availH * 0.72) / (2 / 2.24 + 0.65 / 3.44), 300);
++        
++        // Responsive card spacing and width:
++        const horizontalPadding = Math.min(Math.max(w * 0.04, 24), 64);
++        const cardGap = Math.min(Math.max(w * 0.03, 20), 46);
++        const maxCardByWidth = (w - (horizontalPadding * 2) - (cardGap * 2)) / 3;
++        // Allow cards to scale comfortably with height and width up to 380px (removes old 300px restriction)
++        const maxCardByHeight = (availH * 0.76) / (2 / 2.24 + 0.65 / 3.44);
++        const cardW = Math.round(Math.min(maxCardByWidth, maxCardByHeight, 380));
++        
+         document.querySelectorAll('#landscapeGrid .card-btn').forEach(btn => {
+           btn.style.width = cardW + 'px';
+         });
++
++        const pillW = Math.round(Math.min(cardW * 0.65, 215));
++        document.querySelectorAll('#landscapeGrid .pill-btn').forEach(btn => {
++          btn.style.width = pillW + 'px';
++        });
++
++        const rowTop = document.querySelector('.grid-row-top');
++        const rowMid = document.querySelector('.grid-row-mid');
++        if (rowTop) rowTop.style.gap = cardGap + 'px';
++        if (rowMid) rowMid.style.gap = cardGap + 'px';
++
++        const mainCards = document.querySelector('.home-main-cards');
++        if (mainCards) {
++          const vRowGap = Math.min(Math.max(availH * 0.045, 18), 38);
++          mainCards.style.gap = vRowGap + 'px';
++        }
++
+         const bottomRow = document.querySelector('.grid-row-bottom');
+         if (bottomRow) {
+-          bottomRow.style.marginTop = Math.min(Math.max(availH * 0.08, 28), 65) + 'px';
++          bottomRow.style.gap = Math.round(cardGap * 0.8) + 'px';
++          // About and Legal buttons anchored closer to the bottom
++          const bottomMargin = Math.min(Math.max(availH * 0.035, 12), 28);
++          bottomRow.style.paddingBottom = bottomMargin + 'px';
+         }
+       }
+ 
+@@ -6702,6 +6990,10 @@
+ 
+     function closeSheet() {
+       document.getElementById('modalOverlay').classList.remove('open');
++      if (animatingCardBtn) {
++        resetCardAnimation(animatingCardBtn);
++        animatingCardBtn = null;
++      }
+     }
+ 
+     function closeSheetOnBackdrop(e) {

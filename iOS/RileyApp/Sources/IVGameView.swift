@@ -10,9 +10,26 @@ public final class IVAudioManager {
     private var wetWipePlayer: AVAudioPlayer?
     private var youDidItPlayer: AVAudioPlayer?
     
+    public var isMuted: Bool = false {
+        didSet {
+            if isMuted {
+                player?.pause()
+                sfxPlayer?.stop()
+                wipePlayer?.pause()
+                wetWipePlayer?.pause()
+                youDidItPlayer?.pause()
+            } else {
+                if player != nil {
+                    player?.play()
+                }
+            }
+        }
+    }
+    
     private init() {}
     
     public func startBackgroundMusic() {
+        if isMuted { return }
         do {
             try AVAudioSession.sharedInstance().setCategory(.ambient, mode: .default)
             try AVAudioSession.sharedInstance().setActive(true)
@@ -68,8 +85,42 @@ public final class IVAudioManager {
         stopYouDidItSound(reset: true)
     }
     
+    // MARK: - Introduction Bag Open Sound Effect (Volume 0.85)
+    public func playBagOpenSound() {
+        guard !isMuted else { return }
+        if let dataAsset = NSDataAsset(name: "BoxOpen") {
+            do {
+                sfxPlayer = try AVAudioPlayer(data: dataAsset.data)
+                sfxPlayer?.volume = 0.85
+                sfxPlayer?.prepareToPlay()
+                sfxPlayer?.play()
+                return
+            } catch {
+                print("Failed to initialize BoxOpen player: \(error)")
+            }
+        }
+        var soundURL: URL? = Bundle.main.url(forResource: "BoxOpen", withExtension: "mp3")
+            ?? Bundle.main.url(forResource: "Box Open", withExtension: "mp3")
+        #if SWIFT_PACKAGE
+        if soundURL == nil {
+            soundURL = Bundle.module.url(forResource: "BoxOpen", withExtension: "mp3")
+        }
+        #endif
+        if let url = soundURL {
+            do {
+                sfxPlayer = try AVAudioPlayer(contentsOf: url)
+                sfxPlayer?.volume = 0.85
+                sfxPlayer?.prepareToPlay()
+                sfxPlayer?.play()
+            } catch {
+                print("Failed to play BoxOpen audio: \(error)")
+            }
+        }
+    }
+    
     // MARK: - Step 1 Ointment Squeeze Sound Effect (Volume 0.90)
     public func playSlimeSound() {
+        guard !isMuted else { return }
         // Priority 1: Load from Asset Catalog NSDataAsset
         if let dataAsset = NSDataAsset(name: "Slime2") {
             do {
@@ -108,6 +159,7 @@ public final class IVAudioManager {
     
     // MARK: - Step 2 & 3 Bandage Placement & Removal Sound Effect (Volume 0.90)
     public func playBandageSound() {
+        guard !isMuted else { return }
         // Priority 1: Load from Asset Catalog NSDataAsset
         if let dataAsset = NSDataAsset(name: "Bandage") {
             do {
@@ -144,6 +196,7 @@ public final class IVAudioManager {
     
     // MARK: - Step 4 Cloth Wipe Sound Effect (Volume 0.90)
     public func startClothWipeSound() {
+        guard !isMuted else { return }
         if wipePlayer == nil {
             // Priority 1: Load from Asset Catalog NSDataAsset
             if let dataAsset = NSDataAsset(name: "ClothWipe") {
@@ -196,6 +249,7 @@ public final class IVAudioManager {
     
     // MARK: - Step 5 Tourniquet Band Sound Effect (Volume 0.90)
     public func playRubberBandSound() {
+        guard !isMuted else { return }
         // Priority 1: Load from Asset Catalog NSDataAsset
         if let dataAsset = NSDataAsset(name: "RubberBand") {
             do {
@@ -234,6 +288,7 @@ public final class IVAudioManager {
     
     // MARK: - Step 6 Packet Rip Sound Effect (Volume 0.90)
     public func playRipSound() {
+        guard !isMuted else { return }
         // Priority 1: Load from Asset Catalog NSDataAsset
         if let dataAsset = NSDataAsset(name: "Rip") {
             do {
@@ -270,6 +325,7 @@ public final class IVAudioManager {
     
     // MARK: - Step 6B Cloth Wet Wipe Sound Effect (Volume 0.90)
     public func startClothWetWipeSound() {
+        guard !isMuted else { return }
         if wetWipePlayer == nil {
             // Priority 1: Load from Asset Catalog NSDataAsset
             if let dataAsset = NSDataAsset(name: "ClothWetWipe") {
@@ -322,6 +378,7 @@ public final class IVAudioManager {
     
     // MARK: - Step 8 IV Shot Insertion Sound Effect (Volume 0.90)
     public func playShotSound() {
+        guard !isMuted else { return }
         // Priority 1: Load from Asset Catalog NSDataAsset
         if let dataAsset = NSDataAsset(name: "Shot") {
             do {
@@ -358,6 +415,7 @@ public final class IVAudioManager {
     
     // MARK: - Step 10 You Did It Celebration Sound Effect (Volume 0.90)
     public func playYouDidItSound() {
+        guard !isMuted else { return }
         if youDidItPlayer == nil {
             // Priority 1: Load from Asset Catalog NSDataAsset
             if let dataAsset = NSDataAsset(name: "YouDidIt") {
@@ -496,6 +554,14 @@ public struct IVGameView: View {
     
     @State private var showSuccessModal: Bool = false
     @State private var isFloating: Bool = false
+    @State private var isSoundMuted: Bool = false
+    
+    // Introduction Entrance Animation State
+    @State private var isBagBouncedIn: Bool = false
+    @State private var isBagOpen: Bool = false
+    @State private var isOintmentEmerged: Bool = false
+    @State private var introStepText: String? = "Getting Supplies Ready..."
+    @State private var isStepHighlighting: Bool = false
     
     public init(onDismiss: (() -> Void)? = nil) {
         self.onDismiss = onDismiss
@@ -505,16 +571,21 @@ public struct IVGameView: View {
         GeometryReader { geometry in
             let screenSize = geometry.size
             let isLandscape = screenSize.width > screenSize.height
-            let bottomBarHeight: CGFloat = min(max(screenSize.height * 0.09, 48), 85)
-            let availableHeight = max(screenSize.height - bottomBarHeight, 100)
             
             // Stage sizing to preserve 1366 x 1024 aspect ratio
             let stageAspectRatio: CGFloat = 1366.0 / 1024.0
-            let stageSize = calculateStageSize(containerWidth: screenSize.width, containerHeight: availableHeight, aspectRatio: stageAspectRatio)
+            let stageSize = calculateStageSize(containerWidth: screenSize.width, containerHeight: screenSize.height, aspectRatio: stageAspectRatio)
             
             ZStack(alignment: .bottom) {
-                // Background Fill
-                Color(red: 35/255, green: 18/255, blue: 71/255)
+                // Background Fill: Carpet color fallback + full bleed GameBackground
+                Color(red: 96/255, green: 51/255, blue: 53/255)
+                    .ignoresSafeArea()
+                
+                Image("GameBackground")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: screenSize.width, height: screenSize.height)
+                    .clipped()
                     .ignoresSafeArea()
                 
                 // MARK: - Game Stage Area
@@ -522,20 +593,18 @@ public struct IVGameView: View {
                     // Top Navigation Header
                     topGameHeader(screenSize: screenSize)
                     
-                    // Centered Game Canvas
-                    ZStack {
-                        gameCanvas(stageSize: stageSize)
-                            .frame(width: stageSize.width, height: stageSize.height)
-                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                            .shadow(color: Color.black.opacity(0.45), radius: 24, x: 0, y: 10)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .padding(.bottom, 8)
+                    Spacer(minLength: 0)
+                    
+                    // Game Canvas
+                    gameCanvas(stageSize: stageSize)
+                        .frame(width: stageSize.width, height: stageSize.height)
                 }
-                .padding(.bottom, bottomBarHeight)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
-                // MARK: - Fixed Bottom 5-Tab Navigation Bar (Games Highlighted)
-                bottomBarView(availableWidth: screenSize.width, height: bottomBarHeight)
+                // MARK: - Accessible Bottom Step Instruction Bar
+                bottomStepInstructionBar
+                    .padding(.bottom, 16)
+                    .allowsHitTesting(false)
                 
                 // MARK: - Success Modal Celebration Overlay
                 if showSuccessModal {
@@ -549,9 +618,16 @@ public struct IVGameView: View {
                 isFloating = true
             }
             IVAudioManager.shared.startBackgroundMusic()
+            startIVIntroSequence()
         }
         .onDisappear {
             IVAudioManager.shared.stopBackgroundMusic()
+        }
+        .onChange(of: currentStep) { _ in
+            triggerStepHighlight()
+        }
+        .onChange(of: introStepText) { _ in
+            triggerStepHighlight()
         }
     }
     
@@ -583,31 +659,33 @@ public struct IVGameView: View {
             
             Spacer()
             
-            // Educational Activity Title Badge
-            HStack(spacing: 6) {
-                Image(systemName: headerBadgeIcon)
-                    .foregroundColor(Color.yellow)
-                Text(headerBadgeTitle)
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(.white)
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-            .background(Color.white.opacity(0.18))
-            .clipShape(Capsule())
-            
-            Spacer()
-            
-            // Reset Button
-            Button(action: {
-                resetGame()
-            }) {
-                Image(systemName: "arrow.counterclockwise")
-                    .font(.system(size: 15, weight: .bold))
-                    .foregroundColor(.white)
-                    .padding(9)
-                    .background(Color.white.opacity(0.18))
-                    .clipShape(Circle())
+            // Top Right Action Buttons: Sound Toggle & Reset
+            HStack(spacing: 8) {
+                Button(action: {
+                    isSoundMuted.toggle()
+                    IVAudioManager.shared.isMuted = isSoundMuted
+                    HapticManager.shared.lightTap()
+                }) {
+                    Image(systemName: isSoundMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(9)
+                        .background(Color.white.opacity(0.18))
+                        .clipShape(Circle())
+                }
+                .accessibilityLabel(isSoundMuted ? "Unmute Sound" : "Mute Sound")
+                
+                Button(action: {
+                    resetGame()
+                }) {
+                    Image(systemName: "arrow.counterclockwise")
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(9)
+                        .background(Color.white.opacity(0.18))
+                        .clipShape(Circle())
+                }
+                .accessibilityLabel("Reset Preparation")
             }
         }
         .padding(.horizontal, 20)
@@ -615,22 +693,77 @@ public struct IVGameView: View {
         .padding(.bottom, 6)
     }
     
-    private var headerBadgeIcon: String {
-        switch currentStep {
-        case .ointment: return "cross.case.fill"
-        case .bandage: return "bandage.fill"
-        case .removeBandage: return "hand.tap.fill"
-        case .washcloth: return "sparkles"
-        case .tourniquet: return "hand.draw.fill"
-        case .cleanWipePacket: return "scissors"
-        case .cleanWipeArm: return "sparkles"
-        case .insertIV: return "cross.vial.fill"
-        case .tapeIV: return "bandage.fill"
-        case .completed: return "checkmark.circle.fill"
+    // MARK: - Accessible Bottom Step Instruction Bar (Non-button Text Presentation, WCAG AAA Contrast)
+    @ViewBuilder
+    private var bottomStepInstructionBar: some View {
+        HStack(spacing: 9) {
+            // Accessible Status Indicator Dot (visual confirmation that this is an active status readout)
+            Circle()
+                .fill(isStepHighlighting ? Color(red: 0.98, green: 0.75, blue: 0.14) : Color(red: 0.98, green: 0.75, blue: 0.14, opacity: 0.85))
+                .frame(width: 8, height: 8)
+                .scaleEffect(isStepHighlighting ? 1.35 : 1.0)
+            
+            Text(headerBadgeTitle)
+                .font(.system(size: 15.5, weight: .bold, design: .rounded))
+                .foregroundColor(isStepHighlighting ? Color(red: 1.0, green: 0.98, blue: 0.92) : .white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.85)
+        }
+        .padding(.horizontal, 24)
+        .padding(.vertical, 10)
+        .background(
+            RoundedRectangle(cornerRadius: 30, style: .continuous)
+                .fill(
+                    isStepHighlighting
+                    ? LinearGradient(
+                        colors: [Color(red: 0.19, green: 0.09, blue: 0.35, opacity: 0.96), Color(red: 0.30, green: 0.14, blue: 0.52, opacity: 0.94)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    : LinearGradient(
+                        colors: [Color(red: 0.07, green: 0.04, blue: 0.15, opacity: 0.92), Color(red: 0.12, green: 0.06, blue: 0.24, opacity: 0.90)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 30, style: .continuous)
+                .stroke(
+                    isStepHighlighting
+                    ? Color(red: 0.98, green: 0.75, blue: 0.14, opacity: 0.95)
+                    : Color.white.opacity(0.24),
+                    lineWidth: isStepHighlighting ? 2.0 : 1.5
+                )
+        )
+        .shadow(
+            color: isStepHighlighting ? Color(red: 0.98, green: 0.75, blue: 0.14, opacity: 0.58) : Color.black.opacity(0.45),
+            radius: isStepHighlighting ? 16 : 8,
+            x: 0,
+            y: isStepHighlighting ? 0 : 4
+        )
+        .scaleEffect(isStepHighlighting ? 1.06 : 1.0)
+        .animation(.spring(response: 0.35, dampingFraction: 0.65), value: isStepHighlighting)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(headerBadgeTitle)
+        .accessibilityAddTraits(.isStaticText)
+    }
+    
+    private func triggerStepHighlight() {
+        withAnimation(.easeOut(duration: 0.22)) {
+            isStepHighlighting = true
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.65) {
+            withAnimation(.easeInOut(duration: 0.35)) {
+                isStepHighlighting = false
+            }
         }
     }
     
     private var headerBadgeTitle: String {
+        if let introText = introStepText {
+            return introText
+        }
         switch currentStep {
         case .ointment: return "Step 1: Apply Numbing Ointment"
         case .bandage: return "Step 2: Place Clear Bandage"
@@ -663,12 +796,24 @@ public struct IVGameView: View {
                 .frame(width: stageSize.width, height: stageSize.height)
                 .allowsHitTesting(false)
             
-            // Layer 3: Medical Supply Kit Bag
-            Image("GameBag")
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: stageSize.width, height: stageSize.height)
-                .allowsHitTesting(false)
+            // Layer 3: Medical Supply Kit Bag (Closed Entrance -> Open Bag)
+            if !isBagOpen {
+                Image("GameBagClosed")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: stageSize.width, height: stageSize.height)
+                    .offset(x: isBagBouncedIn ? 0 : -stageSize.width * 0.95, y: 0)
+                    .scaleEffect(isBagBouncedIn ? 1.0 : 0.94)
+                    .transition(.opacity.combined(with: .scale(scale: 1.03)))
+                    .allowsHitTesting(false)
+            } else {
+                Image("GameBag")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: stageSize.width, height: stageSize.height)
+                    .transition(.opacity.combined(with: .scale(scale: 0.97)))
+                    .allowsHitTesting(false)
+            }
             
             // Layer 4 & 5: Arm Layers (Bare vs Arm With Band)
             Image("GameArm")
@@ -822,8 +967,12 @@ public struct IVGameView: View {
             }
             
             // Layer 8: Floating Interactive Numbing Ointment Tube (Step 1)
-            if currentStep == .ointment {
+            if currentStep == .ointment && isOintmentEmerged {
                 floatingOintmentItem(stageSize: stageSize, elbowZoneRect: elbowDropZoneRect)
+                    .transition(.asymmetric(
+                        insertion: .scale(scale: 0.35).combined(with: .offset(y: 45)).combined(with: .opacity),
+                        removal: .opacity
+                    ))
             }
             
             // Layer 9: Floating Interactive Clear Bandage (Step 2)
@@ -1279,7 +1428,8 @@ public struct IVGameView: View {
         let itemHeight = itemWidth * (324.0 / 340.0)
         let initialX = stageSize.width * 0.254
         let initialY = stageSize.height * 0.188
-        let targetCenter = CGPoint(x: stageSize.width * 0.742, y: stageSize.height * 0.551)
+        let veinCenter = CGPoint(x: stageSize.width * 0.742, y: stageSize.height * 0.551)
+        let targetCenter = CGPoint(x: stageSize.width * 0.697, y: stageSize.height * 0.608)
         
         let floatOffset: CGFloat = (isFloating && !isIVDragging && !isIVLockedToVein) ? -10 : 0
         let currentPos: CGPoint = isIVLockedToVein ? targetCenter : CGPoint(x: initialX + ivDragOffset.width, y: initialY + ivDragOffset.height + floatOffset)
@@ -1344,7 +1494,7 @@ public struct IVGameView: View {
                     
                     let curX = initialX + ivDragOffset.width
                     let curY = initialY + ivDragOffset.height
-                    let dist = hypot(curX - targetCenter.x, curY - targetCenter.y)
+                    let dist = min(hypot(curX - veinCenter.x, curY - veinCenter.y), hypot(curX - targetCenter.x, curY - targetCenter.y))
                     isIVOverVein = dist <= max(90, stageSize.width * 0.08)
                     
                     if dist <= max(55, stageSize.width * 0.045) {
@@ -1356,7 +1506,7 @@ public struct IVGameView: View {
                     isIVDragging = false
                     let curX = initialX + ivDragOffset.width
                     let curY = initialY + ivDragOffset.height
-                    let dist = hypot(curX - targetCenter.x, curY - targetCenter.y)
+                    let dist = min(hypot(curX - veinCenter.x, curY - veinCenter.y), hypot(curX - targetCenter.x, curY - targetCenter.y))
                     if dist <= max(90, stageSize.width * 0.08) {
                         lockIVToVeinSwiftUI()
                     } else {
@@ -1445,8 +1595,8 @@ public struct IVGameView: View {
     private func tapeDropZoneView(stageSize: CGSize) -> some View {
         let zoneWidth = stageSize.width * 0.16
         let zoneHeight = stageSize.height * 0.19
-        let centerX = stageSize.width * 0.742 + stageSize.width * 0.015
-        let centerY = stageSize.height * 0.551 - stageSize.height * 0.015
+        let centerX = stageSize.width * 0.697 + stageSize.width * 0.012
+        let centerY = stageSize.height * 0.608 - stageSize.height * 0.010
         
         Circle()
             .strokeBorder(
@@ -1474,7 +1624,7 @@ public struct IVGameView: View {
         let itemHeight = itemWidth * (192.0 / 439.0)
         let initialX = stageSize.width * 0.255
         let initialY = stageSize.height * 0.178
-        let targetCenter = CGPoint(x: stageSize.width * 0.742 + stageSize.width * 0.015, y: stageSize.height * 0.551 - stageSize.height * 0.015)
+        let targetCenter = CGPoint(x: stageSize.width * 0.697 + stageSize.width * 0.012, y: stageSize.height * 0.608 - stageSize.height * 0.010)
         
         let floatOffset: CGFloat = (isFloating && !isTapeDragging && !isTapePlaced) ? -10 : 0
         let currentPos: CGPoint = isTapePlaced ? targetCenter : CGPoint(x: initialX + tapeDragOffset.width, y: initialY + tapeDragOffset.height + floatOffset)
@@ -2031,13 +2181,13 @@ public struct IVGameView: View {
     @ViewBuilder
     private func bottomBarView(availableWidth: CGFloat, height: CGFloat) -> some View {
         ZStack {
-            Image("BottomBarPreparations")
+            Image("Bottom_Toolbar_Background")
                 .resizable()
-                .aspectRatio(AppTheme.bottomBarAspectRatio, contentMode: .fit)
-                .frame(width: availableWidth)
+                .aspectRatio(contentMode: .fill)
+                .frame(width: availableWidth, height: height)
+                .clipped()
             
-            // Tap zones for bottom bar tabs
-            HStack(spacing: 0) {
+            HStack(spacing: 4) {
                 // Preparations Tab
                 Button(action: {
                     HapticManager.shared.buttonTap()
@@ -2048,36 +2198,44 @@ public struct IVGameView: View {
                         presentationMode.wrappedValue.dismiss()
                     }
                 }) {
-                    Color.clear
+                    Image("Isolated_Preparations_Not_Selected")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: .infinity, maxHeight: height)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .accessibilityLabel("Preparations tab")
                 
                 // Glossary Tab
                 Button(action: {
                     HapticManager.shared.buttonTap()
                 }) {
-                    Color.clear
+                    Image("Isolated_Glossary_Not_Selected")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: .infinity, maxHeight: height)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .accessibilityLabel("Glossary tab")
                 
                 // Anatomy Explorer Tab
                 Button(action: {
                     HapticManager.shared.buttonTap()
                 }) {
-                    Color.clear
+                    Image("Isolated_Anat_Explorer_Not_Selected")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: .infinity, maxHeight: height)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .accessibilityLabel("Anatomy Explorer tab")
                 
                 // Gallery Tab
                 Button(action: {
                     HapticManager.shared.buttonTap()
                 }) {
-                    Color.clear
+                    Image("Isolated_Gallery_Not_Selected")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: .infinity, maxHeight: height)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .accessibilityLabel("Gallery tab")
                 
                 // Games Tab (Current Active)
@@ -2085,13 +2243,18 @@ public struct IVGameView: View {
                     HapticManager.shared.buttonTap()
                     resetGame()
                 }) {
-                    Color.clear
+                    Image("Isolated_Games_Selected")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: .infinity, maxHeight: height)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .accessibilityLabel("Games tab, currently active. Tap to reset game.")
             }
+            .padding(.horizontal, 4)
+            .frame(maxWidth: 1366)
         }
-        .frame(height: height)
+        .frame(width: availableWidth, height: height)
+        .shadow(color: Color.black.opacity(0.12), radius: 4, x: 0, y: -2)
     }
     
     // MARK: - Helper Methods
@@ -2156,6 +2319,36 @@ public struct IVGameView: View {
             isSqueezing = false
             squeezeProgress = 0.0
             showSuccessModal = false
+        }
+        startIVIntroSequence()
+    }
+    
+    private func startIVIntroSequence() {
+        isBagBouncedIn = false
+        isBagOpen = false
+        isOintmentEmerged = false
+        introStepText = "Getting Supplies Ready..."
+        
+        // Step 1: Slide & bounce closed bag onto table from off-screen left
+        withAnimation(.interpolatingSpring(mass: 1.0, stiffness: 60, damping: 9.2, initialVelocity: 6)) {
+            isBagBouncedIn = true
+        }
+        
+        // Step 2: Pop bag open with audio once settled
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.05) {
+            IVAudioManager.shared.playBagOpenSound()
+            HapticManager.shared.lightTap()
+            withAnimation(.easeInOut(duration: 0.28)) {
+                isBagOpen = true
+            }
+        }
+        
+        // Step 3: Ointment emerges upwards out of the open bag
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.32) {
+            introStepText = nil
+            withAnimation(.spring(response: 0.65, dampingFraction: 0.68, blendDuration: 0)) {
+                isOintmentEmerged = true
+            }
         }
     }
     

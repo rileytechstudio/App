@@ -48,12 +48,14 @@ public struct HomeHeaderView: View {
     
     public var body: some View {
         ZStack(alignment: .trailing) {
+            // Background fill
+            Color(red: 248.0 / 255.0, green: 168.0 / 255.0, blue: 98.0 / 255.0)
+            
             // Header Banner Background Image
             Image("HeaderBanner")
                 .resizable()
-                .aspectRatio(contentMode: .fill)
+                .aspectRatio(contentMode: .fit)
                 .frame(width: availableWidth, height: headerHeight)
-                .clipped()
                 .accessibilityLabel(Text("Riley Hospital for Children Header Banner"))
             
             // Top-right Action Buttons (Settings & Home)

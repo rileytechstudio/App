@@ -149,12 +149,14 @@ public struct PreparationsView: View {
     @ViewBuilder
     private func topHeaderBar(width: CGFloat, height: CGFloat, iconSize: CGFloat) -> some View {
         ZStack {
+            // Background fill
+            Color(red: 248.0 / 255.0, green: 168.0 / 255.0, blue: 98.0 / 255.0)
+            
             // Header Banner Background
             Image("HeaderBanner")
                 .resizable()
-                .aspectRatio(contentMode: .fill)
+                .aspectRatio(contentMode: .fit)
                 .frame(width: width, height: height)
-                .clipped()
             
             // Header Action Buttons
             HStack {
@@ -403,44 +405,51 @@ public struct PreparationsView: View {
     @ViewBuilder
     private func bottomBarView(availableWidth: CGFloat, height: CGFloat) -> some View {
         ZStack {
-            Image("BottomBarPreparations")
+            Image("Bottom_Toolbar_Background")
                 .resizable()
-                .aspectRatio(AppTheme.bottomBarAspectRatio, contentMode: .fit)
-                .frame(width: availableWidth)
+                .aspectRatio(contentMode: .fill)
+                .frame(width: availableWidth, height: height)
+                .clipped()
             
-            // Tap zones for bottom bar tabs
-            HStack(spacing: 0) {
+            HStack(spacing: 4) {
                 // Preparations Tab (Current)
-                Color.clear
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .contentShape(Rectangle())
+                Image("Isolated_Preparations_Selected")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: .infinity, maxHeight: height)
                     .accessibilityLabel("Preparations tab, currently active")
                 
                 // Glossary Tab
                 Button(action: {
                     HapticManager.shared.buttonTap()
                 }) {
-                    Color.clear
+                    Image("Isolated_Glossary_Not_Selected")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: .infinity, maxHeight: height)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .accessibilityLabel("Glossary tab")
                 
                 // Anatomy Explorer Tab
                 Button(action: {
                     HapticManager.shared.buttonTap()
                 }) {
-                    Color.clear
+                    Image("Isolated_Anat_Explorer_Not_Selected")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: .infinity, maxHeight: height)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .accessibilityLabel("Anatomy Explorer tab")
                 
                 // Gallery Tab
                 Button(action: {
                     HapticManager.shared.buttonTap()
                 }) {
-                    Color.clear
+                    Image("Isolated_Gallery_Not_Selected")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: .infinity, maxHeight: height)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .accessibilityLabel("Gallery tab")
                 
                 // Games Tab
@@ -450,13 +459,18 @@ public struct PreparationsView: View {
                         onOpenGames()
                     }
                 }) {
-                    Color.clear
+                    Image("Isolated_Games_Not_Selected")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: .infinity, maxHeight: height)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .accessibilityLabel("Games tab")
             }
+            .padding(.horizontal, 4)
+            .frame(maxWidth: 1366)
         }
         .frame(width: availableWidth, height: height)
+        .shadow(color: Color.black.opacity(0.12), radius: 4, x: 0, y: -2)
     }
     
     // MARK: - Procedure Detail Sheet

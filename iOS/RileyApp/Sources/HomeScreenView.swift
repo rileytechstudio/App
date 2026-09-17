@@ -111,6 +111,8 @@ public struct HomeScreenView: View {
     
     // MARK: - Landscape & Tablet Layout (Matches Mockup)
     @ViewBuilder
+    // MARK: - Landscape & Tablet Layout (Matches Mockup)
+    @ViewBuilder
     private func landscapeMockupLayout(screenSize: CGSize) -> some View {
         let isLandscape = screenSize.width > screenSize.height
         
@@ -118,27 +120,27 @@ public struct HomeScreenView: View {
         let headerApproxHeight: CGFloat = isLandscape ? min(max(screenSize.height * 0.15, 64), 135) : min(max(screenSize.height * 0.11, 56), 95)
         let availableHeight = max(screenSize.height - headerApproxHeight, 200)
         
-        // Horizontal padding: 4% - 6% of width
-        let hPadding: CGFloat = min(max(screenSize.width * 0.045, 16), 64)
-        // Spacing between cards: 2% - 3% of width
-        let cardSpacing: CGFloat = min(max(screenSize.width * 0.024, 10), 32)
+        // Horizontal padding: 3.5% - 5.5% of width
+        let hPadding: CGFloat = min(max(screenSize.width * 0.04, 20), 56)
+        // Spacing between cards: 2.5% - 3.5% of width
+        let cardSpacing: CGFloat = min(max(screenSize.width * 0.03, 18), 46)
         
         // Width calculation for 3 cards across
         let widthForThreeCards = (screenSize.width - (hPadding * 2) - (cardSpacing * 2)) / 3.0
         
         // Height constraint: ensure 2 rows of cards + footer + spacings fit vertically
-        // Total needed height ≈ 2 * (w / 2.24) + (w * 0.65 / 3.44) + 4 * vSpacing
-        let maxCardWidthByHeight = (availableHeight * 0.72) / (2.0 / AppTheme.cardAspectRatio + 0.65 / AppTheme.footerAspectRatio)
+        let maxCardWidthByHeight = (availableHeight * 0.76) / (2.0 / AppTheme.cardAspectRatio + 0.65 / AppTheme.footerAspectRatio)
         
-        let cardWidth: CGFloat = min(widthForThreeCards, maxCardWidthByHeight)
-        let footerWidth: CGFloat = min(cardWidth * 0.65, 185)
+        // Allow cards to comfortably scale up to 380pt on iPad Pro (previously capped at 300pt)
+        let cardWidth: CGFloat = min(widthForThreeCards, maxCardWidthByHeight, 380)
+        let footerWidth: CGFloat = min(cardWidth * 0.65, 215)
         
-        // Dynamic vertical spacing
-        let vSpacing: CGFloat = min(max(availableHeight * 0.04, 10), 28)
+        // Dynamic vertical spacing between Row 1 and Row 2
+        let vSpacing: CGFloat = min(max(availableHeight * 0.045, 18), 38)
         
         ScrollView(showsIndicators: false) {
-            VStack(spacing: vSpacing) {
-                Spacer(minLength: min(max(availableHeight * 0.05, 8), 40))
+            VStack(spacing: 0) {
+                Spacer(minLength: min(max(availableHeight * 0.04, 10), 36))
                 
                 // Row 1: Preparations, Glossary, Anatomy Explorer
                 HStack(spacing: cardSpacing) {
@@ -165,6 +167,8 @@ public struct HomeScreenView: View {
                 }
                 .frame(maxWidth: .infinity)
                 
+                Spacer().frame(height: vSpacing)
+                
                 // Row 2: Gallery, Games (Centered horizontally)
                 HStack(spacing: cardSpacing) {
                     CategoryCardButton(
@@ -183,11 +187,11 @@ public struct HomeScreenView: View {
                 }
                 .frame(maxWidth: .infinity)
                 
-                // Lower the bottom two buttons toward the bottom of the screen (approx halfway)
-                Spacer(minLength: min(max(availableHeight * 0.08, 20), 64))
+                // Flexible spacer pushing About & Legal buttons right near the bottom of the page
+                Spacer(minLength: min(max(availableHeight * 0.08, 24), 140))
                 
                 // Row 3 (Bottom): About, Legal (Side by side, centered)
-                HStack(spacing: cardSpacing * 0.9) {
+                HStack(spacing: cardSpacing * 0.8) {
                     FooterPillButton(
                         imageName: "ButtonAbout",
                         title: "About",
@@ -204,7 +208,7 @@ public struct HomeScreenView: View {
                 }
                 .frame(maxWidth: .infinity)
                 
-                Spacer(minLength: min(max(availableHeight * 0.035, 8), 22))
+                Spacer().frame(height: min(max(availableHeight * 0.035, 12), 28))
             }
             .padding(.horizontal, hPadding)
             .frame(minHeight: availableHeight)
@@ -214,6 +218,8 @@ public struct HomeScreenView: View {
     // MARK: - Portrait Compact Layout (Mobile Phones)
     @ViewBuilder
     private func portraitCompactLayout(screenSize: CGSize) -> some View {
+        let headerApproxHeight: CGFloat = min(max(screenSize.height * 0.11, 56), 95)
+        let availableHeight = max(screenSize.height - headerApproxHeight, 200)
         let hPadding: CGFloat = min(max(screenSize.width * 0.05, 16), 28)
         let spacing: CGFloat = min(max(screenSize.width * 0.035, 12), 20)
         
@@ -223,7 +229,7 @@ public struct HomeScreenView: View {
         let footerWidth = min(cardWidth * 0.85, 140)
         
         ScrollView(showsIndicators: false) {
-            VStack(spacing: spacing * 1.2) {
+            VStack(spacing: 0) {
                 Spacer(minLength: 16)
                 
                 // Row 1: Preparations, Glossary
@@ -243,6 +249,8 @@ public struct HomeScreenView: View {
                     )
                 }
                 
+                Spacer().frame(height: spacing * 1.2)
+                
                 // Row 2: Anatomy Explorer, Gallery
                 HStack(spacing: spacing) {
                     CategoryCardButton(
@@ -260,6 +268,8 @@ public struct HomeScreenView: View {
                     )
                 }
                 
+                Spacer().frame(height: spacing * 1.2)
+                
                 // Row 3: Games (Centered)
                 CategoryCardButton(
                     imageName: "ButtonGames",
@@ -267,6 +277,9 @@ public struct HomeScreenView: View {
                     width: singleCardWidth,
                     action: { navState.navigate(to: .games) }
                 )
+                
+                // Flexible spacer pushing About & Legal near bottom on mobile
+                Spacer(minLength: 24)
                 
                 // Row 4: About, Legal
                 HStack(spacing: spacing) {
@@ -284,11 +297,11 @@ public struct HomeScreenView: View {
                         action: { navState.navigate(to: .legal) }
                     )
                 }
-                .padding(.top, 22)
                 
-                Spacer(minLength: 24)
+                Spacer().frame(height: 16)
             }
             .padding(.horizontal, hPadding)
+            .frame(minHeight: availableHeight)
         }
     }
 }
