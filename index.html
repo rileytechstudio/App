@@ -1978,13 +1978,13 @@
       background: transparent;
     }
 
-    /* Mask Container: starts dead center, scaled up 50%, moves smoothly to right */
+    /* Mask Container: starts dead center, scaled up, moves smoothly to right */
     .mask-focal-wrapper {
       position: absolute;
       top: 50%;
       left: 50%;
-      width: 78%;
-      height: 78%;
+      width: 86%;
+      height: 86%;
       transform: translate(-50%, -50%);
       display: flex;
       align-items: center;
@@ -1995,7 +1995,7 @@
     }
 
     .mask-focal-wrapper.moved-right {
-      left: 70%;
+      left: 56%;
     }
 
     .mask-focal-img {
@@ -2400,10 +2400,9 @@
     }
 
     /* Active Selected Chapstick on Stage (Outside the closed corner box) */
-    /* Active Selected Chapstick on Stage (Outside the closed corner box) */
     .selected-chapstick-stage-wrapper {
       position: absolute;
-      left: 33%;
+      left: 14%;
       top: 48%;
       transform: translate(-50%, -50%);
       display: flex;
@@ -3748,11 +3747,29 @@
       }
     }
 
+    let boxShakeAudio = null;
     let boxOpenAudio = null;
     let boxCloseAudio = null;
     let chapstickSelectAudio = null;
     let chapstickRubAudio = null;
     let chapstickRubAudioStopTimer = null;
+
+    function playBoxShakeSound() {
+      if (isSoundMuted) return;
+      try {
+        if (!boxShakeAudio) {
+          boxShakeAudio = new Audio('assets/Box Shake 2.mp3');
+          boxShakeAudio.volume = 0.85;
+          boxShakeAudio.onerror = function() {
+            if (boxShakeAudio && !boxShakeAudio.src.includes('BoxShake2.mp3')) {
+              boxShakeAudio.src = 'assets/BoxShake2.mp3';
+            }
+          };
+        }
+        boxShakeAudio.currentTime = 0;
+        boxShakeAudio.play().catch(() => {});
+      } catch (e) {}
+    }
 
     function playMaskPopSound() {
       if (isSoundMuted) return;
@@ -3979,7 +3996,7 @@
       }
       if (activeChapstick) {
         activeChapstick.classList.remove('visible', 'face-down', 'is-dragging', 'spring-back');
-        activeChapstick.style.left = '33%';
+        activeChapstick.style.left = '14%';
         activeChapstick.style.top = '48%';
         activeChapstick.style.transform = 'translate(-50%, -50%)';
         activeChapstick.style.opacity = '';
@@ -4017,7 +4034,7 @@
           // 4. After 500ms, closed box gives a little shake
           const t3 = setTimeout(() => {
             boxWrapper.classList.add('shaking');
-            playMaskPopSound();
+            playBoxShakeSound();
 
             // 5. After shake completes (750ms), box opens and reveals floating chapsticks
             const t4 = setTimeout(() => {
@@ -4110,7 +4127,7 @@
             activeImg.src = data.img;
             activeImg.alt = data.name + ' Chapstick';
             activeBadge.textContent = data.name;
-            activeChapstick.style.left = '33%';
+            activeChapstick.style.left = '14%';
             activeChapstick.style.top = '48%';
             activeChapstick.style.transform = 'translate(-50%, -50%)';
             activeChapstick.style.opacity = '';
@@ -4172,7 +4189,7 @@
         // 3. After moving into place (~600ms), give a little shake
         setTimeout(() => {
           boxWrapper.classList.add('shaking');
-          playMaskPopSound();
+          playBoxShakeSound();
 
           // 4. After shake completes (~650ms), box opens
           setTimeout(() => {
@@ -4424,7 +4441,7 @@
       // Smoothly spring back to stage position, returning to right side up orientation
       chapstickWrapper.classList.remove('is-dragging', 'face-down');
       chapstickWrapper.classList.add('spring-back');
-      chapstickWrapper.style.left = '33%';
+      chapstickWrapper.style.left = '14%';
       chapstickWrapper.style.top = '48%';
       chapstickWrapper.style.transform = 'translate(-50%, -50%)';
 
