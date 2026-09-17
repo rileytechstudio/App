@@ -3297,15 +3297,25 @@
       });
     }
 
-    // Background Music for IV Start Preparation (Looped, Quiet Volume 0.22)
+    // Background Music for IV Start Preparation: Music BG 6 (Looped, Quiet Volume 0.22)
     let ivBgMusic = null;
 
     function playIVBackgroundMusic() {
       if (isSoundMuted) return;
       if (!ivBgMusic) {
-        ivBgMusic = new Audio('assets/MusicBG.mp3');
+        try {
+          ivBgMusic = new Audio('assets/Music BG 6.mp3');
+        } catch (e) {
+          ivBgMusic = new Audio('assets/MusicBG6.mp3');
+        }
         ivBgMusic.loop = true;
         ivBgMusic.volume = 0.22; // Discreet ambient volume so subsequent sound effects take prominence
+        ivBgMusic.onerror = function() {
+          if (ivBgMusic && !ivBgMusic.src.includes('MusicBG.mp3')) {
+            ivBgMusic.src = 'assets/MusicBG.mp3';
+            ivBgMusic.play().catch(function() {});
+          }
+        };
       }
       ivBgMusic.play().catch(err => {
         console.log('Background music waiting for user gesture:', err);
