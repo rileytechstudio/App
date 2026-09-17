@@ -1998,6 +1998,10 @@
       left: 56%;
     }
 
+    .mask-focal-wrapper.shifted-for-stickers {
+      left: 42%;
+    }
+
     .mask-focal-img {
       width: 100%;
       height: 100%;
@@ -2644,6 +2648,167 @@
       }
     }
 
+    /* Sticker Book Container on the Right */
+    .sticker-book-stage-wrapper {
+      position: absolute;
+      left: 120%;
+      top: 50%;
+      width: 48%;
+      height: 48%;
+      transform: translate(-50%, -50%) scale(0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 22;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease,
+                  transform 0.85s cubic-bezier(0.34, 1.25, 0.64, 1),
+                  left 0.85s cubic-bezier(0.34, 1.25, 0.64, 1),
+                  top 0.85s cubic-bezier(0.34, 1.25, 0.64, 1);
+    }
+
+    .sticker-book-stage-wrapper.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .sticker-book-stage-wrapper.entering {
+      left: 72%;
+      top: 50%;
+      transform: translate(-50%, -50%) scale(1.0);
+    }
+
+    /* Minimized corner state: bottom-right corner opposite chapstick box */
+    .sticker-book-stage-wrapper.minimized-corner {
+      left: 86%;
+      top: 80%;
+      transform: translate(-50%, -50%) scale(0.5);
+      cursor: pointer;
+      pointer-events: auto;
+      z-index: 28;
+    }
+
+    .sticker-book-stage-wrapper.minimized-corner:hover {
+      transform: translate(-50%, -50%) scale(0.56);
+      filter: drop-shadow(0 0 22px rgba(83, 198, 133, 0.75));
+    }
+
+    .sticker-book-stage-wrapper.minimized-corner:active {
+      transform: translate(-50%, -50%) scale(0.48);
+    }
+
+    /* Sticker Book Images */
+    .sticker-book-img-closed {
+      width: 90%;
+      height: auto;
+      max-height: 95%;
+      object-fit: contain;
+      filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.38));
+      transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: absolute;
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .sticker-book-img-open {
+      width: 96%;
+      height: auto;
+      max-height: 96%;
+      object-fit: contain;
+      filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.38));
+      transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.34, 1.45, 0.64, 1);
+      position: absolute;
+      opacity: 0;
+      transform: scale(0.92);
+      pointer-events: none;
+    }
+
+    .sticker-book-stage-wrapper.opened .sticker-book-img-closed {
+      opacity: 0;
+      transform: scale(1.08) translateY(-8px);
+      pointer-events: none;
+    }
+
+    .sticker-book-stage-wrapper.opened .sticker-book-img-open {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+    }
+
+    /* Sticker book sparkles overlay */
+    .sticker-book-sparkles-overlay {
+      position: absolute;
+      inset: -12%;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.4s ease;
+      z-index: 5;
+    }
+
+    .sticker-book-stage-wrapper.opened .sticker-book-sparkles-overlay {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .sticker-book-sparkles-overlay .sparkle-item-1 {
+      top: 10%;
+      left: 12%;
+      width: 58px;
+      animation: subtleTwinkle 3.2s ease-in-out infinite;
+      animation-delay: 0.1s;
+    }
+
+    .sticker-book-sparkles-overlay .sparkle-item-2 {
+      top: 14%;
+      right: 12%;
+      width: 48px;
+      animation: subtleTwinkle 3.2s ease-in-out infinite;
+      animation-delay: 0.7s;
+    }
+
+    .sticker-book-sparkles-overlay .sparkle-item-3 {
+      bottom: 12%;
+      left: 16%;
+      width: 42px;
+      animation: subtleTwinkle 3.2s ease-in-out infinite;
+      animation-delay: 1.5s;
+    }
+
+    .sticker-book-sparkles-overlay .sparkle-item-4 {
+      bottom: 15%;
+      right: 14%;
+      width: 44px;
+      animation: subtleTwinkle 3.2s ease-in-out infinite;
+      animation-delay: 2.2s;
+    }
+
+    /* Helper badge under minimized sticker book */
+    .sticker-book-minimized-hint {
+      position: absolute;
+      bottom: -15%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(20, 14, 42, 0.90);
+      border: 1.5px solid rgba(83, 198, 133, 0.6);
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 999px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+    }
+
+    .sticker-book-stage-wrapper.minimized-corner .sticker-book-minimized-hint {
+      opacity: 1;
+      animation: hintPulse 2.2s ease-in-out infinite;
+    }
+
 
     
   
@@ -3200,6 +3365,27 @@
                         <span class="chapstick-name-badge">Soda</span>
                       </div>
                     </div>
+                  </div>
+                </div>
+
+                <!-- Layer 6: Sticker Book Container on the Right (Enters from right, opens, shrinks into bottom-right corner) -->
+                <div class="sticker-book-stage-wrapper" id="stickerBookStageWrapper" onclick="handleStickerBookClick()">
+                  <!-- Closed Book Image -->
+                  <img id="stickerBookClosedImg" class="sticker-book-img-closed" src="assets/Sticker Book Closed.png" alt="Closed Sticker Book" draggable="false" />
+                  <!-- Open Book Image -->
+                  <img id="stickerBookOpenImg" class="sticker-book-img-open" src="assets/Sticker Book Open Cropped.png" alt="Open Sticker Book" draggable="false" />
+
+                  <!-- Subtle Sparkle Cue Overlay -->
+                  <div class="sticker-book-sparkles-overlay" id="stickerBookSparklesOverlay" aria-hidden="true">
+                    <img class="box-sparkle-item sparkle-item-1" src="assets/Sparkle1.png" alt="" draggable="false" />
+                    <img class="box-sparkle-item sparkle-item-2" src="assets/Sparkle2.png" alt="" draggable="false" />
+                    <img class="box-sparkle-item sparkle-item-3" src="assets/Sparkle3.png" alt="" draggable="false" />
+                    <img class="box-sparkle-item sparkle-item-4" src="assets/Sparkle4.png" alt="" draggable="false" />
+                  </div>
+
+                  <!-- Minimized Corner Helper Badge -->
+                  <div class="sticker-book-minimized-hint" id="stickerBookMinimizedHint">
+                    <span>Stickers</span>
                   </div>
                 </div>
               </div>
@@ -3968,8 +4154,10 @@
       window.removeEventListener('pointerup', onChapstickPointerUp);
       window.removeEventListener('pointercancel', onChapstickPointerCancel);
 
+      isTransitioningStickerBook = false;
       const maskWrapper = document.getElementById('maskFocalWrapper');
       const boxWrapper = document.getElementById('chapstickBoxStageWrapper');
+      const stickerBookWrapper = document.getElementById('stickerBookStageWrapper');
       const blurOverlay = document.getElementById('maskDarkBlurOverlay');
       const tray = document.getElementById('floatingChapsticksTray');
       const activeChapstick = document.getElementById('selectedChapstickStageWrapper');
@@ -3977,10 +4165,13 @@
       const canvas = document.getElementById('maskDrawCanvas');
 
       if (maskWrapper) {
-        maskWrapper.classList.remove('moved-right');
+        maskWrapper.classList.remove('moved-right', 'shifted-for-stickers');
       }
       if (boxWrapper) {
         boxWrapper.classList.remove('visible', 'shaking', 'opened', 'minimized-corner', 'target-put-away', 'box-drag-hover', 'box-put-away-success');
+      }
+      if (stickerBookWrapper) {
+        stickerBookWrapper.classList.remove('visible', 'entering', 'opened', 'minimized-corner');
       }
       const boxHint = document.getElementById('boxMinimizedHint');
       if (boxHint) {
@@ -4397,10 +4588,10 @@
 
         setTimeout(() => {
           boxWrapper.classList.remove('box-put-away-success');
+          // Advance to Step 4 and trigger sticker book entrance
+          updateMaskStep('Step 4: Decorate your mask with stickers');
+          playStickerBookSequence();
         }, 600);
-
-        // Update step instruction bar and box hint
-        updateMaskStep('Step 3: Mask is scented and chapstick is put away');
 
         const boxHint = document.getElementById('boxMinimizedHint');
         if (boxHint) {
@@ -4683,6 +4874,85 @@
 
       triggerHapticFeedback(true);
       playMaskPopSound();
+    }
+
+    // =========================================================
+    // STICKER BOOK STAGE ENTRANCE, OPENING & DOCKING ENGINE
+    // =========================================================
+    let isTransitioningStickerBook = false;
+
+    function playStickerBookSequence() {
+      const maskWrapper = document.getElementById('maskFocalWrapper');
+      const bookWrapper = document.getElementById('stickerBookStageWrapper');
+      if (!bookWrapper) return;
+
+      isTransitioningStickerBook = true;
+
+      // 1. Shift mask slightly to the left to give room for the sticker book on the right
+      if (maskWrapper) {
+        maskWrapper.classList.remove('moved-right');
+        maskWrapper.classList.add('shifted-for-stickers');
+      }
+
+      // 2. Closed sticker book flies in smoothly from the right
+      bookWrapper.classList.remove('opened', 'minimized-corner');
+      bookWrapper.classList.add('visible', 'entering');
+
+      // 3. After closed book arrives (~900ms), animate open
+      const t1 = setTimeout(() => {
+        bookWrapper.classList.add('opened');
+        playBoxOpenSound();
+        triggerHapticFeedback();
+
+        // 4. Remain open center-right for ~1.4s so child sees open book, then shrink to bottom-right corner
+        const t2 = setTimeout(() => {
+          bookWrapper.classList.remove('entering');
+          bookWrapper.classList.add('minimized-corner');
+
+          // Mask returns gracefully to center
+          if (maskWrapper) {
+            maskWrapper.classList.remove('shifted-for-stickers');
+          }
+
+          playMaskPopSound();
+          isTransitioningStickerBook = false;
+        }, 1400);
+        maskSequenceTimers.push(t2);
+      }, 900);
+      maskSequenceTimers.push(t1);
+    }
+
+    function handleStickerBookClick() {
+      const bookWrapper = document.getElementById('stickerBookStageWrapper');
+      const maskWrapper = document.getElementById('maskFocalWrapper');
+      if (!bookWrapper || isTransitioningStickerBook) return;
+
+      // Toggle between minimized corner and expanded stage view
+      if (bookWrapper.classList.contains('minimized-corner')) {
+        isTransitioningStickerBook = true;
+        bookWrapper.classList.remove('minimized-corner');
+        bookWrapper.classList.add('entering');
+        if (maskWrapper) {
+          maskWrapper.classList.add('shifted-for-stickers');
+        }
+        playBoxOpenSound();
+        triggerHapticFeedback();
+        setTimeout(() => {
+          isTransitioningStickerBook = false;
+        }, 650);
+      } else if (bookWrapper.classList.contains('entering')) {
+        isTransitioningStickerBook = true;
+        bookWrapper.classList.remove('entering');
+        bookWrapper.classList.add('minimized-corner');
+        if (maskWrapper) {
+          maskWrapper.classList.remove('shifted-for-stickers');
+        }
+        playBoxCloseSound();
+        triggerHapticFeedback();
+        setTimeout(() => {
+          isTransitioningStickerBook = false;
+        }, 650);
+      }
     }
 
     // =========================================================
