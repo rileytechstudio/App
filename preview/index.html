@@ -1558,18 +1558,27 @@
       height: 19%;
       border-radius: 50%;
       pointer-events: none;
-      border: 3px dashed rgba(0, 229, 255, 0.6);
-      background: rgba(0, 229, 255, 0.08);
-      transition: all 0.28s ease;
+      border: 3px dashed transparent;
+      background: transparent;
+      transition: opacity 0.25s ease, border-color 0.25s ease, background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
       z-index: 26;
       display: none;
+      opacity: 0;
+    }
+
+    .vein-drop-zone.visible {
+      display: block;
+      opacity: 1;
+      border-color: rgba(0, 229, 255, 0.65);
+      background: rgba(0, 229, 255, 0.08);
+      box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
       animation: veinGuidePulse 2s ease-in-out infinite;
     }
 
     .vein-drop-zone.highlight {
-      border-color: rgba(0, 255, 180, 0.95);
-      background: rgba(0, 255, 180, 0.22);
-      box-shadow: 0 0 35px rgba(0, 255, 180, 0.85);
+      border-color: rgba(0, 255, 180, 0.95) !important;
+      background: rgba(0, 255, 180, 0.22) !important;
+      box-shadow: 0 0 35px rgba(0, 255, 180, 0.85) !important;
       transform: scale(1.06);
     }
 
@@ -6012,8 +6021,8 @@
       if (stepBadgeText) stepBadgeText.textContent = 'Step 8: Place the IV';
 
       if (veinZone) {
-        veinZone.style.display = 'block';
-        veinZone.classList.remove('highlight');
+        veinZone.style.display = 'none';
+        veinZone.classList.remove('visible', 'highlight');
         veinZone.style.boxShadow = '';
       }
 
@@ -6100,6 +6109,11 @@
       ivWrapper.style.transform = `translate3d(${ivDeltaX}px, ${ivDeltaY}px, 0)`;
 
       const sRect = stage.getBoundingClientRect();
+      const ivRect = ivWrapper.getBoundingClientRect();
+      const ivCenterX = ivRect.left + ivRect.width / 2;
+      const stageLeft = sRect.left;
+      const stageWidth = sRect.width;
+
       const targetDeltaX = sRect.width * (0.742 - 0.255);
       const targetDeltaY = sRect.height * (0.551 - 0.1775);
       const lockTargetDeltaX = sRect.width * (0.697 - 0.255);
@@ -6109,8 +6123,23 @@
         Math.hypot(ivDeltaX - lockTargetDeltaX, ivDeltaY - lockTargetDeltaY)
       );
 
+      // Only reveal dotted line once the needle is dragged over the arm
+      const isOverArm = (ivCenterX >= stageLeft + stageWidth * 0.48) || (distToTarget <= stageWidth * 0.28);
+
+      if (isOverArm) {
+        if (veinZone) {
+          veinZone.style.display = 'block';
+          veinZone.classList.add('visible');
+        }
+      } else {
+        if (veinZone) {
+          veinZone.classList.remove('visible', 'highlight');
+          veinZone.style.display = 'none';
+        }
+      }
+
       if (distToTarget <= Math.max(120, sRect.width * 0.12)) {
-        if (veinZone) veinZone.classList.add('highlight');
+        if (veinZone && isOverArm) veinZone.classList.add('highlight');
       } else {
         if (veinZone) veinZone.classList.remove('highlight');
       }
@@ -6154,7 +6183,10 @@
         ivWrapper.classList.remove('is-dragging');
         ivWrapper.classList.add('spring-back');
         ivWrapper.style.transform = 'translate3d(0, 0, 0)';
-        if (veinZone) veinZone.classList.remove('highlight');
+        if (veinZone) {
+          veinZone.classList.remove('visible', 'highlight');
+          veinZone.style.display = 'none';
+        }
 
         setTimeout(() => {
           ivWrapper.classList.remove('spring-back');
@@ -6188,7 +6220,8 @@
       ivWrapper.style.transform = `translate3d(${lockedVeinDeltaX}px, ${lockedVeinDeltaY}px, 0)`;
 
       if (veinZone) {
-        veinZone.classList.add('highlight');
+        veinZone.style.display = 'block';
+        veinZone.classList.add('visible', 'highlight');
       }
 
       triggerHapticFeedback(true);
@@ -6949,7 +6982,7 @@
       }
       if (veinZone) {
         veinZone.style.display = 'none';
-        veinZone.classList.remove('highlight');
+        veinZone.classList.remove('visible', 'highlight');
         veinZone.style.boxShadow = '';
       }
       if (ivCountdownBadge) {

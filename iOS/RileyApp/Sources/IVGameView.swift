@@ -529,6 +529,7 @@ public struct IVGameView: View {
     @State private var isIVDragging: Bool = false
     @State private var isIVLockedToVein: Bool = false
     @State private var isIVOverVein: Bool = false
+    @State private var isIVOverArm: Bool = false
     @State private var ivCountdownValue: Int = 3
     @State private var isCountingDown: Bool = false
     @State private var canPokeIV: Bool = false
@@ -1003,8 +1004,9 @@ public struct IVGameView: View {
             
             // Layer 14: Floating Interactive IV Needle & Placed Catheter (Step 8, Step 9 & Completed)
             if currentStep >= .insertIV {
-                if currentStep == .insertIV {
+                if currentStep == .insertIV && (isIVOverArm || isIVLockedToVein) {
                     veinDropZoneView(stageSize: stageSize)
+                        .transition(.opacity)
                 }
                 floatingIVItem(stageSize: stageSize)
                 
@@ -1497,7 +1499,16 @@ public struct IVGameView: View {
                     let curX = initialX + ivDragOffset.width
                     let curY = initialY + ivDragOffset.height
                     let dist = min(hypot(curX - veinCenter.x, curY - veinCenter.y), hypot(curX - targetCenter.x, curY - targetCenter.y))
-                    isIVOverVein = dist <= max(90, stageSize.width * 0.08)
+                    
+                    let overArm = (curX >= stageSize.width * 0.48) || (dist <= stageSize.width * 0.28)
+                    let overVein = dist <= max(90, stageSize.width * 0.08)
+                    
+                    if isIVOverArm != overArm || isIVOverVein != overVein {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            isIVOverArm = overArm
+                            isIVOverVein = overVein
+                        }
+                    }
                     
                     if dist <= max(55, stageSize.width * 0.045) {
                         lockIVToVeinSwiftUI()
@@ -1514,6 +1525,7 @@ public struct IVGameView: View {
                     } else {
                         withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
                             ivDragOffset = .zero
+                            isIVOverArm = false
                             isIVOverVein = false
                         }
                     }
@@ -1546,6 +1558,7 @@ public struct IVGameView: View {
         isIVDragging = false
         withAnimation(.spring(response: 0.32, dampingFraction: 0.8)) {
             isIVLockedToVein = true
+            isIVOverArm = true
             isIVOverVein = true
         }
         HapticManager.shared.mediumTap()
@@ -2314,6 +2327,7 @@ public struct IVGameView: View {
             isIVDragging = false
             isIVLockedToVein = false
             isIVOverVein = false
+            isIVOverArm = false
             ivCountdownValue = 3
             isCountingDown = false
             canPokeIV = false
