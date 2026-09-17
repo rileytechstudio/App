@@ -3739,9 +3739,14 @@
       if (isSoundMuted) return;
       try {
         if (!chapstickRubAudio) {
-          chapstickRubAudio = new Audio('assets/Chapstick.mp3');
+          chapstickRubAudio = new Audio('assets/Wax.mp3');
           chapstickRubAudio.loop = true;
           chapstickRubAudio.volume = 0.85;
+          chapstickRubAudio.onerror = function() {
+            if (chapstickRubAudio && !chapstickRubAudio.src.includes('Chapstick.mp3')) {
+              chapstickRubAudio.src = 'assets/Chapstick.mp3';
+            }
+          };
         }
         if (chapstickRubAudio.paused) {
           chapstickRubAudio.play().catch(() => {});
