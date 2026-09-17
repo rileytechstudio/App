@@ -540,6 +540,7 @@ public struct IVGameView: View {
     @State private var tapeDragOffset: CGSize = .zero
     @State private var isTapeDragging: Bool = false
     @State private var isTapePlaced: Bool = false
+    @State private var isTapeOverArm: Bool = false
     @State private var isTapeOverTarget: Bool = false
     
     // Step 7: Clean Wipe Arm State
@@ -1028,8 +1029,9 @@ public struct IVGameView: View {
                         .transition(.opacity)
                 }
                 
-                if currentStep == .tapeIV && !isTapePlaced {
+                if currentStep == .tapeIV && !isTapePlaced && isTapeOverArm {
                     tapeDropZoneView(stageSize: stageSize)
+                        .transition(.opacity)
                 }
                 floatingTapeItem(stageSize: stageSize)
             }
@@ -1667,7 +1669,16 @@ public struct IVGameView: View {
                     let curX = initialX + tapeDragOffset.width
                     let curY = initialY + tapeDragOffset.height
                     let dist = hypot(curX - targetCenter.x, curY - targetCenter.y)
-                    isTapeOverTarget = dist <= max(90, stageSize.width * 0.08)
+                    
+                    let overArm = (curX >= stageSize.width * 0.48) || (dist <= stageSize.width * 0.28)
+                    let overTarget = dist <= max(90, stageSize.width * 0.08)
+                    
+                    if isTapeOverArm != overArm || isTapeOverTarget != overTarget {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            isTapeOverArm = overArm
+                            isTapeOverTarget = overTarget
+                        }
+                    }
                     
                     if dist <= max(55, stageSize.width * 0.045) {
                         lockTapeToArmSwiftUI()
@@ -1684,6 +1695,7 @@ public struct IVGameView: View {
                     } else {
                         withAnimation(.spring(response: 0.45, dampingFraction: 0.8)) {
                             tapeDragOffset = .zero
+                            isTapeOverArm = false
                             isTapeOverTarget = false
                         }
                     }
@@ -1696,7 +1708,8 @@ public struct IVGameView: View {
         isTapeDragging = false
         withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
             isTapePlaced = true
-            isTapeOverTarget = true
+            isTapeOverArm = false
+            isTapeOverTarget = false
         }
         IVAudioManager.shared.playBandageSound()
         HapticManager.shared.successNotification()
@@ -2311,6 +2324,7 @@ public struct IVGameView: View {
             tapeDragOffset = .zero
             isTapeDragging = false
             isTapePlaced = false
+            isTapeOverArm = false
             isTapeOverTarget = false
             
             ointmentDragOffset = .zero

@@ -1772,18 +1772,27 @@
       height: 19%;
       border-radius: 50%;
       pointer-events: none;
-      border: 3px dashed rgba(0, 229, 255, 0.6);
-      background: rgba(0, 229, 255, 0.08);
-      transition: all 0.28s ease;
+      border: 3px dashed transparent;
+      background: transparent;
+      transition: opacity 0.25s ease, border-color 0.25s ease, background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
       z-index: 28;
       display: none;
+      opacity: 0;
+    }
+
+    .tape-drop-zone.visible {
+      display: block;
+      opacity: 1;
+      border-color: rgba(0, 229, 255, 0.65);
+      background: rgba(0, 229, 255, 0.08);
+      box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
       animation: veinGuidePulse 2s ease-in-out infinite;
     }
 
     .tape-drop-zone.highlight {
-      border-color: rgba(0, 255, 180, 0.95);
-      background: rgba(0, 255, 180, 0.22);
-      box-shadow: 0 0 35px rgba(0, 255, 180, 0.85);
+      border-color: rgba(0, 255, 180, 0.95) !important;
+      background: rgba(0, 255, 180, 0.22) !important;
+      box-shadow: 0 0 35px rgba(0, 255, 180, 0.85) !important;
       transform: scale(1.06);
     }
 
@@ -6337,8 +6346,8 @@
       if (stepBadgeText) stepBadgeText.textContent = 'Step 9: Tape the IV';
 
       if (tapeZone) {
-        tapeZone.style.display = 'block';
-        tapeZone.classList.remove('highlight');
+        tapeZone.style.display = 'none';
+        tapeZone.classList.remove('visible', 'highlight');
         tapeZone.style.boxShadow = '';
       }
 
@@ -6402,12 +6411,32 @@
       tapeWrapper.style.transform = `translate3d(${tapeDeltaX}px, ${tapeDeltaY}px, 0)`;
 
       const sRect = stage.getBoundingClientRect();
+      const tapeRect = tapeWrapper.getBoundingClientRect();
+      const tapeCenterX = tapeRect.left + tapeRect.width / 2;
+      const stageLeft = sRect.left;
+      const stageWidth = sRect.width;
+
       const targetDeltaX = sRect.width * (0.697 - 0.255) + 16;
       const targetDeltaY = sRect.height * (0.608 - 0.178) - 10;
       const distToTarget = Math.hypot(tapeDeltaX - targetDeltaX, tapeDeltaY - targetDeltaY);
 
+      // Only reveal dotted line once the tape is dragged over the arm
+      const isOverArm = (tapeCenterX >= stageLeft + stageWidth * 0.48) || (distToTarget <= stageWidth * 0.28);
+
+      if (isOverArm) {
+        if (tapeZone) {
+          tapeZone.style.display = 'block';
+          tapeZone.classList.add('visible');
+        }
+      } else {
+        if (tapeZone) {
+          tapeZone.classList.remove('visible', 'highlight');
+          tapeZone.style.display = 'none';
+        }
+      }
+
       if (distToTarget <= Math.max(120, sRect.width * 0.12)) {
-        if (tapeZone) tapeZone.classList.add('highlight');
+        if (tapeZone && isOverArm) tapeZone.classList.add('highlight');
       } else {
         if (tapeZone) tapeZone.classList.remove('highlight');
       }
@@ -6445,7 +6474,10 @@
         tapeWrapper.classList.remove('is-dragging');
         tapeWrapper.classList.add('spring-back');
         tapeWrapper.style.transform = 'translate3d(0, 0, 0)';
-        if (tapeZone) tapeZone.classList.remove('highlight');
+        if (tapeZone) {
+          tapeZone.classList.remove('visible', 'highlight');
+          tapeZone.style.display = 'none';
+        }
 
         setTimeout(() => {
           tapeWrapper.classList.remove('spring-back');
@@ -6493,8 +6525,9 @@
       }
 
       if (tapeZone) {
-        tapeZone.classList.add('highlight');
-        tapeZone.style.boxShadow = '0 0 40px rgba(0, 255, 180, 0.9)';
+        tapeZone.classList.remove('visible', 'highlight');
+        tapeZone.style.display = 'none';
+        tapeZone.style.boxShadow = '';
       }
 
       triggerHapticFeedback(true);
