@@ -14,9 +14,6 @@ const PRECACHE_ASSETS = [
   './assets/GameBagClosed.png',
   './assets/GameArm.png',
   './assets/GameArmWithBand.png',
-  './assets/GameArmBandaged.png',
-  './assets/GameArmSwabbed.png',
-  './assets/GameArmLotion.png',
   './assets/GameOintmentItem.png',
   './assets/GameWashclothItem.png',
   './assets/GameBandItem.png',
@@ -113,7 +110,7 @@ const PRECACHE_ASSETS = [
   './assets/You Did It.mp3',
   './Music/Music BG.mp3',
   './Music/Music BG 6.mp3',
-  './Music/alex-morgan-toddler-kids-background-music-583241.mp3',
+  './Music/Music BG 7.mp3',
   './Music/atlasaudio-happy-kids-593047.mp3',
   './Music/desifreemusic-no-copyright-music-181373.mp3'
 ];
