@@ -2836,52 +2836,200 @@
       pointer-events: auto;
     }
 
-    /* Sticker book sparkles overlay */
-    .sticker-book-sparkles-overlay {
+    /* Floating Stickers Tray above the open book */
+    .floating-stickers-tray {
       position: absolute;
-      inset: -12%;
-      pointer-events: none;
+      top: -24%;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 12px;
+      z-index: 30;
       opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.4s ease;
-      z-index: 5;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+      width: 124%;
     }
 
-    .sticker-book-stage-wrapper.opened .sticker-book-sparkles-overlay {
+    .sticker-book-stage-wrapper.opened .floating-stickers-tray {
       opacity: 1;
-      visibility: visible;
+      pointer-events: auto;
     }
 
-    .sticker-book-sparkles-overlay .sparkle-item-1 {
-      top: 10%;
-      left: 12%;
-      width: 58px;
-      animation: subtleTwinkle 3.2s ease-in-out infinite;
-      animation-delay: 0.1s;
+    .sticker-book-stage-wrapper.minimized-corner .floating-stickers-tray {
+      display: none !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
     }
 
-    .sticker-book-sparkles-overlay .sparkle-item-2 {
-      top: 14%;
-      right: 12%;
-      width: 48px;
-      animation: subtleTwinkle 3.2s ease-in-out infinite;
-      animation-delay: 0.7s;
+    .floating-sticker-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: grab;
+      opacity: 0;
+      transform: translateY(40px) scale(0.65);
+      transition: transform 0.65s cubic-bezier(0.34, 1.45, 0.64, 1), opacity 0.5s ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: none;
     }
 
-    .sticker-book-sparkles-overlay .sparkle-item-3 {
-      bottom: 12%;
-      left: 16%;
-      width: 42px;
-      animation: subtleTwinkle 3.2s ease-in-out infinite;
-      animation-delay: 1.5s;
+    .sticker-book-stage-wrapper.opened .floating-sticker-item {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      transition-delay: calc(var(--item-index) * 0.08s + 0.1s);
     }
 
-    .sticker-book-sparkles-overlay .sparkle-item-4 {
-      bottom: 15%;
-      right: 14%;
-      width: 44px;
-      animation: subtleTwinkle 3.2s ease-in-out infinite;
-      animation-delay: 2.2s;
+    .sticker-float-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      animation: stickerFloatBob 2.8s ease-in-out infinite;
+      animation-delay: calc(var(--item-index) * 0.35s);
+      transition: transform 0.25s cubic-bezier(0.34, 1.5, 0.64, 1), filter 0.25s ease;
+    }
+
+    .sticker-tube-glow {
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 130%;
+      height: 80%;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.95) 0%, rgba(200, 255, 225, 0.85) 35%, rgba(83, 198, 133, 0.4) 65%, transparent 80%);
+      opacity: 0.85;
+      pointer-events: none;
+      filter: blur(4px);
+    }
+
+    .sticker-float-inner img {
+      position: relative;
+      z-index: 5;
+      height: clamp(60px, 9vw, 95px);
+      max-height: 95px;
+      width: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.95))
+              drop-shadow(0 0 16px rgba(120, 240, 180, 0.75))
+              drop-shadow(0 6px 14px rgba(15, 23, 42, 0.35));
+      pointer-events: none;
+      -webkit-user-drag: none;
+      transition: filter 0.25s ease;
+    }
+
+    .floating-sticker-item:hover .sticker-float-inner,
+    .floating-sticker-item:active .sticker-float-inner {
+      transform: translateY(-8px) scale(1.12);
+    }
+
+    .floating-sticker-item:hover .sticker-float-inner img,
+    .floating-sticker-item:active .sticker-float-inner img {
+      filter: drop-shadow(0 0 12px rgba(255, 255, 255, 1))
+              drop-shadow(0 0 24px rgba(120, 255, 190, 0.95))
+              drop-shadow(0 10px 20px rgba(15, 23, 42, 0.45));
+    }
+
+    .sticker-name-badge {
+      position: relative;
+      z-index: 20;
+      margin-top: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      color: #0b3d24;
+      background: #ffffff;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1.5px solid rgba(83, 198, 133, 0.95);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+      pointer-events: none;
+    }
+
+    @keyframes stickerFloatBob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    /* Placed Stickers on the Mask Dome */
+    .placed-stickers-container {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 8;
+    }
+
+    .placed-mask-sticker {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      pointer-events: auto;
+      cursor: grab;
+      user-select: none;
+      -webkit-user-drag: none;
+      touch-action: none;
+      transition: transform 0.2s cubic-bezier(0.34, 1.5, 0.64, 1), filter 0.2s ease;
+    }
+
+    .placed-mask-sticker:hover {
+      transform: translate(-50%, -50%) scale(1.08);
+      filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.95)) drop-shadow(0 6px 16px rgba(0,0,0,0.3));
+    }
+
+    .placed-mask-sticker:active,
+    .placed-mask-sticker.is-dragging {
+      cursor: grabbing;
+      transform: translate(-50%, -50%) scale(1.15);
+      z-index: 50;
+      filter: drop-shadow(0 0 18px rgba(255, 255, 255, 1)) drop-shadow(0 12px 24px rgba(0,0,0,0.4));
+    }
+
+    .placed-mask-sticker img {
+      width: auto;
+      height: clamp(55px, 9vw, 95px);
+      max-height: 95px;
+      object-fit: contain;
+      pointer-events: none;
+      -webkit-user-drag: none;
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.25));
+    }
+
+    .placed-mask-sticker.just-placed {
+      animation: stickerPopPlace 0.45s cubic-bezier(0.34, 1.65, 0.64, 1);
+    }
+
+    @keyframes stickerPopPlace {
+      0% { transform: translate(-50%, -50%) scale(0.3) rotate(-15deg); opacity: 0; }
+      70% { transform: translate(-50%, -50%) scale(1.22) rotate(6deg); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    /* Active Dragging Sticker Ghost/Follower */
+    .active-sticker-drag-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform: translate(-50%, -50%) scale(1.1);
+      pointer-events: none;
+      z-index: 60;
+      display: none;
+      filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.95)) drop-shadow(0 10px 22px rgba(0, 0, 0, 0.35));
+    }
+
+    .active-sticker-drag-wrapper.visible {
+      display: block;
+    }
+
+    .active-sticker-drag-wrapper img {
+      width: auto;
+      height: clamp(65px, 10vw, 105px);
+      max-height: 105px;
+      object-fit: contain;
+      -webkit-user-drag: none;
     }
 
     /* Helper badge under minimized sticker book */
@@ -3377,6 +3525,8 @@
                 <div class="mask-focal-wrapper" id="maskFocalWrapper">
                   <img id="maskFocalImg" class="mask-focal-img" src="assets/Mask.png" alt="Anesthesia Mask" draggable="false" />
                   <canvas id="maskDrawCanvas" class="mask-draw-canvas" width="1366" height="1024"></canvas>
+                  <!-- Container for Placed Stickers (Affixed directly to the mask) -->
+                  <div class="placed-stickers-container" id="placedStickersContainer"></div>
                 </div>
 
                 <!-- Layer 3: Dark Blur Overlay (Fades in over the mask layer and background when the box opens) -->
@@ -3448,25 +3598,61 @@
                   </div>
                 </div>
 
-                <!-- Layer 6: Sticker Book Container on the Right (Enters from right, opens, shrinks into bottom-right corner) -->
-                <div class="sticker-book-stage-wrapper" id="stickerBookStageWrapper" onclick="handleStickerBookClick()">
+                <!-- Layer 6: Sticker Book Container on the Right (Enters from right, opens, floating sticker tray) -->
+                <div class="sticker-book-stage-wrapper" id="stickerBookStageWrapper" onclick="handleStickerBookClick(event)">
                   <!-- Closed Book Image -->
                   <img id="stickerBookClosedImg" class="sticker-book-img-closed" src="assets/Sticker Book Closed.png" alt="Closed Sticker Book" draggable="false" />
                   <!-- Open Book Image -->
                   <img id="stickerBookOpenImg" class="sticker-book-img-open" src="assets/Sticker Book Open Cropped.png" alt="Open Sticker Book" draggable="false" />
 
-                  <!-- Subtle Sparkle Cue Overlay -->
-                  <div class="sticker-book-sparkles-overlay" id="stickerBookSparklesOverlay" aria-hidden="true">
-                    <img class="box-sparkle-item sparkle-item-1" src="assets/Sparkle1.png" alt="" draggable="false" />
-                    <img class="box-sparkle-item sparkle-item-2" src="assets/Sparkle2.png" alt="" draggable="false" />
-                    <img class="box-sparkle-item sparkle-item-3" src="assets/Sparkle3.png" alt="" draggable="false" />
-                    <img class="box-sparkle-item sparkle-item-4" src="assets/Sparkle4.png" alt="" draggable="false" />
+                  <!-- Floating Stickers Tray (Reveals 5 stickers floating above the open book) -->
+                  <div class="floating-stickers-tray" id="floatingStickersTray">
+                    <div class="floating-sticker-item item-dino" data-sticker="dino" onpointerdown="startStickerDrag('dino', event)" style="--item-index: 0;" title="Dino">
+                      <div class="sticker-float-inner">
+                        <div class="sticker-tube-glow"></div>
+                        <img src="assets/DinoStickerCropped.png" alt="Dino Sticker" draggable="false" />
+                        <span class="sticker-name-badge">Dino</span>
+                      </div>
+                    </div>
+                    <div class="floating-sticker-item item-fox" data-sticker="fox" onpointerdown="startStickerDrag('fox', event)" style="--item-index: 1;" title="Fox">
+                      <div class="sticker-float-inner">
+                        <div class="sticker-tube-glow"></div>
+                        <img src="assets/FoxStickerCropped.png" alt="Fox Sticker" draggable="false" />
+                        <span class="sticker-name-badge">Fox</span>
+                      </div>
+                    </div>
+                    <div class="floating-sticker-item item-heart" data-sticker="heart" onpointerdown="startStickerDrag('heart', event)" style="--item-index: 2;" title="Heart">
+                      <div class="sticker-float-inner">
+                        <div class="sticker-tube-glow"></div>
+                        <img src="assets/HeartStickerCropped.png" alt="Heart Sticker" draggable="false" />
+                        <span class="sticker-name-badge">Heart</span>
+                      </div>
+                    </div>
+                    <div class="floating-sticker-item item-rocket" data-sticker="rocket" onpointerdown="startStickerDrag('rocket', event)" style="--item-index: 3;" title="Rocket">
+                      <div class="sticker-float-inner">
+                        <div class="sticker-tube-glow"></div>
+                        <img src="assets/RocketStickerCropped.png" alt="Rocket Sticker" draggable="false" />
+                        <span class="sticker-name-badge">Rocket</span>
+                      </div>
+                    </div>
+                    <div class="floating-sticker-item item-star" data-sticker="star" onpointerdown="startStickerDrag('star', event)" style="--item-index: 4;" title="Star">
+                      <div class="sticker-float-inner">
+                        <div class="sticker-tube-glow"></div>
+                        <img src="assets/StarStickerCropped.png" alt="Star Sticker" draggable="false" />
+                        <span class="sticker-name-badge">Star</span>
+                      </div>
+                    </div>
                   </div>
 
                   <!-- Minimized Corner Helper Badge -->
                   <div class="sticker-book-minimized-hint" id="stickerBookMinimizedHint">
                     <span>Stickers</span>
                   </div>
+                </div>
+
+                <!-- Layer 7: Active Dragging Sticker Follower -->
+                <div class="active-sticker-drag-wrapper" id="activeStickerDragWrapper">
+                  <img id="activeStickerDragImg" src="assets/DinoStickerCropped.png" alt="Active Sticker" draggable="false" />
                 </div>
               </div>
             </div>
@@ -4077,11 +4263,11 @@
       if (isSoundMuted) return;
       try {
         if (!pageFlipAudio) {
-          pageFlipAudio = new Audio('assets/PageFlip.mp3');
+          pageFlipAudio = new Audio('assets/PageFlip2.mp3');
           pageFlipAudio.volume = 0.85;
           pageFlipAudio.onerror = function() {
-            if (pageFlipAudio && !pageFlipAudio.src.includes('BoxOpen.mp3')) {
-              pageFlipAudio.src = 'assets/BoxOpen.mp3';
+            if (pageFlipAudio && !pageFlipAudio.src.includes('PageFlip.mp3')) {
+              pageFlipAudio.src = 'assets/PageFlip.mp3';
             }
           };
         }
@@ -4268,6 +4454,13 @@
       }
       if (stickerBookWrapper) {
         stickerBookWrapper.classList.remove('visible', 'entering', 'opened', 'minimized-corner');
+      }
+      placedMaskStickers = [];
+      renderPlacedStickers();
+      if (isDraggingSticker) {
+        isDraggingSticker = false;
+        const dragWrapper = document.getElementById('activeStickerDragWrapper');
+        if (dragWrapper) dragWrapper.classList.remove('visible');
       }
       const boxHint = document.getElementById('boxMinimizedHint');
       if (boxHint) {
@@ -4973,9 +5166,186 @@
     }
 
     // =========================================================
-    // STICKER BOOK STAGE ENTRANCE, OPENING & DOCKING ENGINE
+    // STICKER BOOK & MULTI-STICKER PLACEMENT ENGINE
     // =========================================================
+    const stickerData = {
+      dino: { name: 'Dino', img: 'assets/DinoStickerCropped.png' },
+      fox: { name: 'Fox', img: 'assets/FoxStickerCropped.png' },
+      heart: { name: 'Heart', img: 'assets/HeartStickerCropped.png' },
+      rocket: { name: 'Rocket', img: 'assets/RocketStickerCropped.png' },
+      star: { name: 'Star', img: 'assets/StarStickerCropped.png' }
+    };
+
+    let placedMaskStickers = [];
+    let isDraggingSticker = false;
+    let currentDraggingStickerType = null;
+    let draggingStickerPlacedId = null;
     let isTransitioningStickerBook = false;
+
+    function renderPlacedStickers() {
+      const container = document.getElementById('placedStickersContainer');
+      if (!container) return;
+      container.innerHTML = '';
+      placedMaskStickers.forEach(sticker => {
+        const div = document.createElement('div');
+        div.className = 'placed-mask-sticker' + (sticker.justPlaced ? ' just-placed' : '');
+        div.style.left = `${sticker.x}%`;
+        div.style.top = `${sticker.y}%`;
+        div.dataset.id = sticker.id;
+        div.onpointerdown = (e) => onPlacedStickerPointerDown(sticker.id, e);
+
+        const img = document.createElement('img');
+        img.src = stickerData[sticker.type].img;
+        img.alt = stickerData[sticker.type].name;
+        img.draggable = false;
+        div.appendChild(img);
+
+        container.appendChild(div);
+      });
+    }
+
+    function startStickerDrag(type, e) {
+      if (!stickerData[type]) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      isDraggingSticker = true;
+      currentDraggingStickerType = type;
+      draggingStickerPlacedId = null;
+
+      const dragWrapper = document.getElementById('activeStickerDragWrapper');
+      const dragImg = document.getElementById('activeStickerDragImg');
+      const stage = document.getElementById('maskStage');
+      if (!dragWrapper || !dragImg || !stage) return;
+
+      dragImg.src = stickerData[type].img;
+      const stageRect = stage.getBoundingClientRect();
+      dragWrapper.style.left = `${e.clientX - stageRect.left}px`;
+      dragWrapper.style.top = `${e.clientY - stageRect.top}px`;
+      dragWrapper.classList.add('visible');
+
+      playChapstickSelectSound();
+      triggerHapticFeedback();
+
+      window.addEventListener('pointermove', onStickerPointerMove);
+      window.addEventListener('pointerup', onStickerPointerUp);
+      window.addEventListener('pointercancel', onStickerPointerCancel);
+    }
+
+    function onPlacedStickerPointerDown(id, e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const sticker = placedMaskStickers.find(s => s.id === id);
+      if (!sticker) return;
+
+      isDraggingSticker = true;
+      currentDraggingStickerType = sticker.type;
+      draggingStickerPlacedId = id;
+
+      const el = document.querySelector(`.placed-mask-sticker[data-id="${id}"]`);
+      if (el) el.style.display = 'none';
+
+      const dragWrapper = document.getElementById('activeStickerDragWrapper');
+      const dragImg = document.getElementById('activeStickerDragImg');
+      const stage = document.getElementById('maskStage');
+      if (!dragWrapper || !dragImg || !stage) return;
+
+      dragImg.src = stickerData[sticker.type].img;
+      const stageRect = stage.getBoundingClientRect();
+      dragWrapper.style.left = `${e.clientX - stageRect.left}px`;
+      dragWrapper.style.top = `${e.clientY - stageRect.top}px`;
+      dragWrapper.classList.add('visible');
+
+      playChapstickSelectSound();
+      triggerHapticFeedback();
+
+      window.addEventListener('pointermove', onStickerPointerMove);
+      window.addEventListener('pointerup', onStickerPointerUp);
+      window.addEventListener('pointercancel', onStickerPointerCancel);
+    }
+
+    function onStickerPointerMove(e) {
+      if (!isDraggingSticker) return;
+      const dragWrapper = document.getElementById('activeStickerDragWrapper');
+      const stage = document.getElementById('maskStage');
+      if (!dragWrapper || !stage) return;
+
+      const stageRect = stage.getBoundingClientRect();
+      dragWrapper.style.left = `${e.clientX - stageRect.left}px`;
+      dragWrapper.style.top = `${e.clientY - stageRect.top}px`;
+    }
+
+    function onStickerPointerUp(e) {
+      if (!isDraggingSticker) return;
+      isDraggingSticker = false;
+
+      window.removeEventListener('pointermove', onStickerPointerMove);
+      window.removeEventListener('pointerup', onStickerPointerUp);
+      window.removeEventListener('pointercancel', onStickerPointerCancel);
+
+      const dragWrapper = document.getElementById('activeStickerDragWrapper');
+      if (dragWrapper) {
+        dragWrapper.classList.remove('visible');
+      }
+
+      const stage = document.getElementById('maskStage');
+      const maskWrapper = document.getElementById('maskFocalWrapper');
+      if (!stage || !maskWrapper) return;
+
+      const stageRect = stage.getBoundingClientRect();
+      const scaleX = 1366 / stageRect.width;
+      const scaleY = 1024 / stageRect.height;
+      const stageX = (e.clientX - stageRect.left) * scaleX;
+      const stageY = (e.clientY - stageRect.top) * scaleY;
+
+      const insideMask = isPointInMaskDome(stageX, stageY);
+
+      if (insideMask) {
+        const maskRect = maskWrapper.getBoundingClientRect();
+        const pctX = ((e.clientX - maskRect.left) / maskRect.width) * 100;
+        const pctY = ((e.clientY - maskRect.top) / maskRect.height) * 100;
+
+        if (draggingStickerPlacedId) {
+          const sticker = placedMaskStickers.find(s => s.id === draggingStickerPlacedId);
+          if (sticker) {
+            sticker.x = pctX;
+            sticker.y = pctY;
+            sticker.justPlaced = true;
+          }
+        } else {
+          placedMaskStickers.push({
+            id: 'sticker_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+            type: currentDraggingStickerType,
+            x: pctX,
+            y: pctY,
+            justPlaced: true
+          });
+        }
+
+        playMaskPopSound();
+        triggerHapticFeedback(true);
+        renderPlacedStickers();
+
+        setTimeout(() => {
+          placedMaskStickers.forEach(s => s.justPlaced = false);
+        }, 500);
+
+        updateMaskStep('Step 4: Decorate your mask with stickers');
+      } else {
+        if (draggingStickerPlacedId) {
+          const el = document.querySelector(`.placed-mask-sticker[data-id="${draggingStickerPlacedId}"]`);
+          if (el) el.style.display = '';
+        }
+      }
+
+      currentDraggingStickerType = null;
+      draggingStickerPlacedId = null;
+    }
+
+    function onStickerPointerCancel(e) {
+      onStickerPointerUp(e);
+    }
 
     function playStickerBookSequence() {
       const maskWrapper = document.getElementById('maskFocalWrapper');
@@ -4999,26 +5369,15 @@
         bookWrapper.classList.add('opened');
         playPageFlipSound();
         triggerHapticFeedback();
-
-        // 4. Remain open center-right for ~1.4s so child sees open book, then shrink to bottom-right corner
-        const t2 = setTimeout(() => {
-          bookWrapper.classList.remove('entering');
-          bookWrapper.classList.add('minimized-corner');
-
-          // Mask returns gracefully to center
-          if (maskWrapper) {
-            maskWrapper.classList.remove('shifted-for-stickers');
-          }
-
-          playMaskPopSound();
-          isTransitioningStickerBook = false;
-        }, 1400);
-        maskSequenceTimers.push(t2);
+        isTransitioningStickerBook = false;
       }, 900);
       maskSequenceTimers.push(t1);
     }
 
-    function handleStickerBookClick() {
+    function handleStickerBookClick(event) {
+      if (event && event.target && event.target.closest('.floating-sticker-item')) {
+        return;
+      }
       const bookWrapper = document.getElementById('stickerBookStageWrapper');
       const maskWrapper = document.getElementById('maskFocalWrapper');
       if (!bookWrapper || isTransitioningStickerBook) return;
@@ -5036,7 +5395,7 @@
         setTimeout(() => {
           isTransitioningStickerBook = false;
         }, 650);
-      } else if (bookWrapper.classList.contains('entering')) {
+      } else if (bookWrapper.classList.contains('entering') || bookWrapper.classList.contains('opened')) {
         isTransitioningStickerBook = true;
         bookWrapper.classList.remove('entering');
         bookWrapper.classList.add('minimized-corner');
