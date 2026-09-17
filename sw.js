@@ -1,5 +1,5 @@
 // Riley PWA Service Worker
-const CACHE_NAME = 'riley-pwa-v31';
+const CACHE_NAME = 'riley-pwa-v32';
 const PRECACHE_ASSETS = [
   './',
   './index.html',
@@ -55,6 +55,18 @@ const PRECACHE_ASSETS = [
   './assets/ChapstickBoxOpen.png',
   './assets/ChapstickBoxClosedCropped.png',
   './assets/ChapstickBoxCropped.png',
+  './assets/Sparkle1.png',
+  './assets/Sparkle2.png',
+  './assets/Sparkle3.png',
+  './assets/Sparkle4.png',
+  './assets/Sparkle 1.png',
+  './assets/Sparkle 2.png',
+  './assets/Sparkle 3.png',
+  './assets/Sparkle 4.png',
+  './assets/Sparkle%201.png',
+  './assets/Sparkle%202.png',
+  './assets/Sparkle%203.png',
+  './assets/Sparkle%204.png',
   './assets/BubblegumChapstick.png',
   './assets/StrawberryChapstick.png',
   './assets/BlueberryChapstick.png',

@@ -2199,29 +2199,88 @@
       50% { transform: translateX(-50%) scale(1.06); }
     }
 
-    /* Minimized Box Put-Away Cue (Pulsing glowing target) */
+    /* Minimized Box Put-Away Cue (Calm, subtle focus without box pulsing or heavy glow) */
     .chapstick-box-stage-wrapper.minimized-corner.target-put-away {
-      animation: boxPutAwayPulse 1.8s ease-in-out infinite;
+      transform: translate(-50%, -50%) scale(0.5);
+      filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.40));
     }
 
     .chapstick-box-stage-wrapper.minimized-corner.target-put-away .box-minimized-hint {
-      background: rgba(46, 16, 85, 0.95);
-      border-color: #ffd700;
-      color: #ffe066;
-      box-shadow: 0 0 16px rgba(255, 215, 0, 0.6);
-      animation: hintPulse 1.4s ease-in-out infinite;
+      background: rgba(28, 18, 52, 0.92);
+      border-color: rgba(255, 220, 100, 0.65);
+      color: #fff4cc;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+      animation: hintPulse 2.4s ease-in-out infinite;
     }
 
-    @keyframes boxPutAwayPulse {
+    /* Subtle Sparkle Cue Overlay around Closed Box */
+    .box-sparkles-overlay {
+      position: absolute;
+      inset: -12%;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+      z-index: 10;
+    }
+
+    .chapstick-box-stage-wrapper.minimized-corner.target-put-away .box-sparkles-overlay {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .box-sparkle-item {
+      position: absolute;
+      pointer-events: none;
+      opacity: 0;
+      transform-origin: center center;
+      filter: drop-shadow(0 0 8px rgba(255, 230, 120, 0.75));
+    }
+
+    .chapstick-box-stage-wrapper.minimized-corner.target-put-away .sparkle-item-1 {
+      top: 14%;
+      right: 14%;
+      width: 62px;
+      animation: subtleTwinkle 3.2s ease-in-out infinite;
+      animation-delay: 0s;
+    }
+
+    .chapstick-box-stage-wrapper.minimized-corner.target-put-away .sparkle-item-2 {
+      top: 18%;
+      left: 14%;
+      width: 46px;
+      animation: subtleTwinkle 3.2s ease-in-out infinite;
+      animation-delay: 0.8s;
+    }
+
+    .chapstick-box-stage-wrapper.minimized-corner.target-put-away .sparkle-item-3 {
+      top: 50%;
+      right: 8%;
+      width: 36px;
+      animation: subtleTwinkle 3.2s ease-in-out infinite;
+      animation-delay: 1.6s;
+    }
+
+    .chapstick-box-stage-wrapper.minimized-corner.target-put-away .sparkle-item-4 {
+      top: 54%;
+      left: 10%;
+      width: 38px;
+      animation: subtleTwinkle 3.2s ease-in-out infinite;
+      animation-delay: 2.4s;
+    }
+
+    @keyframes subtleTwinkle {
       0%, 100% {
-        filter: drop-shadow(0 0 14px rgba(255, 204, 0, 0.75))
-                drop-shadow(0 6px 18px rgba(0, 0, 0, 0.45));
-        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0;
+        transform: scale(0.3) rotate(0deg);
       }
-      50% {
-        filter: drop-shadow(0 0 28px rgba(255, 204, 0, 1))
-                drop-shadow(0 8px 22px rgba(0, 0, 0, 0.55));
-        transform: translate(-50%, -50%) scale(0.55);
+      30%, 65% {
+        opacity: 0.95;
+        transform: scale(1.06) rotate(15deg);
+      }
+      80% {
+        opacity: 0.15;
+        transform: scale(0.65) rotate(8deg);
       }
     }
 
@@ -3177,6 +3236,14 @@
                   <img id="chapstickBoxClosedImg" class="box-img-closed" src="assets/ChapstickBoxClosedCropped.png" alt="Closed Chapstick Box" draggable="false" />
                   <!-- Open Box Image -->
                   <img id="chapstickBoxOpenImg" class="box-img-open" src="assets/ChapstickBoxCropped.png" alt="Open Chapstick Box" draggable="false" />
+
+                  <!-- Subtle Sparkle Cue Overlay (Sparkles 1 through 4) -->
+                  <div class="box-sparkles-overlay" id="boxSparklesOverlay" aria-hidden="true">
+                    <img class="box-sparkle-item sparkle-item-1" src="assets/Sparkle1.png" alt="" draggable="false" />
+                    <img class="box-sparkle-item sparkle-item-2" src="assets/Sparkle2.png" alt="" draggable="false" />
+                    <img class="box-sparkle-item sparkle-item-3" src="assets/Sparkle3.png" alt="" draggable="false" />
+                    <img class="box-sparkle-item sparkle-item-4" src="assets/Sparkle4.png" alt="" draggable="false" />
+                  </div>
 
                   <!-- Minimized Corner Helper Badge -->
                   <div class="box-minimized-hint" id="boxMinimizedHint">
