@@ -3125,10 +3125,6 @@
                 <span>Home</span>
               </button>
 
-              <div class="game-header-badge" id="maskStepBadge">
-                <span id="maskStepBadgeText">Mask Decoration Game</span>
-              </div>
-
               <div class="game-top-actions">
                 <button class="game-top-btn-icon sound-toggle-btn" onclick="toggleSound()" title="Mute/Unmute Sound" aria-label="Toggle Sound">
                   <svg class="sound-icon-on" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -3141,9 +3137,8 @@
                     <line x1="17" y1="9" x2="23" y2="15"></line>
                   </svg>
                 </button>
-                <button class="game-top-btn" onclick="playMaskSceneSequence()" title="Replay Animation">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-                  <span>Replay</span>
+                <button class="game-top-btn-icon game-restart-btn" onclick="playMaskSceneSequence()" title="Restart Game" aria-label="Restart Game">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
                 </button>
               </div>
             </div>
@@ -3167,7 +3162,6 @@
                 <div class="selected-chapstick-stage-wrapper" id="selectedChapstickStageWrapper" onpointerdown="startChapstickDrag(event)">
                   <!-- Child-friendly Prompt Speech Bubble -->
                   <div class="mask-draw-prompt-bubble" id="maskDrawPromptBubble">
-                    <span class="prompt-icon">✨</span>
                     <span class="prompt-text">Rub the chapstick on the mask to add your scent!</span>
                   </div>
                   <div class="active-chapstick-inner" id="activeChapstickInner">
@@ -3221,6 +3215,14 @@
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            <!-- Accessible High-Contrast Step Instruction Text at Bottom of Preparation -->
+            <div class="game-bottom-instruction-bar" id="maskStepBadge" role="status" aria-live="polite" aria-atomic="true">
+              <div class="step-instruction-card">
+                <span class="step-instruction-dot" aria-hidden="true"></span>
+                <span class="step-instruction-text" id="maskStepBadgeText">Step 1: Pick a scent for your mask</span>
               </div>
             </div>
 
@@ -3913,6 +3915,22 @@
     let strokeScentDistance = 0;
     let scentPatternIndex = 0;
 
+    function updateMaskStep(text) {
+      const stepBadge = document.getElementById('maskStepBadge');
+      const stepBadgeText = document.getElementById('maskStepBadgeText');
+      if (stepBadgeText) {
+        stepBadgeText.textContent = text;
+      }
+      if (stepBadge) {
+        stepBadge.classList.remove('highlight-advance');
+        void stepBadge.offsetWidth;
+        stepBadge.classList.add('highlight-advance');
+        setTimeout(() => {
+          if (stepBadge) stepBadge.classList.remove('highlight-advance');
+        }, 650);
+      }
+    }
+
     function resetMaskScene() {
       clearMaskSequenceTimers();
       isTransitioningBox = false;
@@ -3937,7 +3955,6 @@
       const activeChapstick = document.getElementById('selectedChapstickStageWrapper');
       const promptBubble = document.getElementById('maskDrawPromptBubble');
       const canvas = document.getElementById('maskDrawCanvas');
-      const badgeText = document.getElementById('maskStepBadgeText');
 
       if (maskWrapper) {
         maskWrapper.classList.remove('moved-right');
@@ -3967,9 +3984,7 @@
         activeChapstick.style.transition = '';
       }
       if (promptBubble) {
-        const promptIcon = promptBubble.querySelector('.prompt-icon');
         const promptText = promptBubble.querySelector('.prompt-text');
-        if (promptIcon) promptIcon.textContent = '✨';
         if (promptText) promptText.textContent = 'Rub the chapstick on the mask to add your scent!';
         promptBubble.style.display = 'flex';
         promptBubble.style.opacity = '1';
@@ -3978,7 +3993,7 @@
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
       }
-      if (badgeText) badgeText.textContent = 'Mask Decoration Game';
+      updateMaskStep('Step 1: Pick a scent for your mask');
     }
 
     function playMaskSceneSequence() {
@@ -4052,7 +4067,6 @@
       const activeImg = document.getElementById('selectedChapstickImg');
       const activeBadge = document.getElementById('selectedChapstickBadge');
       const promptBubble = document.getElementById('maskDrawPromptBubble');
-      const badgeText = document.getElementById('maskStepBadgeText');
 
       // 1. Mark selected item and trigger sinking animation for the other 3
       if (tray) {
@@ -4105,16 +4119,14 @@
 
           // 6. Show friendly speech bubble prompt
           if (promptBubble) {
-            const promptIcon = promptBubble.querySelector('.prompt-icon');
             const promptText = promptBubble.querySelector('.prompt-text');
-            if (promptIcon) promptIcon.textContent = '✨';
             if (promptText) promptText.textContent = 'Rub the chapstick on the mask to add your scent!';
             promptBubble.style.display = 'flex';
             promptBubble.style.opacity = '1';
           }
 
-          // 7. Update header badge with encouraging prompt
-          if (badgeText) badgeText.textContent = `Use the chapstick to put a smell on your mask!`;
+          // 7. Update step instruction bar
+          updateMaskStep('Step 2: Rub the chapstick on the mask to add your scent');
 
           isTransitioningBox = false;
         }, 250);
@@ -4135,7 +4147,6 @@
         const blurOverlay = document.getElementById('maskDarkBlurOverlay');
         const activeChapstick = document.getElementById('selectedChapstickStageWrapper');
         const promptBubble = document.getElementById('maskDrawPromptBubble');
-        const badgeText = document.getElementById('maskStepBadgeText');
 
         // 1. Hide active floating chapstick and badges
         if (activeChapstick) {
@@ -4172,8 +4183,8 @@
               blurOverlay.classList.add('active');
             }
 
-            // Reset header badge
-            if (badgeText) badgeText.textContent = 'Choose Your Calming Scent';
+            // Reset step instruction bar to Step 1
+            updateMaskStep('Step 1: Pick a scent for your mask');
 
             isTransitioningBox = false;
           }, 650);
@@ -4368,9 +4379,8 @@
           boxWrapper.classList.remove('box-put-away-success');
         }, 600);
 
-        // Update header badge and box hint
-        const badgeText = document.getElementById('maskStepBadgeText');
-        if (badgeText) badgeText.textContent = 'Great job! Mask is scented and chapstick is put away.';
+        // Update step instruction bar and box hint
+        updateMaskStep('Step 3: Mask is scented and chapstick is put away');
 
         const boxHint = document.getElementById('boxMinimizedHint');
         if (boxHint) {
@@ -4423,13 +4433,10 @@
       // Re-show prompt bubble (with put away cue if scented, or drawing cue if not)
       const promptBubble = document.getElementById('maskDrawPromptBubble');
       if (promptBubble) {
-        const promptIcon = promptBubble.querySelector('.prompt-icon');
         const promptText = promptBubble.querySelector('.prompt-text');
         if (isScentApplied) {
-          if (promptIcon) promptIcon.textContent = '📦';
           if (promptText) promptText.textContent = 'Drag the chapstick back over the box to put it away!';
         } else {
-          if (promptIcon) promptIcon.textContent = '✨';
           if (promptText) promptText.textContent = 'Rub the chapstick on the mask to add your scent!';
         }
         setTimeout(() => {
@@ -4607,15 +4614,12 @@
 
       const data = chapstickData[currentSelectedFlavor];
       if (!data) return;
-      const badgeText = document.getElementById('maskStepBadgeText');
-      if (badgeText) badgeText.textContent = `Mask is scented! Drag the chapstick back over the box to put it away.`;
+      updateMaskStep('Step 3: Drag the chapstick back over the box to put it away');
 
       // Update prompt bubble content
       const promptBubble = document.getElementById('maskDrawPromptBubble');
       if (promptBubble) {
-        const promptIcon = promptBubble.querySelector('.prompt-icon');
         const promptText = promptBubble.querySelector('.prompt-text');
-        if (promptIcon) promptIcon.textContent = '📦';
         if (promptText) promptText.textContent = 'Drag the chapstick back over the box to put it away!';
       }
 
