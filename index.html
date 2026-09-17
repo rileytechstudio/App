@@ -1963,7 +1963,7 @@
       flex-direction: column;
       width: 100%;
       height: 100%;
-      background: #dfe6ff url('assets/MaskBackground.png') center bottom / cover no-repeat;
+      background: #dfe6ff url('assets/Background Image.png') center bottom / cover no-repeat;
       overflow: hidden;
     }
 
@@ -3067,7 +3067,7 @@
             <div class="game-stage-wrapper" id="maskStageWrapper">
               <div class="mask-stage" id="maskStage">
                 <!-- Layer 1: Mask Hospital Background -->
-                <img class="game-layer" src="assets/MaskBackground.png" alt="Mask Background" style="z-index: 1;" />
+                <img class="game-layer" src="assets/Background Image.png" alt="Mask Background" style="z-index: 1;" />
 
                 <!-- Layer 2: Focal Mask (Enlarged by 50%, starts dead center, moves smoothly to the right) -->
                 <div class="mask-focal-wrapper" id="maskFocalWrapper">
@@ -3654,10 +3654,18 @@
       if (isSoundMuted) return;
       if (!maskBgMusic) {
         try {
-          maskBgMusic = new Audio('assets/MusicBG.mp3');
-          maskBgMusic.loop = true;
-          maskBgMusic.volume = 0.20;
-        } catch (e) {}
+          maskBgMusic = new Audio('assets/Music BG 7.mp3');
+        } catch (e) {
+          maskBgMusic = new Audio('assets/MusicBG7.mp3');
+        }
+        maskBgMusic.loop = true;
+        maskBgMusic.volume = 0.20;
+        maskBgMusic.onerror = function() {
+          if (maskBgMusic && !maskBgMusic.src.includes('MusicBG7.mp3')) {
+            maskBgMusic.src = 'assets/MusicBG7.mp3';
+            maskBgMusic.play().catch(function() {});
+          }
+        };
       }
       if (maskBgMusic) {
         maskBgMusic.play().catch(() => {});
