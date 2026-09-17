@@ -1615,17 +1615,17 @@ public struct IVGameView: View {
         
         Circle()
             .strokeBorder(
-                isTapeOverTarget ? Color(red: 0/255, green: 255/255, blue: 180/255) : Color(red: 0/255, green: 229/255, blue: 255/255).opacity(0.6),
+                Color(red: 0/255, green: 229/255, blue: 255/255).opacity(isTapeOverTarget ? 0.95 : 0.6),
                 style: StrokeStyle(lineWidth: 3, dash: [8, 6])
             )
             .background(
                 Circle()
-                    .fill(isTapeOverTarget ? Color(red: 0/255, green: 255/255, blue: 180/255).opacity(0.22) : Color(red: 0/255, green: 229/255, blue: 255/255).opacity(0.08))
+                    .fill(Color(red: 0/255, green: 229/255, blue: 255/255).opacity(isTapeOverTarget ? 0.22 : 0.08))
             )
             .frame(width: zoneWidth, height: zoneHeight)
             .position(x: centerX, y: centerY)
             .shadow(
-                color: isTapeOverTarget ? Color(red: 0/255, green: 255/255, blue: 180/255).opacity(0.85) : Color(red: 0/255, green: 229/255, blue: 255/255).opacity(0.35),
+                color: Color(red: 0/255, green: 229/255, blue: 255/255).opacity(isTapeOverTarget ? 0.85 : 0.35),
                 radius: isTapeOverTarget ? 24 : 12
             )
             .scaleEffect(isTapeOverTarget ? 1.06 : 1.0)
