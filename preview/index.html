@@ -928,6 +928,11 @@
         padding: 8px 18px;
         font-size: 13.5px;
       }
+      .person-replay-btn {
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 64px);
+        padding: 8px 22px;
+        font-size: 13.5px;
+      }
     }
 
     .game-stage-wrapper {
@@ -3299,19 +3304,19 @@
       50% { opacity: 1; transform: translate(-50%, -50%) scale(1.15) rotate(25deg); }
     }
 
-    /* Replay Button in Person Scene */
+    /* Replay Button in Person Scene - Positioned cleanly above the bottom step instruction bar */
     .person-replay-btn {
       position: absolute;
-      bottom: 28px;
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 72px);
       left: 50%;
       transform: translateX(-50%);
       z-index: 55;
-      padding: 12px 28px;
+      padding: 10px 26px;
       background: rgba(20, 14, 44, 0.88);
       border: 2px solid rgba(255, 255, 255, 0.6);
       border-radius: 999px;
       color: #ffffff;
-      font-size: clamp(15px, 2vw, 18px);
+      font-size: clamp(14px, 1.8vw, 17px);
       font-weight: 700;
       cursor: pointer;
       box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5);
