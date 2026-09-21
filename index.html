@@ -3233,6 +3233,146 @@
       transform: translateX(-50%) scale(0.96);
     }
 
+    /* ========================================================= */
+    /* LEFT-SIDE GUIDED BREATHING TIMER & RHYTHM PULSE          */
+    /* ========================================================= */
+
+    .person-timer-stage-wrapper {
+      position: absolute;
+      left: 23%;
+      top: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      z-index: 25;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .person-timer-stage-wrapper.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    /* Guided Breathing Rhythm: Inhale (expanding) and Exhale (contracting) */
+    .person-timer-stage-wrapper.inhale {
+      transform: translate(-50%, -50%) scale(1.14);
+      transition: transform 1.0s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .person-timer-stage-wrapper.exhale {
+      transform: translate(-50%, -50%) scale(0.96);
+      transition: transform 1.0s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Soft glowing breathing halo behind timer */
+    .person-timer-halo {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      transform: translate(-50%, -50%) scale(0.9);
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.45) 0%, rgba(20, 184, 166, 0.15) 60%, transparent 80%);
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0;
+      transition: opacity 0.5s ease, transform 1.0s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .person-timer-stage-wrapper.inhale .person-timer-halo {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1.45);
+    }
+
+    .person-timer-stage-wrapper.exhale .person-timer-halo {
+      opacity: 0.35;
+      transform: translate(-50%, -50%) scale(1.05);
+    }
+
+    /* Timer Image */
+    .person-timer-img {
+      width: clamp(140px, 17vw, 210px);
+      height: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.35)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.45));
+      position: relative;
+      z-index: 2;
+      -webkit-user-drag: none;
+      transition: filter 0.3s ease;
+    }
+
+    .person-timer-stage-wrapper:hover .person-timer-img {
+      filter: drop-shadow(0 14px 30px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 24px rgba(83, 218, 173, 0.8));
+    }
+
+    /* Breathing Prompt Speech Bubble */
+    .person-timer-bubble {
+      position: absolute;
+      bottom: calc(100% + 14px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(16, 12, 38, 0.92);
+      border: 2px solid rgba(255, 255, 255, 0.7);
+      border-radius: 999px;
+      padding: 8px 18px;
+      white-space: nowrap;
+      color: #ffffff;
+      font-size: clamp(15px, 2.1vw, 19px);
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 14px rgba(16, 185, 129, 0.4);
+      z-index: 10;
+      pointer-events: none;
+      transition: all 0.35s ease;
+    }
+
+    /* Bubble pointer tail pointing down to timer */
+    .person-timer-bubble::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 7px;
+      border-style: solid;
+      border-color: rgba(16, 12, 38, 0.92) transparent transparent transparent;
+    }
+
+    /* Tap to Breathe Hint Badge */
+    .person-timer-badge {
+      position: absolute;
+      top: calc(100% + 10px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(20, 14, 44, 0.90);
+      border: 1.5px solid rgba(83, 198, 133, 0.65);
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 5px 14px;
+      border-radius: 999px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+    }
+
+    .person-timer-stage-wrapper.ready .person-timer-badge {
+      opacity: 1;
+      animation: hintPulse 2.2s ease-in-out infinite;
+    }
+
 
     
   
@@ -3862,6 +4002,18 @@
                   <img id="personStageImg" class="person-stage-img" src="assets/Person.png" alt="Child wearing your decorated mask" draggable="false" />
                   <canvas id="personMaskDrawCanvas" class="person-mask-draw-canvas" width="1366" height="1024"></canvas>
                   <div id="personPlacedStickersContainer" class="person-placed-stickers-container"></div>
+
+                  <!-- Left-Side Guided Breathing Timer -->
+                  <div class="person-timer-stage-wrapper" id="personTimerWrapper" onclick="triggerBreathingExercise()" title="Tap to breathe again">
+                    <div class="person-timer-bubble" id="personTimerBubble">
+                      <span class="timer-bubble-text" id="personTimerBubbleText">Breathe deeply for 3 seconds</span>
+                    </div>
+                    <div class="person-timer-halo" id="personTimerHalo"></div>
+                    <img id="personTimerImg" class="person-timer-img" src="assets/Timer1Cropped.png" alt="Breathing Timer" draggable="false" />
+                    <div class="person-timer-badge" id="personTimerBadge">
+                      <span>Tap to Breathe</span>
+                    </div>
+                  </div>
                   
                   <!-- Celebratory Sparkles Overlay -->
                   <div class="person-sparkles-overlay" id="personSparklesOverlay" aria-hidden="true">
@@ -4735,6 +4887,23 @@
       }
       const pStickersContainer = document.getElementById('personPlacedStickersContainer');
       if (pStickersContainer) pStickersContainer.innerHTML = '';
+
+      // Reset breathing exercise timer
+      if (typeof clearBreathingExerciseTimers === 'function') {
+        clearBreathingExerciseTimers();
+      }
+      const timerWrapper = document.getElementById('personTimerWrapper');
+      if (timerWrapper) {
+        timerWrapper.classList.remove('visible', 'inhale', 'exhale', 'ready');
+      }
+      const timerImg = document.getElementById('personTimerImg');
+      if (timerImg) {
+        timerImg.src = 'assets/Timer1Cropped.png';
+      }
+      const timerBubbleText = document.getElementById('personTimerBubbleText');
+      if (timerBubbleText) {
+        timerBubbleText.textContent = 'Breathe deeply for 3 seconds';
+      }
 
       updateMaskStep('Step 1: Pick a scent for your mask');
     }
@@ -5761,7 +5930,92 @@
       setTimeout(() => {
         personScene.classList.add('visible');
         personScene.setAttribute('aria-hidden', 'false');
+
+        // 7. Guided breathing exercise on the timer
+        setTimeout(() => {
+          triggerBreathingExercise();
+        }, 400);
       }, 350);
+    }
+
+    // =========================================================
+    // GUIDED BREATHING TIMER LOGIC (Person Scene)
+    // 3-second deep breathing exercise:
+    // 0s: Timer 1 (clean face), bubble: "Breathe deeply for 3 seconds"
+    // 1s: Timer 2 (green slice 1), inhale expansion, bubble: "Breathe in... (1)"
+    // 2s: Timer 3 (green slice 2), exhale contraction, bubble: "Breathe out... (2)"
+    // 3s: Timer 4 (full green slice), inhale expansion, bubble: "Breathe in... (3)"
+    // Complete: Timer 4, normal scale, bubble: "Great job!", badge: "Tap to Breathe"
+    // =========================================================
+    let breathingExerciseTimers = [];
+
+    function clearBreathingExerciseTimers() {
+      breathingExerciseTimers.forEach(t => clearTimeout(t));
+      breathingExerciseTimers = [];
+    }
+
+    function triggerBreathingExercise() {
+      clearBreathingExerciseTimers();
+
+      const timerWrapper = document.getElementById('personTimerWrapper');
+      const timerImg = document.getElementById('personTimerImg');
+      const bubbleText = document.getElementById('personTimerBubbleText');
+      if (!timerWrapper || !timerImg || !bubbleText) return;
+
+      // Reset timer appearance and activate visible state
+      timerWrapper.classList.remove('inhale', 'exhale', 'ready');
+      timerWrapper.classList.add('visible');
+      timerImg.src = 'assets/Timer1Cropped.png';
+      bubbleText.textContent = 'Breathe deeply for 3 seconds';
+      updateMaskStep('Step 5: Breathe deeply for 3 seconds');
+      triggerHapticFeedback(false);
+
+      // Second 1 (0.8s): Inhale & Timer 2 (1st green wedge)
+      const t1 = setTimeout(() => {
+        timerImg.src = 'assets/Timer2Cropped.png';
+        timerWrapper.classList.remove('exhale');
+        timerWrapper.classList.add('inhale');
+        bubbleText.textContent = 'Breathe in... (1)';
+        updateMaskStep('Step 5: Breathe in... 1');
+        playMaskPopSound();
+        triggerHapticFeedback(false);
+      }, 800);
+      breathingExerciseTimers.push(t1);
+
+      // Second 2 (2.0s): Exhale & Timer 3 (2nd green wedge)
+      const t2 = setTimeout(() => {
+        timerImg.src = 'assets/Timer3Cropped.png';
+        timerWrapper.classList.remove('inhale');
+        timerWrapper.classList.add('exhale');
+        bubbleText.textContent = 'Breathe out... (2)';
+        updateMaskStep('Step 5: Breathe out... 2');
+        playMaskPopSound();
+        triggerHapticFeedback(false);
+      }, 2000);
+      breathingExerciseTimers.push(t2);
+
+      // Second 3 (3.2s): Inhale & Timer 4 (3rd full green wedge)
+      const t3 = setTimeout(() => {
+        timerImg.src = 'assets/Timer4Cropped.png';
+        timerWrapper.classList.remove('exhale');
+        timerWrapper.classList.add('inhale');
+        bubbleText.textContent = 'Breathe in... (3)';
+        updateMaskStep('Step 5: Breathe in... 3');
+        playMaskPopSound();
+        triggerHapticFeedback(false);
+      }, 3200);
+      breathingExerciseTimers.push(t3);
+
+      // Finished (4.4s): Return to normal resting scale, show "Great job!" & "Tap to Breathe" hint
+      const t4 = setTimeout(() => {
+        timerWrapper.classList.remove('inhale', 'exhale');
+        timerWrapper.classList.add('ready');
+        bubbleText.textContent = 'Great job!';
+        updateMaskStep('Step 5: Great job breathing with your mask');
+        playMaskPopSound();
+        triggerHapticFeedback(true);
+      }, 4400);
+      breathingExerciseTimers.push(t4);
     }
 
     // =========================================================
