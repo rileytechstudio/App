@@ -3560,6 +3560,95 @@
       transition: opacity 0.28s ease, transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
+    /* Narrative Intro Card: Story bridge before countdown */
+    .breathing-prompt-card.card-intro {
+      width: 100%;
+      max-width: min(540px, 90vw);
+      background: rgba(255, 255, 255, 0.96);
+      border: 3px solid #9d4edd;
+      border-radius: 28px;
+      padding: clamp(20px, 3.5vw, 32px) clamp(18px, 4vw, 36px);
+      box-shadow: 0 16px 48px rgba(10, 6, 30, 0.45), 0 0 28px rgba(157, 78, 221, 0.35);
+      text-align: center;
+      flex-direction: column;
+      gap: clamp(12px, 1.8vw, 18px);
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 5;
+    }
+
+    .breathing-prompt-card.card-intro.entering {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1) rotate(0deg);
+    }
+
+    .breathing-prompt-card.card-intro.leaving {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(1.08) rotate(0deg);
+      transition: opacity 0.25s ease, transform 0.28s ease-in;
+    }
+
+    .breathing-intro-tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5px 16px;
+      background: #ede4ff;
+      color: #6b21a8;
+      border-radius: 999px;
+      font-size: clamp(11px, 1.2vw, 13px);
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+    }
+
+    .breathing-intro-text {
+      color: #1a0f35;
+      font-size: clamp(16px, 2.2vw, 21px);
+      font-weight: 700;
+      line-height: 1.45;
+      margin: 0;
+      max-width: 480px;
+    }
+
+    .breathing-intro-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #9d4edd 0%, #7b2cbf 100%);
+      color: #ffffff;
+      font-size: clamp(14px, 1.8vw, 17px);
+      font-weight: 800;
+      padding: 12px 34px;
+      border-radius: 999px;
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 0 6px 20px rgba(123, 44, 191, 0.42);
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+      user-select: none;
+      touch-action: manipulation;
+    }
+
+    .breathing-intro-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 26px rgba(123, 44, 191, 0.6);
+      filter: brightness(1.08);
+    }
+
+    .breathing-intro-btn:active {
+      transform: scale(0.96);
+    }
+
+    .breathing-intro-hint {
+      color: #6d6387;
+      font-size: clamp(11px, 1.2vw, 13px);
+      font-weight: 600;
+      margin-top: -4px;
+    }
+
     /* READY State: Leveled for optimal reading accessibility (rotated +14.7deg) */
     .breathing-prompt-card.card-ready img {
       width: 100%;
@@ -4432,9 +4521,22 @@
                   </div>
                 </div>
 
-                <!-- Layer 10: Guided Breathing Prompt Overlay (Ready, Set, Breathe) -->
-                <div id="maskBreathingPromptOverlay" class="mask-breathing-prompt-overlay" aria-hidden="true" title="Tap to skip prompt">
+                <!-- Layer 10: Guided Breathing Prompt Overlay (Narrative Intro & Countdown) -->
+                <div id="maskBreathingPromptOverlay" class="mask-breathing-prompt-overlay" aria-hidden="true" title="Tap to continue">
                   <div class="breathing-prompt-stage">
+                    <!-- Narrative Intro Card: Story bridge before countdown -->
+                    <div id="promptCardIntro" class="breathing-prompt-card card-intro" onclick="event.stopPropagation(); if (typeof window.proceedFromMaskBreathingIntro === 'function') window.proceedFromMaskBreathingIntro();">
+                      <div class="breathing-intro-tag">Mask Decorated</div>
+                      <h2 class="breathing-intro-text">
+                        Now that our mask is decorated, our patient is ready to take deep breaths of the sleepy air.
+                      </h2>
+                      <button class="breathing-intro-btn" id="breathingIntroBtn" type="button" onclick="event.stopPropagation(); if (typeof window.proceedFromMaskBreathingIntro === 'function') window.proceedFromMaskBreathingIntro();" aria-label="Take deep breaths of sleepy air">
+                        <span>Take Deep Breaths</span>
+                      </button>
+                      <div class="breathing-intro-hint">Tap anywhere to begin</div>
+                    </div>
+
+                    <!-- Visual Countdown Cards: READY -> SET -> BREATHE -->
                     <div id="promptCardReady" class="breathing-prompt-card card-ready">
                       <img src="assets/ReadyCropped.png" alt="Ready" draggable="false" />
                     </div>
@@ -6395,9 +6497,9 @@
         personScene.classList.add('visible');
         personScene.setAttribute('aria-hidden', 'false');
 
-        // 7. Prompt countdown (READY -> SET -> BREATHE) then guided breathing exercise
+        // 7. Prompt countdown with narrative intro (Intro Card -> READY -> SET -> BREATHE) then guided breathing exercise
         setTimeout(() => {
-          startBreathingPromptCountdown(triggerBreathingExercise);
+          startBreathingPromptCountdown(triggerBreathingExercise, true);
         }, 400);
       }, 350);
     }
@@ -6417,13 +6519,16 @@
         overlay.setAttribute('aria-hidden', 'true');
         const cards = overlay.querySelectorAll('.breathing-prompt-card');
         cards.forEach(c => c.classList.remove('entering', 'leaving'));
+        const introCard = document.getElementById('promptCardIntro');
+        if (introCard) introCard.classList.remove('entering', 'leaving');
       }
     }
 
-    function startBreathingPromptCountdown(onComplete) {
+    function startBreathingPromptCountdown(onComplete, withIntro = false) {
       clearBreathingPromptTimers();
 
       const overlay = document.getElementById('maskBreathingPromptOverlay');
+      const cardIntro = document.getElementById('promptCardIntro');
       const cardReady = document.getElementById('promptCardReady');
       const cardSet = document.getElementById('promptCardSet');
       const cardBreathe = document.getElementById('promptCardBreathe');
@@ -6434,13 +6539,13 @@
       }
 
       // Reset card states
+      if (cardIntro) cardIntro.classList.remove('entering', 'leaving');
       cardReady.classList.remove('entering', 'leaving');
       cardSet.classList.remove('entering', 'leaving');
       cardBreathe.classList.remove('entering', 'leaving');
 
       overlay.classList.add('active');
       overlay.setAttribute('aria-hidden', 'false');
-      updateMaskStep('Step 4: Get ready to breathe with your mask');
 
       let completed = false;
       function finishPrompt() {
@@ -6452,63 +6557,122 @@
         }
       }
 
-      // Allow tapping anywhere on overlay to skip straight to breathing exercise
-      overlay.onclick = function() {
-        finishPrompt();
-      };
+      let inIntro = false;
 
-      // 1. "READY" springs in at +100ms
-      const t1 = setTimeout(() => {
-        playMaskPopSound();
-        triggerHapticFeedback(false);
-        cardReady.classList.add('entering');
-        updateMaskStep('Step 4: Ready...');
-      }, 100);
-      breathingPromptTimers.push(t1);
+      function runCountdownSequence() {
+        inIntro = false;
+        updateMaskStep('Step 4: Get ready to breathe with your mask');
 
-      // 2. "READY" leaves at +1050ms, "SET" springs in at +1250ms
-      const t2 = setTimeout(() => {
-        cardReady.classList.remove('entering');
-        cardReady.classList.add('leaving');
-
-        const t2b = setTimeout(() => {
-          cardReady.classList.remove('leaving');
+        // 1. "READY" springs in at +100ms
+        const t1 = setTimeout(() => {
           playMaskPopSound();
           triggerHapticFeedback(false);
-          cardSet.classList.add('entering');
-          updateMaskStep('Step 4: Set...');
-        }, 180);
-        breathingPromptTimers.push(t2b);
-      }, 1050);
-      breathingPromptTimers.push(t2);
+          cardReady.classList.add('entering');
+          updateMaskStep('Step 4: Ready...');
+        }, 100);
+        breathingPromptTimers.push(t1);
 
-      // 3. "SET" leaves at +2100ms, "BREATHE" springs in at +2300ms
-      const t3 = setTimeout(() => {
-        cardSet.classList.remove('entering');
-        cardSet.classList.add('leaving');
+        // 2. "READY" leaves at +1050ms, "SET" springs in at +1250ms
+        const t2 = setTimeout(() => {
+          cardReady.classList.remove('entering');
+          cardReady.classList.add('leaving');
 
-        const t3b = setTimeout(() => {
-          cardSet.classList.remove('leaving');
-          playMaskPopSound();
-          triggerHapticFeedback(true);
-          cardBreathe.classList.add('entering');
-          updateMaskStep('Step 4: Breathe!');
-        }, 180);
-        breathingPromptTimers.push(t3b);
-      }, 2100);
-      breathingPromptTimers.push(t3);
+          const t2b = setTimeout(() => {
+            cardReady.classList.remove('leaving');
+            playMaskPopSound();
+            triggerHapticFeedback(false);
+            cardSet.classList.add('entering');
+            updateMaskStep('Step 4: Set...');
+          }, 180);
+          breathingPromptTimers.push(t2b);
+        }, 1050);
+        breathingPromptTimers.push(t2);
 
-      // 4. "BREATHE" completes at +3500ms, transitions smoothly into timer
-      const t4 = setTimeout(() => {
-        cardBreathe.classList.remove('entering');
-        cardBreathe.classList.add('leaving');
+        // 3. "SET" leaves at +2100ms, "BREATHE" springs in at +2300ms
+        const t3 = setTimeout(() => {
+          cardSet.classList.remove('entering');
+          cardSet.classList.add('leaving');
 
-        const t4b = setTimeout(() => {
+          const t3b = setTimeout(() => {
+            cardSet.classList.remove('leaving');
+            playMaskPopSound();
+            triggerHapticFeedback(true);
+            cardBreathe.classList.add('entering');
+            updateMaskStep('Step 4: Breathe!');
+          }, 180);
+          breathingPromptTimers.push(t3b);
+        }, 2100);
+        breathingPromptTimers.push(t3);
+
+        // 4. "BREATHE" completes at +3500ms, transitions smoothly into timer
+        const t4 = setTimeout(() => {
+          cardBreathe.classList.remove('entering');
+          cardBreathe.classList.add('leaving');
+
+          const t4b = setTimeout(() => {
+            finishPrompt();
+          }, 250);
+          breathingPromptTimers.push(t4b);
+        }, 3500);
+        breathingPromptTimers.push(t4);
+      }
+
+      function proceedFromIntro() {
+        if (!inIntro) {
           finishPrompt();
-        }, 250);
-        breathingPromptTimers.push(t4b);
-      }, 3500);
-      breathingPromptTimers.push(t4);
+          return;
+        }
+        inIntro = false;
+        playMaskPopSound();
+        triggerHapticFeedback(false);
+        if (cardIntro) {
+          cardIntro.classList.remove('entering');
+          cardIntro.classList.add('leaving');
+        }
+        const tTrans = setTimeout(() => {
+          if (cardIntro) cardIntro.classList.remove('leaving');
+          runCountdownSequence();
+        }, 260);
+        breathingPromptTimers.push(tTrans);
+      }
+
+      window.proceedFromMaskBreathingIntro = proceedFromIntro;
+
+      if (withIntro && cardIntro) {
+        inIntro = true;
+        updateMaskStep('Our patient is ready to take deep breaths of sleepy air');
+        playMaskPopSound();
+        triggerHapticFeedback(false);
+
+        // Fade in intro card
+        const tIntro = setTimeout(() => {
+          cardIntro.classList.add('entering');
+        }, 80);
+        breathingPromptTimers.push(tIntro);
+
+        // Auto-advance after 6.5s if child doesn't tap
+        const tAuto = setTimeout(() => {
+          if (inIntro) {
+            proceedFromIntro();
+          }
+        }, 6500);
+        breathingPromptTimers.push(tAuto);
+
+        // Allow clicking the overlay during intro to proceed to countdown
+        overlay.onclick = function(e) {
+          if (inIntro) {
+            proceedFromIntro();
+          } else {
+            finishPrompt();
+          }
+        };
+      } else {
+        // No intro card requested (e.g. direct timer tap), run countdown directly
+        overlay.onclick = function() {
+          finishPrompt();
+        };
+        runCountdownSequence();
+      }
     }
 
     // =========================================================
