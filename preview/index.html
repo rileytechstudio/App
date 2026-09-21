@@ -2179,48 +2179,9 @@
       transform: translate(-50%, -50%) scale(0.48);
     }
 
-    /* Minimized Box Hint Badge */
+    /* Minimized Box Hint Badge - Deleted per request: no text bubbles under box container */
     .box-minimized-hint {
-      position: absolute;
-      bottom: -15%;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(20, 14, 42, 0.90);
-      border: 1.5px solid rgba(255, 255, 255, 0.45);
-      color: #ffffff;
-      font-size: 15px;
-      font-weight: 700;
-      padding: 6px 14px;
-      border-radius: 999px;
-      white-space: nowrap;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.35s ease;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
-    }
-
-    .chapstick-box-stage-wrapper.minimized-corner .box-minimized-hint {
-      opacity: 1;
-      animation: hintPulse 2.2s ease-in-out infinite;
-    }
-
-    @keyframes hintPulse {
-      0%, 100% { transform: translateX(-50%) scale(1); }
-      50% { transform: translateX(-50%) scale(1.06); }
-    }
-
-    /* Minimized Box Put-Away Cue (Calm, subtle focus without box pulsing or heavy glow) */
-    .chapstick-box-stage-wrapper.minimized-corner.target-put-away {
-      transform: translate(-50%, -50%) scale(0.5);
-      filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.40));
-    }
-
-    .chapstick-box-stage-wrapper.minimized-corner.target-put-away .box-minimized-hint {
-      background: rgba(28, 18, 52, 0.92);
-      border-color: rgba(255, 220, 100, 0.65);
-      color: #fff4cc;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
-      animation: hintPulse 2.4s ease-in-out infinite;
+      display: none !important;
     }
 
     /* Subtle Sparkle Cue Overlay around Closed Box */
@@ -2678,7 +2639,7 @@
       text-align: center;
       pointer-events: none;
       z-index: 30;
-      display: flex;
+      display: none;
       flex-direction: column;
       align-items: center;
       justify-content: center;
@@ -4442,11 +4403,6 @@
                     <img class="box-sparkle-item sparkle-item-4" src="assets/Sparkle4.png" alt="" draggable="false" />
                   </div>
 
-                  <!-- Minimized Corner Helper Badge -->
-                  <div class="box-minimized-hint" id="boxMinimizedHint">
-                    <span>Change Scent</span>
-                  </div>
-
                   <!-- Floating Chapsticks Tray (Reveals all 4 chapstick assets floating above the opening) -->
                   <div class="floating-chapsticks-tray" id="floatingChapsticksTray">
                     <div class="floating-chapstick-item item-strawberry" data-flavor="strawberry" onclick="selectChapstick('strawberry', event)" style="--item-index: 0;" title="Strawberry">
@@ -5429,10 +5385,6 @@
         const dragWrapper = document.getElementById('activeStickerDragWrapper');
         if (dragWrapper) dragWrapper.classList.remove('visible');
       }
-      const boxHint = document.getElementById('boxMinimizedHint');
-      if (boxHint) {
-        boxHint.innerHTML = '<span>Change Scent</span>';
-      }
       if (blurOverlay) {
         blurOverlay.classList.remove('active');
       }
@@ -5627,10 +5579,6 @@
           if (boxWrapper) {
             boxWrapper.classList.remove('target-put-away', 'box-drag-hover', 'box-put-away-success');
             boxWrapper.classList.add('minimized-corner');
-            const boxHint = document.getElementById('boxMinimizedHint');
-            if (boxHint) {
-              boxHint.innerHTML = '<span>Change Scent</span>';
-            }
           }
 
           // 4. Remove dark blur overlay so the mask is clear again
@@ -5920,11 +5868,6 @@
           updateMaskStep('Step 4: Decorate your mask with stickers');
           playStickerBookSequence();
         }, 600);
-
-        const boxHint = document.getElementById('boxMinimizedHint');
-        if (boxHint) {
-          boxHint.innerHTML = '<span>Tap to Change</span>';
-        }
       }, 450);
     }
 
@@ -5969,20 +5912,20 @@
         chapstickWrapper.classList.remove('spring-back');
       }, 520);
 
-      // Re-show prompt bubble (with put away cue if scented, or drawing cue if not)
+      // Re-show prompt bubble only during drawing (Step 2); in Step 3, instruction is in bottom status bar
       const promptBubble = document.getElementById('maskDrawPromptBubble');
       if (promptBubble) {
-        const promptText = promptBubble.querySelector('.prompt-text');
-        if (isScentApplied) {
-          if (promptText) promptText.textContent = 'Drag the chapstick back over the box to put it away!';
-        } else {
+        if (!isScentApplied) {
+          const promptText = promptBubble.querySelector('.prompt-text');
           if (promptText) promptText.textContent = 'Rub the chapstick on the mask to add your scent!';
+          setTimeout(() => {
+            if (!isDraggingChapstick && !isScentApplied && chapstickWrapper.classList.contains('visible')) {
+              promptBubble.style.display = 'flex';
+            }
+          }, 450);
+        } else {
+          promptBubble.style.display = 'none';
         }
-        setTimeout(() => {
-          if (!isDraggingChapstick && chapstickWrapper.classList.contains('visible')) {
-            promptBubble.style.display = 'flex';
-          }
-        }, 450);
       }
     }
 
@@ -6201,21 +6144,16 @@
       if (!data) return;
       updateMaskStep('Step 3: Drag the chapstick back over the box to put it away');
 
-      // Update prompt bubble content
+      // Hide floating prompt bubble in Step 3 so instruction only appears in bottom status bar
       const promptBubble = document.getElementById('maskDrawPromptBubble');
       if (promptBubble) {
-        const promptText = promptBubble.querySelector('.prompt-text');
-        if (promptText) promptText.textContent = 'Drag the chapstick back over the box to put it away!';
+        promptBubble.style.display = 'none';
       }
 
-      // Add target glow & hint to the minimized closed box
+      // Add target cue to the minimized closed box
       const boxWrapper = document.getElementById('chapstickBoxStageWrapper');
       if (boxWrapper && boxWrapper.classList.contains('minimized-corner')) {
         boxWrapper.classList.add('target-put-away');
-        const boxHint = document.getElementById('boxMinimizedHint');
-        if (boxHint) {
-          boxHint.innerHTML = '<span>Put Away Here</span>';
-        }
       }
 
       triggerHapticFeedback(true);
