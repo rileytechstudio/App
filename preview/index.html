@@ -3075,8 +3075,16 @@
       transition: opacity 0.4s ease;
     }
 
-    /* Hide bottom instruction bar only while breathing timer is counting down to eliminate redundancy with timer bubble */
+    /* Hide bottom instruction bar while breathing timer is counting down to eliminate redundancy with timer bubble */
     .game-bottom-instruction-bar.timer-active {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
+
+    /* End prompts when celebration screen (You Did It banner) comes up */
+    .game-bottom-instruction-bar.celebration-active {
+      display: none !important;
       opacity: 0 !important;
       visibility: hidden !important;
       pointer-events: none !important;
@@ -5364,7 +5372,7 @@
       if (finishBtn) finishBtn.classList.remove('visible');
       const stepBadge = document.getElementById('maskStepBadge');
       if (stepBadge) {
-        stepBadge.classList.remove('timer-active');
+        stepBadge.classList.remove('timer-active', 'celebration-active');
         stepBadge.style.display = '';
       }
       const personCanvas = document.getElementById('personMaskDrawCanvas');
@@ -6882,7 +6890,7 @@
       // Bring back comforting bottom prompts as the patient falls asleep
       const stepBadge = document.getElementById('maskStepBadge');
       if (stepBadge) {
-        stepBadge.classList.remove('timer-active');
+        stepBadge.classList.remove('timer-active', 'celebration-active');
         stepBadge.style.display = '';
       }
       updateMaskStep('Step 5: Rest your eyes and breathe gently');
@@ -6911,10 +6919,10 @@
       breathingExerciseTimers.push(b3);
 
       // 5. Full black holds; trigger celebration overlay with You Did It 2, confetti & chime (at +4.0s)
+      // End bottom prompts as celebration screen comes up
       const b4 = setTimeout(() => {
         povOverlay.classList.add('asleep');
         showMaskSuccessCelebration();
-        updateMaskStep('All Done! You did it! Tap to play again');
       }, 4000);
       breathingExerciseTimers.push(b4);
     }
@@ -7074,6 +7082,12 @@
       if (overlay) {
         overlay.classList.add('visible');
         overlay.setAttribute('aria-hidden', 'false');
+      }
+      // End bottom instruction prompts as the celebration screen with You Did It banner comes up
+      const stepBadge = document.getElementById('maskStepBadge');
+      if (stepBadge) {
+        stepBadge.classList.add('celebration-active');
+        stepBadge.style.display = 'none';
       }
       startMaskConfetti();
       playYouDidItChimeSound();
