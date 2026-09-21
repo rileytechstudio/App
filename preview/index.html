@@ -3268,13 +3268,13 @@
       100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
     }
 
-    /* Person Sparkles Overlay */
+    /* Person Sparkles Overlay - Concentrated precisely around the mask contour */
     .person-sparkles-overlay {
       position: absolute;
-      top: 40%;
-      left: 64%;
-      width: 240px;
-      height: 240px;
+      top: 49.4%;
+      left: 64.6%;
+      width: 205px;
+      height: 195px;
       transform: translate(-50%, -50%);
       pointer-events: none;
       z-index: 5;
@@ -3282,21 +3282,21 @@
 
     .person-sparkle {
       position: absolute;
-      width: clamp(24px, 3.5vw, 44px);
+      width: clamp(20px, 2.5vw, 32px);
       height: auto;
       object-fit: contain;
-      filter: drop-shadow(0 0 10px rgba(255, 230, 100, 0.9));
+      filter: drop-shadow(0 0 8px rgba(255, 230, 100, 0.95));
       animation: personSparkleTwinkle 2.6s ease-in-out infinite;
     }
 
-    .person-sparkle.sparkle-1 { top: 10%; left: 20%; animation-delay: 0s; }
-    .person-sparkle.sparkle-2 { top: 15%; right: 15%; animation-delay: 0.6s; }
-    .person-sparkle.sparkle-3 { bottom: 25%; left: 10%; animation-delay: 1.2s; }
-    .person-sparkle.sparkle-4 { bottom: 20%; right: 20%; animation-delay: 1.8s; }
+    .person-sparkle.sparkle-1 { top: 24%; left: 74%; animation-delay: 0s; }
+    .person-sparkle.sparkle-2 { top: 51%; left: 100%; animation-delay: 0.65s; }
+    .person-sparkle.sparkle-3 { top: 90%; left: 44%; animation-delay: 1.3s; }
+    .person-sparkle.sparkle-4 { top: 45%; left: 0%; animation-delay: 1.95s; }
 
     @keyframes personSparkleTwinkle {
-      0%, 100% { opacity: 0.2; transform: scale(0.6) rotate(0deg); }
-      50% { opacity: 1; transform: scale(1.15) rotate(25deg); }
+      0%, 100% { opacity: 0.2; transform: translate(-50%, -50%) scale(0.6) rotate(0deg); }
+      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.15) rotate(25deg); }
     }
 
     /* Replay Button in Person Scene */
@@ -6112,12 +6112,16 @@
       if (angleDeg > 0) {
         ctx.save();
         ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        const startRad = -Math.PI / 2; // 12 o'clock
-        const clampedAngle = Math.min(Math.max(angleDeg, 0), 330);
-        const endRad = -Math.PI / 2 + (clampedAngle * Math.PI / 180);
-        ctx.arc(cx, cy, dialR - 0.5, startRad, endRad, false);
-        ctx.closePath();
+        const clampedAngle = Math.min(Math.max(angleDeg, 0), 360);
+        if (clampedAngle >= 360) {
+          ctx.arc(cx, cy, dialR - 0.5, 0, Math.PI * 2, false);
+        } else {
+          ctx.moveTo(cx, cy);
+          const startRad = -Math.PI / 2; // 12 o'clock
+          const endRad = -Math.PI / 2 + (clampedAngle * Math.PI / 180);
+          ctx.arc(cx, cy, dialR - 0.5, startRad, endRad, false);
+          ctx.closePath();
+        }
         ctx.fillStyle = '#7BFE5D';
         ctx.fill();
 
@@ -6125,7 +6129,7 @@
         ctx.fillStyle = '#483D3A';
         for (let hIdx = 0; hIdx < 12; hIdx++) {
           const tAng = hIdx * 30;
-          if (tAng <= clampedAngle + 2 || (hIdx === 0 && clampedAngle > 0)) {
+          if (clampedAngle >= 360 || tAng <= clampedAngle + 2 || (hIdx === 0 && clampedAngle > 0)) {
             const rad = tAng * Math.PI / 180;
             ctx.save();
             ctx.translate(cx, cy);
@@ -6143,8 +6147,8 @@
         ctx.restore();
       }
 
-      // 3. Draw Hand needle pointing at angleDeg (or at 30 deg when idle)
-      const handDeg = angleDeg > 0 ? angleDeg : 30;
+      // 3. Draw Hand needle pointing at angleDeg (or at 30 deg when idle; 360 deg points straight up at 0 / 12 o'clock)
+      const handDeg = angleDeg >= 360 ? 0 : (angleDeg > 0 ? angleDeg : 30);
       ctx.save();
       ctx.translate(cx, cy);
       ctx.rotate(handDeg * Math.PI / 180);
@@ -6188,7 +6192,7 @@
       playBreathingAudio();
       triggerHapticFeedback(false);
 
-      // Start 60 FPS continuous angle sweep over 10.0s (0 to 330 deg)
+      // Start 60 FPS continuous angle sweep over 10.0s (0 to 360 deg)
       const totalDuration = 10000; // 10.0 seconds matching SlowBreath2
       breathingStartTime = null;
 
@@ -6196,7 +6200,7 @@
         if (!breathingStartTime) breathingStartTime = now;
         const elapsed = now - breathingStartTime;
         const progress = Math.min(elapsed / totalDuration, 1.0);
-        const currentAngle = progress * 330.0;
+        const currentAngle = progress * 360.0;
 
         drawTimerDial(currentAngle);
 
@@ -6212,15 +6216,18 @@
             timerImg.src = 'assets/Timer2_5Cropped.png';
           } else if (currentAngle < 330) {
             timerImg.src = 'assets/Timer3_5Cropped.png';
-          } else {
+          } else if (currentAngle < 355) {
             timerImg.src = 'assets/Timer4Cropped.png';
+          } else {
+            timerImg.src = 'assets/Timer5Cropped.png';
           }
         }
 
         if (progress < 1.0) {
           breathingAnimFrame = requestAnimationFrame(animateDial);
         } else {
-          drawTimerDial(330);
+          drawTimerDial(360);
+          if (timerImg) timerImg.src = 'assets/Timer5Cropped.png';
           breathingAnimFrame = null;
         }
       }
@@ -6295,7 +6302,7 @@
         timerWrapper.classList.add('ready');
         bubbleText.textContent = 'Great job!';
         updateMaskStep('Step 5: Great job breathing with your mask');
-        if (timerImg) timerImg.src = 'assets/Timer4Cropped.png';
+        if (timerImg) timerImg.src = 'assets/Timer5Cropped.png';
         playMaskPopSound();
         triggerHapticFeedback(true);
       }, 10000);
