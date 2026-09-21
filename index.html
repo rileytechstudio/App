@@ -3511,6 +3511,122 @@
     }
 
     /* ========================================================= */
+    /* MASK GUIDED BREATHING PROMPT OVERLAY (READY, SET, BREATHE)*/
+    /* ========================================================= */
+    .mask-breathing-prompt-overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(10, 6, 26, 0.44);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 35;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+
+    .mask-breathing-prompt-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    .breathing-prompt-stage {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 90%;
+      max-width: 680px;
+      height: 380px;
+      margin: 0 auto;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .breathing-prompt-card {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.25) rotate(0deg);
+      transition: opacity 0.28s ease, transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* READY State: Leveled for optimal reading accessibility (rotated +14.7deg) */
+    .breathing-prompt-card.card-ready img {
+      width: 100%;
+      max-width: 440px;
+      height: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.65)) drop-shadow(0 0 18px rgba(0, 198, 255, 0.5));
+    }
+
+    .breathing-prompt-card.card-ready.entering {
+      opacity: 1;
+      transform: scale(1) rotate(14.7deg);
+    }
+
+    .breathing-prompt-card.card-ready.leaving {
+      opacity: 0;
+      transform: scale(1.18) rotate(14.7deg);
+      transition: opacity 0.2s ease, transform 0.24s ease-in;
+    }
+
+    /* SET State: Leveled for optimal reading accessibility (rotated -15.2deg) */
+    .breathing-prompt-card.card-set img {
+      width: 100%;
+      max-width: 380px;
+      height: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.65)) drop-shadow(0 0 18px rgba(0, 198, 255, 0.5));
+    }
+
+    .breathing-prompt-card.card-set.entering {
+      opacity: 1;
+      transform: scale(1) rotate(-15.2deg);
+    }
+
+    .breathing-prompt-card.card-set.leaving {
+      opacity: 0;
+      transform: scale(1.18) rotate(-15.2deg);
+      transition: opacity 0.2s ease, transform 0.24s ease-in;
+    }
+
+    /* BREATHE State: Horizontal with gentle breathing pulse */
+    .breathing-prompt-card.card-breathe img {
+      width: 100%;
+      max-width: 580px;
+      height: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 14px 32px rgba(0, 0, 0, 0.7)) drop-shadow(0 0 26px rgba(72, 202, 228, 0.55));
+      animation: breathePromptPulse 1.2s ease-in-out infinite;
+    }
+
+    @keyframes breathePromptPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .breathing-prompt-card.card-breathe.entering {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+    }
+
+    .breathing-prompt-card.card-breathe.leaving {
+      opacity: 0;
+      transform: scale(1.12) rotate(0deg);
+      transition: opacity 0.3s ease, transform 0.3s ease-out;
+    }
+
+    /* ========================================================= */
     /* LEFT-SIDE GUIDED BREATHING TIMER & RHYTHM PULSE          */
     /* ========================================================= */
 
@@ -4286,7 +4402,7 @@
                   <div id="personPlacedStickersContainer" class="person-placed-stickers-container"></div>
 
                   <!-- Left-Side Guided Breathing Timer -->
-                  <div class="person-timer-stage-wrapper" id="personTimerWrapper" onclick="triggerBreathingExercise()" title="Tap to breathe again">
+                  <div class="person-timer-stage-wrapper" id="personTimerWrapper" onclick="startBreathingPromptCountdown(triggerBreathingExercise)" title="Tap to breathe again">
                     <div class="person-timer-bubble" id="personTimerBubble">
                       <span class="timer-bubble-text" id="personTimerBubbleText">Breathe deeply for 3 seconds</span>
                     </div>
@@ -4313,6 +4429,21 @@
                     <div class="pov-eyelid-curtain pov-eyelid-bottom" id="povEyelidBottom" aria-hidden="true"></div>
                     <img class="pov-blink-closed-img" id="povBlinkClosedImg" src="assets/Blink Closed.png" alt="" draggable="false" />
                     <div class="pov-fade-to-black" id="povFadeToBlack" aria-hidden="true"></div>
+                  </div>
+                </div>
+
+                <!-- Layer 10: Guided Breathing Prompt Overlay (Ready, Set, Breathe) -->
+                <div id="maskBreathingPromptOverlay" class="mask-breathing-prompt-overlay" aria-hidden="true" title="Tap to skip prompt">
+                  <div class="breathing-prompt-stage">
+                    <div id="promptCardReady" class="breathing-prompt-card card-ready">
+                      <img src="assets/ReadyCropped.png" alt="Ready" draggable="false" />
+                    </div>
+                    <div id="promptCardSet" class="breathing-prompt-card card-set">
+                      <img src="assets/SetCropped.png" alt="Set" draggable="false" />
+                    </div>
+                    <div id="promptCardBreathe" class="breathing-prompt-card card-breathe">
+                      <img src="assets/BreatheCropped.png" alt="Breathe" draggable="false" />
+                    </div>
                   </div>
                 </div>
 
@@ -6264,11 +6395,120 @@
         personScene.classList.add('visible');
         personScene.setAttribute('aria-hidden', 'false');
 
-        // 7. Guided breathing exercise on the timer
+        // 7. Prompt countdown (READY -> SET -> BREATHE) then guided breathing exercise
         setTimeout(() => {
-          triggerBreathingExercise();
+          startBreathingPromptCountdown(triggerBreathingExercise);
         }, 400);
       }, 350);
+    }
+
+    // =========================================================
+    // GUIDED BREATHING PROMPT COUNTDOWN (READY, SET, BREATHE)
+    // Accessible visual prompt sequence prior to timer breathing
+    // =========================================================
+    let breathingPromptTimers = [];
+
+    function clearBreathingPromptTimers() {
+      breathingPromptTimers.forEach(t => clearTimeout(t));
+      breathingPromptTimers = [];
+      const overlay = document.getElementById('maskBreathingPromptOverlay');
+      if (overlay) {
+        overlay.classList.remove('active');
+        overlay.setAttribute('aria-hidden', 'true');
+        const cards = overlay.querySelectorAll('.breathing-prompt-card');
+        cards.forEach(c => c.classList.remove('entering', 'leaving'));
+      }
+    }
+
+    function startBreathingPromptCountdown(onComplete) {
+      clearBreathingPromptTimers();
+
+      const overlay = document.getElementById('maskBreathingPromptOverlay');
+      const cardReady = document.getElementById('promptCardReady');
+      const cardSet = document.getElementById('promptCardSet');
+      const cardBreathe = document.getElementById('promptCardBreathe');
+
+      if (!overlay || !cardReady || !cardSet || !cardBreathe) {
+        if (typeof onComplete === 'function') onComplete();
+        return;
+      }
+
+      // Reset card states
+      cardReady.classList.remove('entering', 'leaving');
+      cardSet.classList.remove('entering', 'leaving');
+      cardBreathe.classList.remove('entering', 'leaving');
+
+      overlay.classList.add('active');
+      overlay.setAttribute('aria-hidden', 'false');
+      updateMaskStep('Step 4: Get ready to breathe with your mask');
+
+      let completed = false;
+      function finishPrompt() {
+        if (completed) return;
+        completed = true;
+        clearBreathingPromptTimers();
+        if (typeof onComplete === 'function') {
+          onComplete();
+        }
+      }
+
+      // Allow tapping anywhere on overlay to skip straight to breathing exercise
+      overlay.onclick = function() {
+        finishPrompt();
+      };
+
+      // 1. "READY" springs in at +100ms
+      const t1 = setTimeout(() => {
+        playMaskPopSound();
+        triggerHapticFeedback(false);
+        cardReady.classList.add('entering');
+        updateMaskStep('Step 4: Ready...');
+      }, 100);
+      breathingPromptTimers.push(t1);
+
+      // 2. "READY" leaves at +1050ms, "SET" springs in at +1250ms
+      const t2 = setTimeout(() => {
+        cardReady.classList.remove('entering');
+        cardReady.classList.add('leaving');
+
+        const t2b = setTimeout(() => {
+          cardReady.classList.remove('leaving');
+          playMaskPopSound();
+          triggerHapticFeedback(false);
+          cardSet.classList.add('entering');
+          updateMaskStep('Step 4: Set...');
+        }, 180);
+        breathingPromptTimers.push(t2b);
+      }, 1050);
+      breathingPromptTimers.push(t2);
+
+      // 3. "SET" leaves at +2100ms, "BREATHE" springs in at +2300ms
+      const t3 = setTimeout(() => {
+        cardSet.classList.remove('entering');
+        cardSet.classList.add('leaving');
+
+        const t3b = setTimeout(() => {
+          cardSet.classList.remove('leaving');
+          playMaskPopSound();
+          triggerHapticFeedback(true);
+          cardBreathe.classList.add('entering');
+          updateMaskStep('Step 4: Breathe!');
+        }, 180);
+        breathingPromptTimers.push(t3b);
+      }, 2100);
+      breathingPromptTimers.push(t3);
+
+      // 4. "BREATHE" completes at +3500ms, transitions smoothly into timer
+      const t4 = setTimeout(() => {
+        cardBreathe.classList.remove('entering');
+        cardBreathe.classList.add('leaving');
+
+        const t4b = setTimeout(() => {
+          finishPrompt();
+        }, 250);
+        breathingPromptTimers.push(t4b);
+      }, 3500);
+      breathingPromptTimers.push(t4);
     }
 
     // =========================================================
@@ -6325,6 +6565,7 @@
     }
 
     function clearBreathingExerciseTimers() {
+      clearBreathingPromptTimers();
       if (breathingAnimFrame) {
         cancelAnimationFrame(breathingAnimFrame);
         breathingAnimFrame = null;

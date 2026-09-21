@@ -1,12 +1,15 @@
 // Riley PWA Service Worker
-const CACHE_NAME = 'riley-pwa-v44';
+const CACHE_NAME = 'riley-pwa-v45';
 const PRECACHE_ASSETS = [
   './',
   './index.html',
-  './manifest.webmanifest',
-  './assets/icons/icon-192.png',
-  './assets/icons/icon-512.png',
-  './assets/icons/apple-touch-icon.png',
+  './manifest.json',
+  './assets/Background Image.png',
+  './assets/Background%20Image.png',
+  './assets/BackgroundImage.png',
+  './assets/Mask 2.png',
+  './assets/Mask%202.png',
+  './assets/Mask2.png',
   './assets/Person.png',
   './assets/Blink Open.png',
   './assets/Blink%20Open.png',
@@ -14,6 +17,12 @@ const PRECACHE_ASSETS = [
   './assets/Blink Closed.png',
   './assets/Blink%20Closed.png',
   './assets/BlinkClosed.png',
+  './assets/Ready.png',
+  './assets/ReadyCropped.png',
+  './assets/Set.png',
+  './assets/SetCropped.png',
+  './assets/Breathe.png',
+  './assets/BreatheCropped.png',
   './assets/You Did It 2.png',
   './assets/You%20Did%20It%202.png',
   './assets/YouDidIt2.png',
