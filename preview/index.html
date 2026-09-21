@@ -3399,18 +3399,23 @@
       transform: translate(-50%, -50%) scale(1.05);
     }
 
-    /* Timer Image */
+    /* Timer Canvas & Fallback Image */
+    .person-timer-canvas,
     .person-timer-img {
       width: clamp(140px, 17vw, 210px);
       height: auto;
+      aspect-ratio: 369 / 416;
       object-fit: contain;
       filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.35)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.45));
       position: relative;
       z-index: 2;
+      user-select: none;
+      -webkit-user-select: none;
       -webkit-user-drag: none;
       transition: filter 0.3s ease;
     }
 
+    .person-timer-stage-wrapper:hover .person-timer-canvas,
     .person-timer-stage-wrapper:hover .person-timer-img {
       filter: drop-shadow(0 14px 30px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 24px rgba(83, 218, 173, 0.8));
     }
@@ -4089,7 +4094,8 @@
                       <span class="timer-bubble-text" id="personTimerBubbleText">Breathe deeply for 3 seconds</span>
                     </div>
                     <div class="person-timer-halo" id="personTimerHalo"></div>
-                    <img id="personTimerImg" class="person-timer-img" src="assets/Timer1Cropped.png" alt="Breathing Timer" draggable="false" />
+                    <canvas id="personTimerCanvas" class="person-timer-canvas" width="369" height="416" aria-label="Breathing Timer"></canvas>
+                    <img id="personTimerImg" class="person-timer-img" src="assets/Timer1Cropped.png" alt="Breathing Timer" draggable="false" style="display: none;" />
                     <div class="person-timer-badge" id="personTimerBadge">
                       <span>Tap to Breathe</span>
                     </div>
@@ -4164,6 +4170,7 @@
         if (maskBgMusic) maskBgMusic.pause();
         stopClothWipeSound(true);
         stopClothWetWipeSound(true);
+        if (typeof stopBreathingAudio === 'function') stopBreathingAudio();
       } else {
         const screenGame = document.getElementById('screenIVGame');
         const screenMask = document.getElementById('screenMaskGame');
@@ -4973,6 +4980,9 @@
       const timerWrapper = document.getElementById('personTimerWrapper');
       if (timerWrapper) {
         timerWrapper.classList.remove('visible', 'inhale', 'exhale', 'ready');
+      }
+      if (typeof drawTimerDial === 'function') {
+        drawTimerDial(0);
       }
       const timerImg = document.getElementById('personTimerImg');
       if (timerImg) {
@@ -6017,19 +6027,143 @@
     }
 
     // =========================================================
-    // GUIDED BREATHING TIMER LOGIC (Person Scene)
-    // 3-second deep breathing exercise:
-    // 0s: Timer 1 (clean face), bubble: "Breathe deeply for 3 seconds"
-    // 1s: Timer 2 (green slice 1), inhale expansion, bubble: "Breathe in... (1)"
-    // 2s: Timer 3 (green slice 2), exhale contraction, bubble: "Breathe out... (2)"
-    // 3s: Timer 4 (full green slice), inhale expansion, bubble: "Breathe in... (3)"
-    // Complete: Timer 4, normal scale, bubble: "Great job!", badge: "Tap to Breathe"
+    // GUIDED BREATHING TIMER & AUDIO LOGIC (Person Scene)
+    // Continuous 60 FPS smooth green dial fill & hand sweep
+    // Synchronized with SlowBreath2.mp3 audio envelope (10.0s):
+    // 0.0s – 0.4s: Ready state, Timer 1 (0° green), "Breathe deeply for 3 seconds"
+    // 0.4s – 2.0s: Breath 1 Inhale, pulse expand, "Breathe in... (1)"
+    // 2.0s – 3.6s: Breath 1 Exhale, pulse contract, "Breathe out... (1)", reaches 120° (Timer 3)
+    // 3.8s – 5.6s: Breath 2 Inhale, pulse expand, "Breathe in... (2)"
+    // 5.6s – 7.4s: Breath 2 Exhale, pulse contract, "Breathe out... (2)", passes 210° (Timer 2.5)
+    // 7.6s – 9.2s: Breath 3 Inhale, pulse expand, "Breathe in... (3)", passes 300° (Timer 3.5)
+    // 9.2s – 10.0s: Breath 3 Exhale & Settle, reaches 330° (Timer 4), "Breathe out... (3)"
+    // 10.0s: Complete, normal scale, "Great job!", "Tap to Breathe" hint badge
     // =========================================================
     let breathingExerciseTimers = [];
+    let breathingAnimFrame = null;
+    let breathingStartTime = null;
+    let breathingAudio = null;
+    let timerBaseCleanImg = null;
+
+    function initTimerCanvas() {
+      if (!timerBaseCleanImg) {
+        timerBaseCleanImg = new Image();
+        timerBaseCleanImg.src = 'assets/TimerBaseClean.png';
+        timerBaseCleanImg.onload = function() {
+          drawTimerDial(0);
+        };
+      } else {
+        drawTimerDial(0);
+      }
+    }
+
+    function playBreathingAudio() {
+      if (isSoundMuted) return;
+      try {
+        if (!breathingAudio) {
+          breathingAudio = new Audio('assets/SlowBreath2.mp3');
+          breathingAudio.volume = 0.88;
+        } else {
+          breathingAudio.currentTime = 0;
+        }
+        breathingAudio.play().catch(e => console.log('Breathing audio playback:', e));
+      } catch (err) {
+        console.warn('Audio error:', err);
+      }
+    }
+
+    function stopBreathingAudio() {
+      if (breathingAudio) {
+        breathingAudio.pause();
+        breathingAudio.currentTime = 0;
+      }
+    }
 
     function clearBreathingExerciseTimers() {
+      if (breathingAnimFrame) {
+        cancelAnimationFrame(breathingAnimFrame);
+        breathingAnimFrame = null;
+      }
       breathingExerciseTimers.forEach(t => clearTimeout(t));
       breathingExerciseTimers = [];
+      stopBreathingAudio();
+    }
+
+    function drawTimerDial(angleDeg) {
+      const canvas = document.getElementById('personTimerCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const w = 369;
+      const h = 416;
+      const cx = 186.0;
+      const cy = 231.3;
+      const dialR = 136.5;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // 1. Draw base clean timer casing & dial face
+      if (timerBaseCleanImg && timerBaseCleanImg.complete && timerBaseCleanImg.naturalWidth > 0) {
+        ctx.drawImage(timerBaseCleanImg, 0, 0, w, h);
+      }
+
+      // 2. Draw continuous green sector if angleDeg > 0
+      if (angleDeg > 0) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        const startRad = -Math.PI / 2; // 12 o'clock
+        const clampedAngle = Math.min(Math.max(angleDeg, 0), 330);
+        const endRad = -Math.PI / 2 + (clampedAngle * Math.PI / 180);
+        ctx.arc(cx, cy, dialR - 0.5, startRad, endRad, false);
+        ctx.closePath();
+        ctx.fillStyle = '#7BFE5D';
+        ctx.fill();
+
+        // Re-draw tick marks covered by green arc (dark brown #483D3A)
+        ctx.fillStyle = '#483D3A';
+        for (let hIdx = 0; hIdx < 12; hIdx++) {
+          const tAng = hIdx * 30;
+          if (tAng <= clampedAngle + 2 || (hIdx === 0 && clampedAngle > 0)) {
+            const rad = tAng * Math.PI / 180;
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(rad);
+            ctx.beginPath();
+            if (ctx.roundRect) {
+              ctx.roundRect(-2.25, -129, 4.5, 19, 2.25);
+            } else {
+              ctx.rect(-2.25, -129, 4.5, 19);
+            }
+            ctx.fill();
+            ctx.restore();
+          }
+        }
+        ctx.restore();
+      }
+
+      // 3. Draw Hand needle pointing at angleDeg (or at 30 deg when idle)
+      const handDeg = angleDeg > 0 ? angleDeg : 30;
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(handDeg * Math.PI / 180);
+
+      ctx.fillStyle = '#483D3A';
+      ctx.beginPath();
+      ctx.moveTo(-7, -10);
+      ctx.lineTo(-3.5, -114);
+      ctx.arc(0, -114, 3.5, Math.PI, 0, false);
+      ctx.lineTo(7, -10);
+      ctx.closePath();
+      ctx.fill();
+
+      // 4. Center pin (radius 14px circle)
+      ctx.beginPath();
+      ctx.arc(0, 0, 14, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
     }
 
     function triggerBreathingExercise() {
@@ -6038,62 +6172,134 @@
       const timerWrapper = document.getElementById('personTimerWrapper');
       const timerImg = document.getElementById('personTimerImg');
       const bubbleText = document.getElementById('personTimerBubbleText');
-      if (!timerWrapper || !timerImg || !bubbleText) return;
+      if (!timerWrapper || !bubbleText) return;
+
+      initTimerCanvas();
 
       // Reset timer appearance and activate visible state
       timerWrapper.classList.remove('inhale', 'exhale', 'ready');
       timerWrapper.classList.add('visible');
-      timerImg.src = 'assets/Timer1Cropped.png';
+      if (timerImg) timerImg.src = 'assets/Timer1Cropped.png';
       bubbleText.textContent = 'Breathe deeply for 3 seconds';
       updateMaskStep('Step 5: Breathe deeply for 3 seconds');
+      drawTimerDial(0);
+
+      // Play soothing SlowBreath2 breathing guide audio
+      playBreathingAudio();
       triggerHapticFeedback(false);
 
-      // Second 1 (0.8s): Inhale & Timer 2 (1st green wedge)
+      // Start 60 FPS continuous angle sweep over 10.0s (0 to 330 deg)
+      const totalDuration = 10000; // 10.0 seconds matching SlowBreath2
+      breathingStartTime = null;
+
+      function animateDial(now) {
+        if (!breathingStartTime) breathingStartTime = now;
+        const elapsed = now - breathingStartTime;
+        const progress = Math.min(elapsed / totalDuration, 1.0);
+        const currentAngle = progress * 330.0;
+
+        drawTimerDial(currentAngle);
+
+        // Keep fallback img in sync with user assets
+        if (timerImg) {
+          if (currentAngle < 30) {
+            timerImg.src = 'assets/Timer1Cropped.png';
+          } else if (currentAngle < 120) {
+            timerImg.src = 'assets/Timer2Cropped.png';
+          } else if (currentAngle < 210) {
+            timerImg.src = 'assets/Timer3Cropped.png';
+          } else if (currentAngle < 300) {
+            timerImg.src = 'assets/Timer2_5Cropped.png';
+          } else if (currentAngle < 330) {
+            timerImg.src = 'assets/Timer3_5Cropped.png';
+          } else {
+            timerImg.src = 'assets/Timer4Cropped.png';
+          }
+        }
+
+        if (progress < 1.0) {
+          breathingAnimFrame = requestAnimationFrame(animateDial);
+        } else {
+          drawTimerDial(330);
+          breathingAnimFrame = null;
+        }
+      }
+      breathingAnimFrame = requestAnimationFrame(animateDial);
+
+      // --- BREATH 1 ---
+      // 0.4s: Inhale 1
       const t1 = setTimeout(() => {
-        timerImg.src = 'assets/Timer2Cropped.png';
         timerWrapper.classList.remove('exhale');
         timerWrapper.classList.add('inhale');
         bubbleText.textContent = 'Breathe in... (1)';
         updateMaskStep('Step 5: Breathe in... 1');
-        playMaskPopSound();
         triggerHapticFeedback(false);
-      }, 800);
+      }, 400);
       breathingExerciseTimers.push(t1);
 
-      // Second 2 (2.0s): Exhale & Timer 3 (2nd green wedge)
+      // 2.0s: Exhale 1
       const t2 = setTimeout(() => {
-        timerImg.src = 'assets/Timer3Cropped.png';
         timerWrapper.classList.remove('inhale');
         timerWrapper.classList.add('exhale');
-        bubbleText.textContent = 'Breathe out... (2)';
-        updateMaskStep('Step 5: Breathe out... 2');
-        playMaskPopSound();
+        bubbleText.textContent = 'Breathe out... (1)';
+        updateMaskStep('Step 5: Breathe out... 1');
         triggerHapticFeedback(false);
       }, 2000);
       breathingExerciseTimers.push(t2);
 
-      // Second 3 (3.2s): Inhale & Timer 4 (3rd full green wedge)
+      // --- BREATH 2 ---
+      // 3.8s: Inhale 2
       const t3 = setTimeout(() => {
-        timerImg.src = 'assets/Timer4Cropped.png';
+        timerWrapper.classList.remove('exhale');
+        timerWrapper.classList.add('inhale');
+        bubbleText.textContent = 'Breathe in... (2)';
+        updateMaskStep('Step 5: Breathe in... 2');
+        triggerHapticFeedback(false);
+      }, 3800);
+      breathingExerciseTimers.push(t3);
+
+      // 5.6s: Exhale 2
+      const t4 = setTimeout(() => {
+        timerWrapper.classList.remove('inhale');
+        timerWrapper.classList.add('exhale');
+        bubbleText.textContent = 'Breathe out... (2)';
+        updateMaskStep('Step 5: Breathe out... 2');
+        triggerHapticFeedback(false);
+      }, 5600);
+      breathingExerciseTimers.push(t4);
+
+      // --- BREATH 3 ---
+      // 7.6s: Inhale 3
+      const t5 = setTimeout(() => {
         timerWrapper.classList.remove('exhale');
         timerWrapper.classList.add('inhale');
         bubbleText.textContent = 'Breathe in... (3)';
         updateMaskStep('Step 5: Breathe in... 3');
-        playMaskPopSound();
         triggerHapticFeedback(false);
-      }, 3200);
-      breathingExerciseTimers.push(t3);
+      }, 7600);
+      breathingExerciseTimers.push(t5);
 
-      // Finished (4.4s): Return to normal resting scale, show "Great job!" & "Tap to Breathe" hint
-      const t4 = setTimeout(() => {
+      // 9.2s: Exhale 3 & Settle
+      const t6 = setTimeout(() => {
+        timerWrapper.classList.remove('inhale');
+        timerWrapper.classList.add('exhale');
+        bubbleText.textContent = 'Breathe out... (3)';
+        updateMaskStep('Step 5: Breathe out... 3');
+        triggerHapticFeedback(false);
+      }, 9200);
+      breathingExerciseTimers.push(t6);
+
+      // 10.0s: Completed & Celebration
+      const t7 = setTimeout(() => {
         timerWrapper.classList.remove('inhale', 'exhale');
         timerWrapper.classList.add('ready');
         bubbleText.textContent = 'Great job!';
         updateMaskStep('Step 5: Great job breathing with your mask');
+        if (timerImg) timerImg.src = 'assets/Timer4Cropped.png';
         playMaskPopSound();
         triggerHapticFeedback(true);
-      }, 4400);
-      breathingExerciseTimers.push(t4);
+      }, 10000);
+      breathingExerciseTimers.push(t7);
     }
 
     // =========================================================
