@@ -3496,6 +3496,101 @@
     }
 
     /* ========================================================= */
+    /* MASK GAME SUCCESS CELEBRATION OVERLAY (YOU DID IT 2)      */
+    /* ========================================================= */
+    .mask-success-overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 60;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.45s ease;
+    }
+
+    .mask-success-overlay.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .mask-confetti-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .mask-success-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      max-width: 540px;
+      width: 90%;
+      text-align: center;
+      transform: scale(0.82);
+      transition: transform 0.48s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .mask-success-overlay.visible .mask-success-content {
+      transform: scale(1);
+    }
+
+    .mask-you-did-it-img {
+      width: 100%;
+      max-width: 500px;
+      height: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 10px 28px rgba(0, 0, 0, 0.85));
+      user-select: none;
+      -webkit-user-drag: none;
+      animation: maskYouDidItFloat 3.2s ease-in-out infinite;
+    }
+
+    @keyframes maskYouDidItFloat {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-7px) rotate(-0.5deg); }
+    }
+
+    .mask-btn-replay {
+      background: linear-gradient(135deg, #9d4edd 0%, #7b2cbf 100%);
+      border: 2.5px solid rgba(255, 230, 100, 0.95);
+      color: #ffffff;
+      font-size: clamp(15px, 2vw, 18px);
+      font-weight: 800;
+      padding: 13px 38px;
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: 0 0 24px rgba(255, 230, 100, 0.45), 0 8px 24px rgba(0, 0, 0, 0.7);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+      animation: replayPillPulse 2.4s ease-in-out infinite;
+      user-select: none;
+      touch-action: manipulation;
+    }
+
+    .mask-btn-replay:hover {
+      transform: scale(1.06);
+      filter: brightness(1.12);
+      box-shadow: 0 0 32px rgba(255, 230, 100, 0.7), 0 10px 28px rgba(0, 0, 0, 0.8);
+    }
+
+    .mask-btn-replay:active {
+      transform: scale(0.96);
+    }
+
+    /* ========================================================= */
     /* LEFT-SIDE GUIDED BREATHING TIMER & RHYTHM PULSE          */
     /* ========================================================= */
 
@@ -4280,10 +4375,16 @@
                     <div class="pov-fade-to-black" id="povFadeToBlack" aria-hidden="true"></div>
                   </div>
 
-                  <!-- Kid-friendly Replay / Decorate Again Button -->
-                  <button class="person-replay-btn" id="personReplayBtn" onclick="playMaskSceneSequence()" aria-label="Decorate another mask">
-                    <span>Decorate Again</span>
-                  </button>
+                  <!-- Layer 11: Success Celebration Overlay (You Did It 2 + Confetti + Chime) -->
+                  <div id="maskSuccessOverlay" class="mask-success-overlay" aria-hidden="true" onclick="playMaskSceneSequence()">
+                    <canvas id="maskConfettiCanvas" class="mask-confetti-canvas"></canvas>
+                    <div class="mask-success-content" onclick="event.stopPropagation()">
+                      <img class="mask-you-did-it-img" src="assets/YouDidIt2Cropped.png" alt="You Did It!" draggable="false" />
+                      <button class="mask-btn-replay" id="personReplayBtn" onclick="playMaskSceneSequence()" aria-label="Decorate another mask">
+                        <span>Decorate Again</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -4342,6 +4443,7 @@
         stopClothWipeSound(true);
         stopClothWetWipeSound(true);
         if (typeof stopBreathingAudio === 'function') stopBreathingAudio();
+        if (typeof stopYouDidItChimeSound === 'function') stopYouDidItChimeSound(true);
       } else {
         const screenGame = document.getElementById('screenIVGame');
         const screenMask = document.getElementById('screenMaskGame');
@@ -4734,6 +4836,8 @@
         stopClothWipeSound(true);
         stopClothWetWipeSound(true);
         stopYouDidItSound(true);
+        if (typeof stopYouDidItChimeSound === 'function') stopYouDidItChimeSound(true);
+        if (typeof stopMaskConfetti === 'function') stopMaskConfetti();
         playMaskBackgroundMusic();
         playMaskSceneSequence();
       } else if (screenName === 'iv-start') {
@@ -4742,6 +4846,8 @@
         if (statusSpan) statusSpan.textContent = 'IV Start Procedure Active • Complete interactive steps';
         stopMaskBackgroundMusic();
         resetMaskScene();
+        if (typeof stopYouDidItChimeSound === 'function') stopYouDidItChimeSound(true);
+        if (typeof stopMaskConfetti === 'function') stopMaskConfetti();
         playIVBackgroundMusic();
         playIVIntroSequence();
       } else {
@@ -4753,6 +4859,8 @@
         stopClothWipeSound(true);
         stopClothWetWipeSound(true);
         stopYouDidItSound(true);
+        if (typeof stopYouDidItChimeSound === 'function') stopYouDidItChimeSound(true);
+        if (typeof stopMaskConfetti === 'function') stopMaskConfetti();
         if (screenName === 'preparations') {
           screenPrep.classList.add('active');
           if (select) select.value = 'preparations';
@@ -5173,6 +5281,19 @@
       const replayBtn = document.getElementById('personReplayBtn');
       if (replayBtn) {
         replayBtn.classList.remove('glow-pulse');
+      }
+
+      // Reset Mask Success Celebration Overlay & Confetti
+      if (typeof stopMaskConfetti === 'function') {
+        stopMaskConfetti();
+      }
+      if (typeof stopYouDidItChimeSound === 'function') {
+        stopYouDidItChimeSound(true);
+      }
+      const successOverlay = document.getElementById('maskSuccessOverlay');
+      if (successOverlay) {
+        successOverlay.classList.remove('visible');
+        successOverlay.setAttribute('aria-hidden', 'true');
       }
 
       updateMaskStep('Step 1: Pick a scent for your mask');
@@ -6269,6 +6390,12 @@
       breathingExerciseTimers.forEach(t => clearTimeout(t));
       breathingExerciseTimers = [];
       stopBreathingAudio();
+      if (typeof stopYouDidItChimeSound === 'function') {
+        stopYouDidItChimeSound(true);
+      }
+      if (typeof stopMaskConfetti === 'function') {
+        stopMaskConfetti();
+      }
     }
 
     function drawTimerDial(angleDeg) {
@@ -6538,12 +6665,11 @@
       }, 2500);
       breathingExerciseTimers.push(b3);
 
-      // 5. Full black holds; enable replay tap anywhere & reveal gentle glowing replay button (at +4.0s)
+      // 5. Full black holds; trigger celebration overlay with You Did It 2, confetti & chime (at +4.0s)
       const b4 = setTimeout(() => {
         povOverlay.classList.add('asleep');
-        const replayBtn = document.getElementById('personReplayBtn');
-        if (replayBtn) replayBtn.classList.add('glow-pulse');
-        updateMaskStep('All Done! Sweet dreams! Tap to play again');
+        showMaskSuccessCelebration();
+        updateMaskStep('All Done! You did it! Tap to play again');
       }, 4000);
       breathingExerciseTimers.push(b4);
     }
@@ -6554,6 +6680,158 @@
       if (povOverlay.classList.contains('asleep')) {
         playMaskSceneSequence();
       }
+    }
+
+    // =========================================================
+    // MASK GAME SUCCESS CELEBRATION (YOU DID IT 2 + CONFETTI + CHIME)
+    // =========================================================
+    let youDidItChimeAudio = null;
+    let maskConfettiAnimationId = null;
+    const MASK_CONFETTI_COLORS = [
+      '#FF4D6D', // Bright Pink
+      '#FFB703', // Sunny Gold
+      '#00C6FF', // Electric Cyan
+      '#9D4EDD', // Riley Purple
+      '#06D6A0', // Mint Green
+      '#FF9E00', // Bright Orange
+      '#48CAE4'  // Sky Blue
+    ];
+
+    function playYouDidItChimeSound() {
+      if (isSoundMuted) return;
+      try {
+        if (!youDidItChimeAudio) {
+          youDidItChimeAudio = new Audio('assets/YouDidItChime.mp3');
+          youDidItChimeAudio.preload = 'auto';
+          youDidItChimeAudio.volume = 0.92;
+        } else {
+          youDidItChimeAudio.currentTime = 0;
+        }
+        youDidItChimeAudio.play().catch(err => {
+          console.log('You Did It Chime audio playback waiting for user gesture or error:', err);
+        });
+      } catch (err) {
+        console.warn('You Did It Chime audio error:', err);
+      }
+    }
+
+    function stopYouDidItChimeSound(reset = false) {
+      try {
+        if (youDidItChimeAudio && !youDidItChimeAudio.paused) {
+          youDidItChimeAudio.pause();
+        }
+        if (reset && youDidItChimeAudio) {
+          youDidItChimeAudio.currentTime = 0;
+        }
+      } catch (err) {}
+    }
+
+    function startMaskConfetti() {
+      const canvas = document.getElementById('maskConfettiCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = 1366;
+      const h = 1024;
+      canvas.width = w;
+      canvas.height = h;
+
+      const particles = [];
+      const particleCount = 110;
+
+      for (let i = 0; i < particleCount; i++) {
+        const isBurst = i < 55;
+        const angle = isBurst ? Math.random() * Math.PI * 2 : 0;
+        const speed = isBurst ? Math.random() * 14 + 5 : 0;
+        particles.push({
+          x: isBurst ? w / 2 + (Math.random() - 0.5) * 220 : Math.random() * w,
+          y: isBurst ? h / 2 + (Math.random() - 0.5) * 90 : Math.random() * -h,
+          w: Math.random() * 12 + 10,
+          h: Math.random() * 20 + 12,
+          color: MASK_CONFETTI_COLORS[Math.floor(Math.random() * MASK_CONFETTI_COLORS.length)],
+          rotation: Math.random() * 360,
+          rotationSpeed: (Math.random() - 0.5) * 8,
+          vx: isBurst ? Math.cos(angle) * speed : (Math.random() - 0.5) * 2.5,
+          vy: isBurst ? Math.sin(angle) * speed - 2.5 : Math.random() * 3.2 + 2.5,
+          gravity: 0.18,
+          drag: isBurst ? 0.94 : 0.99,
+          wobble: Math.random() * Math.PI * 2,
+          wobbleSpeed: Math.random() * 0.09 + 0.03,
+          isCircle: Math.random() > 0.78
+        });
+      }
+
+      function render() {
+        ctx.clearRect(0, 0, w, h);
+
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          p.vx *= p.drag;
+          p.vy = p.vy * p.drag + p.gravity;
+          p.x += p.vx + Math.sin(p.wobble) * 2;
+          p.y += p.vy;
+          p.rotation += p.rotationSpeed;
+          p.wobble += p.wobbleSpeed;
+
+          // Recycle when falling below stage
+          if (p.y > h + 40) {
+            p.y = -30;
+            p.x = Math.random() * w;
+            p.vy = Math.random() * 3.2 + 2.5;
+            p.vx = (Math.random() - 0.5) * 2.5;
+            p.drag = 0.99;
+          }
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rotation * Math.PI) / 180);
+          ctx.scale(Math.cos(p.wobble), 1);
+
+          ctx.fillStyle = p.color;
+          if (p.isCircle) {
+            ctx.beginPath();
+            ctx.arc(0, 0, p.w / 2, 0, Math.PI * 2);
+            ctx.fill();
+          } else {
+            ctx.beginPath();
+            const rw = p.w;
+            const rh = p.h;
+            if (ctx.roundRect) {
+              ctx.roundRect(-rw / 2, -rh / 2, rw, rh, 3);
+            } else {
+              ctx.rect(-rw / 2, -rh / 2, rw, rh);
+            }
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+
+        maskConfettiAnimationId = requestAnimationFrame(render);
+      }
+
+      if (maskConfettiAnimationId) cancelAnimationFrame(maskConfettiAnimationId);
+      maskConfettiAnimationId = requestAnimationFrame(render);
+    }
+
+    function stopMaskConfetti() {
+      if (maskConfettiAnimationId) {
+        cancelAnimationFrame(maskConfettiAnimationId);
+        maskConfettiAnimationId = null;
+      }
+      const canvas = document.getElementById('maskConfettiCanvas');
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    function showMaskSuccessCelebration() {
+      const overlay = document.getElementById('maskSuccessOverlay');
+      if (overlay) {
+        overlay.classList.add('visible');
+        overlay.setAttribute('aria-hidden', 'false');
+      }
+      startMaskConfetti();
+      playYouDidItChimeSound();
     }
 
     // =========================================================

@@ -1,5 +1,5 @@
 // Riley PWA Service Worker
-const CACHE_NAME = 'riley-pwa-v43';
+const CACHE_NAME = 'riley-pwa-v44';
 const PRECACHE_ASSETS = [
   './',
   './index.html',
@@ -14,6 +14,15 @@ const PRECACHE_ASSETS = [
   './assets/Blink Closed.png',
   './assets/Blink%20Closed.png',
   './assets/BlinkClosed.png',
+  './assets/You Did It 2.png',
+  './assets/You%20Did%20It%202.png',
+  './assets/YouDidIt2.png',
+  './assets/You Did It 2 Cropped.png',
+  './assets/You%20Did%20It%202%20Cropped.png',
+  './assets/YouDidIt2Cropped.png',
+  './assets/You Did It Chime.mp3',
+  './assets/You%20Did%20It%20Chime.mp3',
+  './assets/YouDidItChime.mp3',
   './assets/SlowBreath2.mp3',
   './assets/TimerBaseClean.png',
   './assets/Timer1Cropped.png',
