@@ -842,7 +842,7 @@
       bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
       left: 50%;
       transform: translateX(-50%);
-      z-index: 25;
+      z-index: 65;
       pointer-events: none; /* Strictly non-interactive caption; never confused with a button */
       user-select: none;
       -webkit-user-select: none;
@@ -851,6 +851,7 @@
       align-items: center;
       max-width: calc(100% - 36px);
       width: auto;
+      transition: opacity 0.35s ease, visibility 0.35s ease;
     }
 
     .step-instruction-card {
@@ -3163,8 +3164,8 @@
       transition: opacity 0.4s ease;
     }
 
-    /* When in Person Scene, hide bottom instruction bar to keep focus solely on breathing timer bubble */
-    .mask-stage.finishing ~ .game-bottom-instruction-bar {
+    /* Hide bottom instruction bar only while breathing timer is counting down to eliminate redundancy with timer bubble */
+    .game-bottom-instruction-bar.timer-active {
       opacity: 0 !important;
       visibility: hidden !important;
       pointer-events: none !important;
@@ -5471,7 +5472,10 @@
       const finishBtn = document.getElementById('maskFinishBtn');
       if (finishBtn) finishBtn.classList.remove('visible');
       const stepBadge = document.getElementById('maskStepBadge');
-      if (stepBadge) stepBadge.style.display = '';
+      if (stepBadge) {
+        stepBadge.classList.remove('timer-active');
+        stepBadge.style.display = '';
+      }
       const personCanvas = document.getElementById('personMaskDrawCanvas');
       if (personCanvas) {
         const pCtx = personCanvas.getContext('2d');
@@ -6505,9 +6509,12 @@
         finishBtn.classList.remove('visible');
       }
 
-      // 3. Hide bottom step instruction bar to eliminate redundant prompt and keep focus solely on breathing timer bubble
+      // 3. Hide bottom step instruction bar only during timer countdown to keep focus on breathing timer bubble
       const stepBadge = document.getElementById('maskStepBadge');
-      if (stepBadge) stepBadge.style.display = 'none';
+      if (stepBadge) {
+        stepBadge.classList.add('timer-active');
+        stepBadge.style.display = 'none';
+      }
 
       // 4. Project wax drawing canvas onto the person's mask
       if (personCanvas && maskCanvas) {
@@ -6897,6 +6904,11 @@
       if (timerImg) timerImg.src = 'assets/Timer1Cropped.png';
       bubbleText.textContent = 'Breathe deeply for 3 seconds';
       updateMaskStep('Step 5: Breathe deeply for 3 seconds');
+      const stepBadge = document.getElementById('maskStepBadge');
+      if (stepBadge) {
+        stepBadge.classList.add('timer-active');
+        stepBadge.style.display = 'none';
+      }
       drawTimerDial(0);
 
       // Play soothing SlowBreath2 breathing guide audio
@@ -7042,6 +7054,12 @@
       povOverlay.classList.remove('blink-closed', 'heavy-lids', 'fade-to-black', 'asleep');
       povOverlay.classList.add('active');
       povOverlay.setAttribute('aria-hidden', 'false');
+      // Bring back comforting bottom prompts as the patient falls asleep
+      const stepBadge = document.getElementById('maskStepBadge');
+      if (stepBadge) {
+        stepBadge.classList.remove('timer-active');
+        stepBadge.style.display = '';
+      }
       updateMaskStep('Step 5: Rest your eyes and breathe gently');
 
       // Timeline of the POV blink sequence:
