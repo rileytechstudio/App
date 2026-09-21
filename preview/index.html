@@ -3742,13 +3742,6 @@
       transform: scale(0.96);
     }
 
-    .breathing-intro-hint {
-      color: #6d6387;
-      font-size: clamp(11px, 1.2vw, 13px);
-      font-weight: 600;
-      margin-top: -4px;
-    }
-
     /* READY State: Leveled for optimal reading accessibility (rotated +14.7deg) */
     .breathing-prompt-card.card-ready img {
       width: 100%;
@@ -4610,10 +4603,9 @@
                       <h2 class="breathing-intro-text">
                         Now that our mask is decorated, our patient is ready to take deep breaths of the sleepy air.
                       </h2>
-                      <button class="breathing-intro-btn" id="breathingIntroBtn" type="button" onclick="event.stopPropagation(); if (typeof window.proceedFromMaskBreathingIntro === 'function') window.proceedFromMaskBreathingIntro();" aria-label="Take deep breaths of sleepy air">
-                        <span>Take Deep Breaths</span>
+                      <button class="breathing-intro-btn" id="breathingIntroBtn" type="button" onclick="event.stopPropagation(); if (typeof window.proceedFromMaskBreathingIntro === 'function') window.proceedFromMaskBreathingIntro();" aria-label="Tap to begin">
+                        <span>Tap to Begin</span>
                       </button>
-                      <div class="breathing-intro-hint">Tap anywhere to begin</div>
                     </div>
 
                     <!-- Visual Countdown Cards: READY -> SET -> BREATHE -->
