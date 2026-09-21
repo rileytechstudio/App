@@ -3488,7 +3488,7 @@
       text-align: center;
       flex-direction: column;
       gap: clamp(12px, 1.8vw, 18px);
-      cursor: pointer;
+      cursor: default;
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
       z-index: 5;
@@ -4399,10 +4399,10 @@
                 </div>
 
                 <!-- Layer 10: Guided Breathing Prompt Overlay (Narrative Intro & Countdown) -->
-                <div id="maskBreathingPromptOverlay" class="mask-breathing-prompt-overlay" aria-hidden="true" title="Tap to continue">
+                <div id="maskBreathingPromptOverlay" class="mask-breathing-prompt-overlay" aria-hidden="true">
                   <div class="breathing-prompt-stage">
                     <!-- Narrative Intro Card: Story bridge before countdown -->
-                    <div id="promptCardIntro" class="breathing-prompt-card card-intro" onclick="event.stopPropagation(); if (typeof window.proceedFromMaskBreathingIntro === 'function') window.proceedFromMaskBreathingIntro();">
+                    <div id="promptCardIntro" class="breathing-prompt-card card-intro">
                       <div class="breathing-intro-tag">Mask Decorated</div>
                       <h2 class="breathing-intro-text">
                         Now that our mask is decorated, our patient is ready to take deep breaths of the sleepy air.
@@ -6467,21 +6467,13 @@
         }, 80);
         breathingPromptTimers.push(tIntro);
 
-        // Auto-advance after 6.5s if child doesn't tap
-        const tAuto = setTimeout(() => {
-          if (inIntro) {
-            proceedFromIntro();
-          }
-        }, 6500);
-        breathingPromptTimers.push(tAuto);
-
-        // Allow clicking the overlay during intro to proceed to countdown
+        // Do not auto-advance: the game waits indefinitely until the user taps the button
         overlay.onclick = function(e) {
           if (inIntro) {
-            proceedFromIntro();
-          } else {
-            finishPrompt();
+            // Do not progress on background overlay clicks; user must tap the button
+            return;
           }
+          finishPrompt();
         };
       } else {
         // No intro card requested (e.g. direct timer tap), run countdown directly
