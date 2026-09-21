@@ -3305,7 +3305,7 @@
       bottom: 28px;
       left: 50%;
       transform: translateX(-50%);
-      z-index: 30;
+      z-index: 55;
       padding: 12px 28px;
       background: rgba(20, 14, 44, 0.88);
       border: 2px solid rgba(255, 255, 255, 0.6);
@@ -3317,7 +3317,7 @@
       box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5);
       backdrop-filter: blur(6px);
       -webkit-backdrop-filter: blur(6px);
-      transition: all 0.25s ease;
+      transition: all 0.35s ease;
       touch-action: manipulation;
       user-select: none;
     }
@@ -3331,6 +3331,163 @@
 
     .person-replay-btn:active {
       transform: translateX(-50%) scale(0.96);
+    }
+
+    .person-replay-btn.glow-pulse {
+      background: rgba(35, 20, 75, 0.96);
+      border-color: rgba(255, 230, 100, 0.9);
+      box-shadow: 0 0 24px rgba(255, 230, 100, 0.45), 0 8px 24px rgba(0, 0, 0, 0.7);
+      animation: replayPillPulse 2.4s ease-in-out infinite;
+    }
+
+    @keyframes replayPillPulse {
+      0%, 100% { transform: translateX(-50%) scale(1); box-shadow: 0 0 16px rgba(255, 230, 100, 0.35), 0 8px 24px rgba(0, 0, 0, 0.7); }
+      50% { transform: translateX(-50%) scale(1.05); box-shadow: 0 0 32px rgba(255, 230, 100, 0.7), 0 10px 28px rgba(0, 0, 0, 0.8); }
+    }
+
+    /* ========================================================= */
+    /* POV EYE BLINK & FADE TO BLACK OVERLAY                    */
+    /* ========================================================= */
+
+    .pov-blink-overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 40;
+      pointer-events: none;
+      opacity: 0;
+      overflow: hidden;
+      background: transparent;
+      transition: opacity 0.7s ease;
+    }
+
+    .pov-blink-overlay.active {
+      opacity: 1;
+    }
+
+    .pov-blink-overlay.asleep {
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    .pov-blink-open-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+      transform-origin: center center;
+      z-index: 1;
+      transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease;
+    }
+
+    .pov-eyelid-curtain {
+      position: absolute;
+      left: 0;
+      right: 0;
+      width: 100%;
+      height: 52%;
+      background: #000000;
+      pointer-events: none;
+      z-index: 2;
+      transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .pov-eyelid-top {
+      top: 0;
+      transform: translateY(-100%);
+    }
+
+    .pov-eyelid-bottom {
+      bottom: 0;
+      transform: translateY(100%);
+    }
+
+    .pov-blink-closed-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+      opacity: 0;
+      z-index: 3;
+      transition: opacity 0.38s ease;
+    }
+
+    .pov-fade-to-black {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: #000000;
+      pointer-events: none;
+      opacity: 0;
+      z-index: 4;
+      transition: opacity 1.4s ease-in-out;
+    }
+
+    /* State 1: Blink Closed Once */
+    .pov-blink-overlay.blink-closed .pov-blink-open-img {
+      transform: scaleY(0.04);
+      opacity: 0.4;
+    }
+    .pov-blink-overlay.blink-closed .pov-eyelid-top {
+      transform: translateY(0%);
+    }
+    .pov-blink-overlay.blink-closed .pov-eyelid-bottom {
+      transform: translateY(0%);
+    }
+    .pov-blink-overlay.blink-closed .pov-blink-closed-img {
+      opacity: 1;
+    }
+
+    /* State 2: Heavy Sleepy Eyelids Re-opened */
+    .pov-blink-overlay.heavy-lids .pov-blink-open-img {
+      transform: scaleY(0.85);
+      opacity: 0.96;
+      transition: transform 0.55s cubic-bezier(0.2, 0.8, 0.3, 1), opacity 0.55s ease;
+    }
+    .pov-blink-overlay.heavy-lids .pov-eyelid-top {
+      transform: translateY(-82%);
+      transition: transform 0.55s cubic-bezier(0.2, 0.8, 0.3, 1);
+    }
+    .pov-blink-overlay.heavy-lids .pov-eyelid-bottom {
+      transform: translateY(82%);
+      transition: transform 0.55s cubic-bezier(0.2, 0.8, 0.3, 1);
+    }
+    .pov-blink-overlay.heavy-lids .pov-blink-closed-img {
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    /* State 3: Final Slow Blink & Fade to Black */
+    .pov-blink-overlay.fade-to-black .pov-blink-open-img {
+      transform: scaleY(0.0);
+      opacity: 0;
+      transition: transform 1.2s cubic-bezier(0.5, 0, 0.2, 1), opacity 1.0s ease;
+    }
+    .pov-blink-overlay.fade-to-black .pov-eyelid-top {
+      transform: translateY(0%);
+      transition: transform 1.2s cubic-bezier(0.5, 0, 0.2, 1);
+    }
+    .pov-blink-overlay.fade-to-black .pov-eyelid-bottom {
+      transform: translateY(0%);
+      transition: transform 1.2s cubic-bezier(0.5, 0, 0.2, 1);
+    }
+    .pov-blink-overlay.fade-to-black .pov-blink-closed-img {
+      opacity: 1;
+      transition: opacity 1.0s ease;
+    }
+    .pov-blink-overlay.fade-to-black .pov-fade-to-black {
+      opacity: 1;
+      transition: opacity 1.4s ease-in-out;
     }
 
     /* ========================================================= */
@@ -4107,6 +4264,15 @@
                     <img class="person-sparkle sparkle-2" src="assets/Sparkle2.png" alt="" draggable="false" />
                     <img class="person-sparkle sparkle-3" src="assets/Sparkle3.png" alt="" draggable="false" />
                     <img class="person-sparkle sparkle-4" src="assets/Sparkle4.png" alt="" draggable="false" />
+                  </div>
+
+                  <!-- POV Eye Blink & Fade to Black Overlay -->
+                  <div class="pov-blink-overlay" id="povBlinkOverlay" aria-hidden="true" onclick="handlePovOverlayTap(event)">
+                    <img class="pov-blink-open-img" id="povBlinkOpenImg" src="assets/Blink Open.png" alt="Point of view looking out through eyes" draggable="false" />
+                    <div class="pov-eyelid-curtain pov-eyelid-top" id="povEyelidTop" aria-hidden="true"></div>
+                    <div class="pov-eyelid-curtain pov-eyelid-bottom" id="povEyelidBottom" aria-hidden="true"></div>
+                    <img class="pov-blink-closed-img" id="povBlinkClosedImg" src="assets/Blink Closed.png" alt="" draggable="false" />
+                    <div class="pov-fade-to-black" id="povFadeToBlack" aria-hidden="true"></div>
                   </div>
 
                   <!-- Kid-friendly Replay / Decorate Again Button -->
@@ -4991,6 +5157,17 @@
       const timerBubbleText = document.getElementById('personTimerBubbleText');
       if (timerBubbleText) {
         timerBubbleText.textContent = 'Breathe deeply for 3 seconds';
+      }
+
+      // Reset POV Eye Blink & Fade to Black Overlay
+      const povOverlay = document.getElementById('povBlinkOverlay');
+      if (povOverlay) {
+        povOverlay.classList.remove('active', 'blink-closed', 'heavy-lids', 'fade-to-black', 'asleep');
+        povOverlay.setAttribute('aria-hidden', 'true');
+      }
+      const replayBtn = document.getElementById('personReplayBtn');
+      if (replayBtn) {
+        replayBtn.classList.remove('glow-pulse');
       }
 
       updateMaskStep('Step 1: Pick a scent for your mask');
@@ -6307,6 +6484,71 @@
         triggerHapticFeedback(true);
       }, 10000);
       breathingExerciseTimers.push(t7);
+
+      // 11.2s: POV Sequence begins - Blink Open overlays the screen
+      const t8 = setTimeout(() => {
+        startPovBlinkSequence();
+      }, 11200);
+      breathingExerciseTimers.push(t8);
+    }
+
+    // =========================================================
+    // POV EYE BLINK & FADE TO BLACK SEQUENCE (Person Scene)
+    // At the end of the breathing sequence:
+    // 1. Blink Open overlays the screen (child's POV looking out)
+    // 2. Point of view blinks closed once, then reopens with heavy eyelids
+    // 3. Eyelids slowly close a second time and fully fade to black
+    // 4. Screen holds pitch black with pulsing replay button & tap-to-replay
+    // =========================================================
+    function startPovBlinkSequence() {
+      const povOverlay = document.getElementById('povBlinkOverlay');
+      if (!povOverlay) return;
+
+      // Reset any previous state classes
+      povOverlay.classList.remove('blink-closed', 'heavy-lids', 'fade-to-black', 'asleep');
+      povOverlay.classList.add('active');
+      povOverlay.setAttribute('aria-hidden', 'false');
+      updateMaskStep('Step 5: Rest your eyes and breathe gently');
+
+      // Timeline of the POV blink sequence:
+      // 1. Initial POV view with Blink Open (0.0s - 1.2s)
+      // 2. Eyelids blink closed once (at +1.2s)
+      const b1 = setTimeout(() => {
+        povOverlay.classList.add('blink-closed');
+      }, 1200);
+      breathingExerciseTimers.push(b1);
+
+      // 3. Eyelids hold closed briefly for 0.25s, then reopen with heavy eyelids (at +1.55s)
+      const b2 = setTimeout(() => {
+        povOverlay.classList.remove('blink-closed');
+        povOverlay.classList.add('heavy-lids');
+      }, 1550);
+      breathingExerciseTimers.push(b2);
+
+      // 4. Heavy eyelids pause for 0.95s, then slow final blink begins and fades fully to black (at +2.5s)
+      const b3 = setTimeout(() => {
+        povOverlay.classList.remove('heavy-lids');
+        povOverlay.classList.add('fade-to-black');
+        updateMaskStep('Step 5: Peaceful sleep... You did wonderful');
+      }, 2500);
+      breathingExerciseTimers.push(b3);
+
+      // 5. Full black holds; enable replay tap anywhere & reveal gentle glowing replay button (at +4.0s)
+      const b4 = setTimeout(() => {
+        povOverlay.classList.add('asleep');
+        const replayBtn = document.getElementById('personReplayBtn');
+        if (replayBtn) replayBtn.classList.add('glow-pulse');
+        updateMaskStep('All Done! Sweet dreams! Tap to play again');
+      }, 4000);
+      breathingExerciseTimers.push(b4);
+    }
+
+    function handlePovOverlayTap(event) {
+      const povOverlay = document.getElementById('povBlinkOverlay');
+      if (!povOverlay) return;
+      if (povOverlay.classList.contains('asleep')) {
+        playMaskSceneSequence();
+      }
     }
 
     // =========================================================
