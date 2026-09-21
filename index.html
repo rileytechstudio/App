@@ -2450,12 +2450,6 @@
       transition: opacity 0.2s ease;
     }
 
-    .selected-chapstick-stage-wrapper.is-dragging .mask-draw-prompt-bubble {
-      opacity: 0 !important;
-      pointer-events: none;
-      transition: opacity 0.2s ease;
-    }
-
     .active-chapstick-halo {
       position: absolute;
       top: 40%;
@@ -2518,53 +2512,9 @@
       transition: opacity 0.25s ease, transform 0.25s ease;
     }
 
-    /* Child-friendly Prompt Speech Bubble */
+    /* Child-friendly Prompt Speech Bubble - Removed per user request: instruction presented cleanly in bottom status bar */
     .mask-draw-prompt-bubble {
-      position: absolute;
-      bottom: calc(100% + 14px);
-      left: 50%;
-      transform: translateX(-28px);
-      background: #ffffff;
-      color: #260e48;
-      font-size: clamp(12px, 1.25vw, 13.5px);
-      font-weight: 800;
-      line-height: 1.35;
-      padding: 8px 16px;
-      border-radius: 20px;
-      border: 2.5px solid #ffcc00;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.42), 0 0 16px rgba(255, 204, 0, 0.45);
-      white-space: normal;
-      width: max-content;
-      max-width: min(245px, 60vw);
-      text-align: center;
-      pointer-events: none;
-      z-index: 30;
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      animation: promptBob 2.2s ease-in-out infinite;
-      transition: opacity 0.3s ease, transform 0.3s ease;
-    }
-
-    .mask-draw-prompt-bubble::after {
-      content: '';
-      position: absolute;
-      top: 100%;
-      left: 28px;
-      transform: translateX(-50%);
-      border-width: 8px 7px 0 7px;
-      border-style: solid;
-      border-color: #ffcc00 transparent transparent transparent;
-    }
-
-    @keyframes promptBob {
-      0%, 100% {
-        transform: translateX(-28px) translateY(0);
-      }
-      50% {
-        transform: translateX(-28px) translateY(-7px);
-      }
+      display: none !important;
     }
 
     /* Waxy Drawing Canvas */
@@ -4297,10 +4247,6 @@
 
                 <!-- Layer 4: Active Selected Chapstick (Floats proudly near the mask once selected and box is closed) -->
                 <div class="selected-chapstick-stage-wrapper" id="selectedChapstickStageWrapper" onpointerdown="startChapstickDrag(event)">
-                  <!-- Child-friendly Prompt Speech Bubble -->
-                  <div class="mask-draw-prompt-bubble" id="maskDrawPromptBubble">
-                    <span class="prompt-text">Rub the chapstick on the mask to add your scent!</span>
-                  </div>
                   <div class="active-chapstick-inner" id="activeChapstickInner">
                     <div class="active-chapstick-halo" id="activeChapstickHalo"></div>
                     <img id="selectedChapstickImg" src="assets/StrawberryChapstick.png" alt="Selected Chapstick" draggable="false" />
@@ -5288,7 +5234,6 @@
       const blurOverlay = document.getElementById('maskDarkBlurOverlay');
       const tray = document.getElementById('floatingChapsticksTray');
       const activeChapstick = document.getElementById('selectedChapstickStageWrapper');
-      const promptBubble = document.getElementById('maskDrawPromptBubble');
       const canvas = document.getElementById('maskDrawCanvas');
 
       if (maskWrapper) {
@@ -5323,12 +5268,6 @@
         activeChapstick.style.transform = 'translate(-50%, -50%)';
         activeChapstick.style.opacity = '';
         activeChapstick.style.transition = '';
-      }
-      if (promptBubble) {
-        const promptText = promptBubble.querySelector('.prompt-text');
-        if (promptText) promptText.textContent = 'Rub the chapstick on the mask to add your scent!';
-        promptBubble.style.display = 'flex';
-        promptBubble.style.opacity = '1';
       }
       if (canvas) {
         const ctx = canvas.getContext('2d');
@@ -5475,7 +5414,6 @@
       const activeChapstick = document.getElementById('selectedChapstickStageWrapper');
       const activeImg = document.getElementById('selectedChapstickImg');
       const activeBadge = document.getElementById('selectedChapstickBadge');
-      const promptBubble = document.getElementById('maskDrawPromptBubble');
 
       // 1. Mark selected item and trigger sinking animation for the other 3
       if (tray) {
@@ -5522,15 +5460,7 @@
             activeChapstick.classList.add('visible');
           }
 
-          // 6. Show friendly speech bubble prompt
-          if (promptBubble) {
-            const promptText = promptBubble.querySelector('.prompt-text');
-            if (promptText) promptText.textContent = 'Rub the chapstick on the mask to add your scent!';
-            promptBubble.style.display = 'flex';
-            promptBubble.style.opacity = '1';
-          }
-
-          // 7. Update step instruction bar
+          // 6. Update step instruction bar
           updateMaskStep('Step 2: Rub the chapstick on the mask to add your scent');
 
           isTransitioningBox = false;
@@ -5551,15 +5481,11 @@
         const tray = document.getElementById('floatingChapsticksTray');
         const blurOverlay = document.getElementById('maskDarkBlurOverlay');
         const activeChapstick = document.getElementById('selectedChapstickStageWrapper');
-        const promptBubble = document.getElementById('maskDrawPromptBubble');
         const finishBtn = document.getElementById('maskFinishBtn');
 
         // 1. Hide active floating chapstick and badges
         if (activeChapstick) {
           activeChapstick.classList.remove('visible', 'face-down', 'is-dragging', 'spring-back');
-        }
-        if (promptBubble) {
-          promptBubble.style.display = 'none';
         }
         if (finishBtn) {
           finishBtn.classList.remove('visible');
@@ -5626,10 +5552,6 @@
       // 180° Face-Down Orientation when interacted with
       chapstickWrapper.classList.remove('spring-back');
       chapstickWrapper.classList.add('face-down', 'is-dragging');
-
-      // Hide prompt bubble
-      const promptBubble = document.getElementById('maskDrawPromptBubble');
-      if (promptBubble) promptBubble.style.display = 'none';
 
       // Update position under finger/cursor
       updateChapstickDragPosition(e.clientX, e.clientY);
@@ -5740,15 +5662,10 @@
     function putChapstickAwayInBox() {
       const chapstickWrapper = document.getElementById('selectedChapstickStageWrapper');
       const boxWrapper = document.getElementById('chapstickBoxStageWrapper');
-      const promptBubble = document.getElementById('maskDrawPromptBubble');
       const stage = document.getElementById('maskStage');
       if (!chapstickWrapper || !boxWrapper || !stage) return;
 
       boxWrapper.classList.remove('box-drag-hover', 'target-put-away');
-
-      if (promptBubble) {
-        promptBubble.style.display = 'none';
-      }
 
       // Center of minimized box relative to mask stage
       const stageRect = stage.getBoundingClientRect();
@@ -5833,22 +5750,6 @@
       setTimeout(() => {
         chapstickWrapper.classList.remove('spring-back');
       }, 520);
-
-      // Re-show prompt bubble only during drawing (Step 2); in Step 3, instruction is in bottom status bar
-      const promptBubble = document.getElementById('maskDrawPromptBubble');
-      if (promptBubble) {
-        if (!isScentApplied) {
-          const promptText = promptBubble.querySelector('.prompt-text');
-          if (promptText) promptText.textContent = 'Rub the chapstick on the mask to add your scent!';
-          setTimeout(() => {
-            if (!isDraggingChapstick && !isScentApplied && chapstickWrapper.classList.contains('visible')) {
-              promptBubble.style.display = 'flex';
-            }
-          }, 450);
-        } else {
-          promptBubble.style.display = 'none';
-        }
-      }
     }
 
     function onChapstickPointerCancel(e) {
@@ -6065,12 +5966,6 @@
       const data = chapstickData[currentSelectedFlavor];
       if (!data) return;
       updateMaskStep('Step 3: Drag the chapstick back over the box to put it away');
-
-      // Hide floating prompt bubble in Step 3 so instruction only appears in bottom status bar
-      const promptBubble = document.getElementById('maskDrawPromptBubble');
-      if (promptBubble) {
-        promptBubble.style.display = 'none';
-      }
 
       // Add target cue to the minimized closed box
       const boxWrapper = document.getElementById('chapstickBoxStageWrapper');
