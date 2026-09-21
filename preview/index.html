@@ -3069,12 +3069,13 @@
     .mask-finish-btn {
       position: absolute;
       top: 24px;
-      right: 28px;
+      left: 50%;
+      right: auto;
       z-index: 55;
       display: inline-flex;
       align-items: center;
-      gap: 10px;
-      padding: 12px 24px;
+      justify-content: center;
+      padding: 12px 28px;
       background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
       border: 2px solid rgba(255, 255, 255, 0.85);
       border-radius: 999px;
@@ -3086,7 +3087,7 @@
       box-shadow: 0 8px 24px rgba(16, 185, 129, 0.45), 0 0 16px rgba(255, 255, 255, 0.4);
       opacity: 0;
       pointer-events: none;
-      transform: scale(0.85);
+      transform: translateX(-50%) scale(0.85);
       transition: opacity 0.45s cubic-bezier(0.34, 1.25, 0.64, 1),
                   transform 0.45s cubic-bezier(0.34, 1.25, 0.64, 1),
                   box-shadow 0.3s ease;
@@ -3098,31 +3099,27 @@
     .mask-finish-btn.visible {
       opacity: 1;
       pointer-events: auto;
-      transform: scale(1);
+      transform: translateX(-50%) scale(1);
       animation: finishBtnPulse 2.4s ease-in-out infinite;
     }
 
     .mask-finish-btn:hover {
-      transform: scale(1.06);
+      transform: translateX(-50%) scale(1.06);
       box-shadow: 0 12px 30px rgba(16, 185, 129, 0.6), 0 0 24px rgba(255, 255, 255, 0.7);
     }
 
     .mask-finish-btn:active {
-      transform: scale(0.95);
-    }
-
-    .mask-finish-btn .finish-btn-sparkle {
-      font-size: 1.2em;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+      transform: translateX(-50%) scale(0.95);
     }
 
     @keyframes finishBtnPulse {
       0%, 100% {
         box-shadow: 0 8px 24px rgba(16, 185, 129, 0.45), 0 0 12px rgba(255, 255, 255, 0.3);
+        transform: translateX(-50%) scale(1);
       }
       50% {
         box-shadow: 0 10px 32px rgba(16, 185, 129, 0.7), 0 0 22px rgba(255, 255, 255, 0.65);
-        transform: scale(1.03);
+        transform: translateX(-50%) scale(1.04);
       }
     }
 
@@ -3157,13 +3154,20 @@
     .mask-stage.finishing .mask-finish-btn {
       opacity: 0;
       pointer-events: none;
-      transform: scale(0.7);
+      transform: translateX(-50%) scale(0.7);
       transition: opacity 0.35s ease, transform 0.35s ease;
     }
 
     .mask-stage.finishing .mask-dark-blur-overlay {
       opacity: 0 !important;
       transition: opacity 0.4s ease;
+    }
+
+    /* When in Person Scene, hide bottom instruction bar to keep focus solely on breathing timer bubble */
+    .mask-stage.finishing ~ .game-bottom-instruction-bar {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
     }
 
     /* Person Wearing Mask Scene (Layer atop Background Image) */
@@ -3928,30 +3932,11 @@
       border-color: rgba(16, 12, 38, 0.92) transparent transparent transparent;
     }
 
-    /* Tap to Breathe Hint Badge */
+    /* Tap to Breathe Hint Badge - disabled per user request */
     .person-timer-badge {
-      position: absolute;
-      top: calc(100% + 10px);
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(20, 14, 44, 0.90);
-      border: 1.5px solid rgba(83, 198, 133, 0.65);
-      color: #ffffff;
-      font-size: 14px;
-      font-weight: 700;
-      padding: 5px 14px;
-      border-radius: 999px;
-      white-space: nowrap;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.4s ease;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+      display: none !important;
     }
 
-    .person-timer-stage-wrapper.ready .person-timer-badge {
-      opacity: 1;
-      animation: hintPulse 2.2s ease-in-out infinite;
-    }
 
 
     /* Bottom Info Status Bar */
@@ -4553,7 +4538,6 @@
 
                 <!-- Layer 8: "All Done!" Completion Prompt Button (Appears during decorating, prompts child when finished) -->
                 <button class="mask-finish-btn" id="maskFinishBtn" onclick="finishMaskDecoration()" aria-label="Finish Decorating Mask">
-                  <span class="finish-btn-sparkle">✨</span>
                   <span class="finish-btn-text">All Done!</span>
                 </button>
 
@@ -4571,9 +4555,6 @@
                     <div class="person-timer-halo" id="personTimerHalo"></div>
                     <canvas id="personTimerCanvas" class="person-timer-canvas" width="369" height="416" aria-label="Breathing Timer"></canvas>
                     <img id="personTimerImg" class="person-timer-img" src="assets/Timer1Cropped.png" alt="Breathing Timer" draggable="false" style="display: none;" />
-                    <div class="person-timer-badge" id="personTimerBadge">
-                      <span>Tap to Breathe</span>
-                    </div>
                   </div>
                   
                   <!-- Celebratory Sparkles Overlay -->
@@ -5489,6 +5470,8 @@
       }
       const finishBtn = document.getElementById('maskFinishBtn');
       if (finishBtn) finishBtn.classList.remove('visible');
+      const stepBadge = document.getElementById('maskStepBadge');
+      if (stepBadge) stepBadge.style.display = '';
       const personCanvas = document.getElementById('personMaskDrawCanvas');
       if (personCanvas) {
         const pCtx = personCanvas.getContext('2d');
@@ -5675,10 +5658,6 @@
 
           // 7. Update step instruction bar
           updateMaskStep('Step 2: Rub the chapstick on the mask to add your scent');
-
-          // 8. Reveal finish button
-          const finishBtn = document.getElementById('maskFinishBtn');
-          if (finishBtn) finishBtn.classList.add('visible');
 
           isTransitioningBox = false;
         }, 250);
@@ -5936,8 +5915,6 @@
           // Advance to Step 4 and trigger sticker book entrance
           updateMaskStep('Step 4: Decorate your mask with stickers');
           playStickerBookSequence();
-          const finishBtn = document.getElementById('maskFinishBtn');
-          if (finishBtn) finishBtn.classList.add('visible');
         }, 600);
 
         const boxHint = document.getElementById('boxMinimizedHint');
@@ -6441,12 +6418,19 @@
       bookWrapper.classList.remove('opened', 'minimized-corner');
       bookWrapper.classList.add('visible', 'entering');
 
-      // 3. After closed book arrives (~900ms), animate open
+      // 3. After closed book arrives (~900ms), animate open and reveal floating stickers
       const t1 = setTimeout(() => {
         bookWrapper.classList.add('opened');
         playPageFlipSound();
         triggerHapticFeedback();
         isTransitioningStickerBook = false;
+
+        // 4. Reveal "All Done!" finish button only after stickers pop up on screen
+        const tFinish = setTimeout(() => {
+          const finishBtn = document.getElementById('maskFinishBtn');
+          if (finishBtn) finishBtn.classList.add('visible');
+        }, 350);
+        maskSequenceTimers.push(tFinish);
       }, 900);
       maskSequenceTimers.push(t1);
     }
@@ -6521,8 +6505,9 @@
         finishBtn.classList.remove('visible');
       }
 
-      // 3. Update step instruction bar (0 emojis)
-      updateMaskStep('All Done! Look at your custom mask!');
+      // 3. Hide bottom step instruction bar to eliminate redundant prompt and keep focus solely on breathing timer bubble
+      const stepBadge = document.getElementById('maskStepBadge');
+      if (stepBadge) stepBadge.style.display = 'none';
 
       // 4. Project wax drawing canvas onto the person's mask
       if (personCanvas && maskCanvas) {
