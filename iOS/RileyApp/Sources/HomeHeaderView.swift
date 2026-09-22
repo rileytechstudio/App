@@ -23,40 +23,54 @@ public struct HomeHeaderView: View {
     private var headerHeight: CGFloat {
         let isLandscape = availableWidth > availableHeight
         if isLandscape {
-            // In landscape, proportionally scale up to 135pt on large iPad, min 64pt
-            return min(max(availableHeight * 0.15, 64), 135)
+            // Sleek Apple glass header height
+            return min(max(availableHeight * 0.082, 54), 64)
         } else {
-            // In portrait, keep compact header between 56pt and 90pt
-            return min(max(availableHeight * 0.11, 56), 95)
+            // Compact portrait header
+            return min(max(availableHeight * 0.075, 50), 60)
         }
     }
     
     /// Size of the circular Settings & Home buttons
     private var iconButtonSize: CGFloat {
-        return min(max(headerHeight * 0.62, 34), 62)
+        return min(max(headerHeight * 0.72, 36), 44)
     }
     
     /// Horizontal padding for icons
     private var iconTrailingPadding: CGFloat {
-        return min(max(availableWidth * 0.03, 12), 36)
+        return 20
     }
     
     /// Spacing between Settings and Home button
     private var iconSpacing: CGFloat {
-        return min(max(availableWidth * 0.015, 8), 18)
+        return 12
     }
     
     public var body: some View {
         ZStack(alignment: .trailing) {
-            // Background fill
+            // Background fill with translucent glass tint
             Color(red: 248.0 / 255.0, green: 168.0 / 255.0, blue: 98.0 / 255.0)
+                .opacity(0.85)
             
             // Header Banner Background Image
             Image("HeaderBanner")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: availableWidth, height: headerHeight)
+                .opacity(0.94)
                 .accessibilityLabel(Text("Riley Hospital for Children Header Banner"))
+            
+            // Apple Glass Specular Sheen Overlay
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color.white.opacity(0.30),
+                    Color.white.opacity(0.06),
+                    Color.black.opacity(0.04)
+                ]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .allowsHitTesting(false)
             
             // Top-right Action Buttons (Settings & Home)
             HStack(spacing: iconSpacing) {
@@ -77,6 +91,13 @@ public struct HomeHeaderView: View {
             .padding(.trailing, iconTrailingPadding)
         }
         .frame(width: availableWidth, height: headerHeight)
-        .shadow(color: Color.black.opacity(0.18), radius: 4, x: 0, y: 2)
+        .overlay(
+            VStack {
+                Spacer()
+                Divider()
+                    .background(Color.white.opacity(0.45))
+            }
+        )
+        .shadow(color: Color.black.opacity(0.08), radius: 6, x: 0, y: 3)
     }
 }

@@ -88,9 +88,9 @@ public struct PreparationsView: View {
             let screenSize = geometry.size
             let isLandscape = screenSize.width > screenSize.height
             
-            // Scaled sizing metrics
-            let headerHeight: CGFloat = isLandscape ? min(max(screenSize.height * 0.14, 60), 125) : min(max(screenSize.height * 0.10, 54), 88)
-            let iconButtonSize: CGFloat = min(max(headerHeight * 0.62, 34), 60)
+            // Scaled sizing metrics - sleek Apple glass navigation bar
+            let headerHeight: CGFloat = isLandscape ? min(max(screenSize.height * 0.082, 54), 64) : min(max(screenSize.height * 0.075, 50), 60)
+            let iconButtonSize: CGFloat = min(max(headerHeight * 0.72, 36), 44)
             let cardWidth: CGFloat = min(max(screenSize.width * 0.72, 280), 840)
             let bottomBarHeight: CGFloat = min(max(screenSize.height * 0.09, 48), 85)
             
@@ -149,14 +149,28 @@ public struct PreparationsView: View {
     @ViewBuilder
     private func topHeaderBar(width: CGFloat, height: CGFloat, iconSize: CGFloat) -> some View {
         ZStack {
-            // Background fill
+            // Background fill with translucent glass tint
             Color(red: 248.0 / 255.0, green: 168.0 / 255.0, blue: 98.0 / 255.0)
+                .opacity(0.85)
             
             // Header Banner Background
             Image("HeaderBanner")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: width, height: height)
+                .opacity(0.94)
+            
+            // Apple Glass Specular Sheen Overlay
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color.white.opacity(0.30),
+                    Color.white.opacity(0.06),
+                    Color.black.opacity(0.04)
+                ]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .allowsHitTesting(false)
             
             // Header Action Buttons
             HStack {
@@ -174,12 +188,12 @@ public struct PreparationsView: View {
                         }
                     }
                 )
-                .padding(.leading, min(max(width * 0.03, 12), 36))
+                .padding(.leading, 20)
                 
                 Spacer()
                 
                 // Settings & Home Buttons (Right)
-                HStack(spacing: min(max(width * 0.015, 8), 18)) {
+                HStack(spacing: 12) {
                     HeaderIconButton(
                         imageName: "IconSettings",
                         title: "Settings",
@@ -203,11 +217,18 @@ public struct PreparationsView: View {
                         }
                     )
                 }
-                .padding(.trailing, min(max(width * 0.03, 12), 36))
+                .padding(.trailing, 20)
             }
         }
         .frame(width: width, height: height)
-        .shadow(color: Color.black.opacity(0.18), radius: 4, x: 0, y: 2)
+        .overlay(
+            VStack {
+                Spacer()
+                Divider()
+                    .background(Color.white.opacity(0.45))
+            }
+        )
+        .shadow(color: Color.black.opacity(0.08), radius: 6, x: 0, y: 3)
     }
     
     // MARK: - Search Bar View

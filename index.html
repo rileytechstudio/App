@@ -120,18 +120,31 @@
       overflow: hidden;
     }
 
-    /* Header Banner */
+    /* Header Banner - Apple Translucent Glass Appearance */
     .app-header {
       width: 100%;
+      height: 58px;
       position: relative;
       flex-shrink: 0;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
       z-index: 30;
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background-color: #f8a862;
+      background: rgba(248, 168, 98, 0.82);
+      -webkit-backdrop-filter: blur(25px) saturate(180%);
+      backdrop-filter: blur(25px) saturate(180%);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.45);
+    }
+
+    .app-header::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.06) 60%, rgba(0, 0, 0, 0.03) 100%);
+      pointer-events: none;
+      z-index: 2;
     }
 
     .app-header img.banner-bg {
@@ -140,8 +153,9 @@
       left: 0;
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      object-fit: cover;
       object-position: center;
+      opacity: 0.94;
     }
 
     .header-left {
@@ -149,7 +163,9 @@
       z-index: 5;
       display: flex;
       align-items: center;
+      gap: 12px;
       padding-left: 20px;
+      height: 100%;
     }
 
     .header-right {
@@ -159,9 +175,10 @@
       align-items: center;
       gap: 12px;
       padding-right: 20px;
+      height: 100%;
     }
 
-    .header-icon-btn {
+    .header-icon-btn, .about-header-icon-btn {
       background: transparent;
       border: none;
       outline: none;
@@ -170,24 +187,30 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 0;
+      width: 42px;
+      height: 42px;
+      flex-shrink: 0;
+      filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.14));
       transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.15s ease;
     }
 
-    .header-icon-btn:hover {
+    .header-icon-btn:hover, .about-header-icon-btn:hover {
       transform: scale(1.08);
-      filter: brightness(1.1);
+      filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.22)) brightness(1.06);
     }
 
-    .header-icon-btn:active {
-      transform: scale(0.90);
-      filter: brightness(0.92);
+    .header-icon-btn:active, .about-header-icon-btn:active {
+      transform: scale(0.92);
+      filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.12)) brightness(0.94);
     }
 
-    .header-icon-btn img {
+    .header-icon-btn img, .about-header-icon-btn img {
       width: 100%;
       height: 100%;
       object-fit: contain;
       display: block;
+      border-radius: 50%;
       pointer-events: none;
     }
 
@@ -3759,6 +3782,308 @@
 
 
 
+    /* ========================================================= */
+    /* SCREEN 5: ABOUT RILEY & SUPPORTING PARTNERS               */
+    /* ========================================================= */
+    #screenAbout {
+      background-color: #ffffff !important;
+      color: #1e293b;
+      overflow: hidden;
+    }
+
+    .about-screen-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+      background-color: #ffffff;
+    }
+
+    /* Top Apple Glass Navigation Bar */
+    .about-header {
+      width: 100%;
+      height: 58px;
+      background: rgba(255, 255, 255, 0.82);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      backdrop-filter: blur(28px) saturate(180%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.65);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      z-index: 25;
+      position: relative;
+    }
+
+    .about-header::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.08) 60%, rgba(0, 0, 0, 0.02) 100%);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .about-header-titles {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      z-index: 5;
+    }
+
+    .about-nav-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1e293b;
+      line-height: 1.2;
+      letter-spacing: -0.2px;
+    }
+
+    .about-nav-subtitle {
+      font-size: 12.5px;
+      font-weight: 500;
+      color: #718096;
+      line-height: 1.2;
+      margin-top: 1px;
+    }
+
+    .about-back-btn {
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #1e293b;
+      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(14px);
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+      padding: 0;
+      outline: none;
+      flex-shrink: 0;
+      width: 42px;
+      height: 42px;
+      position: relative;
+      z-index: 5;
+    }
+
+    .about-back-btn:hover {
+      transform: scale(1.08);
+      background-color: rgba(255, 255, 255, 0.95);
+      border-color: rgba(255, 255, 255, 0.98);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 1);
+      color: var(--riley-purple);
+    }
+
+    .about-back-btn:active {
+      transform: scale(0.92);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Scrollable Content Body */
+    .about-content-body {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      position: relative;
+    }
+
+    /* Upper Section: White Background */
+    .about-top-section {
+      background-color: #ffffff;
+      flex: 1 1 52%;
+      min-height: 52%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 44px;
+      box-sizing: border-box;
+    }
+
+    .about-top-container {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+      width: 100%;
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    .about-plate-col {
+      flex: 0 0 42%;
+      max-width: 410px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .about-wagon-img {
+      width: 100%;
+      height: auto;
+      max-height: 250px;
+      object-fit: contain;
+      filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.12));
+      display: block;
+    }
+
+    .about-info-col {
+      flex: 1 1 auto;
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .about-main-heading {
+      font-size: 26px;
+      font-weight: 800;
+      color: #2d3748;
+      letter-spacing: -0.4px;
+      margin: 0 0 10px 0;
+      line-height: 1.2;
+    }
+
+    .about-sub-heading {
+      font-size: 16px;
+      font-weight: 600;
+      color: #718096;
+      margin: 0 0 14px 0;
+      line-height: 1.3;
+    }
+
+    .about-description {
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: #4a5568;
+      margin: 0 0 18px 0;
+    }
+
+    .about-website-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #474749;
+      color: #ffffff;
+      font-size: 13.5px;
+      font-weight: 600;
+      padding: 9px 22px;
+      border-radius: 8px;
+      border: none;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16);
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .about-website-btn:hover {
+      background: #333335;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 12px rgba(0, 0, 0, 0.24);
+      color: #ffffff;
+    }
+
+    .about-website-btn:active {
+      transform: scale(0.97);
+    }
+
+    /* Lower Section: Purple Background */
+    .about-bottom-section {
+      background-color: var(--riley-purple, #5931ba);
+      flex: 1 1 48%;
+      min-height: 48%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 44px;
+      box-sizing: border-box;
+    }
+
+    .about-partners-container {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .about-partner-card {
+      flex: 1 1 48%;
+      max-width: 420px;
+      aspect-ratio: 2 / 1;
+      border: none;
+      background: transparent;
+      border-radius: 18px;
+      overflow: hidden;
+      cursor: pointer;
+      padding: 0;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      transition: transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.24s ease;
+      outline: none;
+      display: block;
+    }
+
+    .about-partner-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      border-radius: 18px;
+    }
+
+    .about-partner-card:hover {
+      transform: translateY(-4px) scale(1.025);
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.38);
+    }
+
+    .about-partner-card:active {
+      transform: scale(0.97);
+    }
+
+    /* Responsive Compact Styles for Mobile & Portrait */
+    @media (max-width: 768px) {
+      .about-top-container {
+        flex-direction: column;
+        gap: 18px;
+        text-align: center;
+      }
+
+      .about-plate-col {
+        flex: 0 0 auto;
+        width: 75%;
+        max-width: 280px;
+      }
+
+      .about-info-col {
+        align-items: center;
+      }
+
+      .about-partners-container {
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .about-partner-card {
+        flex: 0 0 auto;
+        width: 100%;
+        max-width: 360px;
+      }
+    }
+
     
   
     /* App Screen Stacking & Absolute Bounds - Guarantees correct screen layering */
@@ -3847,14 +4172,14 @@
           <div class="home-bg-overlay"></div>
 
           <div class="screen-content">
-            <header id="homeHeader" class="app-header" style="height: 105px;">
+            <header id="homeHeader" class="app-header">
               <img class="banner-bg" src="assets/HeaderBanner.jpg" alt="Riley Header Banner" />
-              <div></div>
+              <div class="header-left"></div>
               <div class="header-right">
-                <button class="header-icon-btn" onclick="openSheet('Settings')" title="Settings" style="width: 58px; height: 58px;">
+                <button class="header-icon-btn" onclick="openSheet('Settings')" title="Settings" aria-label="Settings">
                   <img src="assets/Settings.png" alt="Settings" />
                 </button>
-                <button class="header-icon-btn" onclick="openSheet('Home')" title="Home" style="width: 58px; height: 58px;">
+                <button class="header-icon-btn" onclick="goToHome()" title="Home" aria-label="Home">
                   <img src="assets/Home.png" alt="Home" />
                 </button>
               </div>
@@ -3886,7 +4211,7 @@
                 </div>
 
                 <div class="grid-row-bottom">
-                  <button class="pill-btn" onclick="openSheet('About')" style="width: 155px;">
+                  <button class="pill-btn" onclick="goToAbout()" style="width: 155px;">
                     <img src="assets/About.png" alt="About" />
                   </button>
                   <button class="pill-btn" onclick="openSheet('Legal')" style="width: 155px;">
@@ -3921,7 +4246,7 @@
                   </div>
                 </div>
                 <div class="portrait-grid-row portrait-grid-bottom">
-                  <button class="pill-btn" onclick="openSheet('About')" style="width: 120px;">
+                  <button class="pill-btn" onclick="goToAbout()" style="width: 120px;">
                     <img src="assets/About.png" alt="About" />
                   </button>
                   <button class="pill-btn" onclick="openSheet('Legal')" style="width: 120px;">
@@ -3942,20 +4267,20 @@
 
           <div class="screen-content">
             <!-- Header with Back button, Banner, Settings, Home -->
-            <header id="prepHeader" class="app-header" style="height: 105px;">
+            <header id="prepHeader" class="app-header">
               <img class="banner-bg" src="assets/HeaderBanner.jpg" alt="Riley Header Banner" />
               
               <div class="header-left">
-                <button class="header-icon-btn" onclick="goToHome()" title="Back to Home" style="width: 58px; height: 58px;">
+                <button class="header-icon-btn" onclick="goToHome()" title="Back to Home" aria-label="Back to Home">
                   <img src="assets/IconBack.png" alt="Back" />
                 </button>
               </div>
 
               <div class="header-right">
-                <button class="header-icon-btn" onclick="openSheet('Settings')" title="Settings" style="width: 58px; height: 58px;">
+                <button class="header-icon-btn" onclick="openSheet('Settings')" title="Settings" aria-label="Settings">
                   <img src="assets/Settings.png" alt="Settings" />
                 </button>
-                <button class="header-icon-btn" onclick="goToHome()" title="Home" style="width: 58px; height: 58px;">
+                <button class="header-icon-btn" onclick="goToHome()" title="Home" aria-label="Home">
                   <img src="assets/Home.png" alt="Home" />
                 </button>
               </div>
@@ -4458,6 +4783,73 @@
         </div>
 
         <!-- ========================================================= -->
+        <!-- SCREEN 5: ABOUT RILEY HOSPITAL & PARTNERS                 -->
+        <!-- ========================================================= -->
+        <div id="screenAbout" class="app-screen">
+          <div class="about-screen-container">
+            
+            <!-- Top White Navigation Bar -->
+            <header class="about-header" id="aboutHeader">
+              <div class="header-left">
+                <button class="about-back-btn" onclick="goToHome()" title="Back to Home" aria-label="Back to Home">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg>
+                </button>
+                <div class="about-header-titles">
+                  <span class="about-nav-title">Title</span>
+                  <span class="about-nav-subtitle">Subtitle</span>
+                </div>
+              </div>
+
+              <div class="header-right">
+                <button class="header-icon-btn" onclick="openSheet('Settings')" title="Settings" aria-label="Settings">
+                  <img src="assets/Settings.png" alt="Settings" />
+                </button>
+                <button class="header-icon-btn" onclick="goToHome()" title="Home" aria-label="Home">
+                  <img src="assets/Home.png" alt="Home" />
+                </button>
+              </div>
+            </header>
+
+            <!-- Scrollable Content Body -->
+            <div class="about-content-body">
+              
+              <!-- Upper Zone: White Background with License Plate & Information -->
+              <section class="about-top-section">
+                <div class="about-top-container">
+                  <div class="about-plate-col">
+                    <img class="about-wagon-img" src="assets/AboutRileyWagon.png" alt="Indiana Riley Hospital for Children Plate" />
+                  </div>
+                  <div class="about-info-col">
+                    <h1 class="about-main-heading">About Riley</h1>
+                    <p class="about-description">
+                      Riley Children’s Health is Indiana’s largest pediatric healthcare system, with over 50 locations across the state. Our expert doctors, caring nurses, and scientists work together to deliver world-class care and innovative research—helping every child heal, feel supported, and thrive.
+                    </p>
+                    <a href="https://www.rileychildrens.org" target="_blank" rel="noopener noreferrer" class="about-website-btn" id="aboutWebsiteBtn" title="Visit Riley Children's Health Website">
+                      Visit Our Website
+                    </a>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Lower Zone: Rich Riley Purple Background with Partner Cards -->
+              <section class="about-bottom-section">
+                <div class="about-partners-container">
+                  <button class="about-partner-card card-childs-play" onclick="openPartnerModal('childs-play')" title="Learn about Child's Play Charity" aria-label="Child's Play Charity">
+                    <img src="assets/AboutChildsPlay.png" alt="Child’s Play is a gaming industry charity devoted to improving the lives of children and teens in children’s hospitals through technology, toys, and video games in over 190 children’s hospitals worldwide." />
+                  </button>
+                  <button class="about-partner-card card-dunkin-joy" onclick="openPartnerModal('dunkin-joy')" title="Learn about Dunkin' Joy in Childhood Foundation" aria-label="Dunkin' Joy Foundation">
+                    <img src="assets/AboutDunkinJoy.png" alt="The Dunkin’ Joy in Childhood Foundation funds a variety of programs like facility dogs, gaming, prom events, and more, all designed to help kids feel like kids, even on their most difficult days." />
+                  </button>
+                </div>
+              </section>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================= -->
         <!-- MODAL NAVIGATION / DETAIL SHEET (iOS Native Style)        -->
         <!-- ========================================================= -->
         <div id="modalOverlay" class="ios-modal-overlay" onclick="closeSheetOnBackdrop(event)">
@@ -4923,6 +5315,7 @@
       const screenPrep = document.getElementById('screenPreparations');
       const screenGame = document.getElementById('screenIVGame');
       const screenMask = document.getElementById('screenMaskGame');
+      const screenAbout = document.getElementById('screenAbout');
       const select = document.getElementById('screenSelect');
       const statusSpan = document.querySelector('.sim-status div:last-child span');
 
@@ -4931,6 +5324,7 @@
       screenPrep.classList.remove('active');
       if (screenGame) screenGame.classList.remove('active');
       if (screenMask) screenMask.classList.remove('active');
+      if (screenAbout) screenAbout.classList.remove('active');
 
       if (screenName === 'mask-game' || screenName === 'games') {
         if (screenMask) screenMask.classList.add('active');
@@ -4955,6 +5349,20 @@
         if (typeof stopMaskConfetti === 'function') stopMaskConfetti();
         playIVBackgroundMusic();
         playIVIntroSequence();
+      } else if (screenName === 'about') {
+        // Navigating to About Screen
+        clearIVIntroTimers();
+        stopIVBackgroundMusic();
+        stopMaskBackgroundMusic();
+        resetMaskScene();
+        stopClothWipeSound(true);
+        stopClothWetWipeSound(true);
+        stopYouDidItSound(true);
+        if (typeof stopYouDidItChimeSound === 'function') stopYouDidItChimeSound(true);
+        if (typeof stopMaskConfetti === 'function') stopMaskConfetti();
+        if (screenAbout) screenAbout.classList.add('active');
+        if (select) select.value = 'about';
+        if (statusSpan) statusSpan.textContent = 'About Screen Active • Riley Children\'s Health & Community Partners';
       } else {
         // Navigating away from games stops background music and audio
         clearIVIntroTimers();
@@ -4985,6 +5393,18 @@
 
     function goToHome() {
       switchScreen('home');
+    }
+
+    function goToAbout() {
+      switchScreen('about');
+    }
+
+    function openPartnerModal(partnerKey) {
+      if (partnerKey === 'childs-play') {
+        openSheet("Child's Play");
+      } else if (partnerKey === 'dunkin-joy') {
+        openSheet("Dunkin' Joy");
+      }
     }
 
     function goToIVStart() {
@@ -9581,14 +10001,16 @@
       const isLandscape = w > h;
       const isCompact = w < 580 && !isLandscape;
 
-      // Header Sizing
-      const headerH = isLandscape ? Math.min(Math.max(h * 0.14, 60), 125) : Math.min(Math.max(h * 0.10, 54), 90);
-      document.querySelectorAll('.app-header').forEach(hdr => {
+      // Header Sizing - Sleek Apple Glass Navigation Bar
+      const headerH = isLandscape 
+        ? Math.min(Math.max(Math.round(h * 0.082), 54), 64) 
+        : Math.min(Math.max(Math.round(h * 0.075), 50), 60);
+      document.querySelectorAll('.app-header, .about-header').forEach(hdr => {
         hdr.style.height = headerH + 'px';
       });
       
-      const iconSize = Math.min(Math.max(headerH * 0.60, 32), 60);
-      document.querySelectorAll('.header-icon-btn').forEach(btn => {
+      const iconSize = Math.min(Math.max(Math.round(headerH * 0.72), 36), 44);
+      document.querySelectorAll('.header-icon-btn, .about-header-icon-btn, .about-back-btn').forEach(btn => {
         btn.style.width = iconSize + 'px';
         btn.style.height = iconSize + 'px';
       });
@@ -9732,6 +10154,22 @@
       'Gallery': { title: 'Patient Gallery', content: '<p>Inspiring art and stories from patients and families at Riley.</p>' },
       'Games': { title: 'Games & Activities', content: '<p>Play fun, calming games during your hospital stay.</p>' },
       'About': { title: 'About Riley Hospital', content: '<p>Riley Hospital for Children at Indiana University Health is Indiana\'s only comprehensive pediatric research hospital.</p>' },
+      "Child's Play": {
+        title: "Child's Play Charity",
+        content: `
+          <p>Child's Play is a gaming industry charity dedicated to improving the lives of pediatric patients through technology, toys, and video games in over 190 children's hospitals worldwide.</p>
+          <p style="margin-top: 12px;">Through generous partner grants and mobile entertainment systems, Riley patients enjoy positive distraction, play, and emotional comfort during their care journey.</p>
+          <p style="margin-top: 16px;"><a href="https://childsplaycharity.org" target="_blank" rel="noopener noreferrer" style="color: var(--riley-purple, #5931ba); font-weight: 700; text-decoration: underline;">Visit childsplaycharity.org &rarr;</a></p>
+        `
+      },
+      "Dunkin' Joy": {
+        title: "Dunkin' Joy in Childhood Foundation",
+        content: `
+          <p>The Dunkin' Joy in Childhood Foundation provides joy to children battling illness through grants that fund joyful experiences, including expressive arts, music therapy, specialized gaming carts, and facility dog programs.</p>
+          <p style="margin-top: 12px;">Their support brings smiles, laughter, and courage to kids and families at Riley Hospital for Children.</p>
+          <p style="margin-top: 16px;"><a href="https://www.joyinchildhoodfoundation.org" target="_blank" rel="noopener noreferrer" style="color: var(--riley-purple, #5931ba); font-weight: 700; text-decoration: underline;">Visit joyinchildhoodfoundation.org &rarr;</a></p>
+        `
+      },
       'Legal': { title: 'Legal & Medical Disclaimer', content: '<p>This application is for educational purposes and does not substitute for medical advice.</p>' },
       'Settings': { title: 'Settings', content: '<p>Preferences, audio controls, and accessibility options.</p>' },
       'Home': { title: 'Home', content: '<p>Return to the main dashboard.</p>' }
