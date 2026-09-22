@@ -432,12 +432,16 @@ public final class IVAudioManager {
             
             // Priority 2: Fallback to Bundle resource URLs
             if youDidItPlayer == nil {
-                var soundURL: URL? = Bundle.main.url(forResource: "You Did It", withExtension: "mp3")
+                var soundURL: URL? = Bundle.main.url(forResource: "You Did It Chime", withExtension: "mp3")
+                    ?? Bundle.main.url(forResource: "YouDidItChime", withExtension: "mp3")
+                    ?? Bundle.main.url(forResource: "You Did It", withExtension: "mp3")
                     ?? Bundle.main.url(forResource: "YouDidIt", withExtension: "mp3")
                 
                 #if SWIFT_PACKAGE
                 if soundURL == nil {
-                    soundURL = Bundle.module.url(forResource: "You Did It", withExtension: "mp3")
+                    soundURL = Bundle.module.url(forResource: "You Did It Chime", withExtension: "mp3")
+                        ?? Bundle.module.url(forResource: "YouDidItChime", withExtension: "mp3")
+                        ?? Bundle.module.url(forResource: "You Did It", withExtension: "mp3")
                         ?? Bundle.module.url(forResource: "YouDidIt", withExtension: "mp3")
                 }
                 #endif

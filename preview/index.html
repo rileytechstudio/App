@@ -4870,17 +4870,27 @@
       playGameSfx('shot');
     }
 
-    // Sound Effect: You Did It Celebration (Volume 0.90)
+    // Sound Effect: You Did It Celebration (You Did It Chime, Volume 0.90)
     let youDidItSound = null;
 
     function playYouDidItSound() {
       if (isSoundMuted) return;
       stopYouDidItSound(true);
       try {
-        youDidItSound = new Audio('assets/YouDidIt.mp3');
+        try {
+          youDidItSound = new Audio('assets/YouDidItChime.mp3');
+        } catch (e) {
+          youDidItSound = new Audio('assets/You Did It Chime.mp3');
+        }
         youDidItSound.volume = 0.90;
+        youDidItSound.onerror = function() {
+          if (youDidItSound && !youDidItSound.src.includes('YouDidIt.mp3')) {
+            youDidItSound.src = 'assets/YouDidIt.mp3';
+            youDidItSound.play().catch(function() {});
+          }
+        };
         youDidItSound.play().catch(err => {
-          console.log('You Did It audio playback waiting for user gesture or error:', err);
+          console.log('You Did It Chime audio playback waiting for user gesture or error:', err);
         });
       } catch (err) {}
     }
