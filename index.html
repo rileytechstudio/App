@@ -4501,9 +4501,12 @@
         if (maskBgMusic) maskBgMusic.pause();
         stopClothWipeSound(true);
         stopClothWetWipeSound(true);
+        if (typeof pauseChapstickRubbingSound === 'function') pauseChapstickRubbingSound(0);
         if (typeof stopBreathingAudio === 'function') stopBreathingAudio();
         if (typeof stopYouDidItChimeSound === 'function') stopYouDidItChimeSound(true);
+        if (typeof stopYouDidItSound === 'function') stopYouDidItSound(true);
       } else {
+        unlockGameAudioSystem();
         const screenGame = document.getElementById('screenIVGame');
         const screenMask = document.getElementById('screenMaskGame');
         if (screenGame && screenGame.classList.contains('active')) {
@@ -4531,19 +4534,144 @@
       });
     }
 
-    // Background Music for IV Start Preparation: Music BG 6 (Looped, Quiet Volume 0.22)
+    // =========================================================
+    // UNIVERSAL GAME AUDIO ENGINE & SOUND EFFECT POOL
+    // Ensures reliable, instant sound playback across all browsers,
+    // multi-touch gestures, rapid taps, and game replays.
+    // =========================================================
+    const GAME_SFX_CONFIG = {
+      boxShake: { src: 'assets/BoxShake2.mp3', volume: 0.85, poolSize: 3 },
+      boxOpen: { src: 'assets/BoxOpen.mp3', volume: 0.85, poolSize: 3 },
+      boxClose: { src: 'assets/BoxClose.mp3', volume: 0.85, poolSize: 3 },
+      chapstickSelect: { src: 'assets/ChapstickSelect.mp3', volume: 0.90, poolSize: 3 },
+      pageFlip: { src: 'assets/PageFlip2.mp3', volume: 0.85, poolSize: 3 },
+      maskPop: { src: 'assets/Bandage.mp3', volume: 0.85, poolSize: 4 },
+      bandage: { src: 'assets/Bandage.mp3', volume: 0.90, poolSize: 3 },
+      slime: { src: 'assets/Slime2.mp3', volume: 0.90, poolSize: 3 },
+      rubberBand: { src: 'assets/RubberBand.mp3', volume: 0.90, poolSize: 3 },
+      rip: { src: 'assets/Rip.mp3', volume: 0.90, poolSize: 3 },
+      shot: { src: 'assets/Shot.mp3', volume: 0.90, poolSize: 3 }
+    };
+
+    const sfxPools = {};
+    let isAudioSystemUnlocked = false;
+
+    function initSfxPools() {
+      for (const key in GAME_SFX_CONFIG) {
+        const cfg = GAME_SFX_CONFIG[key];
+        sfxPools[key] = [];
+        for (let i = 0; i < cfg.poolSize; i++) {
+          try {
+            const a = new Audio(cfg.src);
+            a.preload = 'auto';
+            a.volume = cfg.volume;
+            sfxPools[key].push(a);
+          } catch (e) {}
+        }
+      }
+    }
+
+    // Call initSfxPools immediately so browser starts caching/preloading
+    initSfxPools();
+
+    function unlockGameAudioSystem() {
+      if (isAudioSystemUnlocked) return;
+      isAudioSystemUnlocked = true;
+
+      // Unlock Web Audio API if available
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) {
+          if (!window._sharedAudioCtx) {
+            window._sharedAudioCtx = new AudioCtx();
+          }
+          if (window._sharedAudioCtx.state === 'suspended') {
+            window._sharedAudioCtx.resume();
+          }
+          const buf = window._sharedAudioCtx.createBuffer(1, 1, 22050);
+          const src = window._sharedAudioCtx.createBufferSource();
+          src.buffer = buf;
+          src.connect(window._sharedAudioCtx.destination);
+          src.start(0);
+        }
+      } catch (e) {}
+
+      // Prime HTML5 Audio pool instances so mobile WebKit/Blink allow delayed timer playback
+      for (const key in sfxPools) {
+        const pool = sfxPools[key];
+        if (pool && pool[0]) {
+          try {
+            const p = pool[0].play();
+            if (p && typeof p.then === 'function') {
+              p.then(() => {
+                pool[0].pause();
+                pool[0].currentTime = 0;
+              }).catch(() => {});
+            } else {
+              pool[0].pause();
+              pool[0].currentTime = 0;
+            }
+          } catch (e) {}
+        }
+      }
+    }
+
+    window.addEventListener('pointerdown', unlockGameAudioSystem, { once: true, passive: true });
+    window.addEventListener('click', unlockGameAudioSystem, { once: true, passive: true });
+
+    function playFreshOneShot(src, volume) {
+      if (isSoundMuted) return;
+      try {
+        const fresh = new Audio(src);
+        fresh.volume = volume;
+        const p = fresh.play();
+        if (p && typeof p.catch === 'function') {
+          p.catch(() => {});
+        }
+      } catch (e) {}
+    }
+
+    function playGameSfx(key, customVolume) {
+      if (isSoundMuted) return;
+      const cfg = GAME_SFX_CONFIG[key];
+      if (!cfg) return;
+      const vol = (typeof customVolume === 'number') ? customVolume : cfg.volume;
+      const pool = sfxPools[key];
+
+      if (pool && pool.length) {
+        const audio = pool.find(a => a.paused || a.ended);
+        if (audio) {
+          try {
+            audio.volume = vol;
+            if (audio.currentTime !== 0) {
+              audio.currentTime = 0;
+            }
+            const p = audio.play();
+            if (p && typeof p.catch === 'function') {
+              p.catch(err => {
+                playFreshOneShot(cfg.src, vol);
+              });
+            }
+            return;
+          } catch (e) {
+            playFreshOneShot(cfg.src, vol);
+            return;
+          }
+        }
+      }
+
+      playFreshOneShot(cfg.src, vol);
+    }
+
+    // Background Music for IV Start Preparation: MusicBG6 (Looped, Quiet Volume 0.22)
     let ivBgMusic = null;
 
     function playIVBackgroundMusic() {
       if (isSoundMuted) return;
       if (!ivBgMusic) {
-        try {
-          ivBgMusic = new Audio('assets/Music BG 6.mp3');
-        } catch (e) {
-          ivBgMusic = new Audio('assets/MusicBG6.mp3');
-        }
+        ivBgMusic = new Audio('assets/MusicBG6.mp3');
         ivBgMusic.loop = true;
-        ivBgMusic.volume = 0.22; // Discreet ambient volume so subsequent sound effects take prominence
+        ivBgMusic.volume = 0.22;
         ivBgMusic.onerror = function() {
           if (ivBgMusic && !ivBgMusic.src.includes('MusicBG.mp3')) {
             ivBgMusic.src = 'assets/MusicBG.mp3';
@@ -4558,58 +4686,24 @@
 
     function stopIVBackgroundMusic() {
       if (ivBgMusic) {
-        ivBgMusic.pause();
-        ivBgMusic.currentTime = 0;
+        try {
+          ivBgMusic.pause();
+          ivBgMusic.currentTime = 0;
+        } catch (e) {}
       }
     }
 
-    // Sound Effect: Slime 2 for Step 1 Ointment Squeeze (Volume 0.90)
-    let slimeSound = null;
-    try {
-      slimeSound = new Audio('assets/Slime2.mp3');
-      slimeSound.preload = 'auto';
-      slimeSound.volume = 0.90;
-    } catch (e) {}
-
+    // Sound Effect: Slime 2 for Step 1 Ointment Squeeze
     function playSlimeSound() {
-      if (isSoundMuted) return;
-      try {
-        if (!slimeSound) {
-          slimeSound = new Audio('assets/Slime2.mp3');
-          slimeSound.preload = 'auto';
-          slimeSound.volume = 0.90;
-        }
-        slimeSound.currentTime = 0;
-        slimeSound.play().catch(err => {
-          console.log('Slime audio playback waiting for user gesture or error:', err);
-        });
-      } catch (err) {}
+      playGameSfx('slime');
     }
 
-    // Sound Effect: Bandage for Step 2 Placement & Step 3 Removal (Volume 0.90)
-    let bandageSound = null;
-    try {
-      bandageSound = new Audio('assets/Bandage.mp3');
-      bandageSound.preload = 'auto';
-      bandageSound.volume = 0.90;
-    } catch (e) {}
-
+    // Sound Effect: Bandage for Step 2 Placement & Step 3 Removal
     function playBandageSound() {
-      if (isSoundMuted) return;
-      try {
-        if (!bandageSound) {
-          bandageSound = new Audio('assets/Bandage.mp3');
-          bandageSound.preload = 'auto';
-          bandageSound.volume = 0.90;
-        }
-        bandageSound.currentTime = 0;
-        bandageSound.play().catch(err => {
-          console.log('Bandage audio playback waiting for user gesture or error:', err);
-        });
-      } catch (err) {}
+      playGameSfx('bandage');
     }
 
-    // Sound Effect: Cloth Wipe for Step 4 Washcloth (Volume 0.90)
+    // Sound Effect: Cloth Wipe for Step 4 Washcloth (Looped, Volume 0.90)
     let clothWipeSound = null;
     try {
       clothWipeSound = new Audio('assets/ClothWipe.mp3');
@@ -4646,53 +4740,17 @@
       } catch (err) {}
     }
 
-    // Sound Effect: Rubber Band for Step 5 Tourniquet Band (Volume 0.90)
-    let rubberBandSound = null;
-    try {
-      rubberBandSound = new Audio('assets/RubberBand.mp3');
-      rubberBandSound.preload = 'auto';
-      rubberBandSound.volume = 0.90;
-    } catch (e) {}
-
+    // Sound Effect: Rubber Band for Step 5 Tourniquet Band
     function playRubberBandSound() {
-      if (isSoundMuted) return;
-      try {
-        if (!rubberBandSound) {
-          rubberBandSound = new Audio('assets/RubberBand.mp3');
-          rubberBandSound.preload = 'auto';
-          rubberBandSound.volume = 0.90;
-        }
-        rubberBandSound.currentTime = 0;
-        rubberBandSound.play().catch(err => {
-          console.log('Rubber band audio playback waiting for user gesture or error:', err);
-        });
-      } catch (err) {}
+      playGameSfx('rubberBand');
     }
 
-    // Sound Effect: Rip for Step 6 Packet Tear (Volume 0.90)
-    let ripSound = null;
-    try {
-      ripSound = new Audio('assets/Rip.mp3');
-      ripSound.preload = 'auto';
-      ripSound.volume = 0.90;
-    } catch (e) {}
-
+    // Sound Effect: Rip for Step 6 Packet Tear
     function playRipSound() {
-      if (isSoundMuted) return;
-      try {
-        if (!ripSound) {
-          ripSound = new Audio('assets/Rip.mp3');
-          ripSound.preload = 'auto';
-          ripSound.volume = 0.90;
-        }
-        ripSound.currentTime = 0;
-        ripSound.play().catch(err => {
-          console.log('Rip audio playback waiting for user gesture or error:', err);
-        });
-      } catch (err) {}
+      playGameSfx('rip');
     }
 
-    // Sound Effect: Cloth Wet Wipe for Step 6B Clean Wipe (Volume 0.90)
+    // Sound Effect: Cloth Wet Wipe for Step 6B Clean Wipe (Looped, Volume 0.90)
     let clothWetWipeSound = null;
     try {
       clothWetWipeSound = new Audio('assets/ClothWetWipe.mp3');
@@ -4729,46 +4787,20 @@
       } catch (err) {}
     }
 
-    // Sound Effect: Shot for Step 8 Needle Insertion (Volume 0.90)
-    let shotSound = null;
-    try {
-      shotSound = new Audio('assets/Shot.mp3');
-      shotSound.preload = 'auto';
-      shotSound.volume = 0.90;
-    } catch (e) {}
-
+    // Sound Effect: Shot for Step 8 Needle Insertion
     function playShotSound() {
-      if (isSoundMuted) return;
-      try {
-        if (!shotSound) {
-          shotSound = new Audio('assets/Shot.mp3');
-          shotSound.preload = 'auto';
-          shotSound.volume = 0.90;
-        }
-        shotSound.currentTime = 0;
-        shotSound.play().catch(err => {
-          console.log('Shot audio playback waiting for user gesture or error:', err);
-        });
-      } catch (err) {}
+      playGameSfx('shot');
     }
 
     // Sound Effect: You Did It Celebration (Volume 0.90)
     let youDidItSound = null;
-    try {
-      youDidItSound = new Audio('assets/YouDidIt.mp3');
-      youDidItSound.preload = 'auto';
-      youDidItSound.volume = 0.90;
-    } catch (e) {}
 
     function playYouDidItSound() {
       if (isSoundMuted) return;
+      stopYouDidItSound(true);
       try {
-        if (!youDidItSound) {
-          youDidItSound = new Audio('assets/YouDidIt.mp3');
-          youDidItSound.preload = 'auto';
-          youDidItSound.volume = 0.90;
-        }
-        youDidItSound.currentTime = 0;
+        youDidItSound = new Audio('assets/YouDidIt.mp3');
+        youDidItSound.volume = 0.90;
         youDidItSound.play().catch(err => {
           console.log('You Did It audio playback waiting for user gesture or error:', err);
         });
@@ -4777,13 +4809,16 @@
 
     function stopYouDidItSound(reset = false) {
       try {
-        if (youDidItSound && !youDidItSound.paused) {
+        if (youDidItSound) {
           youDidItSound.pause();
-        }
-        if (reset && youDidItSound) {
-          youDidItSound.currentTime = 0;
+          if (reset) {
+            youDidItSound.currentTime = 0;
+          }
         }
       } catch (err) {}
+      if (reset) {
+        youDidItSound = null;
+      }
     }
 
     // =========================================================
@@ -4873,6 +4908,7 @@
 
     // Screen Switching
     function switchScreen(screenName) {
+      unlockGameAudioSystem();
       const screenHome = document.getElementById('screenHome');
       const screenPrep = document.getElementById('screenPreparations');
       const screenGame = document.getElementById('screenIVGame');
@@ -4963,22 +4999,17 @@
     // 5. Box opens up cleanly to display Chapstick Box Open
     // =========================================================
     let maskBgMusic = null;
-    let maskPopSound = null;
     let maskSequenceTimers = [];
 
     function playMaskBackgroundMusic() {
       if (isSoundMuted) return;
       if (!maskBgMusic) {
-        try {
-          maskBgMusic = new Audio('assets/Music BG 7.mp3');
-        } catch (e) {
-          maskBgMusic = new Audio('assets/MusicBG7.mp3');
-        }
+        maskBgMusic = new Audio('assets/MusicBG7.mp3');
         maskBgMusic.loop = true;
         maskBgMusic.volume = 0.20;
         maskBgMusic.onerror = function() {
-          if (maskBgMusic && !maskBgMusic.src.includes('MusicBG7.mp3')) {
-            maskBgMusic.src = 'assets/MusicBG7.mp3';
+          if (maskBgMusic && !maskBgMusic.src.includes('MusicBG.mp3')) {
+            maskBgMusic.src = 'assets/MusicBG.mp3';
             maskBgMusic.play().catch(function() {});
           }
         };
@@ -4997,95 +5028,39 @@
       }
     }
 
-    let boxShakeAudio = null;
-    let boxOpenAudio = null;
-    let boxCloseAudio = null;
-    let pageFlipAudio = null;
-    let chapstickSelectAudio = null;
+    // Sound Effect: Box Shake for Step 1 Box Entrance
+    function playBoxShakeSound() {
+      playGameSfx('boxShake');
+    }
+
+    // Sound Effect: Mask Pop for Interactive Step Cues, Sticker Placement & Blinks
+    function playMaskPopSound() {
+      playGameSfx('maskPop');
+    }
+
+    // Sound Effect: Box Open for Step 1 Box Pop Open
+    function playBoxOpenSound() {
+      playGameSfx('boxOpen');
+    }
+
+    // Sound Effect: Box Close for Chapstick Put Away / Selection
+    function playBoxCloseSound() {
+      playGameSfx('boxClose');
+    }
+
+    // Sound Effect: Page Flip for Sticker Book Entrance & Opening
+    function playPageFlipSound() {
+      playGameSfx('pageFlip');
+    }
+
+    // Sound Effect: Chapstick Select for Flavor Selection
+    function playChapstickSelectSound() {
+      playGameSfx('chapstickSelect');
+    }
+
+    // Sound Effect: Chapstick Wax Rubbing (Looped during active drawing)
     let chapstickRubAudio = null;
     let chapstickRubAudioStopTimer = null;
-
-    function playBoxShakeSound() {
-      if (isSoundMuted) return;
-      try {
-        if (!boxShakeAudio) {
-          boxShakeAudio = new Audio('assets/Box Shake 2.mp3');
-          boxShakeAudio.volume = 0.85;
-          boxShakeAudio.onerror = function() {
-            if (boxShakeAudio && !boxShakeAudio.src.includes('BoxShake2.mp3')) {
-              boxShakeAudio.src = 'assets/BoxShake2.mp3';
-            }
-          };
-        }
-        boxShakeAudio.currentTime = 0;
-        boxShakeAudio.play().catch(() => {});
-      } catch (e) {}
-    }
-
-    function playMaskPopSound() {
-      if (isSoundMuted) return;
-      try {
-        if (!maskPopSound) {
-          maskPopSound = new Audio('assets/Bandage.mp3');
-          maskPopSound.volume = 0.85;
-        }
-        maskPopSound.currentTime = 0;
-        maskPopSound.play().catch(() => {});
-      } catch (e) {}
-    }
-
-    function playBoxOpenSound() {
-      if (isSoundMuted) return;
-      try {
-        if (!boxOpenAudio) {
-          boxOpenAudio = new Audio('assets/BoxOpen.mp3');
-          boxOpenAudio.volume = 0.85;
-        }
-        boxOpenAudio.currentTime = 0;
-        boxOpenAudio.play().catch(() => {});
-      } catch (e) {}
-    }
-
-    function playBoxCloseSound() {
-      if (isSoundMuted) return;
-      try {
-        if (!boxCloseAudio) {
-          boxCloseAudio = new Audio('assets/BoxClose.mp3');
-          boxCloseAudio.volume = 0.85;
-        }
-        boxCloseAudio.currentTime = 0;
-        boxCloseAudio.play().catch(() => {});
-      } catch (e) {}
-    }
-
-    function playPageFlipSound() {
-      if (isSoundMuted) return;
-      try {
-        if (!pageFlipAudio) {
-          pageFlipAudio = new Audio('assets/PageFlip2.mp3');
-          pageFlipAudio.volume = 0.85;
-          pageFlipAudio.onerror = function() {
-            if (pageFlipAudio && !pageFlipAudio.src.includes('PageFlip.mp3')) {
-              pageFlipAudio.src = 'assets/PageFlip.mp3';
-            }
-          };
-        }
-        pageFlipAudio.currentTime = 0;
-        pageFlipAudio.play().catch(() => {});
-      } catch (e) {}
-    }
-
-    function playChapstickSelectSound() {
-      if (isSoundMuted) return;
-      try {
-        if (!chapstickSelectAudio) {
-          chapstickSelectAudio = new Audio('assets/ChapstickSelect.mp3');
-          chapstickSelectAudio.volume = 0.9;
-        }
-        chapstickSelectAudio.currentTime = 0;
-        chapstickSelectAudio.play().catch(() => {});
-      } catch (e) {}
-    }
 
     function playChapstickRubbingSound() {
       if (isSoundMuted) return;
@@ -5116,6 +5091,7 @@
         try {
           if (chapstickRubAudio && !chapstickRubAudio.paused) {
             chapstickRubAudio.pause();
+            chapstickRubAudio.currentTime = 0;
           }
         } catch (e) {}
         chapstickRubAudioStopTimer = null;
@@ -5353,6 +5329,8 @@
     }
 
     function playMaskSceneSequence() {
+      unlockGameAudioSystem();
+      playMaskBackgroundMusic();
       resetMaskScene();
       const maskWrapper = document.getElementById('maskFocalWrapper');
       const boxWrapper = document.getElementById('chapstickBoxStageWrapper');
@@ -6525,14 +6503,14 @@
 
     function playBreathingAudio() {
       if (isSoundMuted) return;
+      stopBreathingAudio();
       try {
-        if (!breathingAudio) {
-          breathingAudio = new Audio('assets/SlowBreath2.mp3');
-          breathingAudio.volume = 0.88;
-        } else {
-          breathingAudio.currentTime = 0;
+        breathingAudio = new Audio('assets/SlowBreath2.mp3');
+        breathingAudio.volume = 0.88;
+        const p = breathingAudio.play();
+        if (p && typeof p.catch === 'function') {
+          p.catch(e => console.log('Breathing audio playback caught:', e));
         }
-        breathingAudio.play().catch(e => console.log('Breathing audio playback:', e));
       } catch (err) {
         console.warn('Audio error:', err);
       }
@@ -6540,8 +6518,11 @@
 
     function stopBreathingAudio() {
       if (breathingAudio) {
-        breathingAudio.pause();
-        breathingAudio.currentTime = 0;
+        try {
+          breathingAudio.pause();
+          breathingAudio.currentTime = 0;
+        } catch (e) {}
+        breathingAudio = null;
       }
     }
 
@@ -6874,17 +6855,16 @@
 
     function playYouDidItChimeSound() {
       if (isSoundMuted) return;
+      stopYouDidItChimeSound(true);
       try {
-        if (!youDidItChimeAudio) {
-          youDidItChimeAudio = new Audio('assets/YouDidItChime.mp3');
-          youDidItChimeAudio.preload = 'auto';
-          youDidItChimeAudio.volume = 0.92;
-        } else {
-          youDidItChimeAudio.currentTime = 0;
+        youDidItChimeAudio = new Audio('assets/YouDidItChime.mp3');
+        youDidItChimeAudio.volume = 0.92;
+        const p = youDidItChimeAudio.play();
+        if (p && typeof p.catch === 'function') {
+          p.catch(err => {
+            console.log('You Did It Chime audio playback waiting for user gesture or error:', err);
+          });
         }
-        youDidItChimeAudio.play().catch(err => {
-          console.log('You Did It Chime audio playback waiting for user gesture or error:', err);
-        });
       } catch (err) {
         console.warn('You Did It Chime audio error:', err);
       }
@@ -6892,13 +6872,16 @@
 
     function stopYouDidItChimeSound(reset = false) {
       try {
-        if (youDidItChimeAudio && !youDidItChimeAudio.paused) {
+        if (youDidItChimeAudio) {
           youDidItChimeAudio.pause();
-        }
-        if (reset && youDidItChimeAudio) {
-          youDidItChimeAudio.currentTime = 0;
+          if (reset) {
+            youDidItChimeAudio.currentTime = 0;
+          }
         }
       } catch (err) {}
+      if (reset) {
+        youDidItChimeAudio = null;
+      }
     }
 
     function startMaskConfetti() {
@@ -9089,6 +9072,8 @@
     }
 
     function resetGame() {
+      unlockGameAudioSystem();
+      playIVBackgroundMusic();
       // Clear any pending step or celebration timeouts
       if (stepAdvanceTimeout) {
         clearTimeout(stepAdvanceTimeout);
