@@ -226,7 +226,7 @@
       width: 100%;
       overflow-y: auto;
       overflow-x: hidden;
-      padding: 12px 24px 20px 24px;
+      padding: 24px 24px 20px 24px;
       box-sizing: border-box;
     }
 
@@ -292,9 +292,10 @@
       align-items: center;
       gap: 24px;
       width: 100%;
-      margin-top: auto;
+      margin-top: 0;
       padding-top: 16px;
       padding-bottom: 12px;
+      flex-shrink: 0;
     }
 
     .portrait-grid {
@@ -305,7 +306,7 @@
       width: 100%;
       height: 100%;
       flex: 1;
-      padding-top: 8px;
+      padding-top: 24px;
       padding-bottom: 16px;
     }
 
@@ -329,9 +330,10 @@
     }
 
     .portrait-grid-bottom {
-      margin-top: auto;
+      margin-top: 0;
       padding-top: 16px;
       padding-bottom: 8px;
+      flex-shrink: 0;
     }
 
     /* ========================================================= */
@@ -4084,6 +4086,227 @@
       }
     }
 
+    /* ========================================================= */
+    /* SCREEN 6: SETTINGS SCREEN                                 */
+    /* ========================================================= */
+    #screenSettings {
+      background-color: var(--riley-purple, #5931ba) !important;
+      color: #1e293b;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .settings-screen-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+      background-color: var(--riley-purple, #5931ba);
+    }
+
+    .settings-body-wrapper {
+      position: relative;
+      flex: 1 1 auto;
+      min-height: 0;
+      width: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Animated Scrolling Gear Background Pattern - 100% Seamless Infinite Loop */
+    .settings-bg-pattern-layer {
+      position: absolute;
+      inset: 0;
+      background-image: url('assets/SettingsBackgroundPattern.png');
+      background-repeat: repeat;
+      background-size: 650px 650px;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.95;
+      animation: scrollSettingsBg 40s linear infinite;
+      will-change: background-position;
+    }
+
+    #screenSettings:not(.active) .settings-bg-pattern-layer {
+      animation-play-state: paused;
+    }
+
+    @keyframes scrollSettingsBg {
+      0% {
+        background-position: 0 0;
+      }
+      100% {
+        background-position: -650px 650px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .settings-bg-pattern-layer {
+        animation-duration: 160s;
+      }
+    }
+
+    /* Settings Content & Card Layout */
+    .settings-content-body {
+      position: relative;
+      z-index: 5;
+      width: 100%;
+      max-width: 860px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 28px 24px 36px 24px;
+      box-sizing: border-box;
+      margin: auto;
+    }
+
+    .settings-cards-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 100%;
+    }
+
+    .settings-card {
+      background: #ffffff;
+      border-radius: 26px;
+      box-shadow: 0 10px 30px rgba(28, 14, 56, 0.22), 0 2px 8px rgba(0, 0, 0, 0.08);
+      padding: 22px 34px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      box-sizing: border-box;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+    }
+
+    .settings-card:hover {
+      box-shadow: 0 14px 36px rgba(28, 14, 56, 0.28), 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .settings-card-text {
+      flex: 1 1 auto;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .settings-card-title {
+      display: flex;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .settings-card-title img {
+      height: 25px;
+      width: auto;
+      max-width: 100%;
+      object-fit: contain;
+      display: block;
+      filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.05));
+    }
+
+    .settings-card-desc {
+      font-size: 17px;
+      font-weight: 500;
+      color: #1e293b;
+      margin: 0;
+      line-height: 1.35;
+      letter-spacing: -0.15px;
+      word-break: break-word;
+    }
+
+    .settings-card-action {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* iOS Native Toggle Switch */
+    .ios-switch {
+      width: 62px;
+      height: 36px;
+      border-radius: 999px;
+      background-color: #d1d5db;
+      border: 2px solid transparent;
+      cursor: pointer;
+      position: relative;
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+      transition: background-color 0.26s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.26s ease;
+      outline: none;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .ios-switch:focus-visible {
+      outline: 2px solid #3b82f6;
+      outline-offset: 2px;
+    }
+
+    .ios-switch.checked {
+      background-color: #34c759;
+    }
+
+    .ios-switch-thumb {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25), 0 1px 2px rgba(0, 0, 0, 0.15);
+      transition: transform 0.26s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transform: translateX(3px);
+      display: block;
+      pointer-events: none;
+    }
+
+    .ios-switch.checked .ios-switch-thumb {
+      transform: translateX(29px);
+    }
+
+    /* Responsive adjustments for mobile & small screens */
+    @media (max-width: 768px) {
+      .settings-content-body {
+        padding: 16px 16px 24px 16px;
+      }
+      .settings-card {
+        padding: 18px 20px;
+        border-radius: 20px;
+        gap: 16px;
+      }
+      .settings-card-title img {
+        height: 20px;
+      }
+      .settings-card-desc {
+        font-size: 14.5px;
+      }
+      .ios-switch {
+        width: 54px;
+        height: 32px;
+      }
+      .ios-switch-thumb {
+        width: 26px;
+        height: 26px;
+        transform: translateX(3px);
+      }
+      .ios-switch.checked .ios-switch-thumb {
+        transform: translateX(25px);
+      }
+    }
+
     
   
     /* App Screen Stacking & Absolute Bounds - Guarantees correct screen layering */
@@ -4176,7 +4399,7 @@
               <img class="banner-bg" src="assets/HeaderBanner.jpg" alt="Riley Header Banner" />
               <div class="header-left"></div>
               <div class="header-right">
-                <button class="header-icon-btn" onclick="openSheet('Settings')" title="Settings" aria-label="Settings">
+                <button class="header-icon-btn" onclick="goToSettings()" title="Settings" aria-label="Settings">
                   <img src="assets/Settings.png" alt="Settings" />
                 </button>
                 <button class="header-icon-btn" onclick="goToHome()" title="Home" aria-label="Home">
@@ -4277,7 +4500,7 @@
               </div>
 
               <div class="header-right">
-                <button class="header-icon-btn" onclick="openSheet('Settings')" title="Settings" aria-label="Settings">
+                <button class="header-icon-btn" onclick="goToSettings()" title="Settings" aria-label="Settings">
                   <img src="assets/Settings.png" alt="Settings" />
                 </button>
                 <button class="header-icon-btn" onclick="goToHome()" title="Home" aria-label="Home">
@@ -4796,14 +5019,10 @@
                     <polyline points="15 18 9 12 15 6"></polyline>
                   </svg>
                 </button>
-                <div class="about-header-titles">
-                  <span class="about-nav-title">Title</span>
-                  <span class="about-nav-subtitle">Subtitle</span>
-                </div>
               </div>
 
               <div class="header-right">
-                <button class="header-icon-btn" onclick="openSheet('Settings')" title="Settings" aria-label="Settings">
+                <button class="header-icon-btn" onclick="goToSettings()" title="Settings" aria-label="Settings">
                   <img src="assets/Settings.png" alt="Settings" />
                 </button>
                 <button class="header-icon-btn" onclick="goToHome()" title="Home" aria-label="Home">
@@ -4850,23 +5069,84 @@
         </div>
 
         <!-- ========================================================= -->
-        <!-- MODAL NAVIGATION / DETAIL SHEET (iOS Native Style)        -->
+        <!-- SCREEN 6: SETTINGS SCREEN                                 -->
         <!-- ========================================================= -->
-        <div id="modalOverlay" class="ios-modal-overlay" onclick="closeSheetOnBackdrop(event)">
-          <div class="ios-sheet">
-            <div class="sheet-handle"></div>
-            <div class="sheet-header">
-              <h3 id="sheetTitle" class="sheet-title">Destination</h3>
-              <button class="sheet-close-btn" onclick="closeSheet()">Done</button>
-            </div>
-            <div id="sheetContent" class="sheet-body">
-              Description goes here.
-            </div>
-          </div>
-        </div>
+        <div id="screenSettings" class="app-screen">
+          <div class="settings-screen-container">
+            
+            <!-- Top Apple Glass Navigation Bar (Matches About Header Style) -->
+            <header class="about-header settings-header" id="settingsHeader">
+              <div class="header-left">
+                <button class="about-back-btn" onclick="goBackFromSettings()" title="Back" aria-label="Back">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg>
+                </button>
+                <div class="about-header-titles">
+                  <span class="about-nav-title">Settings</span>
+                </div>
+              </div>
 
-      </div>
-    
+              <div class="header-right">
+                <button class="header-icon-btn" onclick="goToHome()" title="Home" aria-label="Home">
+                  <img src="assets/Home.png" alt="Home" />
+                </button>
+              </div>
+            </header>
+
+            <!-- Animated Background Layer & Centered Settings Windows -->
+            <div class="settings-body-wrapper">
+              <div class="settings-bg-pattern-layer" aria-hidden="true"></div>
+
+              <main class="settings-content-body">
+                <div class="settings-cards-container">
+                  
+                  <!-- Card 1: Voice Assistant -->
+                  <div class="settings-card" id="cardVoiceAssistant">
+                    <div class="settings-card-text">
+                      <div class="settings-card-title">
+                        <img src="assets/SettingsTitleVoiceAssistant.png" alt="VOICE ASSISTANT" />
+                      </div>
+                      <p class="settings-card-desc">Read text and descriptions out loud automatically</p>
+                    </div>
+                    <div class="settings-card-action">
+                      <button class="ios-switch" id="toggleVoiceAssistant" role="switch" aria-checked="false" onclick="toggleVoiceAssistant()" aria-label="Toggle Voice Assistant">
+                        <span class="ios-switch-thumb"></span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Card 2: Haptics -->
+                  <div class="settings-card" id="cardHaptics">
+                    <div class="settings-card-text">
+                      <div class="settings-card-title">
+                        <img src="assets/SettingsTitleHaptics.png" alt="HAPTICS" />
+                      </div>
+                      <p class="settings-card-desc">Vibrations & taps when pressing buttons</p>
+                    </div>
+                    <div class="settings-card-action">
+                      <button class="ios-switch" id="toggleHaptics" role="switch" aria-checked="false" onclick="toggleHaptics()" aria-label="Toggle Haptics">
+                        <span class="ios-switch-thumb"></span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Card 3: Sound Effects (Replacing Language) -->
+                  <div class="settings-card" id="cardSoundEffects">
+                    <div class="settings-card-text">
+                      <div class="settings-card-title">
+                        <img src="assets/SettingsTitleSoundEffects.png" alt="SOUND EFFECTS" />
+                      </div>
+                      <p class="settings-card-desc">Play sound effects and audio feedback throughout the app</p>
+                    </div>
+                    <div class="settings-card-action">
+                      <button class="ios-switch checked" id="toggleSoundEffects" role="switch" aria-checked="true" onclick="toggleSoundEffects()" aria-label="Toggle Sound Effects">
+                        <span class="ios-switch-thumb"></span>
+                      </button>
+                    </div>
+                  </div>
+
+                
 
   <script>
 // Register Riley PWA Service Worker
@@ -4924,6 +5204,11 @@
           btn.classList.remove('muted');
         }
       });
+      const sfxBtn = document.getElementById('toggleSoundEffects');
+      if (sfxBtn) {
+        sfxBtn.classList.toggle('checked', !isSoundMuted);
+        sfxBtn.setAttribute('aria-checked', !isSoundMuted ? 'true' : 'false');
+      }
     }
 
     // =========================================================
@@ -5309,6 +5594,8 @@
     }
 
     // Screen Switching
+    let previousScreen = 'home';
+
     function switchScreen(screenName) {
       unlockGameAudioSystem();
       const screenHome = document.getElementById('screenHome');
@@ -5316,8 +5603,18 @@
       const screenGame = document.getElementById('screenIVGame');
       const screenMask = document.getElementById('screenMaskGame');
       const screenAbout = document.getElementById('screenAbout');
+      const screenSettings = document.getElementById('screenSettings');
       const select = document.getElementById('screenSelect');
       const statusSpan = document.querySelector('.sim-status div:last-child span');
+
+      // Record previous screen before switching (unless entering settings itself)
+      if (screenName !== 'settings') {
+        if (screenPrep && screenPrep.classList.contains('active')) previousScreen = 'preparations';
+        else if (screenGame && screenGame.classList.contains('active')) previousScreen = 'iv-start';
+        else if (screenMask && screenMask.classList.contains('active')) previousScreen = 'mask-game';
+        else if (screenAbout && screenAbout.classList.contains('active')) previousScreen = 'about';
+        else previousScreen = 'home';
+      }
 
       // Deactivate all screens
       screenHome.classList.remove('active');
@@ -5325,6 +5622,7 @@
       if (screenGame) screenGame.classList.remove('active');
       if (screenMask) screenMask.classList.remove('active');
       if (screenAbout) screenAbout.classList.remove('active');
+      if (screenSettings) screenSettings.classList.remove('active');
 
       if (screenName === 'mask-game' || screenName === 'games') {
         if (screenMask) screenMask.classList.add('active');
@@ -5363,6 +5661,21 @@
         if (screenAbout) screenAbout.classList.add('active');
         if (select) select.value = 'about';
         if (statusSpan) statusSpan.textContent = 'About Screen Active • Riley Children\'s Health & Community Partners';
+      } else if (screenName === 'settings') {
+        // Navigating to Settings Screen
+        clearIVIntroTimers();
+        stopIVBackgroundMusic();
+        stopMaskBackgroundMusic();
+        resetMaskScene();
+        stopClothWipeSound(true);
+        stopClothWetWipeSound(true);
+        stopYouDidItSound(true);
+        if (typeof stopYouDidItChimeSound === 'function') stopYouDidItChimeSound(true);
+        if (typeof stopMaskConfetti === 'function') stopMaskConfetti();
+        if (screenSettings) screenSettings.classList.add('active');
+        if (select) select.value = 'settings';
+        if (statusSpan) statusSpan.textContent = 'Settings Screen Active • Preferences, Audio & Accessibility';
+        updateSettingsSwitchesUI();
       } else {
         // Navigating away from games stops background music and audio
         clearIVIntroTimers();
@@ -5397,6 +5710,110 @@
 
     function goToAbout() {
       switchScreen('about');
+    }
+
+    function goToSettings() {
+      switchScreen('settings');
+    }
+
+    function goBackFromSettings() {
+      switchScreen(previousScreen || 'home');
+    }
+
+    // =========================================================
+    // SETTINGS STATE & USER CONTROLS
+    // =========================================================
+    let isVoiceAssistantEnabled = localStorage.getItem('riley_voice_assistant') === 'true';
+    let isHapticsEnabled = localStorage.getItem('riley_haptics') === 'true';
+
+    function initSettings() {
+      const savedSound = localStorage.getItem('riley_sound_effects');
+      if (savedSound !== null) {
+        const soundEnabled = savedSound === 'true';
+        isSoundMuted = !soundEnabled;
+        updateSoundButtons();
+      }
+      const savedHaptics = localStorage.getItem('riley_haptics');
+      if (savedHaptics !== null) {
+        isHapticsEnabled = savedHaptics === 'true';
+      }
+      const savedVA = localStorage.getItem('riley_voice_assistant');
+      if (savedVA !== null) {
+        isVoiceAssistantEnabled = savedVA === 'true';
+      }
+      updateSettingsSwitchesUI();
+    }
+
+    function updateSettingsSwitchesUI() {
+      const vaBtn = document.getElementById('toggleVoiceAssistant');
+      const hapBtn = document.getElementById('toggleHaptics');
+      const sfxBtn = document.getElementById('toggleSoundEffects');
+
+      if (vaBtn) {
+        vaBtn.classList.toggle('checked', isVoiceAssistantEnabled);
+        vaBtn.setAttribute('aria-checked', isVoiceAssistantEnabled ? 'true' : 'false');
+      }
+      if (hapBtn) {
+        hapBtn.classList.toggle('checked', isHapticsEnabled);
+        hapBtn.setAttribute('aria-checked', isHapticsEnabled ? 'true' : 'false');
+      }
+      if (sfxBtn) {
+        sfxBtn.classList.toggle('checked', !isSoundMuted);
+        sfxBtn.setAttribute('aria-checked', !isSoundMuted ? 'true' : 'false');
+      }
+    }
+
+    function toggleSoundEffects() {
+      toggleSound();
+      const soundEnabled = !isSoundMuted;
+      try {
+        localStorage.setItem('riley_sound_effects', soundEnabled ? 'true' : 'false');
+      } catch (e) {}
+      updateSettingsSwitchesUI();
+      if (soundEnabled && typeof playSfxSound === 'function') {
+        playSfxSound('pageFlip');
+      }
+      triggerHapticFeedback(25);
+    }
+
+    function toggleHaptics() {
+      isHapticsEnabled = !isHapticsEnabled;
+      try {
+        localStorage.setItem('riley_haptics', isHapticsEnabled ? 'true' : 'false');
+      } catch (e) {}
+      updateSettingsSwitchesUI();
+      if (isHapticsEnabled && 'vibrate' in navigator) {
+        try { navigator.vibrate(50); } catch (e) {}
+      }
+    }
+
+    function triggerHapticFeedback(pattern = 25) {
+      if (isHapticsEnabled && 'vibrate' in navigator) {
+        try { navigator.vibrate(pattern); } catch (e) {}
+      }
+    }
+
+    function toggleVoiceAssistant() {
+      isVoiceAssistantEnabled = !isVoiceAssistantEnabled;
+      try {
+        localStorage.setItem('riley_voice_assistant', isVoiceAssistantEnabled ? 'true' : 'false');
+      } catch (e) {}
+      updateSettingsSwitchesUI();
+      triggerHapticFeedback(25);
+
+      if (isVoiceAssistantEnabled) {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance('Voice assistant enabled.');
+          utterance.rate = 1.0;
+          utterance.pitch = 1.0;
+          window.speechSynthesis.speak(utterance);
+        }
+      } else {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+        }
+      }
     }
 
     function openPartnerModal(partnerKey) {
@@ -10184,6 +10601,14 @@
     }
 
     function openSheet(key) {
+      if (key === 'Settings') {
+        goToSettings();
+        return;
+      }
+      if (key === 'About') {
+        goToAbout();
+        return;
+      }
       const details = sheetDetails[key] || { title: key, content: 'Details coming soon.' };
       document.getElementById('sheetTitle').textContent = details.title;
       document.getElementById('sheetContent').innerHTML = details.content;
@@ -10200,6 +10625,7 @@
 
     // Initialize layout on load
     window.addEventListener('DOMContentLoaded', () => {
+      initSettings();
       const urlParams = new URLSearchParams(window.location.search);
       const screenParam = urlParams.get('screen');
       if (screenParam) {

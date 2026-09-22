@@ -32,15 +32,6 @@ public struct AboutView: View {
                             .shadow(color: Color.black.opacity(0.04), radius: 4, x: 0, y: 2)
                     }
                     
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Title")
-                            .font(.system(size: 17, weight: .bold, design: .rounded))
-                            .foregroundColor(Color(hex: "1e293b"))
-                        Text("Subtitle")
-                            .font(.system(size: 13, weight: .medium, design: .rounded))
-                            .foregroundColor(Color(hex: "718096"))
-                    }
-                    
                     Spacer()
                     
                     HStack(spacing: 12) {

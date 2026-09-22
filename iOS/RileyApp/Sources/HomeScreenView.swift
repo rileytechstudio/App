@@ -74,6 +74,15 @@ public struct HomeScreenView: View {
                             navState.navigate(to: .settings)
                         }
                     )
+                } else if destination == .settings {
+                    SettingsView(
+                        onBack: {
+                            navState.resetToHome()
+                        },
+                        onHomeTapped: {
+                            navState.resetToHome()
+                        }
+                    )
                 } else {
                     DestinationDetailSheet(destination: destination)
                 }
@@ -149,7 +158,8 @@ public struct HomeScreenView: View {
         
         ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
-                Spacer(minLength: min(max(availableHeight * 0.04, 10), 36))
+                // Top flexible spacer allowing main buttons to sit lower and centered on the device
+                Spacer(minLength: min(max(availableHeight * 0.08, 24), 120))
                 
                 // Row 1: Preparations, Glossary, Anatomy Explorer
                 HStack(spacing: cardSpacing) {
@@ -196,8 +206,8 @@ public struct HomeScreenView: View {
                 }
                 .frame(maxWidth: .infinity)
                 
-                // Flexible spacer pushing About & Legal buttons right near the bottom of the page
-                Spacer(minLength: min(max(availableHeight * 0.08, 24), 140))
+                // Bottom flexible spacer to About & Legal buttons
+                Spacer(minLength: min(max(availableHeight * 0.06, 20), 80))
                 
                 // Row 3 (Bottom): About, Legal (Side by side, centered)
                 HStack(spacing: cardSpacing * 0.8) {
@@ -239,7 +249,8 @@ public struct HomeScreenView: View {
         
         ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
-                Spacer(minLength: 16)
+                // Top flexible spacer allowing main buttons to sit lower and centered on mobile
+                Spacer(minLength: min(max(availableHeight * 0.07, 24), 70))
                 
                 // Row 1: Preparations, Glossary
                 HStack(spacing: spacing) {
