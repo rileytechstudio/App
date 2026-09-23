@@ -19,6 +19,20 @@ public struct AnatomyExplorerView: View {
     @State private var isPromptVisible = false
     @State private var chasePhase = 0
     @State private var chaseTimer: Timer? = nil
+    @State private var selectedCharacter: String? = nil
+    @State private var isConfirmed = false
+    @State private var isMagnifierActive = false
+    @State private var magnifierOffset: CGSize = .zero
+    @State private var magnifierBaseOffset: CGSize = .zero
+    @State private var magnifierTiltAngle: Angle = .zero
+    @State private var magnifierDragAnchor: UnitPoint = .center
+    @State private var lastDragLocationX: CGFloat = 0
+    @State private var isDraggingMagnifier = false
+    @State private var isMagnifierOverCharacter = false
+    @State private var isSystemSelectionSecondary = false
+    @State private var skinToneProgress: CGFloat = 0.50
+    @State private var hasInteractedWithSkinTone = false
+    @State private var isDraggingSkinTone = false
     
     // 36 clockwise bulb coordinate percentages (in 1366x1024 coordinate space)
     private let bulbCoords: [(x: CGFloat, y: CGFloat)] = [
@@ -58,31 +72,79 @@ public struct AnatomyExplorerView: View {
                         .frame(width: proxy.size.width, height: proxy.size.height)
                         .clipped()
                     
-                    Image("AnatomyOlderBoy")
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: proxy.size.width, height: proxy.size.height)
-                        .clipped()
+                    // Overhead Theatrical Follow Spotlight Cone (Layered under characters)
+                    if let char = selectedCharacter {
+                        Image("AnatomySpotlightCone")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: proxy.size.width * 0.44)
+                            .position(
+                                x: characterCenterX(for: char, in: proxy.size.width),
+                                y: proxy.size.height * 0.44
+                            )
+                            .blendMode(.screen)
+                            .opacity(isConfirmed ? 0.82 : 0.78)
+                            .animation(.spring(response: 0.42, dampingFraction: 0.82), value: char)
+                            .allowsHitTesting(false)
+                    }
                     
-                    Image("AnatomyYoungerBoy")
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: proxy.size.width, height: proxy.size.height)
-                        .clipped()
+                    // Theatrical Floor Glow Pool (Layered under characters)
+                    if let char = selectedCharacter {
+                        Ellipse()
+                            .fill(
+                                RadialGradient(
+                                    colors: [
+                                        Color(hex: "fff8c8").opacity(0.65),
+                                        Color(hex: "ffd764").opacity(0.35),
+                                        Color.clear
+                                    ],
+                                    center: .center,
+                                    startRadius: 4,
+                                    endRadius: 75
+                                )
+                            )
+                            .frame(width: proxy.size.width * 0.17, height: proxy.size.height * 0.058)
+                            .position(
+                                x: characterCenterX(for: char, in: proxy.size.width),
+                                y: proxy.size.height * 0.85
+                            )
+                            .blendMode(.screen)
+                            .animation(.spring(response: 0.42, dampingFraction: 0.82), value: char)
+                    }
                     
-                    Image("AnatomyOlderGirl")
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: proxy.size.width, height: proxy.size.height)
-                        .clipped()
+                    // 4 Character Silhouette Layers (Always 100% Opaque)
+                    characterLayer("AnatomyOlderBoy", charId: "older-boy", proxy: proxy)
+                    characterLayer("AnatomyYoungerBoy", charId: "younger-boy", proxy: proxy)
+                    characterLayer("AnatomyOlderGirl", charId: "older-girl", proxy: proxy)
+                    characterLayer("AnatomyYoungerGirl", charId: "younger-girl", proxy: proxy)
                     
-                    Image("AnatomyYoungerGirl")
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: proxy.size.width, height: proxy.size.height)
-                        .clipped()
+                    // Ambient Stage Dimmer (Darkens the rest of the stage outside the spotlight cone in a conical shape)
+                    if let char = selectedCharacter {
+                        Color(hex: "04030e").opacity(0.46)
+                            .mask(
+                                StageDimmerConeMask(centerX: characterCenterX(for: char, in: proxy.size.width))
+                                    .fill(style: FillStyle(eoFill: true))
+                                    .blur(radius: 14)
+                            )
+                            .animation(.spring(response: 0.42, dampingFraction: 0.82), value: char)
+                            .allowsHitTesting(false)
+                    }
+                    
+                    // Hitboxes for Interactive Selection
+                    if areCharactersInteractive {
+                        characterHitboxes(proxy: proxy)
+                    }
                 }
                 .zIndex(1)
+                .opacity(isConfirmed ? 0 : 1)
+                .allowsHitTesting(!isConfirmed)
+                
+                // 1b. Dedicated Anatomy Exploration View (Revealed Upon 2nd Tap Confirmation)
+                if isConfirmed, let char = selectedCharacter {
+                    explorationDetailView(for: char, proxy: proxy)
+                        .zIndex(2)
+                        .transition(.opacity.combined(with: .scale(scale: 0.97)))
+                }
                 
                 // 2. Dual Curtains Assembly (Parting Outward on Reveal - Slower Pacing)
                 if !curtainsCleared {
@@ -170,7 +232,7 @@ public struct AnatomyExplorerView: View {
                 }
                 
                 // 5. Accessible Bottom Character Selection Prompt Banner (Full-Width Horizontal Banner)
-                if isPromptVisible {
+                if isPromptVisible && !isConfirmed {
                     bottomPromptBar
                         .transition(.asymmetric(
                             insertion: .opacity.combined(with: .move(edge: .bottom)),
@@ -178,7 +240,7 @@ public struct AnatomyExplorerView: View {
                         ))
                         .zIndex(5)
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-                        .allowsHitTesting(false)
+                        .allowsHitTesting(selectedCharacter != nil && !isConfirmed)
                 }
             }
         }
@@ -204,7 +266,18 @@ public struct AnatomyExplorerView: View {
     @ViewBuilder
     private func headerBar(isLandscape: Bool) -> some View {
         HStack(spacing: 14) {
-            Button(action: onBackToHome) {
+            Button(action: {
+                if isConfirmed {
+                    withAnimation(.spring(response: 0.38, dampingFraction: 0.75)) {
+                        isConfirmed = false
+                        magnifierOffset = .zero
+                        magnifierBaseOffset = .zero
+                        isMagnifierOverCharacter = false
+                    }
+                } else {
+                    onBackToHome()
+                }
+            }) {
                 Image(systemName: "chevron.left")
                     .font(.system(size: 18, weight: .bold))
                     .foregroundColor(.white)
@@ -218,10 +291,18 @@ public struct AnatomyExplorerView: View {
                     .shadow(color: Color.black.opacity(0.35), radius: 4, x: 0, y: 2)
             }
             
-            Text("Anatomy Explorer")
-                .font(.system(size: 20, weight: .bold, design: .rounded))
-                .foregroundColor(.white)
-                .shadow(color: .black.opacity(0.6), radius: 6, y: 2)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(isConfirmed && selectedCharacter != nil ? characterDisplayName(for: selectedCharacter!) : "Anatomy Explorer")
+                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
+                    .shadow(color: .black.opacity(0.6), radius: 6, y: 2)
+                
+                if isConfirmed {
+                    Text("Anatomy Explorer")
+                        .font(.system(size: 11, weight: .semibold, design: .rounded))
+                        .foregroundColor(.white.opacity(0.75))
+                }
+            }
             
             Spacer()
             
@@ -430,6 +511,9 @@ public struct AnatomyExplorerView: View {
         curtainPartedOpacity = 0.0
         vignetteOpacity = 1.0
         isPromptVisible = false
+        selectedCharacter = nil
+        isConfirmed = false
+        areCharactersInteractive = false
         
         // 1. Lower sign from rafters
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -488,6 +572,7 @@ public struct AnatomyExplorerView: View {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
                             withAnimation(.easeInOut(duration: 0.75)) {
                                 isPromptVisible = true
+                                areCharactersInteractive = true
                             }
                         }
                         
@@ -547,37 +632,475 @@ public struct AnatomyExplorerView: View {
     // MARK: - Accessible Bottom Character Selection Prompt Banner (Spanning Horizontal Screen Length, Semi-transparent)
     @ViewBuilder
     private var bottomPromptBar: some View {
-        HStack(spacing: 9) {
-            Circle()
-                .fill(Color(red: 0.98, green: 0.75, blue: 0.14))
-                .frame(width: 8, height: 8)
-                .shadow(color: Color(red: 0.98, green: 0.75, blue: 0.14, opacity: 0.7), radius: 4)
-            
-            Text("Pick your character to get started")
-                .font(.system(size: 15.5, weight: .bold, design: .rounded))
-                .foregroundColor(.white)
-                .lineLimit(1)
-                .minimumScaleFactor(0.85)
-        }
-        .frame(maxWidth: .infinity)
-        .frame(height: 52)
-        .background(
-            LinearGradient(
-                colors: [
-                    Color(red: 0.06, green: 0.03, blue: 0.13, opacity: 0.65),
-                    Color(red: 0.09, green: 0.05, blue: 0.19, opacity: 0.72)
-                ],
-                startPoint: .top,
-                endPoint: .bottom
+        Button(action: {
+            if let char = selectedCharacter, !isConfirmed {
+                handleCharacterTap(char)
+            }
+        }) {
+            HStack(spacing: 9) {
+                Circle()
+                    .fill(isConfirmed ? Color(hex: "34d399") : Color(red: 0.98, green: 0.75, blue: 0.14))
+                    .frame(width: isConfirmed ? 10 : 8, height: isConfirmed ? 10 : 8)
+                    .shadow(
+                        color: isConfirmed ? Color(hex: "34d399").opacity(0.85) : Color(red: 0.98, green: 0.75, blue: 0.14, opacity: 0.7),
+                        radius: 4
+                    )
+                
+                Text(promptText)
+                    .font(.system(size: 15.5, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.85)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 52)
+            .background(
+                LinearGradient(
+                    colors: isConfirmed ? [
+                        Color(hex: "0e2e20").opacity(0.85),
+                        Color(hex: "14442e").opacity(0.92)
+                    ] : (selectedCharacter != nil ? [
+                        Color(hex: "1a0d32").opacity(0.78),
+                        Color(hex: "261248").opacity(0.86)
+                    ] : [
+                        Color(red: 0.06, green: 0.03, blue: 0.13, opacity: 0.65),
+                        Color(red: 0.09, green: 0.05, blue: 0.19, opacity: 0.72)
+                    ]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .background(.ultraThinMaterial)
             )
-            .background(.ultraThinMaterial)
-        )
-        .overlay(
-            Rectangle()
-                .fill(Color.white.opacity(0.16))
-                .frame(height: 1.0),
-            alignment: .top
-        )
-        .shadow(color: Color.black.opacity(0.32), radius: 10, y: -3)
+            .overlay(
+                Rectangle()
+                    .fill(isConfirmed ? Color(hex: "34d399").opacity(0.45) : (selectedCharacter != nil ? Color(hex: "ffd700").opacity(0.35) : Color.white.opacity(0.16)))
+                    .frame(height: 1.0),
+                alignment: .top
+            )
+            .shadow(color: Color.black.opacity(0.32), radius: 10, y: -3)
+        }
+        .buttonStyle(PlainButtonStyle())
+        .allowsHitTesting(selectedCharacter != nil && !isConfirmed)
+    }
+
+    private var promptText: String {
+        if isConfirmed, let char = selectedCharacter {
+            return "\(characterDisplayName(for: char)) confirmed! Ready to explore"
+        } else if selectedCharacter != nil {
+            return "Tap again to confirm"
+        } else {
+            return "Pick your character to get started"
+        }
+    }
+
+    // MARK: - Character Selection & Spotlight Helpers
+    @ViewBuilder
+    private func characterLayer(_ name: String, charId: String, proxy: GeometryProxy) -> some View {
+        let isSelected = selectedCharacter == charId
+        
+        Image(name)
+            .resizable()
+            .aspectRatio(contentMode: .fill)
+            .frame(width: proxy.size.width, height: proxy.size.height)
+            .clipped()
+            .opacity(1.0)
+            .scaleEffect(isSelected ? (isConfirmed ? 1.04 : 1.02) : 1.0, anchor: .bottom)
+            .shadow(
+                color: isSelected ? Color(hex: "ffd764").opacity(isConfirmed ? 0.9 : 0.75) : .clear,
+                radius: isSelected ? (isConfirmed ? 10 : 6) : 0
+            )
+            .animation(.spring(response: 0.38, dampingFraction: 0.68), value: selectedCharacter)
+            .animation(.spring(response: 0.34, dampingFraction: 0.62), value: isConfirmed)
+    }
+    
+    @ViewBuilder
+    private func characterHitboxes(proxy: GeometryProxy) -> some View {
+        ZStack {
+            Button(action: { handleCharacterTap("older-boy") }) {
+                Color.clear
+            }
+            .frame(width: proxy.size.width * 0.22, height: proxy.size.height * 0.72)
+            .position(x: proxy.size.width * 0.1951, y: proxy.size.height * 0.50)
+            
+            Button(action: { handleCharacterTap("younger-boy") }) {
+                Color.clear
+            }
+            .frame(width: proxy.size.width * 0.18, height: proxy.size.height * 0.60)
+            .position(x: proxy.size.width * 0.3832, y: proxy.size.height * 0.56)
+            
+            Button(action: { handleCharacterTap("older-girl") }) {
+                Color.clear
+            }
+            .frame(width: proxy.size.width * 0.20, height: proxy.size.height * 0.72)
+            .position(x: proxy.size.width * 0.6025, y: proxy.size.height * 0.50)
+            
+            Button(action: { handleCharacterTap("younger-girl") }) {
+                Color.clear
+            }
+            .frame(width: proxy.size.width * 0.20, height: proxy.size.height * 0.60)
+            .position(x: proxy.size.width * 0.8195, y: proxy.size.height * 0.56)
+        }
+    }
+    
+    private func handleCharacterTap(_ charId: String) {
+        if selectedCharacter == charId && !isConfirmed {
+            withAnimation(.spring(response: 0.36, dampingFraction: 0.62)) {
+                isConfirmed = true
+                magnifierOffset = .zero
+                magnifierBaseOffset = .zero
+                isMagnifierOverCharacter = false
+            }
+            HapticManager.shared.successNotification()
+        } else {
+            withAnimation(.spring(response: 0.42, dampingFraction: 0.82)) {
+                selectedCharacter = charId
+                isConfirmed = false
+                hasInteractedWithSkinTone = false
+                magnifierOffset = .zero
+                magnifierBaseOffset = .zero
+                isMagnifierOverCharacter = false
+            }
+            HapticManager.shared.lightTap()
+        }
+    }
+    
+    private func characterCenterX(for charId: String, in width: CGFloat) -> CGFloat {
+        switch charId {
+        case "older-boy": return width * 0.1951
+        case "younger-boy": return width * 0.3832
+        case "older-girl": return width * 0.6025
+        case "younger-girl": return width * 0.8195
+        default: return width * 0.5
+        }
+    }
+    
+    private func characterDisplayName(for charId: String) -> String {
+        switch charId {
+        case "older-boy": return "Older Boy"
+        case "younger-boy": return "Younger Boy"
+        case "older-girl": return "Older Girl"
+        case "younger-girl": return "Younger Girl"
+        default: return "Character"
+        }
+    }
+    
+    // MARK: - Exploration Detail View (Centered Character, Magnifier, System Selection, Skin Tone Picker)
+    @ViewBuilder
+    private func explorationDetailView(for charId: String, proxy: GeometryProxy) -> some View {
+        ZStack {
+            // Selected Stage Background (Matching Screenshot)
+            Image("AnatomySelectedBackground")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: proxy.size.width, height: proxy.size.height)
+                .clipped()
+            
+            // Centered Solo Confirmed Character Standing on Stage Platform
+            ZStack {
+                Image(soloCharacterImageName(for: charId))
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                
+                if hasInteractedWithSkinTone {
+                    Image(soloCharacterImageName(for: charId))
+                        .renderingMode(.template)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .foregroundColor(skinToneColor(for: skinToneProgress))
+                        .transition(.opacity)
+                }
+            }
+            .frame(height: proxy.size.height * 0.903)
+            .position(x: proxy.size.width * 0.50, y: proxy.size.height * 0.495)
+            .shadow(color: Color.black.opacity(0.35), radius: 16)
+            
+            // Left: Magnifying Glass Dock (Permanently Displays Magnifying Glass 2 left behind)
+            Image("AnatomyMagnifyingGlass2")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: proxy.size.width * 0.249, height: proxy.size.height * 0.542)
+                .shadow(color: Color(hex: "50a0ff").opacity(0.85), radius: 14)
+                .position(x: proxy.size.width * 0.185, y: proxy.size.height * 0.48)
+                .onTapGesture {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.72)) {
+                        magnifierOffset = .zero
+                        magnifierBaseOffset = .zero
+                        magnifierTiltAngle = .zero
+                        magnifierDragAnchor = .center
+                        isMagnifierOverCharacter = false
+                    }
+                    HapticManager.shared.lightTap()
+                }
+            
+            // Left: Interactive Draggable Magnifying Glass Tool (80% transparent lens over central character)
+            let magWidth = proxy.size.width * 0.249
+            let magHeight = proxy.size.height * 0.542
+            let dockX = proxy.size.width * 0.185
+            let dockY = proxy.size.height * 0.48
+            
+            ZStack {
+                Image("AnatomyMagnifyingGlass1")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .opacity(isMagnifierOverCharacter ? 0 : 1)
+                
+                Image("AnatomyMagnifyingGlass1Transparent")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .opacity(isMagnifierOverCharacter ? 1 : 0)
+            }
+            .frame(width: magWidth, height: magHeight)
+            .rotationEffect(magnifierTiltAngle, anchor: magnifierDragAnchor)
+            .shadow(color: Color.black.opacity(isDraggingMagnifier ? 0.45 : 0.28), radius: isDraggingMagnifier ? 18 : 10, y: isDraggingMagnifier ? 10 : 5)
+            .position(x: dockX, y: dockY)
+            .offset(magnifierOffset)
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { value in
+                        if !isDraggingMagnifier {
+                            isDraggingMagnifier = true
+                            lastDragLocationX = value.location.x
+                            let anchorX = max(0.05, min(0.95, value.startLocation.x / magWidth))
+                            let anchorY = max(0.05, min(0.95, value.startLocation.y / magHeight))
+                            magnifierDragAnchor = UnitPoint(x: anchorX, y: anchorY)
+                            HapticManager.shared.selectionChanged()
+                        }
+                        
+                        let deltaX = value.location.x - lastDragLocationX
+                        lastDragLocationX = value.location.x
+                        let targetDeg = max(-7.5, min(7.5, Double(deltaX) * 0.85))
+                        withAnimation(.interactiveSpring(response: 0.2, dampingFraction: 0.7)) {
+                            magnifierTiltAngle = .degrees(targetDeg)
+                        }
+                        
+                        magnifierOffset = CGSize(
+                            width: magnifierBaseOffset.width + value.translation.width,
+                            height: magnifierBaseOffset.height + value.translation.height
+                        )
+                        
+                        let currentCenterX = dockX + magnifierOffset.width
+                        let currentCenterY = dockY + magnifierOffset.height - (magHeight * 0.216)
+                        
+                        let charMinX = proxy.size.width * 0.36
+                        let charMaxX = proxy.size.width * 0.64
+                        let charMinY = proxy.size.height * 0.12
+                        let charMaxY = proxy.size.height * 0.88
+                        
+                        let over = (currentCenterX >= charMinX && currentCenterX <= charMaxX &&
+                                    currentCenterY >= charMinY && currentCenterY <= charMaxY)
+                        
+                        if over != isMagnifierOverCharacter {
+                            isMagnifierOverCharacter = over
+                            HapticManager.shared.lightTap()
+                        }
+                    }
+                    .onEnded { value in
+                        isDraggingMagnifier = false
+                        magnifierBaseOffset = magnifierOffset
+                        
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.65)) {
+                            magnifierTiltAngle = .zero
+                        }
+                        
+                        let dist = hypot(magnifierOffset.width, magnifierOffset.height)
+                        if dist < 60 {
+                            withAnimation(.spring(response: 0.4, dampingFraction: 0.72)) {
+                                magnifierOffset = .zero
+                                magnifierBaseOffset = .zero
+                                magnifierTiltAngle = .zero
+                                magnifierDragAnchor = .center
+                                isMagnifierOverCharacter = false
+                            }
+                        }
+                        HapticManager.shared.lightTap()
+                    }
+            )
+            .animation(.easeInOut(duration: 0.2), value: isMagnifierOverCharacter)
+            .zIndex(20)
+            
+            // Right Top: System Selection Card (Equivalent Area to Skin Tone Picker: ~48,300 px²)
+            Button(action: {
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                    isSystemSelectionSecondary.toggle()
+                }
+                HapticManager.shared.lightTap()
+            }) {
+                Image(isSystemSelectionSecondary ? "AnatomySystemSelection2" : "AnatomySystemSelection")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: proxy.size.width * 0.22, height: proxy.size.height * 0.28)
+                    .shadow(color: Color.black.opacity(0.28), radius: 12, y: 6)
+            }
+            .buttonStyle(PlainButtonStyle())
+            .position(x: proxy.size.width * 0.83, y: proxy.size.height * 0.28)
+            
+            // Right Bottom: Interactive Skin Tone Slider Card
+            skinToneSliderCard(proxy: proxy)
+        }
+    }
+    
+    private func skinToneColor(for progress: CGFloat) -> Color {
+        let t = max(0, min(1, progress))
+        let stops: [(CGFloat, (Double, Double, Double))] = [
+            (0.00, (250.0/255.0, 214.0/255.0, 166.0/255.0)),
+            (0.25, (229.0/255.0, 180.0/255.0, 113.0/255.0)),
+            (0.50, (183.0/255.0, 124.0/255.0, 62.0/255.0)),
+            (0.75, (119.0/255.0, 69.0/255.0,  29.0/255.0)),
+            (1.00, (70.0/255.0,  37.0/255.0,  14.0/255.0))
+        ]
+        
+        for i in 0..<(stops.count - 1) {
+            let (sA, colA) = stops[i]
+            let (sB, colB) = stops[i + 1]
+            if t >= sA && t <= sB {
+                let factor = (t - sA) / (sB - sA)
+                let r = colA.0 + factor * (colB.0 - colA.0)
+                let g = colA.1 + factor * (colB.1 - colA.1)
+                let b = colA.2 + factor * (colB.2 - colA.2)
+                return Color(red: r, green: g, blue: b)
+            }
+        }
+        let last = stops.last!.1
+        return Color(red: last.0, green: last.1, blue: last.2)
+    }
+    
+    @ViewBuilder
+    private func skinToneSliderCard(proxy: GeometryProxy) -> some View {
+        let cardWidth = proxy.size.width * 0.128
+        let cardHeight = proxy.size.height * 0.48
+        let trackWidth = max(24, cardWidth * 0.26)
+        let trackHeight = cardHeight * 0.70
+        let thumbSize = max(28, trackWidth * 1.15)
+        let swatchSize = trackWidth
+        
+        ZStack {
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .fill(Color.white)
+                .shadow(color: Color.black.opacity(0.28), radius: 12, y: 6)
+            
+            VStack(spacing: 0) {
+                Text("SKIN TONE")
+                    .font(.system(size: 12.5, weight: .heavy))
+                    .tracking(1.2)
+                    .foregroundColor(Color(hex: "b4b4b4"))
+                    .padding(.top, 14)
+                
+                Spacer(minLength: 4)
+                
+                GeometryReader { trackGeo in
+                    ZStack(alignment: .top) {
+                        Capsule()
+                            .fill(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [
+                                        Color(hex: "fad6a6"),
+                                        Color(hex: "e5b471"),
+                                        Color(hex: "b77c3e"),
+                                        Color(hex: "77451d"),
+                                        Color(hex: "46250e")
+                                    ]),
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                            .frame(width: trackWidth, height: trackGeo.size.height)
+                            .shadow(color: Color.black.opacity(0.18), radius: 2, y: 1)
+                            .position(x: trackGeo.size.width / 2, y: trackGeo.size.height / 2)
+                        
+                        Circle()
+                            .fill(Color.white)
+                            .frame(width: thumbSize, height: thumbSize)
+                            .shadow(color: Color.black.opacity(0.35), radius: isDraggingSkinTone ? 6 : 4, y: isDraggingSkinTone ? 3 : 2)
+                            .position(
+                                x: trackGeo.size.width / 2,
+                                y: skinToneProgress * trackGeo.size.height
+                            )
+                    }
+                    .contentShape(Rectangle())
+                    .gesture(
+                        DragGesture(minimumDistance: 0)
+                            .onChanged { value in
+                                isDraggingSkinTone = true
+                                hasInteractedWithSkinTone = true
+                                let newProgress = max(0, min(1, value.location.y / trackGeo.size.height))
+                                skinToneProgress = newProgress
+                                HapticManager.shared.selectionChanged()
+                            }
+                            .onEnded { _ in
+                                isDraggingSkinTone = false
+                                HapticManager.shared.lightTap()
+                            }
+                    )
+                }
+                .frame(width: max(thumbSize, trackWidth), height: trackHeight)
+                
+                Spacer(minLength: 4)
+                
+                Circle()
+                    .fill(skinToneColor(for: skinToneProgress))
+                    .frame(width: swatchSize, height: swatchSize)
+                    .overlay(
+                        Circle()
+                            .stroke(Color.white.opacity(0.7), lineWidth: 1.5)
+                    )
+                    .shadow(color: Color.black.opacity(0.2), radius: 3, y: 1)
+                    .padding(.bottom, 12)
+            }
+        }
+        .frame(width: cardWidth, height: cardHeight)
+        .position(x: proxy.size.width * 0.83, y: proxy.size.height * 0.71)
+    }
+    
+    private func soloCharacterImageName(for charId: String) -> String {
+        switch charId {
+        case "older-boy": return "Character_OlderBoy_Solo"
+        case "younger-boy": return "Character_YoungerBoy_Solo"
+        case "older-girl": return "Character_OlderGirl_Solo"
+        case "younger-girl": return "Character_YoungerGirl_Solo"
+        default: return "Character_YoungerBoy_Solo"
+        }
     }
 }
+
+// MARK: - Conical Stage Dimmer Mask (Matches Theatrical Spotlight Beam Shape)
+struct StageDimmerConeMask: Shape {
+    var centerX: CGFloat
+    
+    var animatableData: CGFloat {
+        get { centerX }
+        set { centerX = newValue }
+    }
+    
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        // Entire stage frame rectangle (covers full screen)
+        path.addRect(rect)
+        
+        // Conical cutout matching the theatrical spotlight beam
+        let topW: CGFloat = max(18, rect.width * 0.032)
+        let bottomW: CGFloat = max(115, rect.width * 0.185)
+        let floorY: CGFloat = rect.height * 0.85
+        let floorRx: CGFloat = max(65, rect.width * 0.11)
+        let floorRy: CGFloat = max(20, rect.height * 0.036)
+        
+        var cone = Path()
+        cone.move(to: CGPoint(x: centerX - topW, y: 0))
+        cone.addLine(to: CGPoint(x: centerX + topW, y: 0))
+        cone.addLine(to: CGPoint(x: centerX + bottomW, y: rect.height))
+        cone.addLine(to: CGPoint(x: centerX - bottomW, y: rect.height))
+        cone.closeSubpath()
+        
+        var floor = Path()
+        floor.addEllipse(in: CGRect(
+            x: centerX - floorRx,
+            y: floorY - floorRy,
+            width: floorRx * 2,
+            height: floorRy * 2
+        ))
+        
+        path.addPath(cone)
+        path.addPath(floor)
+        return path
+    }
+}
+
