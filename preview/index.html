@@ -858,25 +858,38 @@
     }
 
     /* ========================================================= */
-    /* ACCESSIBLE BOTTOM STEP INSTRUCTION BAR                   */
+    /* ACCESSIBLE BOTTOM INSTRUCTION & PROMPT BANNERS           */
+    /* Spans the horizontal length of the screen, fixed height   */
+    /* Semi-transparent frosted glass banner (never a button)    */
     /* Meets WCAG 2.1/2.2 AAA Contrast Standards (17.8:1 ratio)  */
-    /* Distinct non-button text instruction presentation         */
     /* ========================================================= */
     .game-bottom-instruction-bar {
       position: absolute;
-      bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
-      left: 50%;
-      transform: translateX(-50%);
+      bottom: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      height: calc(52px + env(safe-area-inset-bottom, 0px));
+      min-height: 52px;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      box-sizing: border-box;
       z-index: 65;
-      pointer-events: none; /* Strictly non-interactive caption; never confused with a button */
+      pointer-events: none; /* Strictly non-interactive banner; never confused with a button */
       user-select: none;
       -webkit-user-select: none;
       display: flex;
       justify-content: center;
       align-items: center;
-      max-width: calc(100% - 36px);
-      width: auto;
-      transition: opacity 0.35s ease, visibility 0.35s ease;
+      background: linear-gradient(180deg, rgba(16, 8, 34, 0.65) 0%, rgba(24, 12, 48, 0.72) 100%);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.16);
+      border-bottom: none;
+      border-left: none;
+      border-right: none;
+      border-radius: 0;
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.32);
+      transition: opacity 0.35s ease, visibility 0.35s ease, background 0.3s ease, border-color 0.3s ease;
     }
 
     .step-instruction-card {
@@ -884,17 +897,14 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      background: linear-gradient(135deg, rgba(18, 10, 38, 0.92), rgba(30, 15, 60, 0.90));
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1.5px solid rgba(255, 255, 255, 0.24);
-      border-radius: 30px;
-      padding: 10px 24px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.25);
-      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
-                  background 0.3s ease,
-                  border-color 0.3s ease,
-                  box-shadow 0.3s ease;
+      width: 100%;
+      height: 52px;
+      padding: 0 20px;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+      box-sizing: border-box;
     }
 
     .step-instruction-dot {
@@ -915,11 +925,14 @@
       line-height: 1.35;
       text-align: center;
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    /* Lighting up element on step advance (radiant warm amber glow) */
-    .game-bottom-instruction-bar.highlight-advance .step-instruction-card {
-      animation: stepInstructionGlow 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+    /* Lighting up banner on step advance (radiant warm amber glow across banner) */
+    .game-bottom-instruction-bar.highlight-advance {
+      animation: stepInstructionBannerGlow 0.75s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     .game-bottom-instruction-bar.highlight-advance .step-instruction-dot {
@@ -928,30 +941,25 @@
       box-shadow: 0 0 12px rgba(254, 240, 138, 0.9);
     }
 
-    @keyframes stepInstructionGlow {
+    @keyframes stepInstructionBannerGlow {
       0% {
-        transform: scale(1);
+        background: linear-gradient(180deg, rgba(16, 8, 34, 0.65) 0%, rgba(24, 12, 48, 0.72) 100%);
+        border-top-color: rgba(255, 255, 255, 0.16);
       }
       35% {
-        transform: scale(1.06);
-        background: linear-gradient(135deg, rgba(48, 24, 90, 0.96), rgba(76, 36, 134, 0.94));
-        border-color: rgba(251, 191, 36, 0.95);
-        box-shadow: 0 0 28px rgba(251, 191, 36, 0.6), 0 0 52px rgba(251, 191, 36, 0.3), 0 8px 24px rgba(0, 0, 0, 0.5);
-      }
-      60% {
-        transform: scale(1.03);
-        border-color: rgba(251, 191, 36, 0.75);
+        background: linear-gradient(180deg, rgba(48, 24, 90, 0.84) 0%, rgba(76, 36, 134, 0.88) 100%);
+        border-top-color: rgba(251, 191, 36, 0.95);
+        box-shadow: 0 -4px 28px rgba(251, 191, 36, 0.4), 0 -2px 10px rgba(251, 191, 36, 0.6);
       }
       100% {
-        transform: scale(1);
-        border-color: rgba(255, 255, 255, 0.24);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.25);
+        background: linear-gradient(180deg, rgba(16, 8, 34, 0.65) 0%, rgba(24, 12, 48, 0.72) 100%);
+        border-top-color: rgba(255, 255, 255, 0.16);
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.32);
       }
     }
 
     @media (max-width: 480px) {
-      .step-instruction-card {
-        padding: 8px 18px;
+      .step-instruction-text {
         font-size: 13.5px;
       }
       .person-replay-btn {
@@ -4407,6 +4415,552 @@
       }
     }
 
+    /* ========================================================= */
+    /* SCREEN 7: ANATOMY EXPLORER                                */
+    /* ========================================================= */
+    #screenAnatomyExplorer {
+      background-color: #1a0b2e !important;
+      color: #ffffff;
+      overflow: hidden;
+    }
+
+    .anatomy-screen-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+      background-color: #1a0b2e;
+    }
+
+    /* Glass Header (Matching About & Settings style) */
+    .anatomy-header {
+      width: 100%;
+      height: 58px;
+      background: rgba(30, 15, 55, 0.75);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      backdrop-filter: blur(28px) saturate(180%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+      z-index: 35;
+      position: relative;
+    }
+
+    .anatomy-header .about-nav-title {
+      color: #ffffff;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .anatomy-header .about-back-btn svg {
+      stroke: #ffffff;
+    }
+
+    /* Theatrical Viewport */
+    .anatomy-theatrical-viewport {
+      flex: 1;
+      width: 100%;
+      height: calc(100% - 58px);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Revealed Stage Layer (Underneath Curtains) */
+    .anatomy-stage-revealed {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #080b18;
+    }
+
+    .anatomy-stage-frame {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    .anatomy-stage-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center bottom;
+      pointer-events: none;
+    }
+
+    .anatomy-character-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center bottom;
+      pointer-events: none;
+      transition: transform 0.25s ease, filter 0.25s ease;
+    }
+
+    /* Dual Theatrical Curtains Assembly */
+    .anatomy-curtains-stage {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 5;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .anatomy-curtains-stage.cleared {
+      display: none !important;
+    }
+
+    /* Static Backdrop: Prevents subpixel seam before parting */
+    .anatomy-curtain-backdrop {
+      position: absolute;
+      inset: 0;
+      background: url('assets/Curtain BG.png') center center / cover no-repeat, #281347;
+      opacity: 1;
+      z-index: 2;
+      transition: opacity 0.65s ease-out;
+    }
+
+    .anatomy-curtains-stage.parting .anatomy-curtain-backdrop {
+      opacity: 0;
+    }
+
+    /* Curtain Split Sides (Left / Right) */
+    .anatomy-curtain-side {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 3;
+      transform: translateX(0);
+      will-change: transform;
+    }
+
+    .curtain-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center bottom;
+      pointer-events: none;
+    }
+
+    .curtain-closed {
+      opacity: 1;
+      transition: opacity 0.85s ease-out;
+    }
+
+    .curtain-parted {
+      opacity: 0;
+      transition: opacity 0.85s ease-out;
+    }
+
+    .anatomy-curtains-stage.parting .curtain-closed {
+      opacity: 0;
+    }
+
+    .anatomy-curtains-stage.parting .curtain-parted {
+      opacity: 1;
+    }
+
+    /* Fluid Theatrical Parting Animations - Slower, Majestic Theatrical Pacing */
+    .anatomy-curtains-stage.parting .side-left {
+      animation: curtainPartLeft 3.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    .anatomy-curtains-stage.parting .side-right {
+      animation: curtainPartRight 3.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    @keyframes curtainPartLeft {
+      0% {
+        transform: translateX(0);
+      }
+      10% {
+        transform: translateX(-3.5%);
+      }
+      100% {
+        transform: translateX(-105%);
+      }
+    }
+
+    @keyframes curtainPartRight {
+      0% {
+        transform: translateX(0);
+      }
+      10% {
+        transform: translateX(3.5%);
+      }
+      100% {
+        transform: translateX(105%);
+      }
+    }
+
+    /* Vignette & Atmospheric Spotlight (Fades out when scene transitions to remove dim borders) */
+    .anatomy-ambient-vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 48%, rgba(255, 255, 255, 0.08) 0%, rgba(20, 8, 38, 0.45) 60%, rgba(10, 4, 20, 0.85) 100%);
+      z-index: 6;
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity 1.8s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .anatomy-curtains-stage.parting ~ .anatomy-ambient-vignette,
+    .anatomy-curtains-stage.cleared ~ .anatomy-ambient-vignette,
+    .anatomy-ambient-vignette.fade-out {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .anatomy-curtains-stage.cleared ~ .anatomy-ambient-vignette,
+    .anatomy-ambient-vignette.cleared {
+      display: none;
+    }
+
+    /* Bottom Character Selection Prompt Banner (Full-Width Horizontal Banner) */
+    .anatomy-bottom-prompt-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      height: calc(52px + env(safe-area-inset-bottom, 0px));
+      min-height: 52px;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      box-sizing: border-box;
+      z-index: 50;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-select: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(180deg, rgba(16, 8, 34, 0.65) 0%, rgba(24, 12, 48, 0.72) 100%);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.32);
+      opacity: 0;
+      transform: translateY(100%);
+      transition: opacity 0.65s ease, transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .anatomy-bottom-prompt-bar.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Theatrical Rigging & Sign Stage */
+    .anatomy-sign-stage {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -150%);
+      width: min(86vw, 860px);
+      max-height: min(76vh, 640px);
+      aspect-ratio: 1366 / 1024;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
+    }
+
+    /* Suspension Rigging Cables - Layered Behind the Sign */
+    .anatomy-rigging-cable {
+      position: absolute;
+      top: -120vh;
+      bottom: 72%;
+      width: 3px;
+      background: linear-gradient(180deg, rgba(200, 200, 200, 0.25) 0%, rgba(60, 40, 70, 0.85) 80%, rgba(255, 215, 120, 0.6) 100%);
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.8), 0 0 8px rgba(255, 200, 100, 0.3);
+      z-index: 1;
+      pointer-events: none;
+    }
+    .cable-left { left: 24.5%; }
+    .cable-right { right: 24.5%; }
+
+    /* Sign Assembly Wrapper - Layered In Front of Cables */
+    .anatomy-sign-assembly {
+      position: relative;
+      z-index: 5;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.7)) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.5));
+      transform-origin: center center;
+    }
+
+    /* Lowering Animation State */
+    .anatomy-sign-stage.lowering {
+      animation: signLowerDescent 1.4s cubic-bezier(0.18, 0.9, 0.32, 1.04) forwards;
+    }
+
+    .anatomy-sign-stage.at-center {
+      transform: translate(-50%, -50%);
+    }
+
+    /* Rising Up Animation State (Sign ascends out of view as curtains part - Slower Pacing) */
+    .anatomy-sign-stage.rising-up {
+      animation: signRiseAscent 2.8s cubic-bezier(0.42, 0, 0.15, 1) forwards;
+    }
+
+    @keyframes signLowerDescent {
+      0% {
+        transform: translate(-50%, -150%);
+      }
+      68% {
+        transform: translate(-50%, -47%);
+      }
+      82% {
+        transform: translate(-50%, -52%);
+      }
+      92% {
+        transform: translate(-50%, -49.3%);
+      }
+      100% {
+        transform: translate(-50%, -50%);
+      }
+    }
+
+    @keyframes signRiseAscent {
+      0% {
+        transform: translate(-50%, -50%);
+      }
+      12% {
+        transform: translate(-50%, -48.5%); /* mechanical cable tension anticipation */
+      }
+      100% {
+        transform: translate(-50%, -160%);
+      }
+    }
+
+    /* Sign Images */
+    .anatomy-sign-frame-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+      z-index: 12;
+    }
+
+    .anatomy-sign-title-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+      z-index: 13;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
+    }
+
+    /* Bulbs Overlay Layer */
+    .anatomy-bulbs-overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 14;
+    }
+
+    /* Individual Bulb Container */
+    .anatomy-bulb {
+      position: absolute;
+      width: 2.15%;
+      aspect-ratio: 1;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    /* 1. Unlit Socket Mask: Conceals the pre-baked yellow bulb until ignited */
+    .bulb-socket-off {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: radial-gradient(circle at 38% 36%, #735438 0%, #3a221b 60%, #1c0e0b 100%);
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.35), 0 2px 4px rgba(0, 0, 0, 0.55);
+      opacity: 1;
+      transition: opacity 0.08s ease-out;
+    }
+
+    /* 2. Radiant Bloom Halo */
+    .bulb-glow {
+      position: absolute;
+      inset: -90%;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(255, 235, 130, 0.85) 30%, rgba(255, 175, 25, 0.65) 58%, rgba(255, 130, 0, 0) 80%);
+      opacity: 0;
+      pointer-events: none;
+      filter: drop-shadow(0 0 6px rgba(255, 215, 60, 0.95)) drop-shadow(0 0 16px rgba(255, 150, 0, 0.75));
+      transition: opacity 0.08s ease-out;
+    }
+
+    /* 3. Incandescent White/Gold Core */
+    .bulb-core {
+      position: absolute;
+      inset: 12%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 45% 45%, #ffffff 0%, #fffadb 35%, #ffd447 75%, #ff9d00 100%);
+      opacity: 0;
+      box-shadow: 0 0 6px #ffffff, 0 0 12px #ffc107;
+      transition: opacity 0.08s ease-out;
+    }
+
+    /* Active / Lit State */
+    .anatomy-bulb.lit .bulb-socket-off {
+      opacity: 0;
+    }
+    .anatomy-bulb.lit .bulb-glow {
+      opacity: 1;
+    }
+    .anatomy-bulb.lit .bulb-core {
+      opacity: 1;
+    }
+
+    /* Sequential Flicker Keyframes (Authentic filament ignition) */
+    .anatomy-bulb.flickering .bulb-socket-off {
+      animation: bulbSocketFlicker 0.38s ease-out forwards;
+    }
+    .anatomy-bulb.flickering .bulb-glow,
+    .anatomy-bulb.flickering .bulb-core {
+      animation: bulbGlowFlicker 0.38s ease-out forwards;
+    }
+
+    @keyframes bulbSocketFlicker {
+      0% { opacity: 1; }
+      18% { opacity: 0; }
+      34% { opacity: 0.85; }
+      48% { opacity: 0; }
+      65% { opacity: 0.45; }
+      80% { opacity: 0; }
+      100% { opacity: 0; }
+    }
+
+    @keyframes bulbGlowFlicker {
+      0% { opacity: 0; transform: scale(0.6); }
+      18% { opacity: 0.85; transform: scale(1.1); }
+      34% { opacity: 0.15; transform: scale(0.7); }
+      48% { opacity: 1; transform: scale(1.22); }
+      65% { opacity: 0.45; transform: scale(0.9); }
+      80% { opacity: 0.95; transform: scale(1.1); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+
+
+    /* Living Marquee Alternating Blinking (Prior Version Pattern) */
+    .anatomy-sign-stage.marquee-chasing .anatomy-bulb.lit:nth-child(4n + 1) .bulb-glow {
+      animation: marqueeBulbPulse1 1.0s ease-in-out infinite;
+    }
+    .anatomy-sign-stage.marquee-chasing .anatomy-bulb.lit:nth-child(4n + 2) .bulb-glow {
+      animation: marqueeBulbPulse2 1.0s ease-in-out infinite;
+    }
+    .anatomy-sign-stage.marquee-chasing .anatomy-bulb.lit:nth-child(4n + 3) .bulb-glow {
+      animation: marqueeBulbPulse3 1.0s ease-in-out infinite;
+    }
+    .anatomy-sign-stage.marquee-chasing .anatomy-bulb.lit:nth-child(4n + 4) .bulb-glow {
+      animation: marqueeBulbPulse4 1.0s ease-in-out infinite;
+    }
+
+    .anatomy-sign-stage.marquee-chasing .anatomy-bulb.lit:nth-child(4n + 1) .bulb-core {
+      animation: marqueeBulbCorePulse1 1.0s ease-in-out infinite;
+    }
+    .anatomy-sign-stage.marquee-chasing .anatomy-bulb.lit:nth-child(4n + 2) .bulb-core {
+      animation: marqueeBulbCorePulse2 1.0s ease-in-out infinite;
+    }
+    .anatomy-sign-stage.marquee-chasing .anatomy-bulb.lit:nth-child(4n + 3) .bulb-core {
+      animation: marqueeBulbCorePulse3 1.0s ease-in-out infinite;
+    }
+    .anatomy-sign-stage.marquee-chasing .anatomy-bulb.lit:nth-child(4n + 4) .bulb-core {
+      animation: marqueeBulbCorePulse4 1.0s ease-in-out infinite;
+    }
+
+    @keyframes marqueeBulbPulse1 {
+      0%, 100% { opacity: 1; transform: scale(1.1); }
+      25% { opacity: 0.4; transform: scale(0.86); }
+      50% { opacity: 1; transform: scale(1.14); }
+      75% { opacity: 0.55; transform: scale(0.92); }
+    }
+    @keyframes marqueeBulbPulse2 {
+      0%, 100% { opacity: 0.55; transform: scale(0.92); }
+      25% { opacity: 1; transform: scale(1.1); }
+      50% { opacity: 0.4; transform: scale(0.86); }
+      75% { opacity: 1; transform: scale(1.14); }
+    }
+    @keyframes marqueeBulbPulse3 {
+      0%, 100% { opacity: 1; transform: scale(1.14); }
+      25% { opacity: 0.55; transform: scale(0.92); }
+      50% { opacity: 1; transform: scale(1.1); }
+      75% { opacity: 0.4; transform: scale(0.86); }
+    }
+    @keyframes marqueeBulbPulse4 {
+      0%, 100% { opacity: 0.4; transform: scale(0.86); }
+      25% { opacity: 1; transform: scale(1.14); }
+      50% { opacity: 0.55; transform: scale(0.92); }
+      75% { opacity: 1; transform: scale(1.1); }
+    }
+
+    @keyframes marqueeBulbCorePulse1 {
+      0%, 100% { opacity: 1; transform: scale(1.05); }
+      25% { opacity: 0.45; transform: scale(0.85); }
+      50% { opacity: 1; transform: scale(1.1); }
+      75% { opacity: 0.6; transform: scale(0.92); }
+    }
+    @keyframes marqueeBulbCorePulse2 {
+      0%, 100% { opacity: 0.6; transform: scale(0.92); }
+      25% { opacity: 1; transform: scale(1.05); }
+      50% { opacity: 0.45; transform: scale(0.85); }
+      75% { opacity: 1; transform: scale(1.1); }
+    }
+    @keyframes marqueeBulbCorePulse3 {
+      0%, 100% { opacity: 1; transform: scale(1.1); }
+      25% { opacity: 0.6; transform: scale(0.92); }
+      50% { opacity: 1; transform: scale(1.05); }
+      75% { opacity: 0.45; transform: scale(0.85); }
+    }
+    @keyframes marqueeBulbCorePulse4 {
+      0%, 100% { opacity: 0.45; transform: scale(0.85); }
+      25% { opacity: 1; transform: scale(1.1); }
+      50% { opacity: 0.6; transform: scale(0.92); }
+      75% { opacity: 1; transform: scale(1.05); }
+    }
+
+    /* Small Screen Adjustments */
+    @media (max-width: 768px) {
+      .anatomy-sign-stage {
+        width: 92vw;
+      }
+    }
+
     /* Bottom Info Status Bar */
     footer.sim-status {
       background: #141822;
@@ -4438,6 +4992,7 @@
         <option value="mask-game">Screen: Mask Decoration Game</option>
         <option value="about">Screen: About Riley & Partners</option>
         <option value="settings">Screen: Settings (Preferences & Audio)</option>
+        <option value="anatomy-explorer">Screen: Anatomy Explorer</option>
       </select>
 
       <!-- Device Selector -->
@@ -4500,7 +5055,7 @@
                     <button class="card-btn" onclick="openSheet('Glossary')" style="width: 250px;">
                       <img src="assets/Glossary.png" alt="Glossary" />
                     </button>
-                    <button class="card-btn" onclick="openSheet('Anatomy Explorer')" style="width: 250px;">
+                    <button class="card-btn" onclick="goToAnatomyExplorer()" style="width: 250px;">
                       <img src="assets/Anatomy Explorer.png" alt="Anatomy Explorer" />
                     </button>
                   </div>
@@ -4537,7 +5092,7 @@
                     </button>
                   </div>
                   <div class="portrait-grid-row">
-                    <button class="card-btn" onclick="openSheet('Anatomy Explorer')" style="width: 150px;">
+                    <button class="card-btn" onclick="goToAnatomyExplorer()" style="width: 150px;">
                       <img src="assets/Anatomy Explorer.png" alt="Anatomy Explorer" />
                     </button>
                     <button class="card-btn" onclick="openSheet('Gallery')" style="width: 150px;">
@@ -4671,7 +5226,7 @@
               <button class="bottom-tab-btn" onclick="openSheet('Glossary')" title="Glossary">
                 <img src="assets/Isolated_Glossary_Not_Selected.png" alt="Glossary" />
               </button>
-              <button class="bottom-tab-btn" onclick="openSheet('Anatomy Explorer')" title="Anatomy Explorer">
+              <button class="bottom-tab-btn" onclick="goToAnatomyExplorer()" title="Anatomy Explorer">
                 <img src="assets/Isolated_Anat_Explorer_Not_Selected.png" alt="Anatomy Explorer" />
               </button>
               <button class="bottom-tab-btn" onclick="openSheet('Gallery')" title="Gallery">
@@ -5180,7 +5735,7 @@
             <div class="settings-body-wrapper">
               <div class="settings-bg-pattern-layer" aria-hidden="true"></div>
 
-              <main class="settings-content-body">
+              <div class="settings-content-body">
                 <div class="settings-cards-container">
                   
                   <!-- Card 1: Voice Assistant -->
@@ -5229,7 +5784,136 @@
                   </div>
 
                 </div>
-              </main>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- SCREEN 7: ANATOMY EXPLORER                                -->
+        <!-- ========================================================= -->
+        <div id="screenAnatomyExplorer" class="app-screen">
+          <div class="anatomy-screen-container">
+            
+            <!-- Top Apple Glass Navigation Bar -->
+            <header class="about-header anatomy-header" id="anatomyHeader">
+              <div class="header-left">
+                <button class="about-back-btn" onclick="goToHome()" title="Back to Home" aria-label="Back to Home">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg>
+                </button>
+                <div class="about-header-titles">
+                  <span class="about-nav-title">Anatomy Explorer</span>
+                </div>
+              </div>
+
+              <div class="header-right">
+                <button class="header-icon-btn" onclick="goToSettings()" title="Settings" aria-label="Settings">
+                  <img src="assets/Settings.png" alt="Settings" />
+                </button>
+                <button class="header-icon-btn" onclick="goToHome()" title="Home" aria-label="Home">
+                  <img src="assets/Home.png" alt="Home" />
+                </button>
+              </div>
+            </header>
+
+            <!-- Theatrical Stage Viewport -->
+            <div class="anatomy-theatrical-viewport">
+              
+              <!-- Underlying Revealed Stage Scene (Matching Screenshot) -->
+              <div class="anatomy-stage-revealed" id="anatomyStageRevealed">
+                <div class="anatomy-stage-frame">
+                  <img class="anatomy-stage-bg" src="assets/Anatomy BG 1.png" alt="Anatomy Explorer Stage" />
+                  <img class="anatomy-character-layer" src="assets/Older Boy.png" alt="Older Boy" />
+                  <img class="anatomy-character-layer" src="assets/Younger Boy.png" alt="Younger Boy" />
+                  <img class="anatomy-character-layer" src="assets/Older Girl.png" alt="Older Girl" />
+                  <img class="anatomy-character-layer" src="assets/Younger Girl.png" alt="Younger Girl" />
+                </div>
+              </div>
+
+              <!-- Dual Theatrical Curtains Assembly (Parting outward on reveal) -->
+              <div class="anatomy-curtains-stage" id="anatomyCurtainsStage">
+                <div class="anatomy-curtain-backdrop" id="anatomyCurtainBackdrop"></div>
+                <div class="anatomy-curtain-side side-left" id="anatomyCurtainLeft">
+                  <img class="curtain-img curtain-closed" src="assets/Curtain_Closed_Left.png" alt="" />
+                  <img class="curtain-img curtain-parted" src="assets/Curtain_Parting_Left.png" alt="" />
+                </div>
+                <div class="anatomy-curtain-side side-right" id="anatomyCurtainRight">
+                  <img class="curtain-img curtain-closed" src="assets/Curtain_Closed_Right.png" alt="" />
+                  <img class="curtain-img curtain-parted" src="assets/Curtain_Parting_Right.png" alt="" />
+                </div>
+              </div>
+
+              <div class="anatomy-ambient-vignette" id="anatomyAmbientVignette" aria-hidden="true"></div>
+
+              <!-- Lowering Theatrical Sign Assembly -->
+              <div class="anatomy-sign-stage" id="anatomySignStage">
+                
+                <!-- Rigging Suspension Cables -->
+                <div class="anatomy-rigging-cable cable-left" aria-hidden="true"></div>
+                <div class="anatomy-rigging-cable cable-right" aria-hidden="true"></div>
+
+                <!-- Sign & Marquee Light Frame -->
+                <div class="anatomy-sign-assembly" id="anatomySignAssembly" onclick="shimmerAnatomyBulbs()" title="Click to trigger marquee shimmer">
+                  <!-- Base Marquee Sign Frame -->
+                  <img class="anatomy-sign-frame-img" src="assets/Title Sign.png" alt="Anatomy Explorer Sign Frame" />
+                  
+                  <!-- Title Graphic Centered Inside Frame -->
+                  <img class="anatomy-sign-title-img" src="assets/Title.png" alt="Anatomy Explorer Title" />
+
+                  <!-- Dynamic 36 Bulb Overlays -->
+                  <div class="anatomy-bulbs-overlay" id="anatomyBulbsOverlay">
+                    <div class="anatomy-bulb" id="anatomyBulb0" data-idx="0" style="left: 20.05%; top: 25.45%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb1" data-idx="1" style="left: 24.83%; top: 24.41%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb2" data-idx="2" style="left: 30.26%; top: 24.21%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb3" data-idx="3" style="left: 35.86%; top: 24.47%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb4" data-idx="4" style="left: 42.04%; top: 24.45%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb5" data-idx="5" style="left: 47.61%; top: 24.52%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb6" data-idx="6" style="left: 52.86%; top: 24.43%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb7" data-idx="7" style="left: 57.99%; top: 24.57%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb8" data-idx="8" style="left: 64.03%; top: 24.79%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb9" data-idx="9" style="left: 69.44%; top: 24.62%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb10" data-idx="10" style="left: 74.79%; top: 24.53%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb11" data-idx="11" style="left: 80.01%; top: 25.52%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb12" data-idx="12" style="left: 81.21%; top: 32.34%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb13" data-idx="13" style="left: 81.25%; top: 39.52%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb14" data-idx="14" style="left: 81.37%; top: 46.37%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb15" data-idx="15" style="left: 81.22%; top: 53.54%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb16" data-idx="16" style="left: 81.33%; top: 60.41%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb17" data-idx="17" style="left: 81.29%; top: 67.69%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb18" data-idx="18" style="left: 80.14%; top: 74.83%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb19" data-idx="19" style="left: 74.96%; top: 75.84%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb20" data-idx="20" style="left: 69.49%; top: 75.77%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb21" data-idx="21" style="left: 64.13%; top: 75.66%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb22" data-idx="22" style="left: 58.47%; top: 75.52%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb23" data-idx="23" style="left: 52.94%; top: 75.75%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb24" data-idx="24" style="left: 47.31%; top: 75.73%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb25" data-idx="25" style="left: 41.85%; top: 75.71%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb26" data-idx="26" style="left: 36.22%; top: 75.67%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb27" data-idx="27" style="left: 30.67%; top: 75.48%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb28" data-idx="28" style="left: 25.23%; top: 75.75%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb29" data-idx="29" style="left: 20.10%; top: 74.77%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb30" data-idx="30" style="left: 18.87%; top: 67.60%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb31" data-idx="31" style="left: 18.86%; top: 60.37%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb32" data-idx="32" style="left: 18.97%; top: 53.36%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb33" data-idx="33" style="left: 18.92%; top: 46.28%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb34" data-idx="34" style="left: 18.92%; top: 39.42%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                    <div class="anatomy-bulb" id="anatomyBulb35" data-idx="35" style="left: 18.94%; top: 32.19%;"><div class="bulb-socket-off"></div><div class="bulb-glow"></div><div class="bulb-core"></div></div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Bottom Character Selection Prompt Bar (Revealed with Stage Scene) -->
+              <div class="anatomy-bottom-prompt-bar" id="anatomyBottomPromptBar" role="status" aria-live="polite">
+                <div class="step-instruction-card">
+                  <span class="step-instruction-dot" aria-hidden="true"></span>
+                  <span class="step-instruction-text">Pick your character to get started</span>
+                </div>
+              </div>
+
             </div>
 
           </div>
@@ -5708,6 +6392,7 @@
       const screenMask = document.getElementById('screenMaskGame');
       const screenAbout = document.getElementById('screenAbout');
       const screenSettings = document.getElementById('screenSettings');
+      const screenAnatomy = document.getElementById('screenAnatomyExplorer');
       const select = document.getElementById('screenSelect');
       const statusSpan = document.querySelector('.sim-status div:last-child span');
 
@@ -5717,6 +6402,7 @@
         else if (screenGame && screenGame.classList.contains('active')) previousScreen = 'iv-start';
         else if (screenMask && screenMask.classList.contains('active')) previousScreen = 'mask-game';
         else if (screenAbout && screenAbout.classList.contains('active')) previousScreen = 'about';
+        else if (screenAnatomy && screenAnatomy.classList.contains('active')) previousScreen = 'anatomy-explorer';
         else previousScreen = 'home';
       }
 
@@ -5727,8 +6413,10 @@
       if (screenMask) screenMask.classList.remove('active');
       if (screenAbout) screenAbout.classList.remove('active');
       if (screenSettings) screenSettings.classList.remove('active');
+      if (screenAnatomy) screenAnatomy.classList.remove('active');
 
       if (screenName === 'mask-game' || screenName === 'games') {
+        clearAnatomyTimers();
         if (screenMask) screenMask.classList.add('active');
         if (select) select.value = 'mask-game';
         if (statusSpan) statusSpan.textContent = 'Mask Decoration Game Active • Decorate your pediatric anesthesia mask';
@@ -5742,6 +6430,7 @@
         playMaskBackgroundMusic();
         playMaskSceneSequence();
       } else if (screenName === 'iv-start') {
+        clearAnatomyTimers();
         if (screenGame) screenGame.classList.add('active');
         if (select) select.value = 'iv-start';
         if (statusSpan) statusSpan.textContent = 'IV Start Procedure Active • Complete interactive steps';
@@ -5753,6 +6442,7 @@
         playIVIntroSequence();
       } else if (screenName === 'about') {
         // Navigating to About Screen
+        clearAnatomyTimers();
         clearIVIntroTimers();
         stopIVBackgroundMusic();
         stopMaskBackgroundMusic();
@@ -5767,6 +6457,7 @@
         if (statusSpan) statusSpan.textContent = 'About Screen Active • Riley Children\'s Health & Community Partners';
       } else if (screenName === 'settings') {
         // Navigating to Settings Screen
+        clearAnatomyTimers();
         clearIVIntroTimers();
         stopIVBackgroundMusic();
         stopMaskBackgroundMusic();
@@ -5780,8 +6471,24 @@
         if (select) select.value = 'settings';
         if (statusSpan) statusSpan.textContent = 'Settings Screen Active • Preferences, Audio & Accessibility';
         updateSettingsSwitchesUI();
+      } else if (screenName === 'anatomy-explorer') {
+        // Navigating to Anatomy Explorer Screen
+        clearIVIntroTimers();
+        stopIVBackgroundMusic();
+        stopMaskBackgroundMusic();
+        resetMaskScene();
+        stopClothWipeSound(true);
+        stopClothWetWipeSound(true);
+        stopYouDidItSound(true);
+        if (typeof stopYouDidItChimeSound === 'function') stopYouDidItChimeSound(true);
+        if (typeof stopMaskConfetti === 'function') stopMaskConfetti();
+        if (screenAnatomy) screenAnatomy.classList.add('active');
+        if (select) select.value = 'anatomy-explorer';
+        if (statusSpan) statusSpan.textContent = 'Anatomy Explorer Screen Active • Theatrical Entrance & Sequential Marquee Lights';
+        startAnatomyExplorerAnimation();
       } else {
         // Navigating away from games stops background music and audio
+        clearAnatomyTimers();
         clearIVIntroTimers();
         stopIVBackgroundMusic();
         stopMaskBackgroundMusic();
@@ -5820,8 +6527,162 @@
       switchScreen('settings');
     }
 
+    function goToAnatomyExplorer() {
+      switchScreen('anatomy-explorer');
+    }
+
     function goBackFromSettings() {
       switchScreen(previousScreen || 'home');
+    }
+
+    // =========================================================
+    // ANATOMY EXPLORER PAGE & THEATRICAL MARQUEE ANIMATION
+    // =========================================================
+    let anatomyAnimationTimer = null;
+    let anatomyBulbTimers = [];
+
+    function clearAnatomyTimers() {
+      if (anatomyAnimationTimer) {
+        clearTimeout(anatomyAnimationTimer);
+        anatomyAnimationTimer = null;
+      }
+      anatomyBulbTimers.forEach(t => clearTimeout(t));
+      anatomyBulbTimers = [];
+    }
+
+    function startAnatomyExplorerAnimation() {
+      clearAnatomyTimers();
+
+      const stage = document.getElementById('anatomySignStage');
+      const curtains = document.getElementById('anatomyCurtainsStage');
+      const bulbs = document.querySelectorAll('.anatomy-bulb');
+
+      if (!stage || !curtains) return;
+
+      // 1. Reset all state: unlit bulbs, remove animation classes
+      curtains.classList.remove('parting', 'cleared');
+      stage.classList.remove('lowering', 'at-center', 'rising-up', 'marquee-chasing');
+
+      const vignette = document.getElementById('anatomyAmbientVignette');
+      if (vignette) {
+        vignette.classList.remove('fade-out', 'cleared');
+      }
+
+      const promptBar = document.getElementById('anatomyBottomPromptBar');
+      if (promptBar) {
+        promptBar.classList.remove('visible');
+      }
+
+      bulbs.forEach(b => {
+        b.classList.remove('flickering', 'lit');
+      });
+
+      // Force reflow so animations re-trigger cleanly
+      void stage.offsetWidth;
+      void curtains.offsetWidth;
+
+      // 2. Begin lowering down to the center of the screen (1.4s)
+      stage.classList.add('lowering');
+
+      // 3. Once centered (~1.4s), settle and begin sequential clockwise bulb circuit
+      anatomyAnimationTimer = setTimeout(() => {
+        stage.classList.remove('lowering');
+        stage.classList.add('at-center');
+
+        // Clockwise bulb ignition sequence (36 bulbs, 38ms step = ~1.37s)
+        const bulbCount = bulbs.length;
+        const stepMs = 38;
+
+        for (let i = 0; i < bulbCount; i++) {
+          const t = setTimeout(() => {
+            const bulb = document.getElementById('anatomyBulb' + i);
+            if (bulb) {
+              bulb.classList.add('flickering');
+              if (isHapticsEnabled) {
+                if (i % 4 === 0) triggerHapticFeedback(8);
+              }
+              // Settle bulb to lit state after flicker finishes (320ms)
+              const tLit = setTimeout(() => {
+                bulb.classList.remove('flickering');
+                bulb.classList.add('lit');
+              }, 320);
+              anatomyBulbTimers.push(tLit);
+            }
+          }, i * stepMs);
+          anatomyBulbTimers.push(t);
+        }
+
+        // 4. Once bulbs go around the sign one time, begin alternating blinking directly!
+        const totalCircuitTime = bulbCount * stepMs + 50;
+        const tMarquee = setTimeout(() => {
+          // Ensure all bulbs are lit
+          bulbs.forEach(b => {
+            b.classList.remove('flickering');
+            b.classList.add('lit');
+          });
+
+          // Begin alternating blinking (marquee chase)
+          stage.classList.add('marquee-chasing');
+
+          // 5. Let alternating blinking run briefly (~1.0s), then sign pulls up & curtains part slowly!
+          const tRiseAndPart = setTimeout(() => {
+            stage.classList.remove('marquee-chasing');
+            stage.classList.add('rising-up');
+            curtains.classList.add('parting');
+
+            const vig = document.getElementById('anatomyAmbientVignette');
+            if (vig) {
+              vig.classList.add('fade-out');
+            }
+
+            // Reveal character selection prompt bar as curtains sweep open (~0.6s)
+            const tPrompt = setTimeout(() => {
+              const pb = document.getElementById('anatomyBottomPromptBar');
+              if (pb) {
+                pb.classList.add('visible');
+              }
+            }, 600);
+            anatomyBulbTimers.push(tPrompt);
+
+            if (isHapticsEnabled) {
+              triggerHapticFeedback(16);
+            }
+
+            // 6. Curtains & sign complete their slower outward sweep (~3.25s)
+            const tCleared = setTimeout(() => {
+              curtains.classList.add('cleared');
+              const vigDone = document.getElementById('anatomyAmbientVignette');
+              if (vigDone) {
+                vigDone.classList.add('cleared');
+              }
+            }, 3250);
+            anatomyBulbTimers.push(tCleared);
+
+          }, 1000);
+          anatomyBulbTimers.push(tRiseAndPart);
+
+        }, totalCircuitTime);
+        anatomyBulbTimers.push(tMarquee);
+
+      }, 1400);
+    }
+
+    function shimmerAnatomyBulbs() {
+      const stage = document.getElementById('anatomySignStage');
+      if (!stage || !stage.classList.contains('at-center')) return;
+
+      const bulbs = document.querySelectorAll('.anatomy-bulb');
+      bulbs.forEach((bulb, i) => {
+        const t = setTimeout(() => {
+          bulb.classList.remove('lit');
+          bulb.classList.add('flickering');
+          setTimeout(() => {
+            bulb.classList.remove('flickering');
+            bulb.classList.add('lit');
+          }, 350);
+        }, (i % 6) * 50);
+        anatomyBulbTimers.push(t);
+      });
     }
 
     // =========================================================
@@ -10711,6 +11572,10 @@
       }
       if (key === 'About') {
         goToAbout();
+        return;
+      }
+      if (key === 'Anatomy Explorer') {
+        goToAnatomyExplorer();
         return;
       }
       const details = sheetDetails[key] || { title: key, content: 'Details coming soon.' };

@@ -83,6 +83,15 @@ public struct HomeScreenView: View {
                             navState.resetToHome()
                         }
                     )
+                } else if destination == .anatomyExplorer {
+                    AnatomyExplorerView(
+                        onBackToHome: {
+                            navState.resetToHome()
+                        },
+                        onSettingsTapped: {
+                            navState.navigate(to: .settings)
+                        }
+                    )
                 } else {
                     DestinationDetailSheet(destination: destination)
                 }

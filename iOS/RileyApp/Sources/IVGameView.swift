@@ -609,9 +609,9 @@ public struct IVGameView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
-                // MARK: - Accessible Bottom Step Instruction Bar
+                // MARK: - Accessible Bottom Step Instruction Banner (Full-Width Horizontal Banner)
                 bottomStepInstructionBar
-                    .padding(.bottom, 16)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
                     .allowsHitTesting(false)
                 
                 // MARK: - Success Modal Celebration Overlay
@@ -701,7 +701,7 @@ public struct IVGameView: View {
         .padding(.bottom, 6)
     }
     
-    // MARK: - Accessible Bottom Step Instruction Bar (Non-button Text Presentation, WCAG AAA Contrast)
+    // MARK: - Accessible Bottom Step Instruction Banner (Spanning Horizontal Screen Length, Semi-transparent)
     @ViewBuilder
     private var bottomStepInstructionBar: some View {
         HStack(spacing: 9) {
@@ -717,40 +717,34 @@ public struct IVGameView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.85)
         }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 10)
+        .frame(maxWidth: .infinity)
+        .frame(height: 52)
         .background(
-            RoundedRectangle(cornerRadius: 30, style: .continuous)
-                .fill(
-                    isStepHighlighting
-                    ? LinearGradient(
-                        colors: [Color(red: 0.19, green: 0.09, blue: 0.35, opacity: 0.96), Color(red: 0.30, green: 0.14, blue: 0.52, opacity: 0.94)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                    : LinearGradient(
-                        colors: [Color(red: 0.07, green: 0.04, blue: 0.15, opacity: 0.92), Color(red: 0.12, green: 0.06, blue: 0.24, opacity: 0.90)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+            LinearGradient(
+                colors: isStepHighlighting
+                ? [Color(red: 0.19, green: 0.09, blue: 0.35, opacity: 0.84), Color(red: 0.30, green: 0.14, blue: 0.52, opacity: 0.88)]
+                : [Color(red: 0.06, green: 0.03, blue: 0.13, opacity: 0.65), Color(red: 0.09, green: 0.05, blue: 0.19, opacity: 0.72)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .background(.ultraThinMaterial)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 30, style: .continuous)
-                .stroke(
+            Rectangle()
+                .fill(
                     isStepHighlighting
                     ? Color(red: 0.98, green: 0.75, blue: 0.14, opacity: 0.95)
-                    : Color.white.opacity(0.24),
-                    lineWidth: isStepHighlighting ? 2.0 : 1.5
+                    : Color.white.opacity(0.16)
                 )
+                .frame(height: isStepHighlighting ? 2.0 : 1.0),
+            alignment: .top
         )
         .shadow(
-            color: isStepHighlighting ? Color(red: 0.98, green: 0.75, blue: 0.14, opacity: 0.58) : Color.black.opacity(0.45),
-            radius: isStepHighlighting ? 16 : 8,
+            color: isStepHighlighting ? Color(red: 0.98, green: 0.75, blue: 0.14, opacity: 0.45) : Color.black.opacity(0.32),
+            radius: isStepHighlighting ? 12 : 8,
             x: 0,
-            y: isStepHighlighting ? 0 : 4
+            y: -3
         )
-        .scaleEffect(isStepHighlighting ? 1.06 : 1.0)
         .animation(.spring(response: 0.35, dampingFraction: 0.65), value: isStepHighlighting)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(headerBadgeTitle)

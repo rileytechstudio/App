@@ -128,8 +128,8 @@ def build_distribution():
     if screen_start_idx == -1:
         raise ValueError("Could not find <div class=\"device-screen\">")
     
-    # Find </main>
-    main_end_idx = src.find('</main>')
+    # Find outer simulator </main>
+    main_end_idx = src.rfind('</main>')
     if main_end_idx == -1:
         raise ValueError("Could not find </main>")
 
