@@ -23,6 +23,8 @@ def sync_assets():
         d = os.path.join(DIST_ASSETS_DIR, item)
         if os.path.isfile(s):
             shutil.copy2(s, d)
+        elif os.path.isdir(s):
+            shutil.copytree(s, d, dirs_exist_ok=True)
     print("Assets synchronized successfully.")
 
 def build_distribution():

@@ -4687,6 +4687,66 @@
       opacity: 1;
     }
 
+    /* Assembled Organs Layer (Revealed through magnifying glass lens when Heart System is active) */
+    .anatomy-exploration-organs-container {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 15;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      clip-path: circle(0px at 0 0);
+      -webkit-clip-path: circle(0px at 0 0);
+    }
+
+    .anatomy-organs-assembly-box {
+      position: absolute;
+      top: var(--organ-top, 4%);
+      left: var(--organ-left, 51%);
+      transform: translateX(-50%);
+      height: var(--organ-height, 61%);
+      aspect-ratio: var(--organ-aspect, 477 / 1583);
+      pointer-events: auto;
+    }
+
+    .anatomy-organ-layer {
+      position: absolute;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      transform-origin: 50% 50%;
+      transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.25s ease;
+      pointer-events: auto;
+    }
+
+    .anatomy-organ-layer img {
+      width: 100%;
+      height: 100%;
+      object-fit: fill;
+      display: block;
+      pointer-events: none;
+    }
+
+    /* Barely enlarged with radiant yellow glow on click */
+    .anatomy-organ-layer.is-selected {
+      transform: scale(1.07);
+      filter: drop-shadow(0 0 8px #ffd700) drop-shadow(0 0 16px rgba(255, 215, 0, 0.9)) drop-shadow(0 0 24px rgba(255, 235, 59, 0.65));
+      z-index: 35 !important;
+    }
+
+    .anatomy-organ-layer.is-speaking {
+      animation: organSpeakPulse 0.45s ease-in-out;
+    }
+
+    @keyframes organSpeakPulse {
+      0% { transform: scale(1.07); }
+      40% { transform: scale(1.15); }
+      75% { transform: scale(1.05); }
+      100% { transform: scale(1.07); }
+    }
+
     /* Left: Magnifying Glass Dock (Permanently Displays Magnifying Glass 2 left behind) */
     .anatomy-magnifier-dock {
       position: absolute;
@@ -4778,7 +4838,7 @@
     .anatomy-system-card-wrapper {
       position: absolute;
       right: 17%;
-      top: 28%;
+      top: 23%;
       transform: translate(50%, -50%);
       width: 22%;
       max-width: 235px;
@@ -4811,7 +4871,7 @@
     .anatomy-skintone-picker-wrapper {
       position: absolute;
       right: 17%;
-      top: 71%;
+      top: 66%;
       transform: translate(50%, -50%);
       width: 12.8%;
       max-width: 138px;
@@ -5070,6 +5130,26 @@
     .anatomy-bottom-prompt-bar.is-confirmed {
       background: linear-gradient(180deg, rgba(14, 46, 32, 0.85) 0%, rgba(20, 68, 46, 0.92) 100%);
       border-top: 1px solid rgba(52, 211, 153, 0.55);
+    }
+
+    .anatomy-bottom-prompt-bar.organ-prompt-active {
+      opacity: 1 !important;
+      transform: translateY(0) !important;
+      pointer-events: auto !important;
+      cursor: pointer;
+      background: linear-gradient(180deg, rgba(26, 14, 52, 0.90) 0%, rgba(42, 20, 80, 0.96) 100%) !important;
+      border-top: 1.5px solid rgba(255, 215, 0, 0.75) !important;
+      box-shadow: 0 -4px 24px rgba(255, 215, 0, 0.32) !important;
+    }
+
+    .anatomy-bottom-prompt-bar.prompt-pulse {
+      animation: promptBarPulse 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    @keyframes promptBarPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); }
     }
 
     .step-instruction-dot.confirm-pulse {
@@ -6321,6 +6401,11 @@
                   <div class="anatomy-exploration-char-container" id="anatomyExplorationCharContainer">
                     <img class="anatomy-exploration-char-img" id="anatomyExplorationCharImg" src="assets/Character_YoungerBoy_Solo.png" alt="Selected Character" />
                     <canvas class="anatomy-exploration-char-img" id="anatomyExplorationCharCanvas" style="display: none;"></canvas>
+
+                    <!-- Assembled Organs Layer (Revealed through magnifying glass lens when Heart System is active) -->
+                    <div class="anatomy-exploration-organs-container" id="anatomyExplorationOrgansContainer" aria-hidden="true">
+                      <div class="anatomy-organs-assembly-box" id="anatomyOrgansAssemblyBox"></div>
+                    </div>
                   </div>
 
                   <!-- Inline SVG Filter for Real-Time GPU Silhouette Tinting -->
@@ -6346,7 +6431,7 @@
 
                   <!-- Right Top: System Selection Card -->
                   <div class="anatomy-system-card-wrapper" id="anatomySystemCardWrapper">
-                    <img class="anatomy-system-card-img" id="anatomySystemCardImg" src="assets/System Selection.png" alt="System Selection" onclick="toggleSystemSelection()" />
+                    <img class="anatomy-system-card-img" id="anatomySystemCardImg" src="assets/System Selection.png" alt="System Selection" onclick="toggleSystemSelection(event)" />
                   </div>
 
                   <!-- Right Bottom: Interactive Skin Tone Picker Card -->
@@ -7361,6 +7446,169 @@
     let isMagnifierActive = false;
     let isSystemSelectionSecondary = false;
 
+    const ORGAN_DEFINITIONS = {
+      frontal: [
+        { id: 'lungs', name: 'Lungs', left: '1.05%', top: '29.44%', width: '98.32%', height: '32.15%', zIndex: 1, file: 'assets/organs_frontal/Organ_lungs.png' },
+        { id: 'kidneys', name: 'Kidneys', left: '11.95%', top: '66.39%', width: '74.84%', height: '13.01%', zIndex: 2, file: 'assets/organs_frontal/Organ_kidneys.png' },
+        { id: 'intestines', name: 'Intestines', left: '0.00%', top: '62.60%', width: '95.39%', height: '31.71%', zIndex: 3, file: 'assets/organs_frontal/Organ_intestines.png' },
+        { id: 'stomach', name: 'Stomach', left: '32.70%', top: '57.23%', width: '54.30%', height: '14.78%', zIndex: 4, file: 'assets/organs_frontal/Organ_stomach.png' },
+        { id: 'liver', name: 'Liver', left: '13.63%', top: '53.95%', width: '74.00%', height: '15.22%', zIndex: 5, file: 'assets/organs_frontal/Organ_liver.png' },
+        { id: 'heart', name: 'Heart', left: '45.07%', top: '40.43%', width: '37.74%', height: '15.41%', zIndex: 6, file: 'assets/organs_frontal/Organ_heart.png' },
+        { id: 'thyroid', name: 'Thyroid', left: '36.90%', top: '22.93%', width: '27.04%', height: '8.78%', zIndex: 7, file: 'assets/organs_frontal/Organ_thyroid.png' },
+        { id: 'bladder', name: 'Bladder', left: '27.46%', top: '83.51%', width: '46.54%', height: '16.36%', zIndex: 8, file: 'assets/organs_frontal/Organ_bladder.png' },
+        { id: 'brain', name: 'Brain', left: '17.82%', top: '0.00%', width: '64.78%', height: '18.89%', zIndex: 9, file: 'assets/organs_frontal/Organ_brain.png' }
+      ],
+      side: [
+        { id: 'lung', name: 'Lungs', left: '0.00%', top: '29.46%', width: '98.68%', height: '31.09%', zIndex: 1, file: 'assets/organs_side/Organ_lung_side.png' },
+        { id: 'kidneys', name: 'Kidneys', left: '13.20%', top: '71.11%', width: '79.87%', height: '13.34%', zIndex: 2, file: 'assets/organs_side/Organ_kidneys_side.png' },
+        { id: 'intestines', name: 'Intestines', left: '5.28%', top: '68.14%', width: '94.72%', height: '30.23%', zIndex: 3, file: 'assets/organs_side/Organ_intestines_side.png' },
+        { id: 'stomach', name: 'Stomach', left: '30.03%', top: '53.93%', width: '59.74%', height: '15.64%', zIndex: 4, file: 'assets/organs_side/Organ_stomach_side.png' },
+        { id: 'liver', name: 'Liver', left: '11.22%', top: '55.66%', width: '69.64%', height: '13.92%', zIndex: 5, file: 'assets/organs_side/Organ_liver_side.png' },
+        { id: 'heart', name: 'Heart', left: '44.88%', top: '41.55%', width: '39.27%', height: '15.55%', zIndex: 6, file: 'assets/organs_side/Organ_heart_side.png' },
+        { id: 'thyroid', name: 'Thyroid', left: '35.97%', top: '24.86%', width: '25.41%', height: '7.87%', zIndex: 7, file: 'assets/organs_side/Organ_thyroid_side.png' },
+        { id: 'bladder', name: 'Bladder', left: '31.68%', top: '85.41%', width: '42.57%', height: '14.59%', zIndex: 8, file: 'assets/organs_side/Organ_bladder_side.png' },
+        { id: 'brain', name: 'Brain', left: '19.92%', top: '0.00%', width: '70.63%', height: '18.91%', zIndex: 9, file: 'assets/organs_side/Organ_brain_side.png' }
+      ]
+    };
+
+    let selectedOrganId = null;
+
+    function renderOrganAssembly(isOlder) {
+      const box = document.getElementById('anatomyOrgansAssemblyBox');
+      if (!box) return;
+      box.innerHTML = '';
+      selectedOrganId = null;
+      box.style.setProperty('--organ-aspect', isOlder ? '303 / 1042' : '477 / 1583');
+
+      const list = isOlder ? ORGAN_DEFINITIONS.side : ORGAN_DEFINITIONS.frontal;
+      list.forEach(item => {
+        const layer = document.createElement('div');
+        layer.className = 'anatomy-organ-layer';
+        layer.dataset.organ = item.id;
+        layer.dataset.name = item.name;
+        layer.style.left = item.left;
+        layer.style.top = item.top;
+        layer.style.width = item.width;
+        layer.style.height = item.height;
+        layer.style.zIndex = item.zIndex;
+
+        const img = document.createElement('img');
+        img.src = item.file;
+        img.alt = item.name;
+        layer.appendChild(img);
+
+        layer.addEventListener('pointerdown', (e) => e.stopPropagation());
+        layer.addEventListener('click', (e) => {
+          e.stopPropagation();
+          onOrganClicked(item.id);
+        });
+
+        box.appendChild(layer);
+      });
+    }
+
+    function onOrganClicked(organId) {
+      if (!isSystemSelectionSecondary || !isMagnifierOverCharacter) return;
+      if (selectedOrganId === organId) {
+        speakOrganName(organId);
+      } else {
+        selectOrgan(organId);
+      }
+    }
+
+    function selectOrgan(organId) {
+      selectedOrganId = organId;
+      const isOlder = (selectedAnatomyCharacter === 'older-boy' || selectedAnatomyCharacter === 'older-girl');
+      const list = isOlder ? ORGAN_DEFINITIONS.side : ORGAN_DEFINITIONS.frontal;
+      const organ = list.find(o => o.id === organId) || { name: organId.charAt(0).toUpperCase() + organId.slice(1) };
+
+      document.querySelectorAll('.anatomy-organ-layer').forEach(layer => {
+        if (layer.dataset.organ === organId) {
+          layer.classList.add('is-selected');
+        } else {
+          layer.classList.remove('is-selected', 'is-speaking');
+        }
+      });
+
+      const promptBar = document.getElementById('anatomyBottomPromptBar');
+      const promptText = document.getElementById('anatomyPromptText');
+      const promptDot = document.getElementById('anatomyPromptDot');
+      if (promptBar) {
+        promptBar.classList.add('visible', 'can-confirm', 'organ-prompt-active');
+        promptBar.classList.remove('is-confirmed');
+      }
+      if (promptDot) {
+        promptDot.className = 'step-instruction-dot confirm-pulse';
+      }
+      if (promptText) {
+        promptText.innerHTML = `<strong>${organ.name}</strong> - Tap again to hear the name of the organ`;
+      }
+
+      if (isHapticsEnabled) triggerHapticFeedback(14);
+    }
+
+    function speakOrganName(organId) {
+      const isOlder = (selectedAnatomyCharacter === 'older-boy' || selectedAnatomyCharacter === 'older-girl');
+      const list = isOlder ? ORGAN_DEFINITIONS.side : ORGAN_DEFINITIONS.frontal;
+      const organ = list.find(o => o.id === organId) || { name: organId.charAt(0).toUpperCase() + organId.slice(1) };
+
+      const el = document.querySelector(`.anatomy-organ-layer[data-organ="${organId}"]`);
+      if (el) {
+        el.classList.remove('is-speaking');
+        void el.offsetWidth;
+        el.classList.add('is-speaking');
+      }
+
+      // Keep the prior text prompt up even after the tap to voice
+      const promptBar = document.getElementById('anatomyBottomPromptBar');
+      const promptText = document.getElementById('anatomyPromptText');
+      if (promptBar) {
+        promptBar.classList.add('visible', 'can-confirm', 'organ-prompt-active');
+        promptBar.classList.remove('is-confirmed');
+      }
+      if (promptText) {
+        promptText.innerHTML = `<strong>${organ.name}</strong> - Tap again to hear the name of the organ`;
+      }
+
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(organ.name);
+        utter.rate = 0.88;
+        utter.pitch = 1.05;
+        window.speechSynthesis.speak(utter);
+      }
+
+      if (isHapticsEnabled) triggerHapticFeedback([12, 60, 20]);
+    }
+
+    function clearOrganSelection() {
+      selectedOrganId = null;
+      document.querySelectorAll('.anatomy-organ-layer').forEach(layer => {
+        layer.classList.remove('is-selected', 'is-speaking');
+      });
+      const promptBar = document.getElementById('anatomyBottomPromptBar');
+      const promptText = document.getElementById('anatomyPromptText');
+      if (promptBar && isAnatomyInExploration) {
+        promptBar.classList.remove('organ-prompt-active', 'visible', 'can-confirm', 'prompt-pulse');
+        promptBar.classList.add('is-confirmed');
+      }
+      if (promptText && isAnatomyInExploration) {
+        promptText.innerHTML = '';
+      }
+    }
+
+    function findOrganAtPoint(clientX, clientY) {
+      const layers = Array.from(document.querySelectorAll('.anatomy-organ-layer'));
+      layers.sort((a, b) => (parseInt(b.style.zIndex || 0) - parseInt(a.style.zIndex || 0)));
+      for (const layer of layers) {
+        const rect = layer.getBoundingClientRect();
+        if (clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom) {
+          return layer.dataset.organ;
+        }
+      }
+      return null;
+    }
+
     function confirmAnatomyCharacter(charId) {
       if (!charId) charId = selectedAnatomyCharacter;
       if (!charId || !ANATOMY_CHARACTERS[charId]) return;
@@ -7402,7 +7650,32 @@
       }
       // Reset interaction state on each new character selection
       hasInteractedWithSkinTone = false;
+      isSystemSelectionSecondary = false;
+      const sysImg = document.getElementById('anatomySystemCardImg');
+      if (sysImg) sysImg.src = 'assets/System Selection.png';
       updateCharacterVisualTint(null);
+
+      // Set proportional organ alignment parameters for confirmed character
+      const isOlder = (charId === 'older-boy' || charId === 'older-girl');
+      renderOrganAssembly(isOlder);
+
+      const organConfigs = {
+        'younger-boy': { top: '4%', left: '51%', height: '61%' },
+        'older-boy': { top: '2.2%', left: '44.1%', height: '54.8%' },
+        'younger-girl': { top: '4%', left: '50%', height: '60%' },
+        'older-girl': { top: '2.2%', left: '47.0%', height: '54.8%' }
+      };
+      const organsEl = document.getElementById('anatomyExplorationOrgansContainer');
+      const cfg = organConfigs[charId] || organConfigs['younger-boy'];
+      if (organsEl) {
+        organsEl.style.setProperty('--organ-top', cfg.top);
+        organsEl.style.setProperty('--organ-left', cfg.left);
+        organsEl.style.setProperty('--organ-height', cfg.height);
+        organsEl.style.opacity = '0';
+        organsEl.style.clipPath = 'circle(0px at 0px 0px)';
+        organsEl.style.webkitClipPath = 'circle(0px at 0px 0px)';
+      }
+
       initSkinToneSlider();
       initMagnifierDrag();
 
@@ -7435,9 +7708,13 @@
     }
 
     function exitAnatomyExploration() {
+      clearOrganSelection();
       isAnatomyInExploration = false;
       isAnatomyCharacterConfirmed = false;
       hasInteractedWithSkinTone = false;
+      isSystemSelectionSecondary = false;
+      const sysImg = document.getElementById('anatomySystemCardImg');
+      if (sysImg) sysImg.src = 'assets/System Selection.png';
       updateCharacterVisualTint(null);
       resetMagnifierToDock();
       const charContainer = document.getElementById('anatomyExplorationCharContainer');
@@ -7461,7 +7738,7 @@
 
       if (promptBar) {
         promptBar.classList.add('visible', 'can-confirm');
-        promptBar.classList.remove('is-confirmed');
+        promptBar.classList.remove('is-confirmed', 'organ-prompt-active');
       }
       if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
       if (promptText) promptText.textContent = 'Tap again to confirm';
@@ -7491,6 +7768,7 @@
     let tiltDecayTimer = null;
 
     function resetMagnifierToDock() {
+      clearOrganSelection();
       const wrapper = document.getElementById('anatomyMagnifierWrapper');
       if (!wrapper) return;
       magnifierOffsetX = 0;
@@ -7501,6 +7779,14 @@
       wrapper.classList.add('is-returning');
       wrapper.style.transformOrigin = '50% 50%';
       wrapper.style.transform = 'translate(-50%, -50%) rotate(0deg)';
+
+      const organsContainer = document.getElementById('anatomyExplorationOrgansContainer');
+      if (organsContainer) {
+        organsContainer.style.opacity = '0';
+        organsContainer.style.clipPath = 'circle(0px at 0px 0px)';
+        organsContainer.style.webkitClipPath = 'circle(0px at 0px 0px)';
+      }
+
       setTimeout(() => {
         wrapper.classList.remove('is-returning');
       }, 420);
@@ -7510,12 +7796,14 @@
     function checkMagnifierOverCharacter() {
       const wrapper = document.getElementById('anatomyMagnifierWrapper');
       const charContainer = document.getElementById('anatomyExplorationCharContainer');
+      const organsContainer = document.getElementById('anatomyExplorationOrgansContainer');
       if (!wrapper || !charContainer) return false;
 
       const magRect = wrapper.getBoundingClientRect();
       // The circular lens center is at ~47% width and ~28.4% height of the magnifying glass
       const lensX = magRect.left + magRect.width * 0.47;
       const lensY = magRect.top + magRect.height * 0.284;
+      const lensRadius = magRect.width * 0.35;
       const charRect = charContainer.getBoundingClientRect();
 
       const isOver = (
@@ -7530,6 +7818,22 @@
         wrapper.classList.toggle('over-character', isOver);
         if (isHapticsEnabled) triggerHapticFeedback(8);
       }
+
+      // Dynamically reveal assembled organs underneath the circular transparent lens aperture
+      if (organsContainer) {
+        if (isSystemSelectionSecondary && isOver) {
+          const relX = lensX - charRect.left;
+          const relY = lensY - charRect.top;
+          organsContainer.style.opacity = '1';
+          organsContainer.style.clipPath = `circle(${lensRadius.toFixed(1)}px at ${relX.toFixed(1)}px ${relY.toFixed(1)}px)`;
+          organsContainer.style.webkitClipPath = `circle(${lensRadius.toFixed(1)}px at ${relX.toFixed(1)}px ${relY.toFixed(1)}px)`;
+        } else {
+          organsContainer.style.opacity = '0';
+          organsContainer.style.clipPath = 'circle(0px at 0px 0px)';
+          organsContainer.style.webkitClipPath = 'circle(0px at 0px 0px)';
+        }
+      }
+
       return isOver;
     }
 
@@ -7623,7 +7927,30 @@
           wrapper.style.transformOrigin = '50% 50%';
 
           const distFromDock = Math.hypot(magnifierOffsetX, magnifierOffsetY);
-          if (distFromDock < 55 || !didMove) {
+
+          if (!didMove) {
+            // Tap detected! Check if tap occurred within circular lens aperture while over character
+            const magRect = wrapper.getBoundingClientRect();
+            const lensX = magRect.left + magRect.width * 0.47;
+            const lensY = magRect.top + magRect.height * 0.284;
+            const lensRadius = magRect.width * 0.35;
+            const distToLens = Math.hypot(e.clientX - lensX, e.clientY - lensY);
+
+            if (isSystemSelectionSecondary && isMagnifierOverCharacter && distToLens <= lensRadius) {
+              const clickedOrgan = findOrganAtPoint(e.clientX, e.clientY);
+              if (clickedOrgan) {
+                onOrganClicked(clickedOrgan);
+                return;
+              }
+            }
+
+            if (distFromDock < 55) {
+              resetMagnifierToDock();
+              return;
+            }
+          }
+
+          if (distFromDock < 55) {
             resetMagnifierToDock();
           } else {
             updateTransformWithTilt();
@@ -7648,16 +7975,25 @@
       resetMagnifierToDock();
     }
 
-    function toggleSystemSelection() {
+    function toggleSystemSelection(e) {
+      if (e) e.stopPropagation();
       isSystemSelectionSecondary = !isSystemSelectionSecondary;
       const img = document.getElementById('anatomySystemCardImg');
       if (img) {
         img.src = isSystemSelectionSecondary ? 'assets/System Selection 2.png' : 'assets/System Selection.png';
       }
+      if (!isSystemSelectionSecondary) {
+        clearOrganSelection();
+      }
       if (isHapticsEnabled) triggerHapticFeedback(12);
+      checkMagnifierOverCharacter();
     }
 
     function handleAnatomyPromptBarTap() {
+      if (selectedOrganId) {
+        speakOrganName(selectedOrganId);
+        return;
+      }
       if (selectedAnatomyCharacter && !isAnatomyCharacterConfirmed) {
         confirmAnatomyCharacter(selectedAnatomyCharacter);
       }

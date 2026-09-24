@@ -1,4 +1,27 @@
 import SwiftUI
+import AVFoundation
+
+public struct AnatomicalOrganItem: Identifiable {
+    public let id: String
+    public let name: String
+    public let left: CGFloat
+    public let top: CGFloat
+    public let width: CGFloat
+    public let height: CGFloat
+    public let zIndex: Double
+    public let imageName: String
+
+    public init(id: String, name: String, left: CGFloat, top: CGFloat, width: CGFloat, height: CGFloat, zIndex: Double, imageName: String) {
+        self.id = id
+        self.name = name
+        self.left = left
+        self.top = top
+        self.width = width
+        self.height = height
+        self.zIndex = zIndex
+        self.imageName = imageName
+    }
+}
 
 public struct AnatomyExplorerView: View {
     public var onBackToHome: () -> Void
@@ -33,6 +56,32 @@ public struct AnatomyExplorerView: View {
     @State private var skinToneProgress: CGFloat = 0.50
     @State private var hasInteractedWithSkinTone = false
     @State private var isDraggingSkinTone = false
+    @State private var selectedOrganId: String? = nil
+    private let speechSynthesizer = AVSpeechSynthesizer()
+
+    private let frontalOrgans: [AnatomicalOrganItem] = [
+        AnatomicalOrganItem(id: "lungs", name: "Lungs", left: 0.0105, top: 0.2944, width: 0.9832, height: 0.3215, zIndex: 1, imageName: "AnatomyOrganLungs"),
+        AnatomicalOrganItem(id: "kidneys", name: "Kidneys", left: 0.1195, top: 0.6639, width: 0.7484, height: 0.1301, zIndex: 2, imageName: "AnatomyOrganKidneys"),
+        AnatomicalOrganItem(id: "intestines", name: "Intestines", left: 0.0000, top: 0.6260, width: 0.9539, height: 0.3171, zIndex: 3, imageName: "AnatomyOrganIntestines"),
+        AnatomicalOrganItem(id: "stomach", name: "Stomach", left: 0.3270, top: 0.5723, width: 0.5430, height: 0.1478, zIndex: 4, imageName: "AnatomyOrganStomach"),
+        AnatomicalOrganItem(id: "liver", name: "Liver", left: 0.1363, top: 0.5395, width: 0.7400, height: 0.1522, zIndex: 5, imageName: "AnatomyOrganLiver"),
+        AnatomicalOrganItem(id: "heart", name: "Heart", left: 0.4507, top: 0.4043, width: 0.3774, height: 0.1541, zIndex: 6, imageName: "AnatomyOrganHeart"),
+        AnatomicalOrganItem(id: "thyroid", name: "Thyroid", left: 0.3690, top: 0.2293, width: 0.2704, height: 0.0878, zIndex: 7, imageName: "AnatomyOrganThyroid"),
+        AnatomicalOrganItem(id: "bladder", name: "Bladder", left: 0.2746, top: 0.8351, width: 0.4654, height: 0.1636, zIndex: 8, imageName: "AnatomyOrganBladder"),
+        AnatomicalOrganItem(id: "brain", name: "Brain", left: 0.1782, top: 0.0000, width: 0.6478, height: 0.1889, zIndex: 9, imageName: "AnatomyOrganBrain")
+    ]
+
+    private let sideOrgans: [AnatomicalOrganItem] = [
+        AnatomicalOrganItem(id: "lung", name: "Lungs", left: 0.0000, top: 0.2946, width: 0.9868, height: 0.3109, zIndex: 1, imageName: "AnatomyOrganLungSide"),
+        AnatomicalOrganItem(id: "kidneys", name: "Kidneys", left: 0.1320, top: 0.7111, width: 0.7987, height: 0.1334, zIndex: 2, imageName: "AnatomyOrganKidneysSide"),
+        AnatomicalOrganItem(id: "intestines", name: "Intestines", left: 0.0528, top: 0.6814, width: 0.9472, height: 0.3023, zIndex: 3, imageName: "AnatomyOrganIntestinesSide"),
+        AnatomicalOrganItem(id: "stomach", name: "Stomach", left: 0.3003, top: 0.5393, width: 0.5974, height: 0.1564, zIndex: 4, imageName: "AnatomyOrganStomachSide"),
+        AnatomicalOrganItem(id: "liver", name: "Liver", left: 0.1122, top: 0.5566, width: 0.6964, height: 0.1392, zIndex: 5, imageName: "AnatomyOrganLiverSide"),
+        AnatomicalOrganItem(id: "heart", name: "Heart", left: 0.4488, top: 0.4155, width: 0.3927, height: 0.1555, zIndex: 6, imageName: "AnatomyOrganHeartSide"),
+        AnatomicalOrganItem(id: "thyroid", name: "Thyroid", left: 0.3597, top: 0.2486, width: 0.2541, height: 0.0787, zIndex: 7, imageName: "AnatomyOrganThyroidSide"),
+        AnatomicalOrganItem(id: "bladder", name: "Bladder", left: 0.3168, top: 0.8541, width: 0.4257, height: 0.1459, zIndex: 8, imageName: "AnatomyOrganBladderSide"),
+        AnatomicalOrganItem(id: "brain", name: "Brain", left: 0.1992, top: 0.0000, width: 0.7063, height: 0.1891, zIndex: 9, imageName: "AnatomyOrganBrainSide")
+    ]
     
     // 36 clockwise bulb coordinate percentages (in 1366x1024 coordinate space)
     private let bulbCoords: [(x: CGFloat, y: CGFloat)] = [
@@ -600,7 +649,6 @@ public struct AnatomyExplorerView: View {
                 }
             }
         }
-    }
     
     private func shimmerBulbs() {
         guard isLowered && !isRisingUp else { return }
@@ -787,6 +835,14 @@ public struct AnatomyExplorerView: View {
     // MARK: - Exploration Detail View (Centered Character, Magnifier, System Selection, Skin Tone Picker)
     @ViewBuilder
     private func explorationDetailView(for charId: String, proxy: GeometryProxy) -> some View {
+        let magWidth = proxy.size.width * 0.249
+        let magHeight = proxy.size.height * 0.542
+        let dockX = proxy.size.width * 0.185
+        let dockY = proxy.size.height * 0.48
+        let charHeight = proxy.size.height * 0.903
+        let charCenterX = proxy.size.width * 0.50
+        let charCenterY = proxy.size.height * 0.495
+
         ZStack {
             // Selected Stage Background (Matching Screenshot)
             Image("AnatomySelectedBackground")
@@ -810,17 +866,70 @@ public struct AnatomyExplorerView: View {
                         .transition(.opacity)
                 }
             }
-            .frame(height: proxy.size.height * 0.903)
-            .position(x: proxy.size.width * 0.50, y: proxy.size.height * 0.495)
+            .frame(height: charHeight)
+            .position(x: charCenterX, y: charCenterY)
             .shadow(color: Color.black.opacity(0.35), radius: 16)
+            .zIndex(10)
+
+            // Assembled Organs Layer (Revealed through magnifying glass lens when Heart System is active)
+            if isSystemSelectionSecondary {
+                let organCfg = organLayoutConfig(for: charId)
+                let organH = charHeight * organCfg.scale
+                let charTopY = charCenterY - (charHeight / 2)
+                let organCenterY = charTopY + (charHeight * organCfg.offsetY) + (organH / 2)
+                let organCenterX = charCenterX + (proxy.size.width * organCfg.offsetX)
+                
+                let currentCenterX = dockX + magnifierOffset.width
+                let currentCenterY = dockY + magnifierOffset.height - (magHeight * 0.216)
+                let lensRadius = magWidth * 0.35
+                
+                let isOlder = (charId == "older-boy" || charId == "older-girl")
+                let organBoxW = isOlder ? (organH * (303.0 / 1042.0)) : (organH * (477.0 / 1583.0))
+                let organList = isOlder ? sideOrgans : frontalOrgans
+                
+                ZStack {
+                    ForEach(organList) { organ in
+                        let isSel = (selectedOrganId == organ.id)
+                        let w = organBoxW * organ.width
+                        let h = organH * organ.height
+                        let ox = -organBoxW / 2 + (organBoxW * organ.left) + w / 2
+                        let oy = -organH / 2 + (organH * organ.top) + h / 2
+                        
+                        Image(organ.imageName)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: w, height: h)
+                            .scaleEffect(isSel ? 1.07 : 1.0)
+                            .shadow(color: isSel ? Color(hex: "ffd700") : Color.clear, radius: isSel ? 10 : 0)
+                            .shadow(color: isSel ? Color(hex: "ffea00").opacity(0.85) : Color.clear, radius: isSel ? 18 : 0)
+                            .offset(x: ox, y: oy)
+                            .zIndex(isSel ? 35 : organ.zIndex)
+                            .animation(.spring(response: 0.35, dampingFraction: 0.68), value: isSel)
+                            .onTapGesture {
+                                handleOrganTap(organ.id, organName: organ.name)
+                            }
+                    }
+                }
+                .frame(width: organBoxW, height: organH)
+                .position(x: organCenterX, y: organCenterY)
+                .frame(width: proxy.size.width, height: proxy.size.height)
+                .mask(
+                    Circle()
+                        .frame(width: lensRadius * 2, height: lensRadius * 2)
+                        .position(x: currentCenterX, y: currentCenterY)
+                )
+                .opacity(isMagnifierOverCharacter ? 1.0 : 0.0)
+                .animation(.easeInOut(duration: 0.15), value: isMagnifierOverCharacter)
+                .zIndex(15)
+            }
             
             // Left: Magnifying Glass Dock (Permanently Displays Magnifying Glass 2 left behind)
             Image("AnatomyMagnifyingGlass2")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: proxy.size.width * 0.249, height: proxy.size.height * 0.542)
+                .frame(width: magWidth, height: magHeight)
                 .shadow(color: Color(hex: "50a0ff").opacity(0.85), radius: 14)
-                .position(x: proxy.size.width * 0.185, y: proxy.size.height * 0.48)
+                .position(x: dockX, y: dockY)
                 .onTapGesture {
                     withAnimation(.spring(response: 0.4, dampingFraction: 0.72)) {
                         magnifierOffset = .zero
@@ -833,11 +942,6 @@ public struct AnatomyExplorerView: View {
                 }
             
             // Left: Interactive Draggable Magnifying Glass Tool (80% transparent lens over central character)
-            let magWidth = proxy.size.width * 0.249
-            let magHeight = proxy.size.height * 0.542
-            let dockX = proxy.size.width * 0.185
-            let dockY = proxy.size.height * 0.48
-            
             ZStack {
                 Image("AnatomyMagnifyingGlass1")
                     .resizable()
@@ -903,13 +1007,20 @@ public struct AnatomyExplorerView: View {
                         }
                         
                         let dist = hypot(magnifierOffset.width, magnifierOffset.height)
-                        if dist < 60 {
+                        let dragDist = hypot(value.translation.width, value.translation.height)
+                        if dragDist < 6 {
+                            // Tap on lens over character
+                            if isMagnifierOverCharacter && isSystemSelectionSecondary {
+                                hitTestOrganAtLens(charId: charId, proxy: proxy)
+                            }
+                        } else if dist < 60 {
                             withAnimation(.spring(response: 0.4, dampingFraction: 0.72)) {
                                 magnifierOffset = .zero
                                 magnifierBaseOffset = .zero
                                 magnifierTiltAngle = .zero
                                 magnifierDragAnchor = .center
                                 isMagnifierOverCharacter = false
+                                selectedOrganId = nil
                             }
                         }
                         HapticManager.shared.lightTap()
@@ -922,6 +1033,9 @@ public struct AnatomyExplorerView: View {
             Button(action: {
                 withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
                     isSystemSelectionSecondary.toggle()
+                    if !isSystemSelectionSecondary {
+                        selectedOrganId = nil
+                    }
                 }
                 HapticManager.shared.lightTap()
             }) {
@@ -932,10 +1046,105 @@ public struct AnatomyExplorerView: View {
                     .shadow(color: Color.black.opacity(0.28), radius: 12, y: 6)
             }
             .buttonStyle(PlainButtonStyle())
-            .position(x: proxy.size.width * 0.83, y: proxy.size.height * 0.28)
+            .position(x: proxy.size.width * 0.83, y: proxy.size.height * 0.23)
             
             // Right Bottom: Interactive Skin Tone Slider Card
             skinToneSliderCard(proxy: proxy)
+
+            // Bottom Organ Tap Prompt Banner (Persists even after tap to voice)
+            if let selectedId = selectedOrganId,
+               let organ = (charId == "older-boy" || charId == "older-girl" ? sideOrgans : frontalOrgans).first(where: { $0.id == selectedId }) {
+                Button(action: {
+                    speakOrgan(organ.name)
+                }) {
+                    HStack(spacing: 12) {
+                        Circle()
+                            .fill(Color(hex: "ffd700"))
+                            .frame(width: 10, height: 10)
+                            .shadow(color: Color(hex: "ffd700"), radius: 6)
+                        
+                        Text("\(organ.name) - Tap again to hear the name of the organ")
+                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .foregroundColor(.white)
+                        
+                        Image(systemName: "speaker.wave.2.fill")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(Color(hex: "ffd700"))
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 12)
+                    .background(
+                        Capsule()
+                            .fill(
+                                LinearGradient(
+                                    colors: [Color(hex: "1a0e34").opacity(0.92), Color(hex: "2a1450").opacity(0.98)],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                            .overlay(
+                                Capsule()
+                                    .stroke(Color(hex: "ffd700").opacity(0.75), lineWidth: 1.5)
+                            )
+                            .shadow(color: Color(hex: "ffd700").opacity(0.35), radius: 16)
+                    )
+                }
+                .buttonStyle(PlainButtonStyle())
+                .position(x: proxy.size.width * 0.50, y: proxy.size.height * 0.94)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .zIndex(40)
+            }
+        }
+    }
+    
+    private func handleOrganTap(_ organId: String, organName: String) {
+        if selectedOrganId == organId {
+            speakOrgan(organName)
+        } else {
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.72)) {
+                selectedOrganId = organId
+            }
+            HapticManager.shared.lightTap()
+        }
+    }
+    
+    private func speakOrgan(_ name: String) {
+        // Keep prior text prompt up even after tap to voice
+        HapticManager.shared.lightTap()
+        let utterance = AVSpeechUtterance(string: name)
+        utterance.rate = 0.48
+        utterance.pitchMultiplier = 1.08
+        speechSynthesizer.stopSpeaking(at: .immediate)
+        speechSynthesizer.speak(utterance)
+    }
+
+    private func hitTestOrganAtLens(charId: String, proxy: GeometryProxy) {
+        let isOlder = (charId == "older-boy" || charId == "older-girl")
+        let organList = isOlder ? sideOrgans : frontalOrgans
+        let organCfg = organLayoutConfig(for: charId)
+        let charHeight = proxy.size.height * 0.903
+        let organH = charHeight * organCfg.scale
+        let charTopY = (proxy.size.height * 0.495) - (charHeight / 2)
+        let organBoxY0 = charTopY + (charHeight * organCfg.offsetY)
+        let organBoxW = isOlder ? (organH * (303.0 / 1042.0)) : (organH * (477.0 / 1583.0))
+        let organBoxX0 = (proxy.size.width * 0.50) + (proxy.size.width * organCfg.offsetX) - (organBoxW / 2)
+        
+        let dockX = proxy.size.width * 0.185
+        let dockY = proxy.size.height * 0.48
+        let magHeight = proxy.size.height * 0.542
+        let currentLensX = dockX + magnifierOffset.width
+        let currentLensY = dockY + magnifierOffset.height - (magHeight * 0.216)
+        
+        for organ in organList.sorted(by: { $0.zIndex > $1.zIndex }) {
+            let ox0 = organBoxX0 + (organBoxW * organ.left)
+            let oy0 = organBoxY0 + (organH * organ.top)
+            let ow = organBoxW * organ.width
+            let oh = organH * organ.height
+            if currentLensX >= ox0 && currentLensX <= (ox0 + ow) &&
+               currentLensY >= oy0 && currentLensY <= (oy0 + oh) {
+                handleOrganTap(organ.id, organName: organ.name)
+                return
+            }
         }
     }
     
@@ -1048,7 +1257,7 @@ public struct AnatomyExplorerView: View {
             }
         }
         .frame(width: cardWidth, height: cardHeight)
-        .position(x: proxy.size.width * 0.83, y: proxy.size.height * 0.71)
+        .position(x: proxy.size.width * 0.83, y: proxy.size.height * 0.66)
     }
     
     private func soloCharacterImageName(for charId: String) -> String {
@@ -1058,6 +1267,19 @@ public struct AnatomyExplorerView: View {
         case "older-girl": return "Character_OlderGirl_Solo"
         case "younger-girl": return "Character_YoungerGirl_Solo"
         default: return "Character_YoungerBoy_Solo"
+        }
+    }
+    
+    private func organLayoutConfig(for charId: String) -> (scale: CGFloat, offsetX: CGFloat, offsetY: CGFloat) {
+        switch charId {
+        case "older-boy":
+            return (scale: 0.548, offsetX: -0.012, offsetY: 0.022)
+        case "older-girl":
+            return (scale: 0.548, offsetX: -0.006, offsetY: 0.022)
+        case "younger-girl":
+            return (scale: 0.60, offsetX: 0.0, offsetY: 0.04)
+        default: // younger-boy
+            return (scale: 0.61, offsetX: 0.002, offsetY: 0.04)
         }
     }
 }
