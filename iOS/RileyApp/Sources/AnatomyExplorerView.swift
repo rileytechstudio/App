@@ -1370,7 +1370,7 @@ public struct AnatomyExplorerView: View {
                     .scaleEffect(isSelected ? 1.06 : 1.0)
                     .shadow(color: isSelected ? Color(red: 0.88, green: 0.42, blue: 0.42).opacity(0.8) : Color.clear, radius: 10)
                 
-                if isSelected && selectedImageName == nil {
+                if isSelected {
                     ZStack {
                         Circle()
                             .fill(Color.white)
