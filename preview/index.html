@@ -8466,6 +8466,14 @@
         if (promptDot) {
           promptDot.className = 'step-instruction-dot confirm-pulse';
         }
+      } else if (selectedAnatomyCharacter) {
+        const charInfo = ANATOMY_CHARACTERS[selectedAnatomyCharacter];
+        if (promptText) promptText.textContent = charInfo ? `${charInfo.name} is ready! Let's explore!` : "Let's explore!";
+        if (promptBar) {
+          promptBar.classList.add('visible', 'is-confirmed');
+          promptBar.classList.remove('studio-prompt-active', 'organ-prompt-active');
+        }
+        if (promptDot) promptDot.className = 'step-instruction-dot';
       }
       currentStudioOrganId = null;
       if (isHapticsEnabled) triggerHapticFeedback(12);
@@ -8658,12 +8666,17 @@
       });
       const promptBar = document.getElementById('anatomyBottomPromptBar');
       const promptText = document.getElementById('anatomyPromptText');
+      const promptDot = document.getElementById('anatomyPromptDot');
       if (promptBar && isAnatomyInExploration) {
-        promptBar.classList.remove('organ-prompt-active', 'visible', 'can-confirm', 'prompt-pulse');
-        promptBar.classList.add('is-confirmed');
+        promptBar.classList.remove('organ-prompt-active', 'can-confirm', 'prompt-pulse');
+        promptBar.classList.add('visible', 'is-confirmed');
+      }
+      if (promptDot && isAnatomyInExploration) {
+        promptDot.className = 'step-instruction-dot';
       }
       if (promptText && isAnatomyInExploration) {
-        promptText.innerHTML = '';
+        const charInfo = selectedAnatomyCharacter ? ANATOMY_CHARACTERS[selectedAnatomyCharacter] : null;
+        promptText.textContent = charInfo ? `${charInfo.name} is ready! Let's explore!` : "Let's explore!";
       }
     }
 
@@ -8707,11 +8720,19 @@
         charEl.classList.add('confirmed');
       }
 
-      // Hide character selection prompt bar
+      // Update bottom prompt bar for exploration view
       const promptBar = document.getElementById('anatomyBottomPromptBar');
+      const promptText = document.getElementById('anatomyPromptText');
+      const promptDot = document.getElementById('anatomyPromptDot');
       if (promptBar) {
-        promptBar.classList.remove('visible', 'can-confirm');
-        promptBar.classList.add('is-confirmed');
+        promptBar.classList.add('visible', 'is-confirmed');
+        promptBar.classList.remove('can-confirm', 'organ-prompt-active');
+      }
+      if (promptDot) {
+        promptDot.className = 'step-instruction-dot';
+      }
+      if (promptText) {
+        promptText.textContent = `${charInfo.name} is ready! Let's explore!`;
       }
 
       // Set solo centered character asset
