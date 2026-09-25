@@ -1533,24 +1533,24 @@ public struct AnatomyExplorerView: View {
                 .frame(width: screenW, height: screenH)
                 .clipped()
             
-            // Organ Illustrations Layer (Centered, Enlarged +15-20%, No Captions)
+            // Organ Illustrations Layer (Centered, Enlarged +10% larger, Balanced 1:1, Spacing -10%)
             Group {
                 if studio.isDual {
-                    HStack(spacing: screenW * 0.025) {
+                    HStack(spacing: -screenW * 0.012) {
                         ForEach(Array(studio.imageNames.enumerated()), id: \.offset) { idx, imgName in
                             Image(imgName)
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
-                                .frame(maxWidth: screenW * 0.38, maxHeight: screenH * 0.86)
+                                .frame(maxWidth: screenW * 0.395, maxHeight: screenH * 0.88)
                                 .shadow(color: Color.black.opacity(0.18), radius: 14, y: 6)
                         }
                     }
-                    .position(x: screenW * 0.445, y: screenH * 0.520)
+                    .position(x: screenW * 0.405, y: screenH * 0.520)
                 } else if let imgName = studio.imageNames.first {
                     Image(imgName)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(maxWidth: screenW * 0.68, maxHeight: screenH * 0.88)
+                        .frame(maxWidth: screenW * 0.74, maxHeight: screenH * 0.92)
                         .shadow(color: Color.black.opacity(0.18), radius: 14, y: 6)
                         .position(x: screenW * 0.450, y: screenH * 0.520)
                 }
