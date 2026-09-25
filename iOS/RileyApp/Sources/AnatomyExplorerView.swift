@@ -1721,7 +1721,7 @@ public struct AnatomyExplorerView: View {
                 let pencilW = screenW * 0.115
                 let pencilH = screenH * 0.150
                 let pencilX = screenW * (0.855 + 0.115/2)
-                let pencilY = screenH * (0.065 + 0.150/2)
+                let pencilY = screenH * (0.115 + 0.150/2)
                 
                 Button(action: {
                     selectedStudioTool = .pencil
@@ -1741,7 +1741,7 @@ public struct AnatomyExplorerView: View {
                 let markerW = screenW * 0.120
                 let markerH = screenH * 0.160
                 let markerX = screenW * (0.855 + 0.120/2)
-                let markerY = screenH * (0.215 + 0.160/2)
+                let markerY = screenH * (0.260 + 0.160/2)
                 
                 Button(action: {
                     selectedStudioTool = .marker
@@ -1761,7 +1761,7 @@ public struct AnatomyExplorerView: View {
                 let tubeW = screenW * 0.125
                 let tubeH = screenH * 0.165
                 let tubeX = screenW * (0.855 + 0.125/2)
-                let tubeY = screenH * (0.380 + 0.165/2)
+                let tubeY = screenH * (0.415 + 0.165/2)
                 
                 Button(action: {
                     selectedStudioTool = .paint
