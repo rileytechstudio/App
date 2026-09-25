@@ -1073,10 +1073,10 @@ public struct AnatomyExplorerView: View {
                         let currentCenterX = dockX + magnifierOffset.width
                         let currentCenterY = dockY + magnifierOffset.height - (magHeight * 0.216)
                         
-                        let charMinX = proxy.size.width * 0.36
-                        let charMaxX = proxy.size.width * 0.64
-                        let charMinY = proxy.size.height * 0.12
-                        let charMaxY = proxy.size.height * 0.88
+                        let charMinX = proxy.size.width * 0.32
+                        let charMaxX = proxy.size.width * 0.68
+                        let charMinY = proxy.size.height * 0.03
+                        let charMaxY = proxy.size.height * 0.92
                         
                         let over = (currentCenterX >= charMinX && currentCenterX <= charMaxX &&
                                     currentCenterY >= charMinY && currentCenterY <= charMaxY)
@@ -1235,16 +1235,23 @@ public struct AnatomyExplorerView: View {
         let currentLensY = dockY + magnifierOffset.height - (magHeight * 0.216)
         
         let sortedOrgans = organList.sorted { a, b in
-            let aPriority = (a.id == "stomach") ? 5.5 : Double(a.zIndex)
-            let bPriority = (b.id == "stomach") ? 5.5 : Double(b.zIndex)
+            let aPriority: Double = (a.id == "brain") ? 10.0 : ((a.id == "stomach") ? 5.5 : Double(a.zIndex))
+            let bPriority: Double = (b.id == "brain") ? 10.0 : ((b.id == "stomach") ? 5.5 : Double(b.zIndex))
             return aPriority > bPriority
         }
         
         for organ in sortedOrgans {
-            let ox0 = organBoxX0 + (organBoxW * organ.left)
-            let oy0 = organBoxY0 + (organH * organ.top)
-            let ow = organBoxW * organ.width
-            let oh = organH * organ.height
+            let isBrain = (organ.id == "brain")
+            let isStomach = (organ.id == "stomach")
+            let padX = isBrain ? (organBoxW * 0.20) : (isStomach ? (organBoxW * 0.12) : (organBoxW * 0.04))
+            let padTop = isBrain ? (organH * 0.10) : (organH * 0.02)
+            let padBottom = isBrain ? (organH * 0.05) : (isStomach ? (organH * 0.04) : (organH * 0.02))
+
+            let ox0 = organBoxX0 + (organBoxW * organ.left) - padX
+            let oy0 = organBoxY0 + (organH * organ.top) - padTop
+            let ow = (organBoxW * organ.width) + (padX * 2)
+            let oh = (organH * organ.height) + padTop + padBottom
+
             if currentLensX >= ox0 && currentLensX <= (ox0 + ow) &&
                currentLensY >= oy0 && currentLensY <= (oy0 + oh) {
                 handleOrganTap(organ.id, organName: organ.name)

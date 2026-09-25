@@ -8551,12 +8551,23 @@
     function findOrganAtPoint(clientX, clientY) {
       const layers = Array.from(document.querySelectorAll('.anatomy-organ-layer'));
       layers.sort((a, b) => {
-        const getPriority = (el) => (el.dataset.organ === 'stomach' ? 5.5 : parseFloat(el.style.zIndex || 0));
+        const getPriority = (el) => {
+          if (el.dataset.organ === 'brain') return 10.0;
+          if (el.dataset.organ === 'stomach') return 5.5;
+          return parseFloat(el.style.zIndex || 0);
+        };
         return getPriority(b) - getPriority(a);
       });
       for (const layer of layers) {
         const rect = layer.getBoundingClientRect();
-        if (clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom) {
+        const isBrain = (layer.dataset.organ === 'brain');
+        const isStomach = (layer.dataset.organ === 'stomach');
+        const padX = isBrain ? 24 : (isStomach ? 12 : 4);
+        const padTop = isBrain ? 35 : 4;
+        const padBottom = isBrain ? 16 : (isStomach ? 8 : 4);
+
+        if (clientX >= (rect.left - padX) && clientX <= (rect.right + padX) &&
+            clientY >= (rect.top - padTop) && clientY <= (rect.bottom + padBottom)) {
           return layer.dataset.organ;
         }
       }
@@ -8767,10 +8778,10 @@
       const charRect = charContainer.getBoundingClientRect();
 
       const isOver = (
-        lensX >= charRect.left - 20 &&
-        lensX <= charRect.right + 20 &&
-        lensY >= charRect.top - 15 &&
-        lensY <= charRect.bottom + 15
+        lensX >= charRect.left - 30 &&
+        lensX <= charRect.right + 30 &&
+        lensY >= charRect.top - 65 &&
+        lensY <= charRect.bottom + 25
       );
 
       if (isOver !== isMagnifierOverCharacter) {
@@ -8897,7 +8908,7 @@
             const distToLens = Math.hypot(e.clientX - lensX, e.clientY - lensY);
 
             if (isSystemSelectionSecondary && isMagnifierOverCharacter && distToLens <= lensRadius) {
-              const clickedOrgan = findOrganAtPoint(e.clientX, e.clientY);
+              const clickedOrgan = findOrganAtPoint(e.clientX, e.clientY) || findOrganAtPoint(lensX, lensY);
               if (clickedOrgan) {
                 onOrganClicked(clickedOrgan);
                 return;
