@@ -4847,6 +4847,407 @@
       100% { transform: scale(1.07); }
     }
 
+    /* =========================================================
+       ANATOMY ORGAN ILLUSTRATION STUDIO SCREEN
+       ========================================================= */
+    .anatomy-studio-view {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 50; /* Over exploration view */
+      background: radial-gradient(circle at 50% 30%, #683cd0 0%, #5931ba 60%, #46229c 100%);
+      display: none !important;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none !important;
+      visibility: hidden !important;
+      transform: scale(0.96);
+      transition: opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1), transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .anatomy-studio-view.active {
+      display: flex !important;
+      opacity: 1;
+      pointer-events: auto !important;
+      visibility: visible !important;
+      transform: scale(1);
+    }
+
+    .anatomy-studio-view:not(.active),
+    .anatomy-studio-view:not(.active) * {
+      display: none !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
+
+    /* Studio Top Navigation Bar (Floating Overlay) */
+    .anatomy-studio-nav {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 24px;
+      box-sizing: border-box;
+      z-index: 20;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .anatomy-studio-nav button,
+    .anatomy-studio-nav a {
+      pointer-events: auto;
+    }
+
+    .anatomy-studio-title-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      pointer-events: auto;
+    }
+
+    .anatomy-studio-title-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .anatomy-studio-title {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 800;
+      color: #5931ba;
+      letter-spacing: 0.6px;
+      text-shadow: 0 1px 4px rgba(255, 255, 255, 0.85), 0 2px 8px rgba(0, 0, 0, 0.08);
+      font-family: inherit;
+    }
+
+    .anatomy-studio-audio-btn {
+      background: #ffd700;
+      color: #1a0b2e;
+      border: none;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .anatomy-studio-audio-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .anatomy-studio-audio-btn:active {
+      transform: scale(0.94);
+    }
+
+    .anatomy-studio-clear-btn {
+      background: rgba(89, 49, 186, 0.88);
+      color: #ffffff;
+      border: 1.5px solid rgba(255, 255, 255, 0.4);
+      border-radius: 9999px;
+      padding: 5px 20px;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.2s ease;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.22);
+    }
+
+    .anatomy-studio-clear-btn:hover {
+      background: rgba(89, 49, 186, 1);
+      transform: translateY(-1px);
+    }
+
+    .anatomy-studio-clear-btn:active {
+      transform: scale(0.96);
+    }
+
+    /* Main Paper Stage Container - FILLS THE ENTIRE SCREEN */
+    .anatomy-studio-stage {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+    }
+
+    .anatomy-studio-paper {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      max-height: none;
+      aspect-ratio: unset;
+      max-width: none;
+      border-radius: 0;
+      overflow: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .anatomy-studio-paper-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: fill;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Illustrations Container Centered on Lined Paper Area */
+    .anatomy-studio-illustrations {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* Single Illustration: Centered, Enlarged (+15-20%) */
+    .anatomy-single-illus {
+      position: absolute;
+      left: 45.0%;
+      top: 52.0%;
+      transform: translate(-50%, -50%);
+      width: 68%;
+      height: 88%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .anatomy-single-illus img {
+      max-width: 100%;
+      max-height: 96%;
+      object-fit: contain;
+      filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.22));
+      display: block;
+    }
+
+    /* Dual Illustrations: Centered side-by-side, Enlarged (+15-20%) */
+    .anatomy-dual-illus {
+      position: absolute;
+      left: 44.5%;
+      top: 52.0%;
+      transform: translate(-50%, -50%);
+      width: 78%;
+      height: 88%;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      gap: 20px;
+    }
+
+    .anatomy-dual-illus .illus-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48%;
+      height: 100%;
+    }
+
+    .anatomy-dual-illus .illus-item img {
+      max-width: 100%;
+      max-height: 93%;
+      object-fit: contain;
+      filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.22));
+      display: block;
+    }
+
+    /* Interactive Drawing Canvas */
+    .anatomy-studio-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 3;
+      touch-action: none;
+      cursor: crosshair;
+    }
+
+    /* Right Side Creative Toolbar Sized & Positioned (Compact -15-20%) */
+    .anatomy-studio-toolbar {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 4;
+    }
+
+    .anatomy-studio-tool-btn {
+      position: absolute;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      pointer-events: auto;
+      transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.22s ease;
+      transform-origin: 50% 50%;
+    }
+
+    .anatomy-studio-tool-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+      -webkit-user-drag: none;
+      user-select: none;
+    }
+
+    .anatomy-studio-tool-btn:hover {
+      transform: scale(1.08);
+    }
+
+    .anatomy-studio-tool-btn.is-active {
+      transform: scale(1.15);
+      filter: drop-shadow(0 0 12px #ffd700) drop-shadow(0 0 18px rgba(255, 215, 0, 0.8));
+    }
+
+    /* Pencil: Top Right (Compact) */
+    .tool-pencil {
+      left: 85.5%;
+      top: 6.5%;
+      width: 11.5%;
+      height: 13.5%;
+    }
+
+    /* Marker: Below Pencil (Compact) */
+    .tool-marker {
+      left: 85.5%;
+      top: 21.5%;
+      width: 12.0%;
+      height: 14.5%;
+    }
+
+    /* Paint Tube: Below Marker, pointing into palette (Compact) */
+    .tool-paint-tube {
+      left: 85.5%;
+      top: 38.0%;
+      width: 12.5%;
+      height: 15.0%;
+    }
+
+    /* Pallette 2: Fully visible ABOVE the text prompt bar (Compact) */
+    .anatomy-studio-tool-palette-wrap {
+      position: absolute;
+      left: 77.0%;
+      bottom: calc(52px + env(safe-area-inset-bottom, 0px) + 14px);
+      width: 21.0%;
+      max-width: 225px;
+      aspect-ratio: 335 / 272;
+      pointer-events: auto;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .anatomy-studio-palette-base {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+      -webkit-user-drag: none;
+    }
+
+    .anatomy-studio-color-spot {
+      position: absolute;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      pointer-events: auto;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease;
+      transform-origin: 50% 50%;
+    }
+
+    .anatomy-studio-color-spot img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+      -webkit-user-drag: none;
+    }
+
+    .anatomy-studio-color-spot:hover {
+      transform: scale(1.15);
+    }
+
+    .anatomy-studio-color-spot.is-active {
+      transform: scale(1.22);
+      filter: drop-shadow(0 0 8px #ffffff) drop-shadow(0 0 16px rgba(255, 255, 255, 0.95));
+    }
+
+    /* 6 Paint spots inside Pallette 2 evenly spaced within wood boundaries */
+    .spot-purple {
+      left: 14.0%;
+      top: 11.0%;
+      width: 20.0%;
+      height: 22.0%;
+    }
+
+    .spot-green {
+      left: 53.0%;
+      top: 10.0%;
+      width: 18.0%;
+      height: 20.0%;
+    }
+
+    .spot-black {
+      left: 35.5%;
+      top: 37.5%;
+      width: 17.0%;
+      height: 19.0%;
+    }
+
+    .spot-yellow {
+      left: 67.5%;
+      top: 36.5%;
+      width: 17.0%;
+      height: 21.0%;
+    }
+
+    .spot-blue {
+      left: 15.0%;
+      top: 61.0%;
+      width: 18.0%;
+      height: 22.0%;
+    }
+
+    .spot-red {
+      left: 54.0%;
+      top: 61.0%;
+      width: 16.0%;
+      height: 22.0%;
+    }
+
     /* Left: Magnifying Glass Dock (Permanently Displays Magnifying Glass 2 left behind) */
     .anatomy-magnifier-dock {
       position: absolute;
@@ -4944,11 +5345,12 @@
       max-width: 235px;
       height: 28%;
       max-height: 225px;
-      z-index: 12;
+      z-index: 30;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      pointer-events: auto;
       transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
@@ -4965,6 +5367,8 @@
       height: 100%;
       object-fit: contain;
       filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.32));
+      pointer-events: auto;
+      cursor: pointer;
     }
 
     /* Right Bottom: Interactive Skin Tone Picker Card (Equivalent Area: ~48,300 px²) */
@@ -4977,12 +5381,13 @@
       max-width: 138px;
       height: 48%;
       max-height: 380px;
-      z-index: 12;
+      z-index: 30;
       display: flex;
       align-items: center;
       justify-content: center;
       user-select: none;
       -webkit-user-select: none;
+      pointer-events: auto;
     }
 
     .anatomy-skintone-card {
@@ -5198,7 +5603,7 @@
       min-height: 52px;
       padding-bottom: env(safe-area-inset-bottom, 0px);
       box-sizing: border-box;
-      z-index: 50;
+      z-index: 60;
       pointer-events: none;
       user-select: none;
       -webkit-user-select: none;
@@ -5240,6 +5645,16 @@
       background: linear-gradient(180deg, rgba(26, 14, 52, 0.90) 0%, rgba(42, 20, 80, 0.96) 100%) !important;
       border-top: 1.5px solid rgba(255, 215, 0, 0.75) !important;
       box-shadow: 0 -4px 24px rgba(255, 215, 0, 0.32) !important;
+    }
+
+    .anatomy-bottom-prompt-bar.studio-prompt-active {
+      opacity: 1 !important;
+      transform: translateY(0) !important;
+      pointer-events: auto !important;
+      cursor: default;
+      background: linear-gradient(180deg, rgba(26, 14, 52, 0.92) 0%, rgba(42, 20, 80, 0.98) 100%) !important;
+      border-top: 1.5px solid rgba(255, 215, 0, 0.85) !important;
+      box-shadow: 0 -4px 24px rgba(255, 215, 0, 0.35) !important;
     }
 
     .anatomy-bottom-prompt-bar.prompt-pulse {
@@ -6513,7 +6928,7 @@
                   </div>
 
                   <!-- Right Top: System Selection Card -->
-                  <div class="anatomy-system-card-wrapper" id="anatomySystemCardWrapper">
+                  <div class="anatomy-system-card-wrapper" id="anatomySystemCardWrapper" onclick="toggleSystemSelection(event)">
                     <img class="anatomy-system-card-img" id="anatomySystemCardImg" src="assets/System Selection.png" alt="System Selection" onclick="toggleSystemSelection(event)" />
                   </div>
 
@@ -6525,6 +6940,80 @@
                         <div class="anatomy-skintone-thumb" id="anatomySkinToneThumb"></div>
                       </div>
                       <div class="anatomy-skintone-swatch" id="anatomySkinToneSwatch"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Dedicated Organ Illustration & Drawing Studio Screen (Revealed Upon 2nd Organ Tap) -->
+              <div class="anatomy-studio-view" id="anatomyStudioView" aria-hidden="true">
+                <!-- Studio Top Navigation Header -->
+                <div class="anatomy-studio-nav">
+                  <div class="anatomy-studio-title-box">
+                    <div class="anatomy-studio-title-row">
+                      <h2 class="anatomy-studio-title" id="anatomyStudioTitle">Heart</h2>
+                      <button type="button" class="anatomy-studio-audio-btn" id="anatomyStudioAudioBtn" onclick="speakCurrentStudioOrgan()" title="Hear name again" aria-label="Hear name again">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                        </svg>
+                      </button>
+                    </div>
+                    <button type="button" class="anatomy-studio-clear-btn" onclick="clearStudioCanvas()" title="Clear drawings" aria-label="Clear drawings">
+                      <span>Clear</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Studio Stage & Paper Assembly -->
+                <div class="anatomy-studio-stage">
+                  <div class="anatomy-studio-paper" id="anatomyStudioPaper">
+                    <img class="anatomy-studio-paper-bg" src="assets/Paper BG 2.png" alt="Drawing Paper" />
+                    
+                    <!-- Interactive Doodling / Painting Canvas Layer -->
+                    <canvas class="anatomy-studio-canvas" id="anatomyStudioCanvas"></canvas>
+
+                    <!-- Centered Illustrations Layer -->
+                    <div class="anatomy-studio-illustrations" id="anatomyStudioIllustrations"></div>
+
+                    <!-- Right Side Creative Toolbar -->
+                    <div class="anatomy-studio-toolbar">
+                      <!-- Palette 2 with 6 interactive paint spots -->
+                      <div class="anatomy-studio-tool-palette-wrap">
+                        <img class="anatomy-studio-palette-base" src="assets/Pallette 2.png" alt="Paint Palette" />
+                        <button type="button" class="anatomy-studio-color-spot spot-purple" data-color="#542e90" data-color-name="Purple" onclick="selectStudioColor('#542e90', 'Purple', this)" title="Purple Paint">
+                          <img src="assets/Purple Paint.png" alt="Purple" />
+                        </button>
+                        <button type="button" class="anatomy-studio-color-spot spot-blue is-active" data-color="#0e76e6" data-color-name="Blue" onclick="selectStudioColor('#0e76e6', 'Blue', this)" title="Blue Paint">
+                          <img src="assets/Blue Paint.png" alt="Blue" />
+                        </button>
+                        <button type="button" class="anatomy-studio-color-spot spot-black" data-color="#1a1a1a" data-color-name="Black" onclick="selectStudioColor('#1a1a1a', 'Black', this)" title="Black Paint">
+                          <img src="assets/Black Paint.png" alt="Black" />
+                        </button>
+                        <button type="button" class="anatomy-studio-color-spot spot-green" data-color="#00b55f" data-color-name="Green" onclick="selectStudioColor('#00b55f', 'Green', this)" title="Green Paint">
+                          <img src="assets/Green Paint.png" alt="Green" />
+                        </button>
+                        <button type="button" class="anatomy-studio-color-spot spot-yellow" data-color="#fee544" data-color-name="Yellow" onclick="selectStudioColor('#fee544', 'Yellow', this)" title="Yellow Paint">
+                          <img src="assets/Yellow Paint.png" alt="Yellow" />
+                        </button>
+                        <button type="button" class="anatomy-studio-color-spot spot-red" data-color="#ff0102" data-color-name="Red" onclick="selectStudioColor('#ff0102', 'Red', this)" title="Red Paint">
+                          <img src="assets/Red Paint.png" alt="Red" />
+                        </button>
+                      </div>
+
+                      <!-- Paint Tube (Swaps color when paint spot tapped) -->
+                      <button type="button" class="anatomy-studio-tool-btn tool-paint-tube" id="studioToolBtnPaint" data-tool="paint" onclick="selectStudioTool('paint', this)" title="Paint Tube">
+                        <img id="studioToolPaintTubeImg" src="assets/Paint Tube Blue.png" alt="Paint Tube" />
+                      </button>
+
+                      <!-- Marker (Swaps color when paint spot tapped) -->
+                      <button type="button" class="anatomy-studio-tool-btn tool-marker" id="studioToolBtnMarker" data-tool="marker" onclick="selectStudioTool('marker', this)" title="Marker">
+                        <img id="studioToolMarkerImg" src="assets/Marker Blue.png" alt="Marker" />
+                      </button>
+
+                      <!-- Pencil (Swaps color when paint spot tapped, Active by default) -->
+                      <button type="button" class="anatomy-studio-tool-btn tool-pencil is-active" id="studioToolBtnPencil" data-tool="pencil" onclick="selectStudioTool('pencil', this)" title="Pencil">
+                        <img id="studioToolPencilImg" src="assets/Pencil Blue.png" alt="Pencil" />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -7588,12 +8077,97 @@
       });
     }
 
+    const ORGAN_STUDIO_DEFINITIONS = {
+      heart: {
+        name: 'Heart',
+        dual: true,
+        illustrations: [
+          { src: 'assets/Heart Illus 1.png', label: 'External View' },
+          { src: 'assets/Heart Illus 2.png', label: 'Internal Chambers' }
+        ]
+      },
+      brain: {
+        name: 'Brain',
+        dual: true,
+        illustrations: [
+          { src: 'assets/Brain Illus 1.png', label: 'Brain Structure' },
+          { src: 'assets/Brain Illus 2.png', label: 'Ventricles & Core' }
+        ]
+      },
+      lungs: {
+        name: 'Lungs',
+        dual: false,
+        illustrations: [
+          { src: 'assets/Lungs Illus.png', label: 'Respiratory System' }
+        ]
+      },
+      lung: {
+        name: 'Lungs',
+        dual: false,
+        illustrations: [
+          { src: 'assets/Lungs Illus.png', label: 'Respiratory System' }
+        ]
+      },
+      liver: {
+        name: 'Liver',
+        dual: false,
+        illustrations: [
+          { src: 'assets/Liver Illus.png', label: 'Liver Structure' }
+        ]
+      },
+      stomach: {
+        name: 'Stomach',
+        dual: false,
+        illustrations: [
+          { src: 'assets/Stomach Illus.png', label: 'Digestive Stomach' }
+        ]
+      },
+      intestines: {
+        name: 'Intestines',
+        dual: false,
+        illustrations: [
+          { src: 'assets/Intestines Illus.png', label: 'Digestive Intestines' }
+        ]
+      },
+      kidneys: {
+        name: 'Kidneys',
+        dual: false,
+        illustrations: [
+          { src: 'assets/Kidney Illus.png', label: 'Kidneys & Filtration' }
+        ]
+      },
+      bladder: {
+        name: 'Bladder',
+        dual: false,
+        illustrations: [
+          { src: 'assets/Bladder Illus.png', label: 'Urinary Bladder' }
+        ]
+      },
+      thyroid: {
+        name: 'Thyroid',
+        dual: false,
+        illustrations: [
+          { src: 'assets/Trachea Illus.png', label: 'Thyroid & Trachea' }
+        ]
+      }
+    };
+
+    let currentStudioOrganId = null;
+    let activeStudioTool = 'pencil'; // 'pencil' | 'marker' | 'paint'
+    let activeStudioColor = '#0e76e6';
+    let activeStudioColorName = 'Blue';
+    let isStudioDrawing = false;
+    let studioStrokeLength = 0;
+    let studioLastX = 0;
+    let studioLastY = 0;
+
     function onOrganClicked(organId) {
       if (!isSystemSelectionSecondary || !isMagnifierOverCharacter) return;
       if (selectedOrganId === organId) {
-        speakOrganName(organId);
+        openOrganStudio(organId);
       } else {
         selectOrgan(organId);
+        speakOrganName(organId);
       }
     }
 
@@ -7622,7 +8196,7 @@
         promptDot.className = 'step-instruction-dot confirm-pulse';
       }
       if (promptText) {
-        promptText.innerHTML = `<strong>${organ.name}</strong> - Tap again to hear the name of the organ`;
+        promptText.innerHTML = `<strong>${organ.name}</strong> - Tap again to view illustration`;
       }
 
       if (isHapticsEnabled) triggerHapticFeedback(14);
@@ -7648,7 +8222,7 @@
         promptBar.classList.remove('is-confirmed');
       }
       if (promptText) {
-        promptText.innerHTML = `<strong>${organ.name}</strong> - Tap again to hear the name of the organ`;
+        promptText.innerHTML = `<strong>${organ.name}</strong> - Tap again to view illustration`;
       }
 
       if ('speechSynthesis' in window) {
@@ -7660,6 +8234,282 @@
       }
 
       if (isHapticsEnabled) triggerHapticFeedback([12, 60, 20]);
+    }
+
+    function openOrganStudio(organId) {
+      currentStudioOrganId = organId;
+      const def = ORGAN_STUDIO_DEFINITIONS[organId] || {
+        name: organId.charAt(0).toUpperCase() + organId.slice(1),
+        dual: false,
+        illustrations: []
+      };
+
+      const titleEl = document.getElementById('anatomyStudioTitle');
+      if (titleEl) titleEl.textContent = def.name;
+
+      const promptBar = document.getElementById('anatomyBottomPromptBar');
+      const promptText = document.getElementById('anatomyPromptText');
+      const promptDot = document.getElementById('anatomyPromptDot');
+      if (promptBar) {
+        promptBar.classList.add('visible', 'organ-prompt-active', 'studio-prompt-active');
+        promptBar.classList.remove('can-confirm');
+      }
+      if (promptDot) {
+        promptDot.className = 'step-instruction-dot confirm-pulse';
+      }
+      if (promptText) {
+        promptText.textContent = def.dual 
+          ? 'Pick a tool and color, then use your finger to draw on the pictures!' 
+          : 'Pick a tool and color, then use your finger to draw on the picture!';
+      }
+
+      const illusContainer = document.getElementById('anatomyStudioIllustrations');
+      if (illusContainer) {
+        illusContainer.innerHTML = '';
+        if (def.dual) {
+          const dualWrap = document.createElement('div');
+          dualWrap.className = 'anatomy-dual-illus';
+          def.illustrations.forEach(item => {
+            const itemEl = document.createElement('div');
+            itemEl.className = 'illus-item';
+            itemEl.innerHTML = `<img src="${item.src}" alt="${item.label}" />`;
+            dualWrap.appendChild(itemEl);
+          });
+          illusContainer.appendChild(dualWrap);
+        } else if (def.illustrations.length > 0) {
+          const singleWrap = document.createElement('div');
+          singleWrap.className = 'anatomy-single-illus';
+          const item = def.illustrations[0];
+          singleWrap.innerHTML = `<img src="${item.src}" alt="${item.label}" />`;
+          illusContainer.appendChild(singleWrap);
+        }
+      }
+
+      const studioView = document.getElementById('anatomyStudioView');
+      if (studioView) {
+        studioView.classList.add('active');
+      }
+
+      // Reset default tool & color selections
+      const pencilBtn = document.getElementById('studioToolBtnPencil');
+      if (pencilBtn) selectStudioTool('pencil', pencilBtn);
+      const blueSpot = document.querySelector('.spot-blue');
+      if (blueSpot) selectStudioColor('#0e76e6', 'Blue', blueSpot);
+
+      // Initialize drawing canvas
+      initStudioCanvas();
+      clearStudioCanvas();
+
+      if (isHapticsEnabled) triggerHapticFeedback([16, 60, 20]);
+    }
+
+    function closeOrganStudio() {
+      isStudioDrawing = false;
+      studioStrokeLength = 0;
+      const studioView = document.getElementById('anatomyStudioView');
+      if (studioView) {
+        studioView.classList.remove('active');
+      }
+      const promptBar = document.getElementById('anatomyBottomPromptBar');
+      const promptText = document.getElementById('anatomyPromptText');
+      const promptDot = document.getElementById('anatomyPromptDot');
+      if (currentStudioOrganId) {
+        const isOlder = (selectedAnatomyCharacter === 'older-boy' || selectedAnatomyCharacter === 'older-girl');
+        const list = isOlder ? ORGAN_DEFINITIONS.side : ORGAN_DEFINITIONS.frontal;
+        const organ = list.find(o => o.id === currentStudioOrganId) || { name: currentStudioOrganId };
+        if (promptText) {
+          promptText.innerHTML = `<strong>${organ.name}</strong> - Tap again to view illustration`;
+        }
+        if (promptBar) {
+          promptBar.classList.add('visible', 'can-confirm', 'organ-prompt-active');
+          promptBar.classList.remove('studio-prompt-active');
+        }
+        if (promptDot) {
+          promptDot.className = 'step-instruction-dot confirm-pulse';
+        }
+      }
+      currentStudioOrganId = null;
+      if (isHapticsEnabled) triggerHapticFeedback(12);
+    }
+
+    function speakCurrentStudioOrgan() {
+      if (currentStudioOrganId) {
+        speakOrganName(currentStudioOrganId);
+      }
+    }
+
+    function selectStudioTool(toolName, el) {
+      activeStudioTool = toolName;
+      document.querySelectorAll('.anatomy-studio-tool-btn').forEach(btn => {
+        btn.classList.toggle('is-active', btn === el);
+      });
+      if (isHapticsEnabled) triggerHapticFeedback(10);
+    }
+
+    function selectStudioColor(colorHex, colorName, el) {
+      activeStudioColor = colorHex;
+      activeStudioColorName = colorName;
+      document.querySelectorAll('.anatomy-studio-color-spot').forEach(spot => {
+        spot.classList.toggle('is-active', spot === el);
+      });
+
+      // Dynamically swap the color of all 3 creative tools on the right!
+      const pencilImg = document.getElementById('studioToolPencilImg');
+      const markerImg = document.getElementById('studioToolMarkerImg');
+      const paintTubeImg = document.getElementById('studioToolPaintTubeImg');
+      if (pencilImg) pencilImg.src = `assets/Pencil ${colorName}.png`;
+      if (markerImg) markerImg.src = `assets/Marker ${colorName}.png`;
+      if (paintTubeImg) paintTubeImg.src = `assets/Paint Tube ${colorName}.png`;
+
+      if (isHapticsEnabled) triggerHapticFeedback(10);
+    }
+
+    function initStudioCanvas() {
+      const canvas = document.getElementById('anatomyStudioCanvas');
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      if (!canvas._hasDrawingEvents) {
+        canvas._hasDrawingEvents = true;
+
+        const getPos = (e) => {
+          const r = canvas.getBoundingClientRect();
+          return {
+            x: e.clientX - r.left,
+            y: e.clientY - r.top
+          };
+        };
+
+        let studioStrokePoints = [];
+
+        const onDown = (e) => {
+          e.preventDefault();
+          isStudioDrawing = true;
+          const pos = getPos(e);
+          studioStrokePoints = [pos];
+          drawStudioDot(pos.x, pos.y);
+        };
+
+        const onMove = (e) => {
+          if (!isStudioDrawing) return;
+          e.preventDefault();
+          const pos = getPos(e);
+          studioStrokePoints.push(pos);
+          const pts = studioStrokePoints;
+          const len = pts.length;
+          if (len >= 3) {
+            const p0 = pts[len - 3];
+            const p1 = pts[len - 2];
+            const p2 = pts[len - 1];
+            const mid1 = { x: (p0.x + p1.x) / 2, y: (p0.y + p1.y) / 2 };
+            const mid2 = { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
+            drawStudioCurve(mid1.x, mid1.y, p1.x, p1.y, mid2.x, mid2.y);
+          } else if (len === 2) {
+            const mid = { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 };
+            drawStudioSegment(pts[0].x, pts[0].y, mid.x, mid.y);
+          }
+        };
+
+        const onUp = (e) => {
+          if (isStudioDrawing) {
+            isStudioDrawing = false;
+            const pts = studioStrokePoints;
+            const len = pts.length;
+            if (len >= 2) {
+              const p1 = pts[len - 2];
+              const p2 = pts[len - 1];
+              const mid = { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
+              drawStudioSegment(mid.x, mid.y, p2.x, p2.y);
+            }
+            studioStrokePoints = [];
+          }
+        };
+
+        canvas.addEventListener('pointerdown', onDown);
+        window.addEventListener('pointermove', onMove, { passive: false });
+        window.addEventListener('pointerup', onUp);
+        window.addEventListener('pointercancel', onUp);
+      }
+    }
+
+    function getStudioToolStyle() {
+      if (activeStudioTool === 'pencil') {
+        return { lineWidth: 3.5, alpha: 0.88 };
+      } else if (activeStudioTool === 'marker') {
+        return { lineWidth: 11.0, alpha: 0.96 };
+      } else {
+        // Paint Tube: rich, thick, continuous acrylic stroke
+        return { lineWidth: 20.0, alpha: 0.95 };
+      }
+    }
+
+    function drawStudioDot(x, y) {
+      const canvas = document.getElementById('anatomyStudioCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const style = getStudioToolStyle();
+      ctx.save();
+      ctx.fillStyle = activeStudioColor;
+      ctx.globalAlpha = style.alpha;
+      ctx.beginPath();
+      ctx.arc(x, y, style.lineWidth / 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawStudioSegment(x0, y0, x1, y1) {
+      const canvas = document.getElementById('anatomyStudioCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const style = getStudioToolStyle();
+      ctx.save();
+      ctx.strokeStyle = activeStudioColor;
+      ctx.lineWidth = style.lineWidth;
+      ctx.globalAlpha = style.alpha;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x1, y1);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawStudioCurve(x0, y0, cx, cy, x1, y1) {
+      const canvas = document.getElementById('anatomyStudioCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const style = getStudioToolStyle();
+      ctx.save();
+      ctx.strokeStyle = activeStudioColor;
+      ctx.lineWidth = style.lineWidth;
+      ctx.globalAlpha = style.alpha;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.quadraticCurveTo(cx, cy, x1, y1);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawStudioStroke(x0, y0, x1, y1) {
+      drawStudioSegment(x0, y0, x1, y1);
+    }
+
+    function clearStudioCanvas() {
+      const canvas = document.getElementById('anatomyStudioCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (isHapticsEnabled) triggerHapticFeedback(14);
     }
 
     function clearOrganSelection() {
@@ -7760,13 +8610,13 @@
       initSkinToneSlider();
       initMagnifierDrag();
 
-      // Update Navigation Header
+      // Update Navigation Header: Replace character name & subheading with "Back"
       const navTitle = document.getElementById('anatomyNavTitle');
       const navSubtitle = document.getElementById('anatomyNavSubtitle');
-      if (navTitle) navTitle.textContent = charInfo.name;
+      if (navTitle) navTitle.textContent = 'Back';
       if (navSubtitle) {
-        navSubtitle.textContent = 'Anatomy Explorer';
-        navSubtitle.style.display = 'block';
+        navSubtitle.textContent = '';
+        navSubtitle.style.display = 'none';
       }
 
       // Smoothly transition views: fade out lineup stage, fade in exploration view
@@ -7789,6 +8639,7 @@
     }
 
     function exitAnatomyExploration() {
+      closeOrganStudio();
       clearOrganSelection();
       isAnatomyInExploration = false;
       isAnatomyCharacterConfirmed = false;
@@ -7833,6 +8684,11 @@
     }
 
     function handleAnatomyBack() {
+      const studioView = document.getElementById('anatomyStudioView');
+      if (studioView && studioView.classList.contains('active')) {
+        closeOrganStudio();
+        return;
+      }
       if (isAnatomyInExploration) {
         exitAnatomyExploration();
       } else {
@@ -8072,7 +8928,7 @@
 
     function handleAnatomyPromptBarTap() {
       if (selectedOrganId) {
-        speakOrganName(selectedOrganId);
+        openOrganStudio(selectedOrganId);
         return;
       }
       if (selectedAnatomyCharacter && !isAnatomyCharacterConfirmed) {
