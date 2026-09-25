@@ -1791,7 +1791,7 @@ public struct AnatomyExplorerView: View {
                         .aspectRatio(contentMode: .fit)
                         .frame(width: palW, height: palH)
                     
-                    // Purple Spot (top-left) - center at 24%, 22%
+                    // Purple Spot (top-left) - center at 29.0%, 25.5%
                     Button(action: {
                         selectedStudioColor = .purple
                         HapticManager.shared.lightTap()
@@ -1804,9 +1804,9 @@ public struct AnatomyExplorerView: View {
                             .shadow(color: selectedStudioColor == .purple ? Color.white.opacity(0.95) : .clear, radius: 8)
                     }
                     .buttonStyle(PlainButtonStyle())
-                    .position(x: palW * 0.24, y: palH * 0.22)
+                    .position(x: palW * 0.290, y: palH * 0.255)
                     
-                    // Green Spot (top-right) - center at 62%, 20%
+                    // Green Spot (top-right) - center at 66.5%, 24.5%
                     Button(action: {
                         selectedStudioColor = .green
                         HapticManager.shared.lightTap()
@@ -1819,9 +1819,9 @@ public struct AnatomyExplorerView: View {
                             .shadow(color: selectedStudioColor == .green ? Color.white.opacity(0.95) : .clear, radius: 8)
                     }
                     .buttonStyle(PlainButtonStyle())
-                    .position(x: palW * 0.62, y: palH * 0.20)
+                    .position(x: palW * 0.665, y: palH * 0.245)
                     
-                    // Black Spot (center-left) - center at 44%, 47%
+                    // Black Spot (center-left) - center at 48.0%, 50.5%
                     Button(action: {
                         selectedStudioColor = .black
                         HapticManager.shared.lightTap()
@@ -1834,9 +1834,9 @@ public struct AnatomyExplorerView: View {
                             .shadow(color: selectedStudioColor == .black ? Color.white.opacity(0.95) : .clear, radius: 8)
                     }
                     .buttonStyle(PlainButtonStyle())
-                    .position(x: palW * 0.44, y: palH * 0.47)
+                    .position(x: palW * 0.480, y: palH * 0.505)
                     
-                    // Yellow Spot (center-right) - center at 76%, 47%
+                    // Yellow Spot (center-right) - center at 80.0%, 50.5%
                     Button(action: {
                         selectedStudioColor = .yellow
                         HapticManager.shared.lightTap()
@@ -1849,9 +1849,9 @@ public struct AnatomyExplorerView: View {
                             .shadow(color: selectedStudioColor == .yellow ? Color.white.opacity(0.95) : .clear, radius: 8)
                     }
                     .buttonStyle(PlainButtonStyle())
-                    .position(x: palW * 0.76, y: palH * 0.47)
+                    .position(x: palW * 0.800, y: palH * 0.505)
                     
-                    // Blue Spot (bottom-left) - center at 24%, 72%
+                    // Blue Spot (bottom-left) - center at 29.0%, 76.0%
                     Button(action: {
                         selectedStudioColor = .blue
                         HapticManager.shared.lightTap()
@@ -1864,9 +1864,9 @@ public struct AnatomyExplorerView: View {
                             .shadow(color: selectedStudioColor == .blue ? Color.white.opacity(0.95) : .clear, radius: 8)
                     }
                     .buttonStyle(PlainButtonStyle())
-                    .position(x: palW * 0.24, y: palH * 0.72)
+                    .position(x: palW * 0.290, y: palH * 0.760)
                     
-                    // Red Spot (bottom-right) - center at 62%, 72%
+                    // Red Spot (bottom-right) - center at 66.5%, 76.0%
                     Button(action: {
                         selectedStudioColor = .red
                         HapticManager.shared.lightTap()
@@ -1879,7 +1879,7 @@ public struct AnatomyExplorerView: View {
                             .shadow(color: selectedStudioColor == .red ? Color.white.opacity(0.95) : .clear, radius: 8)
                     }
                     .buttonStyle(PlainButtonStyle())
-                    .position(x: palW * 0.62, y: palH * 0.72)
+                    .position(x: palW * 0.665, y: palH * 0.760)
                 }
                 .frame(width: palW, height: palH)
                 .position(x: palX, y: palY)
