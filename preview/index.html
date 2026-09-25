@@ -8021,7 +8021,7 @@
         { id: 'lungs', name: 'Lungs', left: '1.05%', top: '29.44%', width: '98.32%', height: '32.15%', zIndex: 1, file: 'assets/organs_frontal/Organ_lungs.png' },
         { id: 'kidneys', name: 'Kidneys', left: '11.95%', top: '66.39%', width: '74.84%', height: '13.01%', zIndex: 2, file: 'assets/organs_frontal/Organ_kidneys.png' },
         { id: 'intestines', name: 'Intestines', left: '0.00%', top: '62.60%', width: '95.39%', height: '31.71%', zIndex: 3, file: 'assets/organs_frontal/Organ_intestines.png' },
-        { id: 'stomach', name: 'Stomach', left: '32.70%', top: '57.23%', width: '54.30%', height: '14.78%', zIndex: 4, file: 'assets/organs_frontal/Organ_stomach.png' },
+        { id: 'stomach', name: 'Stomach', left: '36.00%', top: '59.80%', width: '56.00%', height: '15.80%', zIndex: 4, file: 'assets/organs_frontal/Organ_stomach.png' },
         { id: 'liver', name: 'Liver', left: '13.63%', top: '53.95%', width: '74.00%', height: '15.22%', zIndex: 5, file: 'assets/organs_frontal/Organ_liver.png' },
         { id: 'heart', name: 'Heart', left: '45.07%', top: '40.43%', width: '37.74%', height: '15.41%', zIndex: 6, file: 'assets/organs_frontal/Organ_heart.png' },
         { id: 'thyroid', name: 'Thyroid', left: '36.90%', top: '22.93%', width: '27.04%', height: '8.78%', zIndex: 7, file: 'assets/organs_frontal/Organ_thyroid.png' },
@@ -8032,7 +8032,7 @@
         { id: 'lung', name: 'Lungs', left: '0.00%', top: '29.46%', width: '98.68%', height: '31.09%', zIndex: 1, file: 'assets/organs_side/Organ_lung_side.png' },
         { id: 'kidneys', name: 'Kidneys', left: '13.20%', top: '71.11%', width: '79.87%', height: '13.34%', zIndex: 2, file: 'assets/organs_side/Organ_kidneys_side.png' },
         { id: 'intestines', name: 'Intestines', left: '5.28%', top: '68.14%', width: '94.72%', height: '30.23%', zIndex: 3, file: 'assets/organs_side/Organ_intestines_side.png' },
-        { id: 'stomach', name: 'Stomach', left: '30.03%', top: '53.93%', width: '59.74%', height: '15.64%', zIndex: 4, file: 'assets/organs_side/Organ_stomach_side.png' },
+        { id: 'stomach', name: 'Stomach', left: '32.50%', top: '55.20%', width: '62.00%', height: '16.20%', zIndex: 4, file: 'assets/organs_side/Organ_stomach_side.png' },
         { id: 'liver', name: 'Liver', left: '11.22%', top: '55.66%', width: '69.64%', height: '13.92%', zIndex: 5, file: 'assets/organs_side/Organ_liver_side.png' },
         { id: 'heart', name: 'Heart', left: '44.88%', top: '41.55%', width: '39.27%', height: '15.55%', zIndex: 6, file: 'assets/organs_side/Organ_heart_side.png' },
         { id: 'thyroid', name: 'Thyroid', left: '35.97%', top: '24.86%', width: '25.41%', height: '7.87%', zIndex: 7, file: 'assets/organs_side/Organ_thyroid_side.png' },
@@ -8530,7 +8530,10 @@
 
     function findOrganAtPoint(clientX, clientY) {
       const layers = Array.from(document.querySelectorAll('.anatomy-organ-layer'));
-      layers.sort((a, b) => (parseInt(b.style.zIndex || 0) - parseInt(a.style.zIndex || 0)));
+      layers.sort((a, b) => {
+        const getPriority = (el) => (el.dataset.organ === 'stomach' ? 5.5 : parseFloat(el.style.zIndex || 0));
+        return getPriority(b) - getPriority(a);
+      });
       for (const layer of layers) {
         const rect = layer.getBoundingClientRect();
         if (clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom) {
