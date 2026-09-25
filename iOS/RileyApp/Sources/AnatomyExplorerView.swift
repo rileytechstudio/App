@@ -344,9 +344,11 @@ public struct AnatomyExplorerView: View {
                             .offset(y: signVerticalOffset(in: proxy.size.height))
                             .animation(.spring(response: 1.4, dampingFraction: 0.82), value: isLowered)
                             .animation(.easeInOut(duration: 2.8), value: isRisingUp)
+                            .allowsHitTesting(isLowered && !isRisingUp)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .zIndex(4)
+                    .allowsHitTesting(isLowered && !isRisingUp)
                 }
                 
                 // 5. Accessible Bottom Character Selection & Studio Prompt Banner (Full-Width Horizontal Banner)
@@ -846,24 +848,28 @@ public struct AnatomyExplorerView: View {
             }
             .frame(width: proxy.size.width * 0.22, height: proxy.size.height * 0.72)
             .position(x: proxy.size.width * 0.1951, y: proxy.size.height * 0.50)
+            .contentShape(Rectangle())
             
             Button(action: { handleCharacterTap("younger-boy") }) {
                 Color.clear
             }
             .frame(width: proxy.size.width * 0.18, height: proxy.size.height * 0.60)
             .position(x: proxy.size.width * 0.3832, y: proxy.size.height * 0.56)
+            .contentShape(Rectangle())
             
             Button(action: { handleCharacterTap("older-girl") }) {
                 Color.clear
             }
             .frame(width: proxy.size.width * 0.20, height: proxy.size.height * 0.72)
             .position(x: proxy.size.width * 0.6025, y: proxy.size.height * 0.50)
+            .contentShape(Rectangle())
             
             Button(action: { handleCharacterTap("younger-girl") }) {
                 Color.clear
             }
-            .frame(width: proxy.size.width * 0.20, height: proxy.size.height * 0.60)
-            .position(x: proxy.size.width * 0.8195, y: proxy.size.height * 0.56)
+            .frame(width: proxy.size.width * 0.24, height: proxy.size.height * 0.68)
+            .position(x: proxy.size.width * 0.82, y: proxy.size.height * 0.56)
+            .contentShape(Rectangle())
         }
     }
     
