@@ -5352,34 +5352,136 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
       pointer-events: none;
-      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      user-select: none;
+      -webkit-user-select: none;
     }
 
     .anatomy-exploration-view.active .anatomy-system-card-wrapper {
       pointer-events: auto;
     }
 
-    .anatomy-system-card-wrapper:hover {
-      transform: translate(50%, -50%) scale(1.025);
+    .anatomy-system-card {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.32));
     }
 
-    .anatomy-system-card-wrapper:active {
-      transform: translate(50%, -50%) scale(0.975);
-    }
-
-    .anatomy-system-card-img {
+    .anatomy-system-card-bg {
       width: 100%;
       height: 100%;
       object-fit: contain;
-      filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.32));
       pointer-events: none;
-      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      display: block;
     }
 
-    .anatomy-exploration-view.active .anatomy-system-card-img {
+    .anatomy-system-item {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      padding: 0;
+      margin: 0;
+      cursor: pointer;
       pointer-events: auto;
+      transform: translate(-50%, -50%);
+      transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.22s ease;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+    }
+
+    .anatomy-system-item:hover {
+      transform: translate(-50%, -50%) scale(1.08);
+    }
+
+    .anatomy-system-item:active {
+      transform: translate(-50%, -50%) scale(0.95);
+    }
+
+    /* Quadrant positions matching System_Box.png */
+    .anatomy-system-item[data-system="skeletal"] {
+      left: 28.7%;
+      top: 38.4%;
+      width: 34%;
+      height: 30%;
+    }
+
+    .anatomy-system-item[data-system="nervous"] {
+      left: 72.1%;
+      top: 38.4%;
+      width: 34%;
+      height: 30%;
+    }
+
+    .anatomy-system-item[data-system="muscular"] {
+      left: 28.8%;
+      top: 71.8%;
+      width: 35%;
+      height: 32%;
+    }
+
+    .anatomy-system-item[data-system="organ"] {
+      left: 73.2%;
+      top: 72.4%;
+      width: 32%;
+      height: 33%;
+    }
+
+    .anatomy-system-item-img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-select: none;
+      transition: filter 0.22s ease, transform 0.22s ease;
+    }
+
+    /* Selection Indicator */
+    .anatomy-system-item.selected {
+      transform: translate(-50%, -50%) scale(1.06);
+    }
+
+    .anatomy-system-item.selected .anatomy-system-item-img {
+      filter: drop-shadow(0 0 10px rgba(230, 82, 110, 0.8)) drop-shadow(0 0 16px rgba(230, 82, 110, 0.4));
+    }
+
+    .anatomy-system-item-badge {
+      display: none;
+      position: absolute;
+      right: 2px;
+      bottom: 2px;
+      width: 22px;
+      height: 22px;
+      background: #e6526e;
+      color: #ffffff;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 18px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+      pointer-events: none;
+      user-select: none;
+      transform: scale(0);
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .anatomy-system-item.selected:not([data-system="organ"]) .anatomy-system-item-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: scale(1);
     }
 
     /* Right Bottom: Interactive Skin Tone Picker Card (Equivalent Area: ~48,300 px²) */
@@ -6948,8 +7050,26 @@
                   </div>
 
                   <!-- Right Top: System Selection Card -->
-                  <div class="anatomy-system-card-wrapper" id="anatomySystemCardWrapper" onclick="toggleSystemSelection(event)">
-                    <img class="anatomy-system-card-img" id="anatomySystemCardImg" src="assets/System Selection.png" alt="System Selection" onclick="toggleSystemSelection(event)" />
+                  <div class="anatomy-system-card-wrapper" id="anatomySystemCardWrapper">
+                    <div class="anatomy-system-card" id="anatomySystemCard">
+                      <img class="anatomy-system-card-bg" src="assets/System_Box.png" alt="System" draggable="false" />
+                      <button type="button" class="anatomy-system-item" id="anatomySystemBtnSkeletal" data-system="skeletal" onclick="selectAnatomySystem('skeletal', event)" aria-label="Skeletal System" title="Skeletal System">
+                        <img class="anatomy-system-item-img" id="anatomySystemImgSkeletal" src="assets/System_Icon_Skeletal.png" alt="Skeletal System" draggable="false" />
+                        <span class="anatomy-system-item-badge">✓</span>
+                      </button>
+                      <button type="button" class="anatomy-system-item" id="anatomySystemBtnNervous" data-system="nervous" onclick="selectAnatomySystem('nervous', event)" aria-label="Nervous System" title="Nervous System">
+                        <img class="anatomy-system-item-img" id="anatomySystemImgNervous" src="assets/System_Icon_Nervous.png" alt="Nervous System" draggable="false" />
+                        <span class="anatomy-system-item-badge">✓</span>
+                      </button>
+                      <button type="button" class="anatomy-system-item" id="anatomySystemBtnMuscular" data-system="muscular" onclick="selectAnatomySystem('muscular', event)" aria-label="Muscular System" title="Muscular System">
+                        <img class="anatomy-system-item-img" id="anatomySystemImgMuscular" src="assets/System_Icon_Muscular.png" alt="Muscular System" draggable="false" />
+                        <span class="anatomy-system-item-badge">✓</span>
+                      </button>
+                      <button type="button" class="anatomy-system-item" id="anatomySystemBtnOrgan" data-system="organ" onclick="selectAnatomySystem('organ', event)" aria-label="Organ System" title="Organ System">
+                        <img class="anatomy-system-item-img" id="anatomySystemImgOrgan" src="assets/System_Icon_Organ.png" alt="Organ System" draggable="false" />
+                        <span class="anatomy-system-item-badge">✓</span>
+                      </button>
+                    </div>
                   </div>
 
                   <!-- Right Bottom: Interactive Skin Tone Picker Card -->
@@ -8035,6 +8155,7 @@
     let isAnatomyInExploration = false;
     let isMagnifierActive = false;
     let isSystemSelectionSecondary = false;
+    let selectedAnatomySystemId = null;
 
     const ORGAN_DEFINITIONS = {
       frontal: [
@@ -8616,8 +8737,8 @@
       // Reset interaction state on each new character selection
       hasInteractedWithSkinTone = false;
       isSystemSelectionSecondary = false;
-      const sysImg = document.getElementById('anatomySystemCardImg');
-      if (sysImg) sysImg.src = 'assets/System Selection.png';
+      selectedAnatomySystemId = null;
+      updateAnatomySystemSelectionUI();
       updateCharacterVisualTint(null);
 
       // Set proportional organ alignment parameters for confirmed character
@@ -8679,8 +8800,8 @@
       isAnatomyCharacterConfirmed = false;
       hasInteractedWithSkinTone = false;
       isSystemSelectionSecondary = false;
-      const sysImg = document.getElementById('anatomySystemCardImg');
-      if (sysImg) sysImg.src = 'assets/System Selection.png';
+      selectedAnatomySystemId = null;
+      updateAnatomySystemSelectionUI();
       updateCharacterVisualTint(null);
       resetMagnifierToDock();
       const charContainer = document.getElementById('anatomyExplorationCharContainer');
@@ -8946,18 +9067,48 @@
       resetMagnifierToDock();
     }
 
-    function toggleSystemSelection(e) {
+    function selectAnatomySystem(systemId, e) {
       if (e) e.stopPropagation();
-      isSystemSelectionSecondary = !isSystemSelectionSecondary;
-      const img = document.getElementById('anatomySystemCardImg');
-      if (img) {
-        img.src = isSystemSelectionSecondary ? 'assets/System Selection 2.png' : 'assets/System Selection.png';
+      if (selectedAnatomySystemId === systemId) {
+        selectedAnatomySystemId = null;
+      } else {
+        selectedAnatomySystemId = systemId;
       }
+      isSystemSelectionSecondary = (selectedAnatomySystemId === 'organ');
+      updateAnatomySystemSelectionUI();
+
       if (!isSystemSelectionSecondary) {
         clearOrganSelection();
       }
       if (isHapticsEnabled) triggerHapticFeedback(12);
       checkMagnifierOverCharacter();
+    }
+
+    function updateAnatomySystemSelectionUI() {
+      const systems = ['skeletal', 'nervous', 'muscular', 'organ'];
+      systems.forEach(sys => {
+        const btn = document.getElementById(`anatomySystemBtn${sys.charAt(0).toUpperCase() + sys.slice(1)}`);
+        if (btn) {
+          if (selectedAnatomySystemId === sys) {
+            btn.classList.add('selected');
+            btn.setAttribute('aria-pressed', 'true');
+          } else {
+            btn.classList.remove('selected');
+            btn.setAttribute('aria-pressed', 'false');
+          }
+        }
+      });
+
+      const organImg = document.getElementById('anatomySystemImgOrgan');
+      if (organImg) {
+        organImg.src = (selectedAnatomySystemId === 'organ') 
+          ? 'assets/System_Icon_Organ_Selected.png' 
+          : 'assets/System_Icon_Organ.png';
+      }
+    }
+
+    function toggleSystemSelection(e) {
+      selectAnatomySystem('organ', e);
     }
 
     function handleAnatomyPromptBarTap() {

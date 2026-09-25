@@ -95,6 +95,7 @@ public struct AnatomyExplorerView: View {
     @State private var isDraggingMagnifier = false
     @State private var isMagnifierOverCharacter = false
     @State private var isSystemSelectionSecondary = false
+    @State private var selectedSystemId: String? = nil
     @State private var skinToneProgress: CGFloat = 0.50
     @State private var hasInteractedWithSkinTone = false
     @State private var isDraggingSkinTone = false
@@ -398,6 +399,9 @@ public struct AnatomyExplorerView: View {
                         magnifierOffset = .zero
                         magnifierBaseOffset = .zero
                         isMagnifierOverCharacter = false
+                        selectedSystemId = nil
+                        isSystemSelectionSecondary = false
+                        selectedOrganId = nil
                     }
                 } else {
                     onBackToHome()
@@ -633,6 +637,9 @@ public struct AnatomyExplorerView: View {
         selectedCharacter = nil
         isConfirmed = false
         areCharactersInteractive = false
+        selectedSystemId = nil
+        isSystemSelectionSecondary = false
+        selectedOrganId = nil
         
         // 1. Lower sign from rafters
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -891,6 +898,8 @@ public struct AnatomyExplorerView: View {
                 hasInteractedWithSkinTone = false
                 selectedOrganId = nil
                 activeStudioOrgan = nil
+                selectedSystemId = nil
+                isSystemSelectionSecondary = false
                 magnifierOffset = .zero
                 magnifierBaseOffset = .zero
                 isMagnifierOverCharacter = false
@@ -1117,25 +1126,8 @@ public struct AnatomyExplorerView: View {
             .animation(.easeInOut(duration: 0.2), value: isMagnifierOverCharacter)
             .zIndex(20)
             
-            // Right Top: System Selection Card (Equivalent Area to Skin Tone Picker: ~48,300 px²)
-            Button(action: {
-                withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
-                    isSystemSelectionSecondary.toggle()
-                    if !isSystemSelectionSecondary {
-                        selectedOrganId = nil
-                    }
-                }
-                HapticManager.shared.lightTap()
-            }) {
-                Image(isSystemSelectionSecondary ? "AnatomySystemSelection2" : "AnatomySystemSelection")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: proxy.size.width * 0.22, height: proxy.size.height * 0.28)
-                    .shadow(color: Color.black.opacity(0.28), radius: 12, y: 6)
-            }
-            .buttonStyle(PlainButtonStyle())
-            .position(x: proxy.size.width * 0.83, y: proxy.size.height * 0.23)
-            .zIndex(30)
+            // Right Top: System Selection Card
+            systemSelectionCard(proxy: proxy)
             
             // Right Bottom: Interactive Skin Tone Slider Card
             skinToneSliderCard(proxy: proxy)
@@ -1283,6 +1275,122 @@ public struct AnatomyExplorerView: View {
         }
         let last = stops.last!.1
         return Color(red: last.0, green: last.1, blue: last.2)
+    }
+    
+    @ViewBuilder
+    private func systemSelectionCard(proxy: GeometryProxy) -> some View {
+        let cardW = proxy.size.width * 0.22
+        let cardH = cardW / 1.043
+        
+        ZStack {
+            Image("AnatomySystemBox")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: cardW, height: cardH)
+                .shadow(color: Color.black.opacity(0.28), radius: 12, y: 6)
+            
+            // 4 Quadrant Interactive Buttons
+            systemItemButton(
+                id: "skeletal",
+                imageName: "AnatomySystemIconSkeletal",
+                selectedImageName: nil,
+                centerX: cardW * 0.287,
+                centerY: cardH * 0.384,
+                width: cardW * 0.34,
+                height: cardH * 0.30
+            )
+            
+            systemItemButton(
+                id: "nervous",
+                imageName: "AnatomySystemIconNervous",
+                selectedImageName: nil,
+                centerX: cardW * 0.721,
+                centerY: cardH * 0.384,
+                width: cardW * 0.34,
+                height: cardH * 0.30
+            )
+            
+            systemItemButton(
+                id: "muscular",
+                imageName: "AnatomySystemIconMuscular",
+                selectedImageName: nil,
+                centerX: cardW * 0.288,
+                centerY: cardH * 0.718,
+                width: cardW * 0.35,
+                height: cardH * 0.32
+            )
+            
+            systemItemButton(
+                id: "organ",
+                imageName: "AnatomySystemIconOrgan",
+                selectedImageName: "AnatomySystemIconOrganSelected",
+                centerX: cardW * 0.732,
+                centerY: cardH * 0.724,
+                width: cardW * 0.32,
+                height: cardH * 0.33
+            )
+        }
+        .frame(width: cardW, height: cardH)
+        .position(x: proxy.size.width * 0.83, y: proxy.size.height * 0.23)
+        .zIndex(30)
+    }
+
+    @ViewBuilder
+    private func systemItemButton(
+        id: String,
+        imageName: String,
+        selectedImageName: String?,
+        centerX: CGFloat,
+        centerY: CGFloat,
+        width: CGFloat,
+        height: CGFloat
+    ) -> some View {
+        let isSelected = (selectedSystemId == id)
+        let activeImgName = (isSelected && selectedImageName != nil) ? selectedImageName! : imageName
+        
+        Button(action: {
+            withAnimation(.spring(response: 0.32, dampingFraction: 0.7)) {
+                if selectedSystemId == id {
+                    selectedSystemId = nil
+                } else {
+                    selectedSystemId = id
+                }
+                isSystemSelectionSecondary = (selectedSystemId == "organ")
+                if !isSystemSelectionSecondary {
+                    selectedOrganId = nil
+                }
+            }
+            HapticManager.shared.lightTap()
+        }) {
+            ZStack(alignment: .bottomTrailing) {
+                Image(activeImgName)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: width, height: height)
+                    .scaleEffect(isSelected ? 1.06 : 1.0)
+                    .shadow(color: isSelected ? Color(red: 0.88, green: 0.42, blue: 0.42).opacity(0.8) : Color.clear, radius: 10)
+                
+                if isSelected && selectedImageName == nil {
+                    ZStack {
+                        Circle()
+                            .fill(Color.white)
+                            .frame(width: 22, height: 22)
+                        Circle()
+                            .fill(Color(red: 0.88, green: 0.42, blue: 0.42))
+                            .frame(width: 18, height: 18)
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundColor(.white)
+                    }
+                    .shadow(color: Color.black.opacity(0.3), radius: 3, y: 1)
+                    .offset(x: 2, y: 2)
+                    .transition(.scale)
+                }
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(PlainButtonStyle())
+        .position(x: centerX, y: centerY)
     }
     
     @ViewBuilder
