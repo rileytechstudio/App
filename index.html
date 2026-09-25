@@ -6961,7 +6961,7 @@
                   </div>
 
                   <!-- Left: Interactive Draggable Magnifying Glass Tool -->
-                  <div class="anatomy-tool-magnifier-wrapper" id="anatomyMagnifierWrapper" title="Drag over character to explore">
+                  <div class="anatomy-tool-magnifier-wrapper" id="anatomyMagnifierWrapper" title="Drag over your character to explore!">
                     <img class="anatomy-magnifier-img anatomy-magnifier-default" id="anatomyMagnifierDefaultImg" src="assets/Magnifying Glass 1.png" alt="Magnifying Glass" />
                     <img class="anatomy-magnifier-img anatomy-magnifier-transparent" id="anatomyMagnifierTransparentImg" src="assets/Magnifying Glass 1 Transparent.png" alt="Magnifying Glass (Transparent Lens)" />
                   </div>
@@ -7153,7 +7153,7 @@
               <div class="anatomy-bottom-prompt-bar" id="anatomyBottomPromptBar" role="status" aria-live="polite" onclick="handleAnatomyPromptBarTap()">
                 <div class="step-instruction-card">
                   <span class="step-instruction-dot" id="anatomyPromptDot" aria-hidden="true"></span>
-                  <span class="step-instruction-text" id="anatomyPromptText">Pick your character to get started</span>
+                  <span class="step-instruction-text" id="anatomyPromptText">Pick a character to start!</span>
                 </div>
               </div>
 
@@ -7840,7 +7840,7 @@
       if (promptBar) {
         promptBar.classList.remove('visible', 'can-confirm', 'is-confirmed');
         const pt = document.getElementById('anatomyPromptText');
-        if (pt) pt.textContent = 'Pick your character to get started';
+        if (pt) pt.textContent = 'Pick a character to start!';
         const pd = document.getElementById('anatomyPromptDot');
         if (pd) pd.className = 'step-instruction-dot';
       }
@@ -8063,7 +8063,7 @@
         promptDot.className = 'step-instruction-dot confirm-pulse';
       }
       if (promptText) {
-        promptText.textContent = 'Tap again to confirm';
+        promptText.textContent = 'Tap again to start!';
       }
 
       if (isHapticsEnabled) {
@@ -8256,7 +8256,7 @@
         promptDot.className = 'step-instruction-dot confirm-pulse';
       }
       if (promptText) {
-        promptText.innerHTML = `<strong>${organ.name}</strong> - Tap again to view illustration`;
+        promptText.innerHTML = `<strong>${organ.name}</strong> - Tap again to see and draw!`;
       }
 
       if (isHapticsEnabled) triggerHapticFeedback(14);
@@ -8282,7 +8282,7 @@
         promptBar.classList.remove('is-confirmed');
       }
       if (promptText) {
-        promptText.innerHTML = `<strong>${organ.name}</strong> - Tap again to view illustration`;
+        promptText.innerHTML = `<strong>${organ.name}</strong> - Tap again to see and draw!`;
       }
 
       if ('speechSynthesis' in window) {
@@ -8318,9 +8318,7 @@
         promptDot.className = 'step-instruction-dot confirm-pulse';
       }
       if (promptText) {
-        promptText.textContent = def.dual 
-          ? 'Pick a tool and color, then use your finger to draw on the pictures!' 
-          : 'Pick a tool and color, then use your finger to draw on the picture!';
+        promptText.textContent = 'Pick a tool and color, then draw with your finger!';
       }
 
       const illusContainer = document.getElementById('anatomyStudioIllustrations');
@@ -8378,7 +8376,7 @@
         const list = isOlder ? ORGAN_DEFINITIONS.side : ORGAN_DEFINITIONS.frontal;
         const organ = list.find(o => o.id === currentStudioOrganId) || { name: currentStudioOrganId };
         if (promptText) {
-          promptText.innerHTML = `<strong>${organ.name}</strong> - Tap again to view illustration`;
+          promptText.innerHTML = `<strong>${organ.name}</strong> - Tap again to see and draw!`;
         }
         if (promptBar) {
           promptBar.classList.add('visible', 'can-confirm', 'organ-prompt-active');
@@ -8747,7 +8745,7 @@
         promptBar.classList.remove('is-confirmed', 'organ-prompt-active');
       }
       if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
-      if (promptText) promptText.textContent = 'Tap again to confirm';
+      if (promptText) promptText.textContent = 'Tap again to start!';
 
       if (navTitle) navTitle.textContent = 'Anatomy Explorer';
       if (navSubtitle) navSubtitle.style.display = 'none';

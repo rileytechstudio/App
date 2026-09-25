@@ -812,18 +812,16 @@ public struct AnatomyExplorerView: View {
     }
 
     private var promptText: String {
-        if let studio = activeStudioOrgan {
-            return studio.isDual 
-                ? "Pick a tool and color, then use your finger to draw on the pictures!" 
-                : "Pick a tool and color, then use your finger to draw on the picture!"
+        if let _ = activeStudioOrgan {
+            return "Pick a tool and color, then draw with your finger!"
         } else if let organ = selectedOrganName {
-            return "\(organ) - Tap again to view illustration"
+            return "\(organ) - Tap again to see and draw!"
         } else if isConfirmed, let char = selectedCharacter {
-            return "\(characterDisplayName(for: char)) confirmed! Ready to explore"
+            return "\(characterDisplayName(for: char)) is ready! Let's explore!"
         } else if selectedCharacter != nil {
-            return "Tap again to confirm"
+            return "Tap again to start!"
         } else {
-            return "Pick your character to get started"
+            return "Pick a character to start!"
         }
     }
 
@@ -1149,7 +1147,7 @@ public struct AnatomyExplorerView: View {
                             .frame(width: 10, height: 10)
                             .shadow(color: Color(hex: "ffd700"), radius: 6)
                         
-                        Text("\(organ.name) - Tap again to view illustration")
+                        Text("\(organ.name) - Tap again to see and draw!")
                             .font(.system(size: 15, weight: .semibold, design: .rounded))
                             .foregroundColor(.white)
                         
