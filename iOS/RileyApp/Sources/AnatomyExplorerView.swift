@@ -758,8 +758,12 @@ public struct AnatomyExplorerView: View {
     @ViewBuilder
     private var bottomPromptBar: some View {
         Button(action: {
-            if let char = selectedCharacter, !isConfirmed {
-                handleCharacterTap(char)
+            if let organId = selectedOrganId {
+                let studio = studioDefinition(for: organId)
+                withAnimation(.spring(response: 0.38, dampingFraction: 0.8)) {
+                    activeStudioOrgan = studio
+                }
+                HapticManager.shared.lightTap()
             }
         }) {
             HStack(spacing: 9) {
@@ -808,7 +812,7 @@ public struct AnatomyExplorerView: View {
             .shadow(color: Color.black.opacity(0.32), radius: 10, y: -3)
         }
         .buttonStyle(PlainButtonStyle())
-        .allowsHitTesting(selectedCharacter != nil && !isConfirmed)
+        .allowsHitTesting(selectedOrganId != nil)
     }
 
     private var promptText: String {
@@ -816,10 +820,14 @@ public struct AnatomyExplorerView: View {
             return "Pick a tool and color, then draw with your finger!"
         } else if let organ = selectedOrganName {
             return "\(organ) - Tap again to see and draw!"
-        } else if isConfirmed, let char = selectedCharacter {
-            return "\(characterDisplayName(for: char)) is ready! Let's explore!"
-        } else if selectedCharacter != nil {
-            return "Tap again to start!"
+        } else if isConfirmed {
+            if !hasInteractedWithSkinTone && selectedSystemId == nil {
+                return "Select a skin tone!"
+            } else if selectedSystemId == nil {
+                return "Select a body system!"
+            } else {
+                return "Use the magnifying glass to explore!"
+            }
         } else {
             return "Pick a character to start!"
         }
@@ -879,31 +887,19 @@ public struct AnatomyExplorerView: View {
     }
     
     private func handleCharacterTap(_ charId: String) {
-        if selectedCharacter == charId && !isConfirmed {
-            withAnimation(.spring(response: 0.36, dampingFraction: 0.62)) {
-                isConfirmed = true
-                magnifierOffset = .zero
-                magnifierBaseOffset = .zero
-                isMagnifierOverCharacter = false
-                selectedOrganId = nil
-                activeStudioOrgan = nil
-            }
-            HapticManager.shared.successNotification()
-        } else {
-            withAnimation(.spring(response: 0.42, dampingFraction: 0.82)) {
-                selectedCharacter = charId
-                isConfirmed = false
-                hasInteractedWithSkinTone = false
-                selectedOrganId = nil
-                activeStudioOrgan = nil
-                selectedSystemId = nil
-                isSystemSelectionSecondary = false
-                magnifierOffset = .zero
-                magnifierBaseOffset = .zero
-                isMagnifierOverCharacter = false
-            }
-            HapticManager.shared.lightTap()
+        withAnimation(.spring(response: 0.36, dampingFraction: 0.62)) {
+            selectedCharacter = charId
+            isConfirmed = true
+            hasInteractedWithSkinTone = false
+            selectedOrganId = nil
+            activeStudioOrgan = nil
+            selectedSystemId = nil
+            isSystemSelectionSecondary = false
+            magnifierOffset = .zero
+            magnifierBaseOffset = .zero
+            isMagnifierOverCharacter = false
         }
+        HapticManager.shared.lightTap()
     }
     
     private func characterCenterX(for charId: String, in width: CGFloat) -> CGFloat {

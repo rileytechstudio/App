@@ -8086,70 +8086,9 @@
 
     function handleAnatomyCharacterTap(charId) {
       if (!ANATOMY_CHARACTERS[charId]) return;
-
-      const stageFrame = document.getElementById('anatomyStageFrame');
-      const beamLayer = document.getElementById('anatomySpotlightBeamLayer');
-      const cone = document.getElementById('anatomySpotlightCone');
-      const floorGlow = document.getElementById('anatomySpotlightFloorGlow');
-      const promptBar = document.getElementById('anatomyBottomPromptBar');
-      const promptText = document.getElementById('anatomyPromptText');
-      const promptDot = document.getElementById('anatomyPromptDot');
-
-      // If user taps the already selected character, confirm selection!
-      if (selectedAnatomyCharacter === charId && !isAnatomyCharacterConfirmed) {
-        confirmAnatomyCharacter(charId);
-        return;
-      }
-
-      // Otherwise select or move spotlight to this character
       selectedAnatomyCharacter = charId;
-      isAnatomyCharacterConfirmed = false;
-
-      const charInfo = ANATOMY_CHARACTERS[charId];
-
-      if (stageFrame) {
-        stageFrame.classList.add('has-selection');
-      }
-
-      ['older-boy', 'younger-boy', 'older-girl', 'younger-girl'].forEach(id => {
-        const el = document.getElementById('anatomyChar_' + id);
-        if (el) {
-          el.classList.remove('selected', 'confirmed');
-          if (id === charId) {
-            el.classList.add('selected');
-          }
-        }
-      });
-
-      if (beamLayer) beamLayer.classList.add('active');
-      if (cone) {
-        cone.style.left = charInfo.centerPercent + '%';
-      }
-      if (floorGlow) {
-        floorGlow.classList.add('active');
-        floorGlow.style.left = charInfo.centerPercent + '%';
-        floorGlow.style.bottom = charInfo.glowBottomPercent + '%';
-      }
-
-      const dimmer = document.getElementById('anatomyStageDimmer');
-      const coneDimmer = document.getElementById('anatomyStageDimmerCone');
-      if (dimmer) dimmer.classList.add('active');
-      if (coneDimmer) coneDimmer.style.left = charInfo.centerPercent + '%';
-
-      if (promptBar) {
-        promptBar.classList.add('can-confirm');
-        promptBar.classList.remove('is-confirmed');
-      }
-      if (promptDot) {
-        promptDot.className = 'step-instruction-dot confirm-pulse';
-      }
-      if (promptText) {
-        promptText.textContent = 'Tap again to start!';
-      }
-
-      if (isHapticsEnabled) {
-        triggerHapticFeedback(12);
-      }
+      if (isHapticsEnabled) triggerHapticFeedback(14);
+      confirmAnatomyCharacter(charId);
     }
 
     let isAnatomyInExploration = false;
@@ -8466,14 +8405,8 @@
         if (promptDot) {
           promptDot.className = 'step-instruction-dot confirm-pulse';
         }
-      } else if (selectedAnatomyCharacter) {
-        const charInfo = ANATOMY_CHARACTERS[selectedAnatomyCharacter];
-        if (promptText) promptText.textContent = charInfo ? `${charInfo.name} is ready! Let's explore!` : "Let's explore!";
-        if (promptBar) {
-          promptBar.classList.add('visible', 'is-confirmed');
-          promptBar.classList.remove('studio-prompt-active', 'organ-prompt-active');
-        }
-        if (promptDot) promptDot.className = 'step-instruction-dot';
+      } else {
+        updateAnatomyExplorationPrompt();
       }
       currentStudioOrganId = null;
       if (isHapticsEnabled) triggerHapticFeedback(12);
@@ -8664,19 +8597,8 @@
       document.querySelectorAll('.anatomy-organ-layer').forEach(layer => {
         layer.classList.remove('is-selected', 'is-speaking');
       });
-      const promptBar = document.getElementById('anatomyBottomPromptBar');
-      const promptText = document.getElementById('anatomyPromptText');
-      const promptDot = document.getElementById('anatomyPromptDot');
-      if (promptBar && isAnatomyInExploration) {
-        promptBar.classList.remove('organ-prompt-active', 'can-confirm', 'prompt-pulse');
-        promptBar.classList.add('visible', 'is-confirmed');
-      }
-      if (promptDot && isAnatomyInExploration) {
-        promptDot.className = 'step-instruction-dot';
-      }
-      if (promptText && isAnatomyInExploration) {
-        const charInfo = selectedAnatomyCharacter ? ANATOMY_CHARACTERS[selectedAnatomyCharacter] : null;
-        promptText.textContent = charInfo ? `${charInfo.name} is ready! Let's explore!` : "Let's explore!";
+      if (isAnatomyInExploration) {
+        updateAnatomyExplorationPrompt();
       }
     }
 
@@ -8706,6 +8628,33 @@
       return null;
     }
 
+    function updateAnatomyExplorationPrompt() {
+      if (!isAnatomyInExploration) return;
+      if (currentStudioOrganId) return;
+      if (selectedOrganId) return;
+
+      const promptBar = document.getElementById('anatomyBottomPromptBar');
+      const promptText = document.getElementById('anatomyPromptText');
+      const promptDot = document.getElementById('anatomyPromptDot');
+
+      if (promptBar) {
+        promptBar.classList.add('visible', 'is-confirmed');
+        promptBar.classList.remove('can-confirm', 'organ-prompt-active', 'studio-prompt-active');
+      }
+      if (promptDot) {
+        promptDot.className = 'step-instruction-dot';
+      }
+      if (!promptText) return;
+
+      if (!hasInteractedWithSkinTone && !selectedAnatomySystemId) {
+        promptText.textContent = 'Select a skin tone!';
+      } else if (!selectedAnatomySystemId) {
+        promptText.textContent = 'Select a body system!';
+      } else {
+        promptText.textContent = 'Use the magnifying glass to explore!';
+      }
+    }
+
     function confirmAnatomyCharacter(charId) {
       if (!charId) charId = selectedAnatomyCharacter;
       if (!charId || !ANATOMY_CHARACTERS[charId]) return;
@@ -8721,19 +8670,7 @@
       }
 
       // Update bottom prompt bar for exploration view
-      const promptBar = document.getElementById('anatomyBottomPromptBar');
-      const promptText = document.getElementById('anatomyPromptText');
-      const promptDot = document.getElementById('anatomyPromptDot');
-      if (promptBar) {
-        promptBar.classList.add('visible', 'is-confirmed');
-        promptBar.classList.remove('can-confirm', 'organ-prompt-active');
-      }
-      if (promptDot) {
-        promptDot.className = 'step-instruction-dot';
-      }
-      if (promptText) {
-        promptText.textContent = `${charInfo.name} is ready! Let's explore!`;
-      }
+      updateAnatomyExplorationPrompt();
 
       // Set solo centered character asset
       const soloMap = {
@@ -8843,11 +8780,11 @@
       }
 
       if (promptBar) {
-        promptBar.classList.add('visible', 'can-confirm');
-        promptBar.classList.remove('is-confirmed', 'organ-prompt-active');
+        promptBar.classList.add('visible');
+        promptBar.classList.remove('is-confirmed', 'organ-prompt-active', 'can-confirm');
       }
-      if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
-      if (promptText) promptText.textContent = 'Tap again to start!';
+      if (promptDot) promptDot.className = 'step-instruction-dot';
+      if (promptText) promptText.textContent = 'Pick a character to start!';
 
       if (navTitle) navTitle.textContent = 'Anatomy Explorer';
       if (navSubtitle) navSubtitle.style.display = 'none';
@@ -9099,6 +9036,7 @@
       if (!isSystemSelectionSecondary) {
         clearOrganSelection();
       }
+      updateAnatomyExplorationPrompt();
       if (isHapticsEnabled) triggerHapticFeedback(12);
       checkMagnifierOverCharacter();
     }
@@ -9241,6 +9179,9 @@
 
       if (hasInteractedWithSkinTone) {
         updateCharacterVisualTint(color.hex);
+        if (isInteractive) {
+          updateAnatomyExplorationPrompt();
+        }
       }
     }
 
