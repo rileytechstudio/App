@@ -4750,6 +4750,73 @@
       100% { transform: scale(1.07); }
     }
 
+    /* Assembled Skeleton Layer (Revealed through magnifying glass lens when Skeletal System is active) */
+    .anatomy-exploration-skeleton-container {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 15;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      clip-path: circle(0px at 0 0);
+      -webkit-clip-path: circle(0px at 0 0);
+    }
+
+    .anatomy-skeleton-assembly-box {
+      position: absolute;
+      top: var(--skeleton-top, 3%);
+      left: var(--skeleton-left, 50.5%);
+      transform: translateX(-50%);
+      height: var(--skeleton-height, 94%);
+      aspect-ratio: var(--skeleton-aspect, 841 / 1690);
+      pointer-events: auto;
+    }
+
+    .anatomy-bone-layer {
+      position: absolute;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      transform-origin: 50% 50%;
+      transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.25s ease, opacity 0.25s ease;
+      pointer-events: auto;
+    }
+
+    .anatomy-bone-layer img {
+      width: 100%;
+      height: 100%;
+      object-fit: fill;
+      display: block;
+      pointer-events: none;
+    }
+
+    /* Dim non-selected bones when any bone is selected */
+    .anatomy-skeleton-assembly-box.has-selection .anatomy-bone-layer:not(.is-selected) {
+      opacity: 0.25;
+      filter: grayscale(80%) brightness(0.7);
+    }
+
+    /* Selected bone glows with radiant golden aura and scale pulse */
+    .anatomy-bone-layer.is-selected {
+      opacity: 1 !important;
+      transform: scale(1.06);
+      filter: drop-shadow(0 0 10px #ffd700) drop-shadow(0 0 18px rgba(255, 215, 0, 0.95)) drop-shadow(0 0 28px rgba(255, 235, 59, 0.7));
+      z-index: 35 !important;
+    }
+
+    .anatomy-bone-layer.is-speaking {
+      animation: boneSpeakPulse 0.45s ease-in-out;
+    }
+
+    @keyframes boneSpeakPulse {
+      0% { transform: scale(1.06); }
+      40% { transform: scale(1.14); }
+      75% { transform: scale(1.04); }
+      100% { transform: scale(1.06); }
+    }
+
     /* =========================================================
        ANATOMY ORGAN ILLUSTRATION STUDIO SCREEN
        ========================================================= */
@@ -6943,6 +7010,11 @@
                     <div class="anatomy-exploration-organs-container" id="anatomyExplorationOrgansContainer" aria-hidden="true">
                       <div class="anatomy-organs-assembly-box" id="anatomyOrgansAssemblyBox"></div>
                     </div>
+
+                    <!-- Assembled Skeletal Layer (Revealed through magnifying glass lens when Skeletal System is active) -->
+                    <div class="anatomy-exploration-skeleton-container" id="anatomyExplorationSkeletonContainer" aria-hidden="true">
+                      <div class="anatomy-skeleton-assembly-box" id="anatomySkeletonAssemblyBox"></div>
+                    </div>
                   </div>
 
                   <!-- Inline SVG Filter for Real-Time GPU Silhouette Tinting -->
@@ -8137,6 +8209,143 @@
       });
     }
 
+    const BONE_DEFINITIONS = [
+      { id: 'skull', name: 'Skull', left: '36.98%', top: '0.00%', width: '26.16%', height: '16.15%', zIndex: 10, file: 'assets/bones/Bone_skull.png' },
+      { id: 'spine', name: 'Spine', left: '45.42%', top: '15.44%', width: '9.04%', height: '30.24%', zIndex: 1, file: 'assets/bones/Bone_spine.png' },
+      { id: 'ribcage', name: 'Ribcage', left: '27.82%', top: '18.93%', width: '44.35%', height: '19.17%', zIndex: 5, file: 'assets/bones/Bone_ribcage.png' },
+      { id: 'humerus', name: 'Humerus', left: '16.41%', top: '21.78%', width: '66.94%', height: '17.93%', zIndex: 4, file: 'assets/bones/Bone_humerus.png' },
+      { id: 'radius_ulna', name: 'Radius and Ulna', left: '7.13%', top: '38.82%', width: '85.73%', height: '16.63%', zIndex: 6, file: 'assets/bones/Bone_radius_ulna.png' },
+      { id: 'hands', name: 'Hands', left: '0.00%', top: '54.56%', width: '100.00%', height: '12.01%', zIndex: 7, file: 'assets/bones/Bone_hands.png' },
+      { id: 'pelvis', name: 'Pelvis', left: '31.51%', top: '42.49%', width: '36.98%', height: '12.96%', zIndex: 3, file: 'assets/bones/Bone_pelvis.png' },
+      { id: 'femur', name: 'Femur', left: '29.13%', top: '51.48%', width: '41.62%', height: '22.72%', zIndex: 2, file: 'assets/bones/Bone_femur.png' },
+      { id: 'fibula_tibia', name: 'Tibia and Fibula', left: '30.32%', top: '73.67%', width: '39.36%', height: '19.94%', zIndex: 8, file: 'assets/bones/Bone_fibula_tibia.png' },
+      { id: 'feet', name: 'Feet', left: '18.07%', top: '92.19%', width: '63.85%', height: '7.81%', zIndex: 9, file: 'assets/bones/Bone_feet.png' }
+    ];
+
+    let selectedBoneId = null;
+
+    function renderSkeletonAssembly() {
+      const box = document.getElementById('anatomySkeletonAssemblyBox');
+      if (!box) return;
+      box.innerHTML = '';
+      selectedBoneId = null;
+      box.classList.remove('has-selection');
+      box.style.setProperty('--skeleton-aspect', '841 / 1690');
+
+      BONE_DEFINITIONS.forEach(item => {
+        const layer = document.createElement('div');
+        layer.className = 'anatomy-bone-layer';
+        layer.dataset.bone = item.id;
+        layer.dataset.name = item.name;
+        layer.style.left = item.left;
+        layer.style.top = item.top;
+        layer.style.width = item.width;
+        layer.style.height = item.height;
+        layer.style.zIndex = item.zIndex;
+
+        const img = document.createElement('img');
+        img.src = item.file;
+        img.alt = item.name;
+        layer.appendChild(img);
+
+        layer.addEventListener('pointerdown', (e) => e.stopPropagation());
+        layer.addEventListener('click', (e) => {
+          e.stopPropagation();
+          onBoneClicked(item.id);
+        });
+
+        box.appendChild(layer);
+      });
+    }
+
+    function clearBoneSelection() {
+      selectedBoneId = null;
+      const box = document.getElementById('anatomySkeletonAssemblyBox');
+      if (box) {
+        box.classList.remove('has-selection');
+      }
+      document.querySelectorAll('.anatomy-bone-layer').forEach(layer => {
+        layer.classList.remove('is-selected', 'is-speaking');
+      });
+      if (isAnatomyInExploration) {
+        updateAnatomyExplorationPrompt();
+      }
+    }
+
+    function selectBone(boneId) {
+      selectedBoneId = boneId;
+      const bone = BONE_DEFINITIONS.find(b => b.id === boneId) || { name: boneId };
+
+      const box = document.getElementById('anatomySkeletonAssemblyBox');
+      if (box) {
+        box.classList.add('has-selection');
+      }
+
+      document.querySelectorAll('.anatomy-bone-layer').forEach(layer => {
+        if (layer.dataset.bone === boneId) {
+          layer.classList.add('is-selected');
+        } else {
+          layer.classList.remove('is-selected', 'is-speaking');
+        }
+      });
+
+      const promptBar = document.getElementById('anatomyBottomPromptBar');
+      const promptText = document.getElementById('anatomyPromptText');
+      const promptDot = document.getElementById('anatomyPromptDot');
+      if (promptBar) {
+        promptBar.classList.add('visible', 'can-confirm', 'organ-prompt-active');
+        promptBar.classList.remove('is-confirmed');
+      }
+      if (promptDot) {
+        promptDot.className = 'step-instruction-dot confirm-pulse';
+      }
+      if (promptText) {
+        promptText.innerHTML = `<strong>${bone.name}</strong> - Tap again to see and draw!`;
+      }
+
+      if (isHapticsEnabled) triggerHapticFeedback(14);
+    }
+
+    function speakBoneName(boneId) {
+      const bone = BONE_DEFINITIONS.find(b => b.id === boneId) || { name: boneId };
+      const el = document.querySelector(`.anatomy-bone-layer[data-bone="${boneId}"]`);
+      if (el) {
+        el.classList.remove('is-speaking');
+        void el.offsetWidth;
+        el.classList.add('is-speaking');
+      }
+
+      const promptBar = document.getElementById('anatomyBottomPromptBar');
+      const promptText = document.getElementById('anatomyPromptText');
+      if (promptBar) {
+        promptBar.classList.add('visible', 'can-confirm', 'organ-prompt-active');
+        promptBar.classList.remove('is-confirmed');
+      }
+      if (promptText) {
+        promptText.innerHTML = `<strong>${bone.name}</strong> - Tap again to see and draw!`;
+      }
+
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(bone.name);
+        utter.rate = 0.88;
+        utter.pitch = 1.05;
+        window.speechSynthesis.speak(utter);
+      }
+
+      if (isHapticsEnabled) triggerHapticFeedback([12, 60, 20]);
+    }
+
+    function onBoneClicked(boneId) {
+      if (selectedAnatomySystemId !== 'skeletal' || !isMagnifierOverCharacter) return;
+      if (selectedBoneId === boneId) {
+        openOrganStudio(boneId);
+      } else {
+        selectBone(boneId);
+        speakBoneName(boneId);
+      }
+    }
+
     const ORGAN_STUDIO_DEFINITIONS = {
       heart: {
         name: 'Heart',
@@ -8209,6 +8418,76 @@
         illustrations: [
           { src: 'assets/Trachea Illus.png', label: 'Thyroid & Trachea' }
         ]
+      },
+      skull: {
+        name: 'Skull',
+        dual: false,
+        illustrations: [
+          { src: 'assets/bones/Bone_skull.png', label: 'Skull' }
+        ]
+      },
+      spine: {
+        name: 'Spine',
+        dual: false,
+        illustrations: [
+          { src: 'assets/bones/Bone_spine.png', label: 'Spine' }
+        ]
+      },
+      ribcage: {
+        name: 'Ribcage',
+        dual: false,
+        illustrations: [
+          { src: 'assets/bones/Bone_ribcage.png', label: 'Ribcage' }
+        ]
+      },
+      humerus: {
+        name: 'Humerus',
+        dual: false,
+        illustrations: [
+          { src: 'assets/bones/Bone_humerus.png', label: 'Humerus' }
+        ]
+      },
+      radius_ulna: {
+        name: 'Radius and Ulna',
+        dual: false,
+        illustrations: [
+          { src: 'assets/bones/Bone_radius_ulna.png', label: 'Radius and Ulna' }
+        ]
+      },
+      hands: {
+        name: 'Hands',
+        dual: false,
+        illustrations: [
+          { src: 'assets/bones/Bone_hands.png', label: 'Hands' }
+        ]
+      },
+      pelvis: {
+        name: 'Pelvis',
+        dual: false,
+        illustrations: [
+          { src: 'assets/bones/Bone_pelvis.png', label: 'Pelvis' }
+        ]
+      },
+      femur: {
+        name: 'Femur',
+        dual: false,
+        illustrations: [
+          { src: 'assets/bones/Bone_femur.png', label: 'Femur' }
+        ]
+      },
+      fibula_tibia: {
+        name: 'Tibia and Fibula',
+        dual: false,
+        illustrations: [
+          { src: 'assets/bones/Bone_fibula_tibia.png', label: 'Tibia and Fibula' }
+        ]
+      },
+      feet: {
+        name: 'Feet',
+        dual: false,
+        illustrations: [
+          { src: 'assets/bones/Bone_feet.png', label: 'Feet' }
+        ]
       }
     };
 
@@ -8222,7 +8501,7 @@
     let studioLastY = 0;
 
     function onOrganClicked(organId) {
-      if (!isSystemSelectionSecondary || !isMagnifierOverCharacter) return;
+      if (selectedAnatomySystemId !== 'organ' || !isMagnifierOverCharacter) return;
       if (selectedOrganId === organId) {
         openOrganStudio(organId);
       } else {
@@ -8372,11 +8651,18 @@
       const promptText = document.getElementById('anatomyPromptText');
       const promptDot = document.getElementById('anatomyPromptDot');
       if (currentStudioOrganId) {
-        const isOlder = (selectedAnatomyCharacter === 'older-boy' || selectedAnatomyCharacter === 'older-girl');
-        const list = isOlder ? ORGAN_DEFINITIONS.side : ORGAN_DEFINITIONS.frontal;
-        const organ = list.find(o => o.id === currentStudioOrganId) || { name: currentStudioOrganId };
+        let itemName = currentStudioOrganId;
+        const bone = BONE_DEFINITIONS.find(b => b.id === currentStudioOrganId);
+        if (bone) {
+          itemName = bone.name;
+        } else {
+          const isOlder = (selectedAnatomyCharacter === 'older-boy' || selectedAnatomyCharacter === 'older-girl');
+          const list = isOlder ? ORGAN_DEFINITIONS.side : ORGAN_DEFINITIONS.frontal;
+          const organ = list.find(o => o.id === currentStudioOrganId) || { name: currentStudioOrganId };
+          itemName = organ.name;
+        }
         if (promptText) {
-          promptText.innerHTML = `<strong>${organ.name}</strong> - Tap again to see and draw!`;
+          promptText.innerHTML = `<strong>${itemName}</strong> - Tap again to see and draw!`;
         }
         if (promptBar) {
           promptBar.classList.add('visible', 'can-confirm', 'organ-prompt-active');
@@ -8394,7 +8680,11 @@
 
     function speakCurrentStudioOrgan() {
       if (currentStudioOrganId) {
-        speakOrganName(currentStudioOrganId);
+        if (BONE_DEFINITIONS.some(b => b.id === currentStudioOrganId)) {
+          speakBoneName(currentStudioOrganId);
+        } else {
+          speakOrganName(currentStudioOrganId);
+        }
       }
     }
 
@@ -8610,10 +8900,59 @@
       return null;
     }
 
+    function findBoneAtPoint(clientX, clientY) {
+      const box = document.getElementById('anatomySkeletonAssemblyBox');
+      if (!box) return null;
+      const boxRect = box.getBoundingClientRect();
+      if (clientX < boxRect.left || clientX > boxRect.right || clientY < boxRect.top || clientY > boxRect.bottom) {
+        return null;
+      }
+      const nx = (clientX - boxRect.left) / boxRect.width;
+      const ny = (clientY - boxRect.top) / boxRect.height;
+
+      // Check priority based on zIndex and distinct anatomical regions:
+      // Skull (top)
+      if (nx >= 0.34 && nx <= 0.66 && ny >= 0.00 && ny <= 0.17) return 'skull';
+
+      // Feet (bottom)
+      if (nx >= 0.16 && nx <= 0.84 && ny >= 0.91 && ny <= 1.01) return 'feet';
+
+      // Hands (outer edges at waist/hip height)
+      if ((nx <= 0.22 || nx >= 0.78) && ny >= 0.53 && ny <= 0.69) return 'hands';
+
+      // Radius & Ulna (forearms)
+      if ((nx <= 0.28 || nx >= 0.72) && ny >= 0.37 && ny <= 0.54) return 'radius_ulna';
+
+      // Fibula & Tibia (lower legs)
+      if (ny >= 0.73 && ny <= 0.92) {
+        if ((nx >= 0.28 && nx <= 0.49) || (nx >= 0.51 && nx <= 0.72)) return 'fibula_tibia';
+      }
+
+      // Femur (upper legs)
+      if (ny >= 0.52 && ny <= 0.74) {
+        if ((nx >= 0.27 && nx <= 0.48) || (nx >= 0.52 && nx <= 0.73)) return 'femur';
+      }
+
+      // Pelvis (hips)
+      if (nx >= 0.30 && nx <= 0.70 && ny >= 0.42 && ny <= 0.53) return 'pelvis';
+
+      // Humerus (upper arms)
+      if ((nx <= 0.32 || nx >= 0.68) && ny >= 0.21 && ny <= 0.38) return 'humerus';
+
+      // Ribcage (chest)
+      if (nx >= 0.27 && nx <= 0.73 && ny >= 0.18 && ny <= 0.40) return 'ribcage';
+
+      // Spine (center column)
+      if (nx >= 0.42 && nx <= 0.58 && ny >= 0.14 && ny <= 0.46) return 'spine';
+
+      return null;
+    }
+
     function updateAnatomyExplorationPrompt() {
       if (!isAnatomyInExploration) return;
       if (currentStudioOrganId) return;
       if (selectedOrganId) return;
+      if (selectedBoneId) return;
 
       const promptBar = document.getElementById('anatomyBottomPromptBar');
       const promptText = document.getElementById('anatomyPromptText');
@@ -8698,6 +9037,25 @@
         organsEl.style.webkitClipPath = 'circle(0px at 0px 0px)';
       }
 
+      // Set proportional skeleton alignment parameters for confirmed character
+      renderSkeletonAssembly();
+      const skeletonConfigs = {
+        'younger-boy': { top: '3.0%', left: '50.5%', height: '94%' },
+        'younger-girl': { top: '3.0%', left: '50.0%', height: '94%' },
+        'older-boy': { top: '2.0%', left: '48.5%', height: '95%' },
+        'older-girl': { top: '2.0%', left: '49.5%', height: '95%' }
+      };
+      const skeletonEl = document.getElementById('anatomyExplorationSkeletonContainer');
+      const skelCfg = skeletonConfigs[charId] || skeletonConfigs['younger-boy'];
+      if (skeletonEl) {
+        skeletonEl.style.setProperty('--skeleton-top', skelCfg.top);
+        skeletonEl.style.setProperty('--skeleton-left', skelCfg.left);
+        skeletonEl.style.setProperty('--skeleton-height', skelCfg.height);
+        skeletonEl.style.opacity = '0';
+        skeletonEl.style.clipPath = 'circle(0px at 0px 0px)';
+        skeletonEl.style.webkitClipPath = 'circle(0px at 0px 0px)';
+      }
+
       initSkinToneSlider();
       initMagnifierDrag();
 
@@ -8732,6 +9090,13 @@
     function exitAnatomyExploration() {
       closeOrganStudio();
       clearOrganSelection();
+      clearBoneSelection();
+      const skeletonEl = document.getElementById('anatomyExplorationSkeletonContainer');
+      if (skeletonEl) {
+        skeletonEl.style.opacity = '0';
+        skeletonEl.style.clipPath = 'circle(0px at 0px 0px)';
+        skeletonEl.style.webkitClipPath = 'circle(0px at 0px 0px)';
+      }
       isAnatomyInExploration = false;
       isAnatomyCharacterConfirmed = false;
       hasInteractedWithSkinTone = false;
@@ -8811,6 +9176,7 @@
 
     function resetMagnifierToDock() {
       clearOrganSelection();
+      clearBoneSelection();
       const wrapper = document.getElementById('anatomyMagnifierWrapper');
       if (!wrapper) return;
       magnifierOffsetX = 0;
@@ -8829,6 +9195,13 @@
         organsContainer.style.webkitClipPath = 'circle(0px at 0px 0px)';
       }
 
+      const skeletonContainer = document.getElementById('anatomyExplorationSkeletonContainer');
+      if (skeletonContainer) {
+        skeletonContainer.style.opacity = '0';
+        skeletonContainer.style.clipPath = 'circle(0px at 0px 0px)';
+        skeletonContainer.style.webkitClipPath = 'circle(0px at 0px 0px)';
+      }
+
       setTimeout(() => {
         wrapper.classList.remove('is-returning');
       }, 420);
@@ -8839,6 +9212,7 @@
       const wrapper = document.getElementById('anatomyMagnifierWrapper');
       const charContainer = document.getElementById('anatomyExplorationCharContainer');
       const organsContainer = document.getElementById('anatomyExplorationOrgansContainer');
+      const skeletonContainer = document.getElementById('anatomyExplorationSkeletonContainer');
       if (!wrapper || !charContainer) return false;
 
       const magRect = wrapper.getBoundingClientRect();
@@ -8861,18 +9235,33 @@
         if (isHapticsEnabled) triggerHapticFeedback(8);
       }
 
+      const relX = lensX - charRect.left;
+      const relY = lensY - charRect.top;
+      const lensClip = `circle(${lensRadius.toFixed(1)}px at ${relX.toFixed(1)}px ${relY.toFixed(1)}px)`;
+
       // Dynamically reveal assembled organs underneath the circular transparent lens aperture
       if (organsContainer) {
-        if (isSystemSelectionSecondary && isOver) {
-          const relX = lensX - charRect.left;
-          const relY = lensY - charRect.top;
+        if (selectedAnatomySystemId === 'organ' && isOver) {
           organsContainer.style.opacity = '1';
-          organsContainer.style.clipPath = `circle(${lensRadius.toFixed(1)}px at ${relX.toFixed(1)}px ${relY.toFixed(1)}px)`;
-          organsContainer.style.webkitClipPath = `circle(${lensRadius.toFixed(1)}px at ${relX.toFixed(1)}px ${relY.toFixed(1)}px)`;
+          organsContainer.style.clipPath = lensClip;
+          organsContainer.style.webkitClipPath = lensClip;
         } else {
           organsContainer.style.opacity = '0';
           organsContainer.style.clipPath = 'circle(0px at 0px 0px)';
           organsContainer.style.webkitClipPath = 'circle(0px at 0px 0px)';
+        }
+      }
+
+      // Dynamically reveal assembled skeleton underneath the circular transparent lens aperture
+      if (skeletonContainer) {
+        if (selectedAnatomySystemId === 'skeletal' && isOver) {
+          skeletonContainer.style.opacity = '1';
+          skeletonContainer.style.clipPath = lensClip;
+          skeletonContainer.style.webkitClipPath = lensClip;
+        } else {
+          skeletonContainer.style.opacity = '0';
+          skeletonContainer.style.clipPath = 'circle(0px at 0px 0px)';
+          skeletonContainer.style.webkitClipPath = 'circle(0px at 0px 0px)';
         }
       }
 
@@ -8978,11 +9367,19 @@
             const lensRadius = magRect.width * 0.35;
             const distToLens = Math.hypot(e.clientX - lensX, e.clientY - lensY);
 
-            if (isSystemSelectionSecondary && isMagnifierOverCharacter && distToLens <= lensRadius) {
-              const clickedOrgan = findOrganAtPoint(e.clientX, e.clientY) || findOrganAtPoint(lensX, lensY);
-              if (clickedOrgan) {
-                onOrganClicked(clickedOrgan);
-                return;
+            if (isMagnifierOverCharacter && distToLens <= lensRadius) {
+              if (selectedAnatomySystemId === 'organ') {
+                const clickedOrgan = findOrganAtPoint(e.clientX, e.clientY) || findOrganAtPoint(lensX, lensY);
+                if (clickedOrgan) {
+                  onOrganClicked(clickedOrgan);
+                  return;
+                }
+              } else if (selectedAnatomySystemId === 'skeletal') {
+                const clickedBone = findBoneAtPoint(e.clientX, e.clientY) || findBoneAtPoint(lensX, lensY);
+                if (clickedBone) {
+                  onBoneClicked(clickedBone);
+                  return;
+                }
               }
             }
 
@@ -9024,11 +9421,14 @@
       } else {
         selectedAnatomySystemId = systemId;
       }
-      isSystemSelectionSecondary = (selectedAnatomySystemId === 'organ');
+      isSystemSelectionSecondary = (selectedAnatomySystemId === 'organ' || selectedAnatomySystemId === 'skeletal');
       updateAnatomySystemSelectionUI();
 
-      if (!isSystemSelectionSecondary) {
+      if (selectedAnatomySystemId !== 'organ') {
         clearOrganSelection();
+      }
+      if (selectedAnatomySystemId !== 'skeletal') {
+        clearBoneSelection();
       }
       updateAnatomyExplorationPrompt();
       if (isHapticsEnabled) triggerHapticFeedback(12);
@@ -9063,6 +9463,10 @@
     }
 
     function handleAnatomyPromptBarTap() {
+      if (selectedBoneId) {
+        openOrganStudio(selectedBoneId);
+        return;
+      }
       if (selectedOrganId) {
         openOrganStudio(selectedOrganId);
         return;

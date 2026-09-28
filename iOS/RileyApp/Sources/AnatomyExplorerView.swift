@@ -23,6 +23,28 @@ public struct AnatomicalOrganItem: Identifiable {
     }
 }
 
+public struct AnatomicalBoneItem: Identifiable {
+    public let id: String
+    public let name: String
+    public let left: CGFloat
+    public let top: CGFloat
+    public let width: CGFloat
+    public let height: CGFloat
+    public let zIndex: Double
+    public let imageName: String
+
+    public init(id: String, name: String, left: CGFloat, top: CGFloat, width: CGFloat, height: CGFloat, zIndex: Double, imageName: String) {
+        self.id = id
+        self.name = name
+        self.left = left
+        self.top = top
+        self.width = width
+        self.height = height
+        self.zIndex = zIndex
+        self.imageName = imageName
+    }
+}
+
 public struct OrganStudioItem: Identifiable, Equatable {
     public let id: String
     public let name: String
@@ -100,6 +122,7 @@ public struct AnatomyExplorerView: View {
     @State private var hasInteractedWithSkinTone = false
     @State private var isDraggingSkinTone = false
     @State private var selectedOrganId: String? = nil
+    @State private var selectedBoneId: String? = nil
     @State private var activeStudioOrgan: OrganStudioItem? = nil
     @State private var selectedStudioColor: StudioColor = .blue
     @State private var selectedStudioTool: StudioTool = .pencil
@@ -144,6 +167,19 @@ public struct AnatomyExplorerView: View {
         AnatomicalOrganItem(id: "thyroid", name: "Thyroid", left: 0.3597, top: 0.2486, width: 0.2541, height: 0.0787, zIndex: 7, imageName: "AnatomyOrganThyroidSide"),
         AnatomicalOrganItem(id: "bladder", name: "Bladder", left: 0.3168, top: 0.8541, width: 0.4257, height: 0.1459, zIndex: 8, imageName: "AnatomyOrganBladderSide"),
         AnatomicalOrganItem(id: "brain", name: "Brain", left: 0.1992, top: 0.0000, width: 0.7063, height: 0.1891, zIndex: 9, imageName: "AnatomyOrganBrainSide")
+    ]
+
+    private let bones: [AnatomicalBoneItem] = [
+        AnatomicalBoneItem(id: "skull", name: "Skull", left: 0.3698, top: 0.0000, width: 0.2616, height: 0.1615, zIndex: 10, imageName: "AnatomyBoneSkull"),
+        AnatomicalBoneItem(id: "spine", name: "Spine", left: 0.4542, top: 0.1544, width: 0.0904, height: 0.3024, zIndex: 1, imageName: "AnatomyBoneSpine"),
+        AnatomicalBoneItem(id: "ribcage", name: "Ribcage", left: 0.2782, top: 0.1893, width: 0.4435, height: 0.1917, zIndex: 5, imageName: "AnatomyBoneRibcage"),
+        AnatomicalBoneItem(id: "humerus", name: "Humerus", left: 0.1641, top: 0.2178, width: 0.6694, height: 0.1793, zIndex: 4, imageName: "AnatomyBoneHumerus"),
+        AnatomicalBoneItem(id: "radius_ulna", name: "Radius and Ulna", left: 0.0713, top: 0.3882, width: 0.8573, height: 0.1663, zIndex: 6, imageName: "AnatomyBoneRadiusUlna"),
+        AnatomicalBoneItem(id: "hands", name: "Hands", left: 0.0000, top: 0.5456, width: 1.0000, height: 0.1201, zIndex: 7, imageName: "AnatomyBoneHands"),
+        AnatomicalBoneItem(id: "pelvis", name: "Pelvis", left: 0.3151, top: 0.4249, width: 0.3698, height: 0.1296, zIndex: 3, imageName: "AnatomyBonePelvis"),
+        AnatomicalBoneItem(id: "femur", name: "Femur", left: 0.2913, top: 0.5148, width: 0.4162, height: 0.2272, zIndex: 2, imageName: "AnatomyBoneFemur"),
+        AnatomicalBoneItem(id: "fibula_tibia", name: "Tibia and Fibula", left: 0.3032, top: 0.7367, width: 0.3936, height: 0.1994, zIndex: 8, imageName: "AnatomyBoneFibulaTibia"),
+        AnatomicalBoneItem(id: "feet", name: "Feet", left: 0.1807, top: 0.9219, width: 0.6385, height: 0.0781, zIndex: 9, imageName: "AnatomyBoneFeet")
     ]
     
     // 36 clockwise bulb coordinate percentages (in 1366x1024 coordinate space)
@@ -403,6 +439,7 @@ public struct AnatomyExplorerView: View {
                         selectedSystemId = nil
                         isSystemSelectionSecondary = false
                         selectedOrganId = nil
+                        selectedBoneId = nil
                     }
                 } else {
                     onBackToHome()
@@ -641,6 +678,7 @@ public struct AnatomyExplorerView: View {
         selectedSystemId = nil
         isSystemSelectionSecondary = false
         selectedOrganId = nil
+        selectedBoneId = nil
         
         // 1. Lower sign from rafters
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -759,7 +797,13 @@ public struct AnatomyExplorerView: View {
     @ViewBuilder
     private var bottomPromptBar: some View {
         Button(action: {
-            if let organId = selectedOrganId {
+            if let boneId = selectedBoneId {
+                let studio = studioDefinition(for: boneId)
+                withAnimation(.spring(response: 0.38, dampingFraction: 0.8)) {
+                    activeStudioOrgan = studio
+                }
+                HapticManager.shared.lightTap()
+            } else if let organId = selectedOrganId {
                 let studio = studioDefinition(for: organId)
                 withAnimation(.spring(response: 0.38, dampingFraction: 0.8)) {
                     activeStudioOrgan = studio
@@ -815,12 +859,14 @@ public struct AnatomyExplorerView: View {
             .shadow(color: Color.black.opacity(0.32), radius: 10, y: -3)
         }
         .buttonStyle(PlainButtonStyle())
-        .allowsHitTesting(selectedOrganId != nil || (selectedCharacter != nil && !isConfirmed))
+        .allowsHitTesting(selectedBoneId != nil || selectedOrganId != nil || (selectedCharacter != nil && !isConfirmed))
     }
 
     private var promptText: String {
         if let _ = activeStudioOrgan {
             return "Pick a tool and color, then draw with your finger!"
+        } else if let bone = selectedBoneName {
+            return "\(bone) - Tap again to see and draw!"
         } else if let organ = selectedOrganName {
             return "\(organ) - Tap again to see and draw!"
         } else if isConfirmed {
@@ -834,6 +880,17 @@ public struct AnatomyExplorerView: View {
         } else {
             return "Pick a character to start!"
         }
+    }
+
+    private var selectedOrganName: String? {
+        guard let id = selectedOrganId else { return nil }
+        let isOlder = (selectedCharacter == "older-boy" || selectedCharacter == "older-girl")
+        return (isOlder ? sideOrgans : frontalOrgans).first(where: { $0.id == id })?.name
+    }
+
+    private var selectedBoneName: String? {
+        guard let id = selectedBoneId else { return nil }
+        return bones.first(where: { $0.id == id })?.name
     }
 
     // MARK: - Character Selection & Spotlight Helpers
@@ -895,6 +952,7 @@ public struct AnatomyExplorerView: View {
                 isConfirmed = true
                 hasInteractedWithSkinTone = false
                 selectedOrganId = nil
+                selectedBoneId = nil
                 activeStudioOrgan = nil
                 selectedSystemId = nil
                 isSystemSelectionSecondary = false
@@ -909,6 +967,7 @@ public struct AnatomyExplorerView: View {
                 isConfirmed = false
                 hasInteractedWithSkinTone = false
                 selectedOrganId = nil
+                selectedBoneId = nil
                 activeStudioOrgan = nil
                 selectedSystemId = nil
                 isSystemSelectionSecondary = false
@@ -1031,6 +1090,60 @@ public struct AnatomyExplorerView: View {
                 .zIndex(15)
                 .allowsHitTesting(isMagnifierOverCharacter)
             }
+
+            // Assembled Skeleton Layer (Revealed through magnifying glass lens when Skeletal System is active)
+            if selectedSystemId == "skeletal" {
+                let skelCfg = skeletonLayoutConfig(for: charId)
+                let skelH = charHeight * skelCfg.scale
+                let charTopY = charCenterY - (charHeight / 2)
+                let skelCenterY = charTopY + (charHeight * skelCfg.offsetY) + (skelH / 2)
+                let skelCenterX = charCenterX + (proxy.size.width * skelCfg.offsetX)
+                
+                let currentCenterX = dockX + magnifierOffset.width
+                let currentCenterY = dockY + magnifierOffset.height - (magHeight * 0.216)
+                let lensRadius = magWidth * 0.35
+                
+                let skelBoxW = skelH * (841.0 / 1690.0)
+                
+                ZStack {
+                    ForEach(bones) { bone in
+                        let isSel = (selectedBoneId == bone.id)
+                        let hasSel = (selectedBoneId != nil)
+                        let w = skelBoxW * bone.width
+                        let h = skelH * bone.height
+                        let ox = -skelBoxW / 2 + (skelBoxW * bone.left) + w / 2
+                        let oy = -skelH / 2 + (skelH * bone.top) + h / 2
+                        
+                        Image(bone.imageName)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: w, height: h)
+                            .opacity((hasSel && !isSel) ? 0.25 : 1.0)
+                            .grayscale((hasSel && !isSel) ? 0.8 : 0.0)
+                            .scaleEffect(isSel ? 1.06 : 1.0)
+                            .shadow(color: isSel ? Color(hex: "ffd700") : Color.clear, radius: isSel ? 10 : 0)
+                            .shadow(color: isSel ? Color(hex: "ffea00").opacity(0.85) : Color.clear, radius: isSel ? 18 : 0)
+                            .offset(x: ox, y: oy)
+                            .zIndex(isSel ? 35 : bone.zIndex)
+                            .animation(.spring(response: 0.35, dampingFraction: 0.68), value: isSel)
+                            .onTapGesture {
+                                handleBoneTap(bone.id, boneName: bone.name)
+                            }
+                    }
+                }
+                .frame(width: skelBoxW, height: skelH)
+                .position(x: skelCenterX, y: skelCenterY)
+                .frame(width: proxy.size.width, height: proxy.size.height)
+                .mask(
+                    Circle()
+                        .frame(width: lensRadius * 2, height: lensRadius * 2)
+                        .position(x: currentCenterX, y: currentCenterY)
+                )
+                .opacity(isMagnifierOverCharacter ? 1.0 : 0.0)
+                .animation(.easeInOut(duration: 0.15), value: isMagnifierOverCharacter)
+                .zIndex(15)
+                .allowsHitTesting(isMagnifierOverCharacter)
+            }
             
             // Left: Magnifying Glass Dock (Permanently Displays Magnifying Glass 2 left behind)
             Image("AnatomyMagnifyingGlass2")
@@ -1119,8 +1232,12 @@ public struct AnatomyExplorerView: View {
                         let dragDist = hypot(value.translation.width, value.translation.height)
                         if dragDist < 6 {
                             // Tap on lens over character
-                            if isMagnifierOverCharacter && isSystemSelectionSecondary {
-                                hitTestOrganAtLens(charId: charId, proxy: proxy)
+                            if isMagnifierOverCharacter {
+                                if isSystemSelectionSecondary {
+                                    hitTestOrganAtLens(charId: charId, proxy: proxy)
+                                } else if selectedSystemId == "skeletal" {
+                                    hitTestBoneAtLens(charId: charId, proxy: proxy)
+                                }
                             }
                         } else if dist < 60 {
                             withAnimation(.spring(response: 0.4, dampingFraction: 0.72)) {
@@ -1130,6 +1247,7 @@ public struct AnatomyExplorerView: View {
                                 magnifierDragAnchor = .center
                                 isMagnifierOverCharacter = false
                                 selectedOrganId = nil
+                                selectedBoneId = nil
                             }
                         }
                         HapticManager.shared.lightTap()
@@ -1162,6 +1280,54 @@ public struct AnatomyExplorerView: View {
                             .shadow(color: Color(hex: "ffd700"), radius: 6)
                         
                         Text("\(organ.name) - Tap again to see and draw!")
+                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .foregroundColor(.white)
+                        
+                        Image(systemName: "paintpalette.fill")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(Color(hex: "ffd700"))
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 12)
+                    .background(
+                        Capsule()
+                            .fill(
+                                LinearGradient(
+                                    colors: [Color(hex: "1a0e34").opacity(0.92), Color(hex: "2a1450").opacity(0.98)],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                            .overlay(
+                                Capsule()
+                                    .stroke(Color(hex: "ffd700").opacity(0.75), lineWidth: 1.5)
+                            )
+                            .shadow(color: Color(hex: "ffd700").opacity(0.35), radius: 16)
+                    )
+                }
+                .buttonStyle(PlainButtonStyle())
+                .position(x: proxy.size.width * 0.50, y: proxy.size.height * 0.94)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .zIndex(40)
+            }
+
+            // Bottom Bone Tap Prompt Banner (Persists even after tap to voice)
+            if let selectedBId = selectedBoneId,
+               let bone = bones.first(where: { $0.id == selectedBId }) {
+                Button(action: {
+                    let studio = studioDefinition(for: bone.id)
+                    withAnimation(.spring(response: 0.38, dampingFraction: 0.8)) {
+                        activeStudioOrgan = studio
+                    }
+                    HapticManager.shared.lightTap()
+                }) {
+                    HStack(spacing: 12) {
+                        Circle()
+                            .fill(Color(hex: "ffd700"))
+                            .frame(width: 10, height: 10)
+                            .shadow(color: Color(hex: "ffd700"), radius: 6)
+                        
+                        Text("\(bone.name) - Tap again to see and draw!")
                             .font(.system(size: 15, weight: .semibold, design: .rounded))
                             .foregroundColor(.white)
                         
@@ -1262,6 +1428,98 @@ public struct AnatomyExplorerView: View {
                 handleOrganTap(organ.id, organName: organ.name)
                 return
             }
+        }
+    }
+
+    private func skeletonLayoutConfig(for charId: String) -> (offsetY: CGFloat, offsetX: CGFloat, scale: CGFloat) {
+        switch charId {
+        case "older-boy":
+            return (offsetY: 0.020, offsetX: -0.015, scale: 0.95)
+        case "older-girl":
+            return (offsetY: 0.020, offsetX: -0.005, scale: 0.95)
+        case "younger-boy":
+            return (offsetY: 0.030, offsetX: 0.005, scale: 0.94)
+        case "younger-girl":
+            return (offsetY: 0.030, offsetX: 0.000, scale: 0.94)
+        default:
+            return (offsetY: 0.030, offsetX: 0.005, scale: 0.94)
+        }
+    }
+
+    private func handleBoneTap(_ boneId: String, boneName: String) {
+        if selectedBoneId == boneId {
+            let studio = studioDefinition(for: boneId)
+            withAnimation(.spring(response: 0.38, dampingFraction: 0.8)) {
+                activeStudioOrgan = studio
+            }
+            HapticManager.shared.lightTap()
+        } else {
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.72)) {
+                selectedBoneId = boneId
+            }
+            speakBone(boneName)
+            HapticManager.shared.lightTap()
+        }
+    }
+
+    private func speakBone(_ name: String) {
+        HapticManager.shared.lightTap()
+        let utterance = AVSpeechUtterance(string: name)
+        utterance.rate = 0.48
+        utterance.pitchMultiplier = 1.08
+        speechSynthesizer.stopSpeaking(at: .immediate)
+        speechSynthesizer.speak(utterance)
+    }
+
+    private func hitTestBoneAtLens(charId: String, proxy: GeometryProxy) {
+        let skelCfg = skeletonLayoutConfig(for: charId)
+        let charHeight = proxy.size.height * 0.903
+        let skelH = charHeight * skelCfg.scale
+        let charTopY = (proxy.size.height * 0.495) - (charHeight / 2)
+        let skelBoxY0 = charTopY + (charHeight * skelCfg.offsetY)
+        let skelBoxW = skelH * (841.0 / 1690.0)
+        let skelBoxX0 = (proxy.size.width * 0.50) + (proxy.size.width * skelCfg.offsetX) - (skelBoxW / 2)
+
+        let dockX = proxy.size.width * 0.185
+        let dockY = proxy.size.height * 0.48
+        let magHeight = proxy.size.height * 0.542
+        let currentLensX = dockX + magnifierOffset.width
+        let currentLensY = dockY + magnifierOffset.height - (magHeight * 0.216)
+
+        guard skelBoxW > 0, skelH > 0 else { return }
+        let nx = (currentLensX - skelBoxX0) / skelBoxW
+        let ny = (currentLensY - skelBoxY0) / skelH
+
+        if currentLensX < (skelBoxX0 - 30) || currentLensX > (skelBoxX0 + skelBoxW + 30) ||
+           currentLensY < (skelBoxY0 - 30) || currentLensY > (skelBoxY0 + skelH + 30) {
+            return
+        }
+
+        var hitBoneId: String? = nil
+        if nx >= 0.34 && nx <= 0.66 && ny >= 0.00 && ny <= 0.17 {
+            hitBoneId = "skull"
+        } else if nx >= 0.16 && nx <= 0.84 && ny >= 0.91 && ny <= 1.01 {
+            hitBoneId = "feet"
+        } else if (nx <= 0.22 || nx >= 0.78) && ny >= 0.53 && ny <= 0.69 {
+            hitBoneId = "hands"
+        } else if (nx <= 0.28 || nx >= 0.72) && ny >= 0.37 && ny <= 0.54 {
+            hitBoneId = "radius_ulna"
+        } else if ny >= 0.73 && ny <= 0.92 && ((nx >= 0.28 && nx <= 0.49) || (nx >= 0.51 && nx <= 0.72)) {
+            hitBoneId = "fibula_tibia"
+        } else if ny >= 0.52 && ny <= 0.74 && ((nx >= 0.27 && nx <= 0.48) || (nx >= 0.52 && nx <= 0.73)) {
+            hitBoneId = "femur"
+        } else if nx >= 0.30 && nx <= 0.70 && ny >= 0.42 && ny <= 0.53 {
+            hitBoneId = "pelvis"
+        } else if (nx <= 0.32 || nx >= 0.68) && ny >= 0.21 && ny <= 0.38 {
+            hitBoneId = "humerus"
+        } else if nx >= 0.27 && nx <= 0.73 && ny >= 0.18 && ny <= 0.40 {
+            hitBoneId = "ribcage"
+        } else if nx >= 0.42 && nx <= 0.58 && ny >= 0.14 && ny <= 0.46 {
+            hitBoneId = "spine"
+        }
+
+        if let boneId = hitBoneId, let bone = bones.first(where: { $0.id == boneId }) {
+            handleBoneTap(bone.id, boneName: bone.name)
         }
     }
     
@@ -1369,8 +1627,11 @@ public struct AnatomyExplorerView: View {
                     selectedSystemId = id
                 }
                 isSystemSelectionSecondary = (selectedSystemId == "organ")
-                if !isSystemSelectionSecondary {
+                if selectedSystemId != "organ" {
                     selectedOrganId = nil
+                }
+                if selectedSystemId != "skeletal" {
+                    selectedBoneId = nil
                 }
             }
             HapticManager.shared.lightTap()
@@ -1590,6 +1851,86 @@ public struct AnatomyExplorerView: View {
                 isDual: false,
                 imageNames: ["AnatomyIllusThyroid"],
                 labels: ["Thyroid & Trachea"]
+            )
+        case "skull":
+            return OrganStudioItem(
+                id: "skull",
+                name: "Skull",
+                isDual: false,
+                imageNames: ["AnatomyBoneSkull"],
+                labels: ["Skull"]
+            )
+        case "spine":
+            return OrganStudioItem(
+                id: "spine",
+                name: "Spine",
+                isDual: false,
+                imageNames: ["AnatomyBoneSpine"],
+                labels: ["Spine"]
+            )
+        case "ribcage":
+            return OrganStudioItem(
+                id: "ribcage",
+                name: "Ribcage",
+                isDual: false,
+                imageNames: ["AnatomyBoneRibcage"],
+                labels: ["Ribcage"]
+            )
+        case "humerus":
+            return OrganStudioItem(
+                id: "humerus",
+                name: "Humerus",
+                isDual: false,
+                imageNames: ["AnatomyBoneHumerus"],
+                labels: ["Humerus"]
+            )
+        case "radius_ulna":
+            return OrganStudioItem(
+                id: "radius_ulna",
+                name: "Radius and Ulna",
+                isDual: false,
+                imageNames: ["AnatomyBoneRadiusUlna"],
+                labels: ["Radius and Ulna"]
+            )
+        case "hands":
+            return OrganStudioItem(
+                id: "hands",
+                name: "Hands",
+                isDual: false,
+                imageNames: ["AnatomyBoneHands"],
+                labels: ["Hands"]
+            )
+        case "pelvis":
+            return OrganStudioItem(
+                id: "pelvis",
+                name: "Pelvis",
+                isDual: false,
+                imageNames: ["AnatomyBonePelvis"],
+                labels: ["Pelvis"]
+            )
+        case "femur":
+            return OrganStudioItem(
+                id: "femur",
+                name: "Femur",
+                isDual: false,
+                imageNames: ["AnatomyBoneFemur"],
+                labels: ["Femur"]
+            )
+        case "fibula_tibia":
+            return OrganStudioItem(
+                id: "fibula_tibia",
+                name: "Tibia and Fibula",
+                isDual: false,
+                imageNames: ["AnatomyBoneFibulaTibia"],
+                labels: ["Tibia and Fibula"]
+            )
+        case "feet":
+            return OrganStudioItem(
+                id: "feet",
+                name: "Feet",
+                isDual: false,
+                imageNames: ["AnatomyBoneFeet"],
+                labels: ["Feet"]
             )
         default:
             return OrganStudioItem(

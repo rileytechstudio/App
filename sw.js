@@ -1,5 +1,5 @@
 // Riley PWA Service Worker
-const CACHE_NAME = 'riley-pwa-v70';
+const CACHE_NAME = 'riley-pwa-v71';
 const PRECACHE_ASSETS = [
   './',
   './index.html',
@@ -51,6 +51,17 @@ const PRECACHE_ASSETS = [
   './assets/organs_side/Organ_thyroid_side.png',
   './assets/organs_side/Organ_bladder_side.png',
   './assets/organs_side/Organ_brain_side.png',
+  './assets/Skeleton_Assembled.png',
+  './assets/bones/Bone_skull.png',
+  './assets/bones/Bone_spine.png',
+  './assets/bones/Bone_ribcage.png',
+  './assets/bones/Bone_humerus.png',
+  './assets/bones/Bone_radius_ulna.png',
+  './assets/bones/Bone_hands.png',
+  './assets/bones/Bone_pelvis.png',
+  './assets/bones/Bone_femur.png',
+  './assets/bones/Bone_fibula_tibia.png',
+  './assets/bones/Bone_feet.png',
   './assets/Curtain BG.png',
   './assets/CurtainBG.png',
   './assets/Curtains Parting.png',
