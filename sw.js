@@ -1,5 +1,5 @@
 // Riley PWA Service Worker
-const CACHE_NAME = 'riley-pwa-v73';
+const CACHE_NAME = 'riley-pwa-v74';
 const PRECACHE_ASSETS = [
   './',
   './index.html',
@@ -8,6 +8,23 @@ const PRECACHE_ASSETS = [
   './assets/Character_OlderGirl_Solo.png',
   './assets/Character_YoungerBoy_Solo.png',
   './assets/Character_YoungerGirl_Solo.png',
+  './assets/Skeleton_YoungerBoy_Assembled.png',
+  './assets/bones/Bone_younger_boy_skull.png',
+  './assets/bones/Bone_younger_boy_spine.png',
+  './assets/bones/Bone_younger_boy_ribcage.png',
+  './assets/bones/Bone_younger_boy_pelvis.png',
+  './assets/bones/Bone_younger_boy_humerus_left.png',
+  './assets/bones/Bone_younger_boy_radius_ulna_left.png',
+  './assets/bones/Bone_younger_boy_hands_left.png',
+  './assets/bones/Bone_younger_boy_humerus_right.png',
+  './assets/bones/Bone_younger_boy_radius_ulna_right.png',
+  './assets/bones/Bone_younger_boy_hands_right.png',
+  './assets/bones/Bone_younger_boy_femur_left.png',
+  './assets/bones/Bone_younger_boy_fibula_tibia_left.png',
+  './assets/bones/Bone_younger_boy_feet_left.png',
+  './assets/bones/Bone_younger_boy_femur_right.png',
+  './assets/bones/Bone_younger_boy_fibula_tibia_right.png',
+  './assets/bones/Bone_younger_boy_feet_right.png',
   './assets/Organs_Assembled.png',
   './assets/Organs_Assembled_Side.png',
   './assets/Magnifying Glass 1.png',
