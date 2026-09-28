@@ -1,5 +1,5 @@
 // Riley PWA Service Worker
-const CACHE_NAME = 'riley-pwa-v67';
+const CACHE_NAME = 'riley-pwa-v68';
 const PRECACHE_ASSETS = [
   './',
   './index.html',
@@ -33,10 +33,24 @@ const PRECACHE_ASSETS = [
   './assets/Kidney Illus.png',
   './assets/Bladder Illus.png',
   './assets/Trachea Illus.png',
-  './assets/organs_frontal/Organ_brain.png',
-  './assets/organs_side/Organ_brain_side.png',
+  './assets/organs_frontal/Organ_lungs.png',
+  './assets/organs_frontal/Organ_kidneys.png',
+  './assets/organs_frontal/Organ_intestines.png',
   './assets/organs_frontal/Organ_stomach.png',
+  './assets/organs_frontal/Organ_liver.png',
+  './assets/organs_frontal/Organ_heart.png',
+  './assets/organs_frontal/Organ_thyroid.png',
+  './assets/organs_frontal/Organ_bladder.png',
+  './assets/organs_frontal/Organ_brain.png',
+  './assets/organs_side/Organ_lung_side.png',
+  './assets/organs_side/Organ_kidneys_side.png',
+  './assets/organs_side/Organ_intestines_side.png',
   './assets/organs_side/Organ_stomach_side.png',
+  './assets/organs_side/Organ_liver_side.png',
+  './assets/organs_side/Organ_heart_side.png',
+  './assets/organs_side/Organ_thyroid_side.png',
+  './assets/organs_side/Organ_bladder_side.png',
+  './assets/organs_side/Organ_brain_side.png',
   './assets/Curtain BG.png',
   './assets/CurtainBG.png',
   './assets/Curtains Parting.png',

@@ -124,9 +124,9 @@ public struct AnatomyExplorerView: View {
 
     private let frontalOrgans: [AnatomicalOrganItem] = [
         AnatomicalOrganItem(id: "lungs", name: "Lungs", left: 0.0105, top: 0.2944, width: 0.9832, height: 0.3215, zIndex: 1, imageName: "AnatomyOrganLungs"),
-        AnatomicalOrganItem(id: "kidneys", name: "Kidneys", left: 0.1195, top: 0.6639, width: 0.7484, height: 0.1301, zIndex: 2, imageName: "AnatomyOrganKidneys"),
-        AnatomicalOrganItem(id: "intestines", name: "Intestines", left: 0.0000, top: 0.6260, width: 0.9539, height: 0.3171, zIndex: 3, imageName: "AnatomyOrganIntestines"),
-        AnatomicalOrganItem(id: "stomach", name: "Stomach", left: 0.3600, top: 0.5980, width: 0.5600, height: 0.1580, zIndex: 4, imageName: "AnatomyOrganStomach"),
+        AnatomicalOrganItem(id: "intestines", name: "Intestines", left: 0.0000, top: 0.6260, width: 0.9539, height: 0.3171, zIndex: 2, imageName: "AnatomyOrganIntestines"),
+        AnatomicalOrganItem(id: "stomach", name: "Stomach", left: 0.3600, top: 0.5980, width: 0.5600, height: 0.1580, zIndex: 3, imageName: "AnatomyOrganStomach"),
+        AnatomicalOrganItem(id: "kidneys", name: "Kidneys", left: 0.1195, top: 0.6639, width: 0.7484, height: 0.1301, zIndex: 4, imageName: "AnatomyOrganKidneys"),
         AnatomicalOrganItem(id: "liver", name: "Liver", left: 0.1363, top: 0.5395, width: 0.7400, height: 0.1522, zIndex: 5, imageName: "AnatomyOrganLiver"),
         AnatomicalOrganItem(id: "heart", name: "Heart", left: 0.4507, top: 0.4043, width: 0.3774, height: 0.1541, zIndex: 6, imageName: "AnatomyOrganHeart"),
         AnatomicalOrganItem(id: "thyroid", name: "Thyroid", left: 0.3690, top: 0.2293, width: 0.2704, height: 0.0878, zIndex: 7, imageName: "AnatomyOrganThyroid"),
@@ -136,9 +136,9 @@ public struct AnatomyExplorerView: View {
 
     private let sideOrgans: [AnatomicalOrganItem] = [
         AnatomicalOrganItem(id: "lung", name: "Lungs", left: 0.0000, top: 0.2946, width: 0.9868, height: 0.3109, zIndex: 1, imageName: "AnatomyOrganLungSide"),
-        AnatomicalOrganItem(id: "kidneys", name: "Kidneys", left: 0.1320, top: 0.7111, width: 0.7987, height: 0.1334, zIndex: 2, imageName: "AnatomyOrganKidneysSide"),
-        AnatomicalOrganItem(id: "intestines", name: "Intestines", left: 0.0528, top: 0.6814, width: 0.9472, height: 0.3023, zIndex: 3, imageName: "AnatomyOrganIntestinesSide"),
-        AnatomicalOrganItem(id: "stomach", name: "Stomach", left: 0.3250, top: 0.5520, width: 0.6200, height: 0.1620, zIndex: 4, imageName: "AnatomyOrganStomachSide"),
+        AnatomicalOrganItem(id: "intestines", name: "Intestines", left: 0.0528, top: 0.6814, width: 0.9472, height: 0.3023, zIndex: 2, imageName: "AnatomyOrganIntestinesSide"),
+        AnatomicalOrganItem(id: "stomach", name: "Stomach", left: 0.3250, top: 0.5520, width: 0.6200, height: 0.1620, zIndex: 3, imageName: "AnatomyOrganStomachSide"),
+        AnatomicalOrganItem(id: "kidneys", name: "Kidneys", left: 0.1320, top: 0.7111, width: 0.7987, height: 0.1334, zIndex: 4, imageName: "AnatomyOrganKidneysSide"),
         AnatomicalOrganItem(id: "liver", name: "Liver", left: 0.1122, top: 0.5566, width: 0.6964, height: 0.1392, zIndex: 5, imageName: "AnatomyOrganLiverSide"),
         AnatomicalOrganItem(id: "heart", name: "Heart", left: 0.4488, top: 0.4155, width: 0.3927, height: 0.1555, zIndex: 6, imageName: "AnatomyOrganHeartSide"),
         AnatomicalOrganItem(id: "thyroid", name: "Thyroid", left: 0.3597, top: 0.2486, width: 0.2541, height: 0.0787, zIndex: 7, imageName: "AnatomyOrganThyroidSide"),
@@ -1221,17 +1221,18 @@ public struct AnatomyExplorerView: View {
         let currentLensY = dockY + magnifierOffset.height - (magHeight * 0.216)
         
         let sortedOrgans = organList.sorted { a, b in
-            let aPriority: Double = (a.id == "brain") ? 10.0 : ((a.id == "stomach") ? 5.5 : Double(a.zIndex))
-            let bPriority: Double = (b.id == "brain") ? 10.0 : ((b.id == "stomach") ? 5.5 : Double(b.zIndex))
+            let aPriority: Double = (a.id == "brain") ? 10.0 : ((a.id == "stomach") ? 5.5 : ((a.id == "kidneys") ? 5.2 : Double(a.zIndex)))
+            let bPriority: Double = (b.id == "brain") ? 10.0 : ((b.id == "stomach") ? 5.5 : ((b.id == "kidneys") ? 5.2 : Double(b.zIndex)))
             return aPriority > bPriority
         }
         
         for organ in sortedOrgans {
             let isBrain = (organ.id == "brain")
             let isStomach = (organ.id == "stomach")
-            let padX = isBrain ? (organBoxW * 0.20) : (isStomach ? (organBoxW * 0.12) : (organBoxW * 0.04))
-            let padTop = isBrain ? (organH * 0.10) : (organH * 0.02)
-            let padBottom = isBrain ? (organH * 0.05) : (isStomach ? (organH * 0.04) : (organH * 0.02))
+            let isKidneys = (organ.id == "kidneys")
+            let padX = isBrain ? (organBoxW * 0.20) : (isStomach ? (organBoxW * 0.12) : (isKidneys ? (organBoxW * 0.10) : (organBoxW * 0.04)))
+            let padTop = isBrain ? (organH * 0.10) : (isKidneys ? (organH * 0.03) : (organH * 0.02))
+            let padBottom = isBrain ? (organH * 0.05) : ((isStomach || isKidneys) ? (organH * 0.04) : (organH * 0.02))
 
             let ox0 = organBoxX0 + (organBoxW * organ.left) - padX
             let oy0 = organBoxY0 + (organH * organ.top) - padTop
