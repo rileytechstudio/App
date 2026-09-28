@@ -4766,11 +4766,9 @@
 
     .anatomy-skeleton-assembly-box {
       position: absolute;
-      top: var(--skeleton-top, 3%);
-      left: var(--skeleton-left, 50.5%);
-      transform: translateX(-50%);
-      height: var(--skeleton-height, 94%);
-      aspect-ratio: var(--skeleton-aspect, 841 / 1690);
+      inset: 0;
+      width: 100%;
+      height: 100%;
       pointer-events: auto;
     }
 
@@ -4780,7 +4778,7 @@
       user-select: none;
       -webkit-user-select: none;
       transform-origin: 50% 50%;
-      transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.25s ease, opacity 0.25s ease;
+      transition: filter 0.25s ease, opacity 0.25s ease;
       pointer-events: auto;
     }
 
@@ -4790,6 +4788,7 @@
       object-fit: fill;
       display: block;
       pointer-events: none;
+      transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     /* Dim non-selected bones when any bone is selected */
@@ -4801,12 +4800,15 @@
     /* Selected bone glows with radiant golden aura and scale pulse */
     .anatomy-bone-layer.is-selected {
       opacity: 1 !important;
-      transform: scale(1.06);
       filter: drop-shadow(0 0 10px #ffd700) drop-shadow(0 0 18px rgba(255, 215, 0, 0.95)) drop-shadow(0 0 28px rgba(255, 235, 59, 0.7));
       z-index: 35 !important;
     }
 
-    .anatomy-bone-layer.is-speaking {
+    .anatomy-bone-layer.is-selected img {
+      transform: scale(1.06);
+    }
+
+    .anatomy-bone-layer.is-speaking img {
       animation: boneSpeakPulse 0.45s ease-in-out;
     }
 
@@ -8209,43 +8211,127 @@
       });
     }
 
-    const BONE_DEFINITIONS = [
-      { id: 'skull', name: 'Skull', left: '36.98%', top: '0.00%', width: '26.16%', height: '16.15%', zIndex: 10, file: 'assets/bones/Bone_skull.png' },
-      { id: 'spine', name: 'Spine', left: '45.42%', top: '15.44%', width: '9.04%', height: '30.24%', zIndex: 1, file: 'assets/bones/Bone_spine.png' },
-      { id: 'ribcage', name: 'Ribcage', left: '27.82%', top: '18.93%', width: '44.35%', height: '19.17%', zIndex: 5, file: 'assets/bones/Bone_ribcage.png' },
-      { id: 'humerus', name: 'Humerus', left: '16.41%', top: '21.78%', width: '66.94%', height: '17.93%', zIndex: 4, file: 'assets/bones/Bone_humerus.png' },
-      { id: 'radius_ulna', name: 'Radius and Ulna', left: '7.13%', top: '38.82%', width: '85.73%', height: '16.63%', zIndex: 6, file: 'assets/bones/Bone_radius_ulna.png' },
-      { id: 'hands', name: 'Hands', left: '0.00%', top: '54.56%', width: '100.00%', height: '12.01%', zIndex: 7, file: 'assets/bones/Bone_hands.png' },
-      { id: 'pelvis', name: 'Pelvis', left: '31.51%', top: '42.49%', width: '36.98%', height: '12.96%', zIndex: 3, file: 'assets/bones/Bone_pelvis.png' },
-      { id: 'femur', name: 'Femur', left: '29.13%', top: '51.48%', width: '41.62%', height: '22.72%', zIndex: 2, file: 'assets/bones/Bone_femur.png' },
-      { id: 'fibula_tibia', name: 'Tibia and Fibula', left: '30.32%', top: '73.67%', width: '39.36%', height: '19.94%', zIndex: 8, file: 'assets/bones/Bone_fibula_tibia.png' },
-      { id: 'feet', name: 'Feet', left: '18.07%', top: '92.19%', width: '63.85%', height: '7.81%', zIndex: 9, file: 'assets/bones/Bone_feet.png' }
-    ];
+    const BONE_METADATA = {
+      skull: { name: 'Skull', file: 'assets/bones/Bone_skull.png' },
+      spine: { name: 'Spine', file: 'assets/bones/Bone_spine.png' },
+      ribcage: { name: 'Ribcage', file: 'assets/bones/Bone_ribcage.png' },
+      pelvis: { name: 'Pelvis', file: 'assets/bones/Bone_pelvis.png' },
+      humerus: { name: 'Humerus', file: 'assets/bones/Bone_humerus.png' },
+      radius_ulna: { name: 'Radius and Ulna', file: 'assets/bones/Bone_radius_ulna.png' },
+      hands: { name: 'Hands', file: 'assets/bones/Bone_hands.png' },
+      femur: { name: 'Femur', file: 'assets/bones/Bone_femur.png' },
+      fibula_tibia: { name: 'Tibia and Fibula', file: 'assets/bones/Bone_fibula_tibia.png' },
+      feet: { name: 'Feet', file: 'assets/bones/Bone_feet.png' }
+    };
+
+    const BONE_DEFINITIONS = Object.entries(BONE_METADATA).map(([id, info]) => ({
+      id,
+      name: info.name,
+      file: info.file
+    }));
+
+    const SKELETON_CHARACTER_LAYOUTS = {
+      'younger-boy': [
+        { id: 'spine', file: 'assets/bones/Bone_spine.png', x: 50.0, y: 31.0, w: 9.0, h: 26.0, rot: 0, zIndex: 1 },
+        { id: 'pelvis', file: 'assets/bones/Bone_pelvis.png', x: 50.0, y: 49.0, w: 38.0, h: 11.5, rot: 0, zIndex: 2 },
+        { id: 'ribcage', file: 'assets/bones/Bone_ribcage.png', x: 50.0, y: 31.0, w: 42.0, h: 15.0, rot: 0, zIndex: 3 },
+        { id: 'skull', file: 'assets/bones/Bone_skull.png', x: 50.0, y: 12.0, w: 32.0, h: 16.0, rot: 0, zIndex: 10 },
+        { id: 'humerus', file: 'assets/bones/Bone_humerus_left.png', x: 23.0, y: 33.0, w: 13.0, h: 14.0, rot: 15.0, zIndex: 4 },
+        { id: 'radius_ulna', file: 'assets/bones/Bone_radius_ulna_left.png', x: 14.5, y: 43.5, w: 8.5, h: 11.0, rot: 14.0, zIndex: 5 },
+        { id: 'hands', file: 'assets/bones/Bone_hands_left.png', x: 6.5, y: 54.5, w: 9.5, h: 8.5, rot: 12.0, zIndex: 6 },
+        { id: 'humerus', file: 'assets/bones/Bone_humerus_right.png', x: 77.0, y: 33.0, w: 13.0, h: 14.0, rot: -15.0, zIndex: 4 },
+        { id: 'radius_ulna', file: 'assets/bones/Bone_radius_ulna_right.png', x: 85.5, y: 43.5, w: 8.5, h: 11.0, rot: -14.0, zIndex: 5 },
+        { id: 'hands', file: 'assets/bones/Bone_hands_right.png', x: 93.5, y: 54.5, w: 9.5, h: 8.5, rot: -14.0, zIndex: 6 },
+        { id: 'femur', file: 'assets/bones/Bone_femur_left.png', x: 38.0, y: 62.0, w: 14.0, h: 18.0, rot: 6.0, zIndex: 2 },
+        { id: 'fibula_tibia', file: 'assets/bones/Bone_fibula_tibia_left.png', x: 30.5, y: 79.5, w: 11.0, h: 16.0, rot: 4.0, zIndex: 7 },
+        { id: 'feet', file: 'assets/bones/Bone_feet_left.png', x: 27.5, y: 95.5, w: 14.5, h: 4.5, rot: -8.0, zIndex: 8 },
+        { id: 'femur', file: 'assets/bones/Bone_femur_right.png', x: 62.0, y: 62.0, w: 14.0, h: 18.0, rot: -6.0, zIndex: 2 },
+        { id: 'fibula_tibia', file: 'assets/bones/Bone_fibula_tibia_right.png', x: 69.5, y: 79.5, w: 11.0, h: 16.0, rot: -4.0, zIndex: 7 },
+        { id: 'feet', file: 'assets/bones/Bone_feet_right.png', x: 74.0, y: 95.5, w: 14.5, h: 4.5, rot: 4.0, zIndex: 8 }
+      ],
+      'younger-girl': [
+        { id: 'spine', file: 'assets/bones/Bone_spine.png', x: 50.0, y: 31.0, w: 9.0, h: 26.0, rot: 0, zIndex: 1 },
+        { id: 'pelvis', file: 'assets/bones/Bone_pelvis.png', x: 50.0, y: 49.0, w: 37.0, h: 11.5, rot: 0, zIndex: 2 },
+        { id: 'ribcage', file: 'assets/bones/Bone_ribcage.png', x: 50.0, y: 31.0, w: 41.0, h: 15.0, rot: 0, zIndex: 3 },
+        { id: 'skull', file: 'assets/bones/Bone_skull.png', x: 50.0, y: 12.0, w: 32.0, h: 16.0, rot: 0, zIndex: 10 },
+        { id: 'humerus', file: 'assets/bones/Bone_humerus_left.png', x: 23.0, y: 33.0, w: 13.0, h: 14.0, rot: 15.0, zIndex: 4 },
+        { id: 'radius_ulna', file: 'assets/bones/Bone_radius_ulna_left.png', x: 13.5, y: 43.5, w: 9.5, h: 11.5, rot: 12.0, zIndex: 5 },
+        { id: 'hands', file: 'assets/bones/Bone_hands_left.png', x: 8.0, y: 55.0, w: 8.5, h: 8.0, rot: 12.0, zIndex: 6 },
+        { id: 'humerus', file: 'assets/bones/Bone_humerus_right.png', x: 76.0, y: 33.0, w: 12.5, h: 14.0, rot: -15.0, zIndex: 4 },
+        { id: 'radius_ulna', file: 'assets/bones/Bone_radius_ulna_right.png', x: 87.0, y: 43.0, w: 8.5, h: 11.0, rot: -17.0, zIndex: 5 },
+        { id: 'hands', file: 'assets/bones/Bone_hands_right.png', x: 92.0, y: 55.0, w: 9.0, h: 8.0, rot: -12.0, zIndex: 6 },
+        { id: 'femur', file: 'assets/bones/Bone_femur_left.png', x: 42.0, y: 62.0, w: 13.0, h: 18.0, rot: 3.0, zIndex: 2 },
+        { id: 'fibula_tibia', file: 'assets/bones/Bone_fibula_tibia_left.png', x: 40.0, y: 81.0, w: 10.0, h: 16.0, rot: 2.0, zIndex: 7 },
+        { id: 'feet', file: 'assets/bones/Bone_feet_left.png', x: 34.0, y: 95.5, w: 14.0, h: 4.5, rot: -4.0, zIndex: 8 },
+        { id: 'femur', file: 'assets/bones/Bone_femur_right.png', x: 58.0, y: 62.0, w: 13.0, h: 18.0, rot: -3.0, zIndex: 2 },
+        { id: 'fibula_tibia', file: 'assets/bones/Bone_fibula_tibia_right.png', x: 63.5, y: 81.0, w: 10.0, h: 16.0, rot: -2.0, zIndex: 7 },
+        { id: 'feet', file: 'assets/bones/Bone_feet_right.png', x: 64.0, y: 95.5, w: 14.0, h: 4.5, rot: 4.0, zIndex: 8 }
+      ],
+      'older-boy': [
+        { id: 'spine', file: 'assets/bones/Bone_spine.png', x: 40.0, y: 29.0, w: 7.5, h: 24.0, rot: -2.0, zIndex: 1 },
+        { id: 'pelvis', file: 'assets/bones/Bone_pelvis.png', x: 44.0, y: 47.0, w: 32.0, h: 10.5, rot: 3.0, zIndex: 2 },
+        { id: 'ribcage', file: 'assets/bones/Bone_ribcage.png', x: 39.0, y: 29.0, w: 35.0, h: 14.0, rot: 0.0, zIndex: 3 },
+        { id: 'skull', file: 'assets/bones/Bone_skull.png', x: 47.0, y: 11.0, w: 25.0, h: 14.0, rot: 0.0, zIndex: 10 },
+        { id: 'humerus', file: 'assets/bones/Bone_humerus_left.png', x: 17.0, y: 29.5, w: 10.5, h: 13.0, rot: 12.0, zIndex: 4 },
+        { id: 'radius_ulna', file: 'assets/bones/Bone_radius_ulna_left.png', x: 12.5, y: 39.5, w: 9.0, h: 11.5, rot: -15.0, zIndex: 5 },
+        { id: 'hands', file: 'assets/bones/Bone_hands_left.png', x: 22.0, y: 46.5, w: 7.5, h: 7.0, rot: -45.0, zIndex: 6 },
+        { id: 'humerus', file: 'assets/bones/Bone_humerus_right.png', x: 62.0, y: 31.0, w: 10.5, h: 13.0, rot: -10.0, zIndex: 4 },
+        { id: 'radius_ulna', file: 'assets/bones/Bone_radius_ulna_right.png', x: 69.0, y: 41.5, w: 9.5, h: 11.5, rot: -12.0, zIndex: 5 },
+        { id: 'hands', file: 'assets/bones/Bone_hands_right.png', x: 74.0, y: 52.0, w: 7.5, h: 7.0, rot: -16.0, zIndex: 6 },
+        { id: 'femur', file: 'assets/bones/Bone_femur_left.png', x: 36.0, y: 60.0, w: 12.0, h: 18.0, rot: 5.0, zIndex: 2 },
+        { id: 'fibula_tibia', file: 'assets/bones/Bone_fibula_tibia_left.png', x: 29.5, y: 78.5, w: 9.5, h: 16.5, rot: 4.0, zIndex: 7 },
+        { id: 'feet', file: 'assets/bones/Bone_feet_left.png', x: 25.0, y: 95.0, w: 15.0, h: 4.5, rot: -6.0, zIndex: 8 },
+        { id: 'femur', file: 'assets/bones/Bone_femur_right.png', x: 57.0, y: 60.0, w: 12.0, h: 18.0, rot: -4.0, zIndex: 2 },
+        { id: 'fibula_tibia', file: 'assets/bones/Bone_fibula_tibia_right.png', x: 61.5, y: 78.5, w: 9.5, h: 16.5, rot: -2.0, zIndex: 7 },
+        { id: 'feet', file: 'assets/bones/Bone_feet_right.png', x: 68.0, y: 95.0, w: 16.0, h: 4.5, rot: 6.0, zIndex: 8 }
+      ],
+      'older-girl': [
+        { id: 'spine', file: 'assets/bones/Bone_spine.png', x: 42.0, y: 29.0, w: 7.5, h: 24.0, rot: -2.0, zIndex: 1 },
+        { id: 'pelvis', file: 'assets/bones/Bone_pelvis.png', x: 46.0, y: 47.0, w: 32.0, h: 10.5, rot: 3.0, zIndex: 2 },
+        { id: 'ribcage', file: 'assets/bones/Bone_ribcage.png', x: 41.0, y: 29.0, w: 35.0, h: 14.0, rot: 0.0, zIndex: 3 },
+        { id: 'skull', file: 'assets/bones/Bone_skull.png', x: 48.0, y: 11.0, w: 26.0, h: 14.5, rot: 0.0, zIndex: 10 },
+        { id: 'humerus', file: 'assets/bones/Bone_humerus_left.png', x: 19.0, y: 29.5, w: 10.5, h: 13.0, rot: 12.0, zIndex: 4 },
+        { id: 'radius_ulna', file: 'assets/bones/Bone_radius_ulna_left.png', x: 15.0, y: 40.0, w: 9.5, h: 11.5, rot: -10.0, zIndex: 5 },
+        { id: 'hands', file: 'assets/bones/Bone_hands_left.png', x: 20.0, y: 48.0, w: 8.0, h: 7.5, rot: -35.0, zIndex: 6 },
+        { id: 'humerus', file: 'assets/bones/Bone_humerus_right.png', x: 67.0, y: 31.0, w: 10.5, h: 13.0, rot: -10.0, zIndex: 4 },
+        { id: 'radius_ulna', file: 'assets/bones/Bone_radius_ulna_right.png', x: 74.0, y: 41.5, w: 9.0, h: 11.5, rot: -12.0, zIndex: 5 },
+        { id: 'hands', file: 'assets/bones/Bone_hands_right.png', x: 78.5, y: 52.0, w: 7.5, h: 7.0, rot: -16.0, zIndex: 6 },
+        { id: 'femur', file: 'assets/bones/Bone_femur_left.png', x: 38.0, y: 60.0, w: 11.5, h: 18.0, rot: 4.0, zIndex: 2 },
+        { id: 'fibula_tibia', file: 'assets/bones/Bone_fibula_tibia_left.png', x: 32.0, y: 78.5, w: 9.0, h: 16.5, rot: 3.0, zIndex: 7 },
+        { id: 'feet', file: 'assets/bones/Bone_feet_left.png', x: 28.0, y: 95.0, w: 14.0, h: 4.5, rot: -4.0, zIndex: 8 },
+        { id: 'femur', file: 'assets/bones/Bone_femur_right.png', x: 57.0, y: 60.0, w: 11.5, h: 18.0, rot: -3.0, zIndex: 2 },
+        { id: 'fibula_tibia', file: 'assets/bones/Bone_fibula_tibia_right.png', x: 65.0, y: 79.0, w: 9.0, h: 16.5, rot: -1.0, zIndex: 7 },
+        { id: 'feet', file: 'assets/bones/Bone_feet_right.png', x: 65.0, y: 95.0, w: 14.0, h: 4.5, rot: 6.0, zIndex: 8 }
+      ]
+    };
 
     let selectedBoneId = null;
 
-    function renderSkeletonAssembly() {
+    function renderSkeletonAssembly(charId) {
       const box = document.getElementById('anatomySkeletonAssemblyBox');
       if (!box) return;
       box.innerHTML = '';
       selectedBoneId = null;
       box.classList.remove('has-selection');
-      box.style.setProperty('--skeleton-aspect', '841 / 1690');
 
-      BONE_DEFINITIONS.forEach(item => {
+      const targetChar = charId || selectedAnatomyCharacter || 'younger-boy';
+      const pieces = SKELETON_CHARACTER_LAYOUTS[targetChar] || SKELETON_CHARACTER_LAYOUTS['younger-boy'];
+
+      pieces.forEach(item => {
         const layer = document.createElement('div');
         layer.className = 'anatomy-bone-layer';
         layer.dataset.bone = item.id;
-        layer.dataset.name = item.name;
-        layer.style.left = item.left;
-        layer.style.top = item.top;
-        layer.style.width = item.width;
-        layer.style.height = item.height;
-        layer.style.zIndex = item.zIndex;
+        layer.dataset.name = BONE_METADATA[item.id]?.name || item.id;
+        layer.style.left = item.x + '%';
+        layer.style.top = item.y + '%';
+        layer.style.width = item.w + '%';
+        layer.style.height = item.h + '%';
+        layer.style.transform = `translate(-50%, -50%) rotate(${item.rot || 0}deg)`;
+        layer.style.zIndex = item.zIndex || 5;
 
         const img = document.createElement('img');
         img.src = item.file;
-        img.alt = item.name;
+        img.alt = layer.dataset.name;
         layer.appendChild(img);
 
         layer.addEventListener('pointerdown', (e) => e.stopPropagation());
@@ -8907,44 +8993,19 @@
       if (clientX < boxRect.left || clientX > boxRect.right || clientY < boxRect.top || clientY > boxRect.bottom) {
         return null;
       }
-      const nx = (clientX - boxRect.left) / boxRect.width;
-      const ny = (clientY - boxRect.top) / boxRect.height;
 
-      // Check priority based on zIndex and distinct anatomical regions:
-      // Skull (top)
-      if (nx >= 0.34 && nx <= 0.66 && ny >= 0.00 && ny <= 0.17) return 'skull';
+      // Check rendered bone layers sorted by zIndex descending (front bones first)
+      const layers = Array.from(box.querySelectorAll('.anatomy-bone-layer'));
+      layers.sort((a, b) => (parseInt(b.style.zIndex || 0) - parseInt(a.style.zIndex || 0)));
 
-      // Feet (bottom)
-      if (nx >= 0.16 && nx <= 0.84 && ny >= 0.91 && ny <= 1.01) return 'feet';
-
-      // Hands (outer edges at waist/hip height)
-      if ((nx <= 0.22 || nx >= 0.78) && ny >= 0.53 && ny <= 0.69) return 'hands';
-
-      // Radius & Ulna (forearms)
-      if ((nx <= 0.28 || nx >= 0.72) && ny >= 0.37 && ny <= 0.54) return 'radius_ulna';
-
-      // Fibula & Tibia (lower legs)
-      if (ny >= 0.73 && ny <= 0.92) {
-        if ((nx >= 0.28 && nx <= 0.49) || (nx >= 0.51 && nx <= 0.72)) return 'fibula_tibia';
+      for (const layer of layers) {
+        const rect = layer.getBoundingClientRect();
+        const pad = 8;
+        if (clientX >= (rect.left - pad) && clientX <= (rect.right + pad) &&
+            clientY >= (rect.top - pad) && clientY <= (rect.bottom + pad)) {
+          return layer.dataset.bone;
+        }
       }
-
-      // Femur (upper legs)
-      if (ny >= 0.52 && ny <= 0.74) {
-        if ((nx >= 0.27 && nx <= 0.48) || (nx >= 0.52 && nx <= 0.73)) return 'femur';
-      }
-
-      // Pelvis (hips)
-      if (nx >= 0.30 && nx <= 0.70 && ny >= 0.42 && ny <= 0.53) return 'pelvis';
-
-      // Humerus (upper arms)
-      if ((nx <= 0.32 || nx >= 0.68) && ny >= 0.21 && ny <= 0.38) return 'humerus';
-
-      // Ribcage (chest)
-      if (nx >= 0.27 && nx <= 0.73 && ny >= 0.18 && ny <= 0.40) return 'ribcage';
-
-      // Spine (center column)
-      if (nx >= 0.42 && nx <= 0.58 && ny >= 0.14 && ny <= 0.46) return 'spine';
-
       return null;
     }
 
@@ -9038,19 +9099,9 @@
       }
 
       // Set proportional skeleton alignment parameters for confirmed character
-      renderSkeletonAssembly();
-      const skeletonConfigs = {
-        'younger-boy': { top: '3.0%', left: '50.5%', height: '94%' },
-        'younger-girl': { top: '3.0%', left: '50.0%', height: '94%' },
-        'older-boy': { top: '2.0%', left: '48.5%', height: '95%' },
-        'older-girl': { top: '2.0%', left: '49.5%', height: '95%' }
-      };
+      renderSkeletonAssembly(charId);
       const skeletonEl = document.getElementById('anatomyExplorationSkeletonContainer');
-      const skelCfg = skeletonConfigs[charId] || skeletonConfigs['younger-boy'];
       if (skeletonEl) {
-        skeletonEl.style.setProperty('--skeleton-top', skelCfg.top);
-        skeletonEl.style.setProperty('--skeleton-left', skelCfg.left);
-        skeletonEl.style.setProperty('--skeleton-height', skelCfg.height);
         skeletonEl.style.opacity = '0';
         skeletonEl.style.clipPath = 'circle(0px at 0px 0px)';
         skeletonEl.style.webkitClipPath = 'circle(0px at 0px 0px)';

@@ -45,6 +45,32 @@ public struct AnatomicalBoneItem: Identifiable {
     }
 }
 
+public struct AnatomicalBonePiece: Identifiable {
+    public let id: String
+    public let parentBoneId: String
+    public let name: String
+    public let x: CGFloat
+    public let y: CGFloat
+    public let width: CGFloat
+    public let height: CGFloat
+    public let rotationAngle: Double
+    public let zIndex: Double
+    public let imageName: String
+
+    public init(id: String, parentBoneId: String, name: String, x: CGFloat, y: CGFloat, width: CGFloat, height: CGFloat, rotationAngle: Double, zIndex: Double, imageName: String) {
+        self.id = id
+        self.parentBoneId = parentBoneId
+        self.name = name
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.rotationAngle = rotationAngle
+        self.zIndex = zIndex
+        self.imageName = imageName
+    }
+}
+
 public struct OrganStudioItem: Identifiable, Equatable {
     public let id: String
     public let name: String
@@ -1093,46 +1119,43 @@ public struct AnatomyExplorerView: View {
 
             // Assembled Skeleton Layer (Revealed through magnifying glass lens when Skeletal System is active)
             if selectedSystemId == "skeletal" {
-                let skelCfg = skeletonLayoutConfig(for: charId)
-                let skelH = charHeight * skelCfg.scale
-                let charTopY = charCenterY - (charHeight / 2)
-                let skelCenterY = charTopY + (charHeight * skelCfg.offsetY) + (skelH / 2)
-                let skelCenterX = charCenterX + (proxy.size.width * skelCfg.offsetX)
-                
                 let currentCenterX = dockX + magnifierOffset.width
                 let currentCenterY = dockY + magnifierOffset.height - (magHeight * 0.216)
                 let lensRadius = magWidth * 0.35
                 
-                let skelBoxW = skelH * (841.0 / 1690.0)
+                let charAspect = characterAspect(for: charId)
+                let charW = charHeight * charAspect
+                let pieces = skeletonPieces(for: charId)
                 
                 ZStack {
-                    ForEach(bones) { bone in
-                        let isSel = (selectedBoneId == bone.id)
+                    ForEach(pieces) { piece in
+                        let isSel = (selectedBoneId == piece.parentBoneId)
                         let hasSel = (selectedBoneId != nil)
-                        let w = skelBoxW * bone.width
-                        let h = skelH * bone.height
-                        let ox = -skelBoxW / 2 + (skelBoxW * bone.left) + w / 2
-                        let oy = -skelH / 2 + (skelH * bone.top) + h / 2
+                        let pw = charW * (piece.width / 100.0)
+                        let ph = charHeight * (piece.height / 100.0)
+                        let ox = -charW / 2.0 + (charW * (piece.x / 100.0))
+                        let oy = -charHeight / 2.0 + (charHeight * (piece.y / 100.0))
                         
-                        Image(bone.imageName)
+                        Image(piece.imageName)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
-                            .frame(width: w, height: h)
+                            .rotationEffect(.degrees(piece.rotationAngle))
+                            .frame(width: pw, height: ph)
                             .opacity((hasSel && !isSel) ? 0.25 : 1.0)
                             .grayscale((hasSel && !isSel) ? 0.8 : 0.0)
                             .scaleEffect(isSel ? 1.06 : 1.0)
                             .shadow(color: isSel ? Color(hex: "ffd700") : Color.clear, radius: isSel ? 10 : 0)
                             .shadow(color: isSel ? Color(hex: "ffea00").opacity(0.85) : Color.clear, radius: isSel ? 18 : 0)
                             .offset(x: ox, y: oy)
-                            .zIndex(isSel ? 35 : bone.zIndex)
+                            .zIndex(isSel ? 35 : piece.zIndex)
                             .animation(.spring(response: 0.35, dampingFraction: 0.68), value: isSel)
                             .onTapGesture {
-                                handleBoneTap(bone.id, boneName: bone.name)
+                                handleBoneTap(piece.parentBoneId, boneName: piece.name)
                             }
                     }
                 }
-                .frame(width: skelBoxW, height: skelH)
-                .position(x: skelCenterX, y: skelCenterY)
+                .frame(width: charW, height: charHeight)
+                .position(x: charCenterX, y: charCenterY)
                 .frame(width: proxy.size.width, height: proxy.size.height)
                 .mask(
                     Circle()
@@ -1431,18 +1454,96 @@ public struct AnatomyExplorerView: View {
         }
     }
 
-    private func skeletonLayoutConfig(for charId: String) -> (offsetY: CGFloat, offsetX: CGFloat, scale: CGFloat) {
+    private func characterAspect(for charId: String) -> CGFloat {
         switch charId {
-        case "older-boy":
-            return (offsetY: 0.020, offsetX: -0.015, scale: 0.95)
-        case "older-girl":
-            return (offsetY: 0.020, offsetX: -0.005, scale: 0.95)
+        case "older-boy": return 220.0 / 681.0
+        case "younger-boy": return 186.0 / 538.0
+        case "older-girl": return 193.0 / 681.0
+        case "younger-girl": return 177.0 / 544.0
+        default: return 186.0 / 538.0
+        }
+    }
+
+    private func skeletonPieces(for charId: String) -> [AnatomicalBonePiece] {
+        switch charId {
         case "younger-boy":
-            return (offsetY: 0.030, offsetX: 0.005, scale: 0.94)
+            return [
+                AnatomicalBonePiece(id: "spine", parentBoneId: "spine", name: "Spine", x: 50.0, y: 31.0, width: 9.0, height: 26.0, rotationAngle: 0.0, zIndex: 1, imageName: "AnatomyBoneSpine"),
+                AnatomicalBonePiece(id: "pelvis", parentBoneId: "pelvis", name: "Pelvis", x: 50.0, y: 49.0, width: 38.0, height: 11.5, rotationAngle: 0.0, zIndex: 2, imageName: "AnatomyBonePelvis"),
+                AnatomicalBonePiece(id: "ribcage", parentBoneId: "ribcage", name: "Ribcage", x: 50.0, y: 31.0, width: 42.0, height: 15.0, rotationAngle: 0.0, zIndex: 3, imageName: "AnatomyBoneRibcage"),
+                AnatomicalBonePiece(id: "skull", parentBoneId: "skull", name: "Skull", x: 50.0, y: 12.0, width: 32.0, height: 16.0, rotationAngle: 0.0, zIndex: 10, imageName: "AnatomyBoneSkull"),
+                AnatomicalBonePiece(id: "humerus_l", parentBoneId: "humerus", name: "Humerus", x: 23.0, y: 33.0, width: 13.0, height: 14.0, rotationAngle: 15.0, zIndex: 4, imageName: "AnatomyBoneHumerusLeft"),
+                AnatomicalBonePiece(id: "radius_ulna_l", parentBoneId: "radius_ulna", name: "Radius and Ulna", x: 14.5, y: 43.5, width: 8.5, height: 11.0, rotationAngle: 14.0, zIndex: 5, imageName: "AnatomyBoneRadiusUlnaLeft"),
+                AnatomicalBonePiece(id: "hands_l", parentBoneId: "hands", name: "Hands", x: 6.5, y: 54.5, width: 9.5, height: 8.5, rotationAngle: 12.0, zIndex: 6, imageName: "AnatomyBoneHandsLeft"),
+                AnatomicalBonePiece(id: "humerus_r", parentBoneId: "humerus", name: "Humerus", x: 77.0, y: 33.0, width: 13.0, height: 14.0, rotationAngle: -15.0, zIndex: 4, imageName: "AnatomyBoneHumerusRight"),
+                AnatomicalBonePiece(id: "radius_ulna_r", parentBoneId: "radius_ulna", name: "Radius and Ulna", x: 85.5, y: 43.5, width: 8.5, height: 11.0, rotationAngle: -14.0, zIndex: 5, imageName: "AnatomyBoneRadiusUlnaRight"),
+                AnatomicalBonePiece(id: "hands_r", parentBoneId: "hands", name: "Hands", x: 93.5, y: 54.5, width: 9.5, height: 8.5, rotationAngle: -14.0, zIndex: 6, imageName: "AnatomyBoneHandsRight"),
+                AnatomicalBonePiece(id: "femur_l", parentBoneId: "femur", name: "Femur", x: 38.0, y: 62.0, width: 14.0, height: 18.0, rotationAngle: 6.0, zIndex: 2, imageName: "AnatomyBoneFemurLeft"),
+                AnatomicalBonePiece(id: "fibula_tibia_l", parentBoneId: "fibula_tibia", name: "Tibia and Fibula", x: 30.5, y: 79.5, width: 11.0, height: 16.0, rotationAngle: 4.0, zIndex: 7, imageName: "AnatomyBoneFibulaTibiaLeft"),
+                AnatomicalBonePiece(id: "feet_l", parentBoneId: "feet", name: "Feet", x: 27.5, y: 95.5, width: 14.5, height: 4.5, rotationAngle: -8.0, zIndex: 8, imageName: "AnatomyBoneFeetLeft"),
+                AnatomicalBonePiece(id: "femur_r", parentBoneId: "femur", name: "Femur", x: 62.0, y: 62.0, width: 14.0, height: 18.0, rotationAngle: -6.0, zIndex: 2, imageName: "AnatomyBoneFemurRight"),
+                AnatomicalBonePiece(id: "fibula_tibia_r", parentBoneId: "fibula_tibia", name: "Tibia and Fibula", x: 69.5, y: 79.5, width: 11.0, height: 16.0, rotationAngle: -4.0, zIndex: 7, imageName: "AnatomyBoneFibulaTibiaRight"),
+                AnatomicalBonePiece(id: "feet_r", parentBoneId: "feet", name: "Feet", x: 74.0, y: 95.5, width: 14.5, height: 4.5, rotationAngle: 4.0, zIndex: 8, imageName: "AnatomyBoneFeetRight")
+            ]
         case "younger-girl":
-            return (offsetY: 0.030, offsetX: 0.000, scale: 0.94)
+            return [
+                AnatomicalBonePiece(id: "spine", parentBoneId: "spine", name: "Spine", x: 50.0, y: 31.0, width: 9.0, height: 26.0, rotationAngle: 0.0, zIndex: 1, imageName: "AnatomyBoneSpine"),
+                AnatomicalBonePiece(id: "pelvis", parentBoneId: "pelvis", name: "Pelvis", x: 50.0, y: 49.0, width: 37.0, height: 11.5, rotationAngle: 0.0, zIndex: 2, imageName: "AnatomyBonePelvis"),
+                AnatomicalBonePiece(id: "ribcage", parentBoneId: "ribcage", name: "Ribcage", x: 50.0, y: 31.0, width: 41.0, height: 15.0, rotationAngle: 0.0, zIndex: 3, imageName: "AnatomyBoneRibcage"),
+                AnatomicalBonePiece(id: "skull", parentBoneId: "skull", name: "Skull", x: 50.0, y: 12.0, width: 32.0, height: 16.0, rotationAngle: 0.0, zIndex: 10, imageName: "AnatomyBoneSkull"),
+                AnatomicalBonePiece(id: "humerus_l", parentBoneId: "humerus", name: "Humerus", x: 23.0, y: 33.0, width: 13.0, height: 14.0, rotationAngle: 15.0, zIndex: 4, imageName: "AnatomyBoneHumerusLeft"),
+                AnatomicalBonePiece(id: "radius_ulna_l", parentBoneId: "radius_ulna", name: "Radius and Ulna", x: 13.5, y: 43.5, width: 9.5, height: 11.5, rotationAngle: 12.0, zIndex: 5, imageName: "AnatomyBoneRadiusUlnaLeft"),
+                AnatomicalBonePiece(id: "hands_l", parentBoneId: "hands", name: "Hands", x: 8.0, y: 55.0, width: 8.5, height: 8.0, rotationAngle: 12.0, zIndex: 6, imageName: "AnatomyBoneHandsLeft"),
+                AnatomicalBonePiece(id: "humerus_r", parentBoneId: "humerus", name: "Humerus", x: 76.0, y: 33.0, width: 12.5, height: 14.0, rotationAngle: -15.0, zIndex: 4, imageName: "AnatomyBoneHumerusRight"),
+                AnatomicalBonePiece(id: "radius_ulna_r", parentBoneId: "radius_ulna", name: "Radius and Ulna", x: 87.0, y: 43.0, width: 8.5, height: 11.0, rotationAngle: -17.0, zIndex: 5, imageName: "AnatomyBoneRadiusUlnaRight"),
+                AnatomicalBonePiece(id: "hands_r", parentBoneId: "hands", name: "Hands", x: 92.0, y: 55.0, width: 9.0, height: 8.0, rotationAngle: -12.0, zIndex: 6, imageName: "AnatomyBoneHandsRight"),
+                AnatomicalBonePiece(id: "femur_l", parentBoneId: "femur", name: "Femur", x: 42.0, y: 62.0, width: 13.0, height: 18.0, rotationAngle: 3.0, zIndex: 2, imageName: "AnatomyBoneFemurLeft"),
+                AnatomicalBonePiece(id: "fibula_tibia_l", parentBoneId: "fibula_tibia", name: "Tibia and Fibula", x: 40.0, y: 81.0, width: 10.0, height: 16.0, rotationAngle: 2.0, zIndex: 7, imageName: "AnatomyBoneFibulaTibiaLeft"),
+                AnatomicalBonePiece(id: "feet_l", parentBoneId: "feet", name: "Feet", x: 34.0, y: 95.5, width: 14.0, height: 4.5, rotationAngle: -4.0, zIndex: 8, imageName: "AnatomyBoneFeetLeft"),
+                AnatomicalBonePiece(id: "femur_r", parentBoneId: "femur", name: "Femur", x: 58.0, y: 62.0, width: 13.0, height: 18.0, rotationAngle: -3.0, zIndex: 2, imageName: "AnatomyBoneFemurRight"),
+                AnatomicalBonePiece(id: "fibula_tibia_r", parentBoneId: "fibula_tibia", name: "Tibia and Fibula", x: 63.5, y: 81.0, width: 10.0, height: 16.0, rotationAngle: -2.0, zIndex: 7, imageName: "AnatomyBoneFibulaTibiaRight"),
+                AnatomicalBonePiece(id: "feet_r", parentBoneId: "feet", name: "Feet", x: 64.0, y: 95.5, width: 14.0, height: 4.5, rotationAngle: 4.0, zIndex: 8, imageName: "AnatomyBoneFeetRight")
+            ]
+        case "older-boy":
+            return [
+                AnatomicalBonePiece(id: "spine", parentBoneId: "spine", name: "Spine", x: 40.0, y: 29.0, width: 7.5, height: 24.0, rotationAngle: -2.0, zIndex: 1, imageName: "AnatomyBoneSpine"),
+                AnatomicalBonePiece(id: "pelvis", parentBoneId: "pelvis", name: "Pelvis", x: 44.0, y: 47.0, width: 32.0, height: 10.5, rotationAngle: 3.0, zIndex: 2, imageName: "AnatomyBonePelvis"),
+                AnatomicalBonePiece(id: "ribcage", parentBoneId: "ribcage", name: "Ribcage", x: 39.0, y: 29.0, width: 35.0, height: 14.0, rotationAngle: 0.0, zIndex: 3, imageName: "AnatomyBoneRibcage"),
+                AnatomicalBonePiece(id: "skull", parentBoneId: "skull", name: "Skull", x: 47.0, y: 11.0, width: 25.0, height: 14.0, rotationAngle: 0.0, zIndex: 10, imageName: "AnatomyBoneSkull"),
+                AnatomicalBonePiece(id: "humerus_l", parentBoneId: "humerus", name: "Humerus", x: 17.0, y: 29.5, width: 10.5, height: 13.0, rotationAngle: 12.0, zIndex: 4, imageName: "AnatomyBoneHumerusLeft"),
+                AnatomicalBonePiece(id: "radius_ulna_l", parentBoneId: "radius_ulna", name: "Radius and Ulna", x: 12.5, y: 39.5, width: 9.0, height: 11.5, rotationAngle: -15.0, zIndex: 5, imageName: "AnatomyBoneRadiusUlnaLeft"),
+                AnatomicalBonePiece(id: "hands_l", parentBoneId: "hands", name: "Hands", x: 22.0, y: 46.5, width: 7.5, height: 7.0, rotationAngle: -45.0, zIndex: 6, imageName: "AnatomyBoneHandsLeft"),
+                AnatomicalBonePiece(id: "humerus_r", parentBoneId: "humerus", name: "Humerus", x: 62.0, y: 31.0, width: 10.5, height: 13.0, rotationAngle: -10.0, zIndex: 4, imageName: "AnatomyBoneHumerusRight"),
+                AnatomicalBonePiece(id: "radius_ulna_r", parentBoneId: "radius_ulna", name: "Radius and Ulna", x: 69.0, y: 41.5, width: 9.5, height: 11.5, rotationAngle: -12.0, zIndex: 5, imageName: "AnatomyBoneRadiusUlnaRight"),
+                AnatomicalBonePiece(id: "hands_r", parentBoneId: "hands", name: "Hands", x: 74.0, y: 52.0, width: 7.5, height: 7.0, rotationAngle: -16.0, zIndex: 6, imageName: "AnatomyBoneHandsRight"),
+                AnatomicalBonePiece(id: "femur_l", parentBoneId: "femur", name: "Femur", x: 36.0, y: 60.0, width: 12.0, height: 18.0, rotationAngle: 5.0, zIndex: 2, imageName: "AnatomyBoneFemurLeft"),
+                AnatomicalBonePiece(id: "fibula_tibia_l", parentBoneId: "fibula_tibia", name: "Tibia and Fibula", x: 29.5, y: 78.5, width: 9.5, height: 16.5, rotationAngle: 4.0, zIndex: 7, imageName: "AnatomyBoneFibulaTibiaLeft"),
+                AnatomicalBonePiece(id: "feet_l", parentBoneId: "feet", name: "Feet", x: 25.0, y: 95.0, width: 15.0, height: 4.5, rotationAngle: -6.0, zIndex: 8, imageName: "AnatomyBoneFeetLeft"),
+                AnatomicalBonePiece(id: "femur_r", parentBoneId: "femur", name: "Femur", x: 57.0, y: 60.0, width: 12.0, height: 18.0, rotationAngle: -4.0, zIndex: 2, imageName: "AnatomyBoneFemurRight"),
+                AnatomicalBonePiece(id: "fibula_tibia_r", parentBoneId: "fibula_tibia", name: "Tibia and Fibula", x: 61.5, y: 78.5, width: 9.5, height: 16.5, rotationAngle: -2.0, zIndex: 7, imageName: "AnatomyBoneFibulaTibiaRight"),
+                AnatomicalBonePiece(id: "feet_r", parentBoneId: "feet", name: "Feet", x: 68.0, y: 95.0, width: 16.0, height: 4.5, rotationAngle: 6.0, zIndex: 8, imageName: "AnatomyBoneFeetRight")
+            ]
+        case "older-girl":
+            return [
+                AnatomicalBonePiece(id: "spine", parentBoneId: "spine", name: "Spine", x: 42.0, y: 29.0, width: 7.5, height: 24.0, rotationAngle: -2.0, zIndex: 1, imageName: "AnatomyBoneSpine"),
+                AnatomicalBonePiece(id: "pelvis", parentBoneId: "pelvis", name: "Pelvis", x: 46.0, y: 47.0, width: 32.0, height: 10.5, rotationAngle: 3.0, zIndex: 2, imageName: "AnatomyBonePelvis"),
+                AnatomicalBonePiece(id: "ribcage", parentBoneId: "ribcage", name: "Ribcage", x: 41.0, y: 29.0, width: 35.0, height: 14.0, rotationAngle: 0.0, zIndex: 3, imageName: "AnatomyBoneRibcage"),
+                AnatomicalBonePiece(id: "skull", parentBoneId: "skull", name: "Skull", x: 48.0, y: 11.0, width: 26.0, height: 14.5, rotationAngle: 0.0, zIndex: 10, imageName: "AnatomyBoneSkull"),
+                AnatomicalBonePiece(id: "humerus_l", parentBoneId: "humerus", name: "Humerus", x: 19.0, y: 29.5, width: 10.5, height: 13.0, rotationAngle: 12.0, zIndex: 4, imageName: "AnatomyBoneHumerusLeft"),
+                AnatomicalBonePiece(id: "radius_ulna_l", parentBoneId: "radius_ulna", name: "Radius and Ulna", x: 15.0, y: 40.0, width: 9.5, height: 11.5, rotationAngle: -10.0, zIndex: 5, imageName: "AnatomyBoneRadiusUlnaLeft"),
+                AnatomicalBonePiece(id: "hands_l", parentBoneId: "hands", name: "Hands", x: 20.0, y: 48.0, width: 8.0, height: 7.5, rotationAngle: -35.0, zIndex: 6, imageName: "AnatomyBoneHandsLeft"),
+                AnatomicalBonePiece(id: "humerus_r", parentBoneId: "humerus", name: "Humerus", x: 67.0, y: 31.0, width: 10.5, height: 13.0, rotationAngle: -10.0, zIndex: 4, imageName: "AnatomyBoneHumerusRight"),
+                AnatomicalBonePiece(id: "radius_ulna_r", parentBoneId: "radius_ulna", name: "Radius and Ulna", x: 74.0, y: 41.5, width: 9.0, height: 11.5, rotationAngle: -12.0, zIndex: 5, imageName: "AnatomyBoneRadiusUlnaRight"),
+                AnatomicalBonePiece(id: "hands_r", parentBoneId: "hands", name: "Hands", x: 78.5, y: 52.0, width: 7.5, height: 7.0, rotationAngle: -16.0, zIndex: 6, imageName: "AnatomyBoneHandsRight"),
+                AnatomicalBonePiece(id: "femur_l", parentBoneId: "femur", name: "Femur", x: 38.0, y: 60.0, width: 11.5, height: 18.0, rotationAngle: 4.0, zIndex: 2, imageName: "AnatomyBoneFemurLeft"),
+                AnatomicalBonePiece(id: "fibula_tibia_l", parentBoneId: "fibula_tibia", name: "Tibia and Fibula", x: 32.0, y: 78.5, width: 9.0, height: 16.5, rotationAngle: 3.0, zIndex: 7, imageName: "AnatomyBoneFibulaTibiaLeft"),
+                AnatomicalBonePiece(id: "feet_l", parentBoneId: "feet", name: "Feet", x: 28.0, y: 95.0, width: 14.0, height: 4.5, rotationAngle: -4.0, zIndex: 8, imageName: "AnatomyBoneFeetLeft"),
+                AnatomicalBonePiece(id: "femur_r", parentBoneId: "femur", name: "Femur", x: 57.0, y: 60.0, width: 11.5, height: 18.0, rotationAngle: -3.0, zIndex: 2, imageName: "AnatomyBoneFemurRight"),
+                AnatomicalBonePiece(id: "fibula_tibia_r", parentBoneId: "fibula_tibia", name: "Tibia and Fibula", x: 65.0, y: 79.0, width: 9.0, height: 16.5, rotationAngle: -1.0, zIndex: 7, imageName: "AnatomyBoneFibulaTibiaRight"),
+                AnatomicalBonePiece(id: "feet_r", parentBoneId: "feet", name: "Feet", x: 65.0, y: 95.0, width: 14.0, height: 4.5, rotationAngle: 6.0, zIndex: 8, imageName: "AnatomyBoneFeetRight")
+            ]
         default:
-            return (offsetY: 0.030, offsetX: 0.005, scale: 0.94)
+            return []
         }
     }
 
@@ -1472,13 +1573,14 @@ public struct AnatomyExplorerView: View {
     }
 
     private func hitTestBoneAtLens(charId: String, proxy: GeometryProxy) {
-        let skelCfg = skeletonLayoutConfig(for: charId)
         let charHeight = proxy.size.height * 0.903
-        let skelH = charHeight * skelCfg.scale
-        let charTopY = (proxy.size.height * 0.495) - (charHeight / 2)
-        let skelBoxY0 = charTopY + (charHeight * skelCfg.offsetY)
-        let skelBoxW = skelH * (841.0 / 1690.0)
-        let skelBoxX0 = (proxy.size.width * 0.50) + (proxy.size.width * skelCfg.offsetX) - (skelBoxW / 2)
+        let charCenterX = proxy.size.width * 0.50
+        let charCenterY = proxy.size.height * 0.495
+
+        let charAspect = characterAspect(for: charId)
+        let charW = charHeight * charAspect
+        let charLeft = charCenterX - (charW / 2.0)
+        let charTop = charCenterY - (charHeight / 2.0)
 
         let dockX = proxy.size.width * 0.185
         let dockY = proxy.size.height * 0.48
@@ -1486,40 +1588,28 @@ public struct AnatomyExplorerView: View {
         let currentLensX = dockX + magnifierOffset.width
         let currentLensY = dockY + magnifierOffset.height - (magHeight * 0.216)
 
-        guard skelBoxW > 0, skelH > 0 else { return }
-        let nx = (currentLensX - skelBoxX0) / skelBoxW
-        let ny = (currentLensY - skelBoxY0) / skelH
+        guard charW > 0, charHeight > 0 else { return }
+        let nx = (currentLensX - charLeft) / charW
+        let ny = (currentLensY - charTop) / charHeight
 
-        if currentLensX < (skelBoxX0 - 30) || currentLensX > (skelBoxX0 + skelBoxW + 30) ||
-           currentLensY < (skelBoxY0 - 30) || currentLensY > (skelBoxY0 + skelH + 30) {
+        if currentLensX < (charLeft - 30) || currentLensX > (charLeft + charW + 30) ||
+           currentLensY < (charTop - 30) || currentLensY > (charTop + charHeight + 30) {
             return
         }
 
-        var hitBoneId: String? = nil
-        if nx >= 0.34 && nx <= 0.66 && ny >= 0.00 && ny <= 0.17 {
-            hitBoneId = "skull"
-        } else if nx >= 0.16 && nx <= 0.84 && ny >= 0.91 && ny <= 1.01 {
-            hitBoneId = "feet"
-        } else if (nx <= 0.22 || nx >= 0.78) && ny >= 0.53 && ny <= 0.69 {
-            hitBoneId = "hands"
-        } else if (nx <= 0.28 || nx >= 0.72) && ny >= 0.37 && ny <= 0.54 {
-            hitBoneId = "radius_ulna"
-        } else if ny >= 0.73 && ny <= 0.92 && ((nx >= 0.28 && nx <= 0.49) || (nx >= 0.51 && nx <= 0.72)) {
-            hitBoneId = "fibula_tibia"
-        } else if ny >= 0.52 && ny <= 0.74 && ((nx >= 0.27 && nx <= 0.48) || (nx >= 0.52 && nx <= 0.73)) {
-            hitBoneId = "femur"
-        } else if nx >= 0.30 && nx <= 0.70 && ny >= 0.42 && ny <= 0.53 {
-            hitBoneId = "pelvis"
-        } else if (nx <= 0.32 || nx >= 0.68) && ny >= 0.21 && ny <= 0.38 {
-            hitBoneId = "humerus"
-        } else if nx >= 0.27 && nx <= 0.73 && ny >= 0.18 && ny <= 0.40 {
-            hitBoneId = "ribcage"
-        } else if nx >= 0.42 && nx <= 0.58 && ny >= 0.14 && ny <= 0.46 {
-            hitBoneId = "spine"
-        }
-
-        if let boneId = hitBoneId, let bone = bones.first(where: { $0.id == boneId }) {
-            handleBoneTap(bone.id, boneName: bone.name)
+        let pieces = skeletonPieces(for: charId).sorted { $0.zIndex > $1.zIndex }
+        for piece in pieces {
+            let px = piece.x / 100.0
+            let py = piece.y / 100.0
+            let pw = piece.width / 100.0
+            let ph = piece.height / 100.0
+            let padX: CGFloat = 0.05
+            let padY: CGFloat = 0.04
+            if nx >= (px - pw/2 - padX) && nx <= (px + pw/2 + padX) &&
+               ny >= (py - ph/2 - padY) && ny <= (py + ph/2 + padY) {
+                handleBoneTap(piece.parentBoneId, boneName: piece.name)
+                return
+            }
         }
     }
     
