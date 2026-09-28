@@ -8628,10 +8628,8 @@
       }
       if (!promptText) return;
 
-      if (!hasInteractedWithSkinTone && !selectedAnatomySystemId) {
-        promptText.textContent = 'Select a skin tone!';
-      } else if (!selectedAnatomySystemId) {
-        promptText.textContent = 'Select a body system!';
+      if (!selectedAnatomySystemId) {
+        promptText.textContent = 'Select a skin tone and body system to start!';
       } else {
         promptText.textContent = 'Use the magnifying glass to explore!';
       }

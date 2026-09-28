@@ -824,10 +824,8 @@ public struct AnatomyExplorerView: View {
         } else if let organ = selectedOrganName {
             return "\(organ) - Tap again to see and draw!"
         } else if isConfirmed {
-            if !hasInteractedWithSkinTone && selectedSystemId == nil {
-                return "Select a skin tone!"
-            } else if selectedSystemId == nil {
-                return "Select a body system!"
+            if selectedSystemId == nil {
+                return "Select a skin tone and body system to start!"
             } else {
                 return "Use the magnifying glass to explore!"
             }
