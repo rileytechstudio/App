@@ -8086,9 +8086,70 @@
 
     function handleAnatomyCharacterTap(charId) {
       if (!ANATOMY_CHARACTERS[charId]) return;
+
+      const stageFrame = document.getElementById('anatomyStageFrame');
+      const beamLayer = document.getElementById('anatomySpotlightBeamLayer');
+      const cone = document.getElementById('anatomySpotlightCone');
+      const floorGlow = document.getElementById('anatomySpotlightFloorGlow');
+      const promptBar = document.getElementById('anatomyBottomPromptBar');
+      const promptText = document.getElementById('anatomyPromptText');
+      const promptDot = document.getElementById('anatomyPromptDot');
+
+      // If user taps the already selected character, confirm selection!
+      if (selectedAnatomyCharacter === charId && !isAnatomyCharacterConfirmed) {
+        confirmAnatomyCharacter(charId);
+        return;
+      }
+
+      // Otherwise select or move spotlight to this character
       selectedAnatomyCharacter = charId;
-      if (isHapticsEnabled) triggerHapticFeedback(14);
-      confirmAnatomyCharacter(charId);
+      isAnatomyCharacterConfirmed = false;
+
+      const charInfo = ANATOMY_CHARACTERS[charId];
+
+      if (stageFrame) {
+        stageFrame.classList.add('has-selection');
+      }
+
+      ['older-boy', 'younger-boy', 'older-girl', 'younger-girl'].forEach(id => {
+        const el = document.getElementById('anatomyChar_' + id);
+        if (el) {
+          el.classList.remove('selected', 'confirmed');
+          if (id === charId) {
+            el.classList.add('selected');
+          }
+        }
+      });
+
+      if (beamLayer) beamLayer.classList.add('active');
+      if (cone) {
+        cone.style.left = charInfo.centerPercent + '%';
+      }
+      if (floorGlow) {
+        floorGlow.classList.add('active');
+        floorGlow.style.left = charInfo.centerPercent + '%';
+        floorGlow.style.bottom = charInfo.glowBottomPercent + '%';
+      }
+
+      const dimmer = document.getElementById('anatomyStageDimmer');
+      const coneDimmer = document.getElementById('anatomyStageDimmerCone');
+      if (dimmer) dimmer.classList.add('active');
+      if (coneDimmer) coneDimmer.style.left = charInfo.centerPercent + '%';
+
+      if (promptBar) {
+        promptBar.classList.add('can-confirm');
+        promptBar.classList.remove('is-confirmed');
+      }
+      if (promptDot) {
+        promptDot.className = 'step-instruction-dot confirm-pulse';
+      }
+      if (promptText) {
+        promptText.textContent = 'Tap again to start!';
+      }
+
+      if (isHapticsEnabled) {
+        triggerHapticFeedback(12);
+      }
     }
 
     let isAnatomyInExploration = false;
@@ -8769,11 +8830,25 @@
 
       const explorationView = document.getElementById('anatomyExplorationView');
       const stageRevealed = document.getElementById('anatomyStageRevealed');
+      const stageFrame = document.getElementById('anatomyStageFrame');
+      const beamLayer = document.getElementById('anatomySpotlightBeamLayer');
+      const floorGlow = document.getElementById('anatomySpotlightFloorGlow');
+      const dimmer = document.getElementById('anatomyStageDimmer');
       const promptBar = document.getElementById('anatomyBottomPromptBar');
       const promptText = document.getElementById('anatomyPromptText');
       const promptDot = document.getElementById('anatomyPromptDot');
       const navTitle = document.getElementById('anatomyNavTitle');
       const navSubtitle = document.getElementById('anatomyNavSubtitle');
+
+      selectedAnatomyCharacter = null;
+      if (stageFrame) stageFrame.classList.remove('has-selection');
+      ['older-boy', 'younger-boy', 'older-girl', 'younger-girl'].forEach(id => {
+        const el = document.getElementById('anatomyChar_' + id);
+        if (el) el.classList.remove('selected', 'confirmed');
+      });
+      if (beamLayer) beamLayer.classList.remove('active');
+      if (floorGlow) floorGlow.classList.remove('active');
+      if (dimmer) dimmer.classList.remove('active');
 
       if (explorationView) explorationView.classList.remove('active');
       if (stageRevealed) {
