@@ -1506,22 +1506,22 @@ public struct AnatomyExplorerView: View {
             ]
         case "older-boy":
             return [
-                AnatomicalBonePiece(id: "spine", parentBoneId: "spine", name: "Spine", x: 35.4, y: 30.3, width: 13.9, height: 31.6, rotationAngle: 0.0, zIndex: 1, imageName: "AnatomyBoneOlderBoySpine"),
-                AnatomicalBonePiece(id: "pelvis", parentBoneId: "pelvis", name: "Pelvis", x: 40.2, y: 51.9, width: 44.4, height: 15.5, rotationAngle: 0.0, zIndex: 2, imageName: "AnatomyBoneOlderBoyPelvis"),
-                AnatomicalBonePiece(id: "humerus_r", parentBoneId: "humerus", name: "Humerus", x: 59.2, y: 33.6, width:  8.7, height:  8.9, rotationAngle: 0.0, zIndex: 2, imageName: "AnatomyBoneOlderBoyHumerusRight"),
-                AnatomicalBonePiece(id: "radius_ulna_r", parentBoneId: "radius_ulna", name: "Radius and Ulna", x: 62.2, y: 43.0, width: 14.8, height: 11.6, rotationAngle: 0.0, zIndex: 2, imageName: "AnatomyBoneOlderBoyRadiusUlnaRight"),
-                AnatomicalBonePiece(id: "femur_r", parentBoneId: "femur", name: "Femur", x: 52.8, y: 64.0, width: 21.3, height: 21.3, rotationAngle: 0.0, zIndex: 2, imageName: "AnatomyBoneOlderBoyFemurRight"),
-                AnatomicalBonePiece(id: "ribcage", parentBoneId: "ribcage", name: "Ribcage", x: 35.9, y: 30.7, width: 50.9, height: 18.6, rotationAngle: 0.0, zIndex: 3, imageName: "AnatomyBoneOlderBoyRibcage"),
-                AnatomicalBonePiece(id: "humerus_l", parentBoneId: "humerus", name: "Humerus", x: 13.0, y: 29.4, width: 13.9, height: 12.8, rotationAngle: 0.0, zIndex: 4, imageName: "AnatomyBoneOlderBoyHumerusLeft"),
-                AnatomicalBonePiece(id: "femur_l", parentBoneId: "femur", name: "Femur", x: 25.9, y: 64.0, width: 22.4, height: 21.3, rotationAngle: 0.0, zIndex: 4, imageName: "AnatomyBoneOlderBoyFemurLeft"),
-                AnatomicalBonePiece(id: "radius_ulna_l", parentBoneId: "radius_ulna", name: "Radius and Ulna", x: 13.2, y: 41.5, width: 20.1, height: 13.2, rotationAngle: 0.0, zIndex: 5, imageName: "AnatomyBoneOlderBoyRadiusUlnaLeft"),
-                AnatomicalBonePiece(id: "hands_l", parentBoneId: "hands", name: "Hands", x: 22.6, y: 51.9, width: 13.9, height:  8.5, rotationAngle: 0.0, zIndex: 6, imageName: "AnatomyBoneOlderBoyHandsLeft"),
-                AnatomicalBonePiece(id: "hands_r", parentBoneId: "hands", name: "Hands", x: 68.8, y: 52.5, width: 11.0, height:  7.4, rotationAngle: 0.0, zIndex: 6, imageName: "AnatomyBoneOlderBoyHandsRight"),
-                AnatomicalBonePiece(id: "fibula_tibia_r", parentBoneId: "fibula_tibia", name: "Tibia and Fibula", x: 56.5, y: 83.7, width: 13.9, height: 20.5, rotationAngle: 0.0, zIndex: 6, imageName: "AnatomyBoneOlderBoyFibulaTibiaRight"),
-                AnatomicalBonePiece(id: "fibula_tibia_l", parentBoneId: "fibula_tibia", name: "Tibia and Fibula", x: 22.8, y: 83.8, width: 18.0, height: 20.3, rotationAngle: 0.0, zIndex: 7, imageName: "AnatomyBoneOlderBoyFibulaTibiaLeft"),
-                AnatomicalBonePiece(id: "feet_r", parentBoneId: "feet", name: "Feet", x: 65.2, y: 94.6, width: 31.3, height:  5.5, rotationAngle: 0.0, zIndex: 7, imageName: "AnatomyBoneOlderBoyFeetRight"),
-                AnatomicalBonePiece(id: "feet_l", parentBoneId: "feet", name: "Feet", x: 27.0, y: 95.7, width: 28.5, height:  6.9, rotationAngle: 0.0, zIndex: 8, imageName: "AnatomyBoneOlderBoyFeetLeft"),
-                AnatomicalBonePiece(id: "skull", parentBoneId: "skull", name: "Skull", x: 46.5, y:  9.6, width: 36.0, height: 13.2, rotationAngle: 0.0, zIndex: 10, imageName: "AnatomyBoneOlderBoySkull"),
+                AnatomicalBonePiece(id: "skull", parentBoneId: "skull", name: "Skull", x: 47.5, y:  9.0, width: 40.5, height: 15.0, rotationAngle: 0.0, zIndex: 10, imageName: "AnatomyBoneOlderBoySkull"),
+                AnatomicalBonePiece(id: "spine", parentBoneId: "spine", name: "Spine", x: 41.1, y: 36.1, width: 23.2, height: 45.5, rotationAngle: 0.0, zIndex: 1, imageName: "AnatomyBoneOlderBoySpine"),
+                AnatomicalBonePiece(id: "ribcage", parentBoneId: "ribcage", name: "Ribcage", x: 41.6, y: 32.7, width: 58.6, height: 22.9, rotationAngle: 0.0, zIndex: 3, imageName: "AnatomyBoneOlderBoyRibcage"),
+                AnatomicalBonePiece(id: "pelvis", parentBoneId: "pelvis", name: "Pelvis", x: 47.5, y: 52.6, width: 45.9, height: 17.0, rotationAngle: 0.0, zIndex: 2, imageName: "AnatomyBoneOlderBoyPelvis"),
+                AnatomicalBonePiece(id: "humerus_l", parentBoneId: "humerus", name: "Humerus", x: 13.0, y: 30.9, width: 20.5, height: 16.3, rotationAngle: 0.0, zIndex: 4, imageName: "AnatomyBoneOlderBoyHumerusLeft"),
+                AnatomicalBonePiece(id: "radius_ulna_l", parentBoneId: "radius_ulna", name: "Radius and Ulna", x: 13.9, y: 45.4, width: 21.4, height: 12.3, rotationAngle: 0.0, zIndex: 5, imageName: "AnatomyBoneOlderBoyRadiusUlnaLeft"),
+                AnatomicalBonePiece(id: "hands_l", parentBoneId: "hands", name: "Hands", x: 21.1, y: 55.6, width:  6.8, height:  8.1, rotationAngle: 0.0, zIndex: 6, imageName: "AnatomyBoneOlderBoyHandsLeft"),
+                AnatomicalBonePiece(id: "humerus_r", parentBoneId: "humerus", name: "Humerus", x: 69.3, y: 35.2, width: 11.4, height: 11.6, rotationAngle: 0.0, zIndex: 2, imageName: "AnatomyBoneOlderBoyHumerusRight"),
+                AnatomicalBonePiece(id: "radius_ulna_r", parentBoneId: "radius_ulna", name: "Radius and Ulna", x: 72.5, y: 46.5, width: 15.9, height: 11.2, rotationAngle: 0.0, zIndex: 2, imageName: "AnatomyBoneOlderBoyRadiusUlnaRight"),
+                AnatomicalBonePiece(id: "hands_r", parentBoneId: "hands", name: "Hands", x: 77.5, y: 55.9, width: 14.1, height:  7.5, rotationAngle: 0.0, zIndex: 6, imageName: "AnatomyBoneOlderBoyHandsRight"),
+                AnatomicalBonePiece(id: "femur_l", parentBoneId: "femur", name: "Femur", x: 28.0, y: 65.9, width: 22.3, height: 15.7, rotationAngle: 0.0, zIndex: 4, imageName: "AnatomyBoneOlderBoyFemurLeft"),
+                AnatomicalBonePiece(id: "fibula_tibia_l", parentBoneId: "fibula_tibia", name: "Tibia and Fibula", x: 24.1, y: 83.6, width: 16.4, height: 19.8, rotationAngle: 0.0, zIndex: 7, imageName: "AnatomyBoneOlderBoyFibulaTibiaLeft"),
+                AnatomicalBonePiece(id: "feet_l", parentBoneId: "feet", name: "Feet", x: 29.3, y: 97.2, width: 28.6, height:  5.0, rotationAngle: 0.0, zIndex: 8, imageName: "AnatomyBoneOlderBoyFeetLeft"),
+                AnatomicalBonePiece(id: "femur_r", parentBoneId: "femur", name: "Femur", x: 58.2, y: 65.8, width: 25.5, height: 15.6, rotationAngle: 0.0, zIndex: 2, imageName: "AnatomyBoneOlderBoyFemurRight"),
+                AnatomicalBonePiece(id: "fibula_tibia_r", parentBoneId: "fibula_tibia", name: "Tibia and Fibula", x: 62.5, y: 82.6, width: 12.3, height: 18.1, rotationAngle: 0.0, zIndex: 6, imageName: "AnatomyBoneOlderBoyFibulaTibiaRight"),
+                AnatomicalBonePiece(id: "feet_r", parentBoneId: "feet", name: "Feet", x: 70.0, y: 95.4, width: 44.5, height:  7.5, rotationAngle: 0.0, zIndex: 7, imageName: "AnatomyBoneOlderBoyFeetRight"),
             ]
         case "older-girl":
             return [
