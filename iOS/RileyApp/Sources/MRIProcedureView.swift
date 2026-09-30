@@ -47,6 +47,9 @@ public struct MRIProcedureView: View {
     @State private var showCelebrationModal: Bool = false
     @State private var isBedScreen: Bool = false
     @State private var isBedFull: Bool = false
+    @State private var showGlowBackground: Bool = false
+    @State private var isBedSlidIn: Bool = false
+    @State private var bedSlideDragOffset: CGFloat = 0.0
     
     // Interactive Room Discovery Parts (Medical Equipment)
     private let roomParts: [MRIPart] = [
@@ -557,49 +560,133 @@ public struct MRIProcedureView: View {
                         .transition(.scale.combined(with: .opacity))
                     }
                     
-                    // Layer 3.8: Bed Preparation Screen (shown after All Done button is pressed)
+                    // Layer 3.8: Bed Preparation & Slide Screen
                     if isBedScreen {
                         ZStack {
-                            Image("MRIBedEmpty")
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: contentWidth, height: contentHeight)
-                            
-                            if isBedFull {
-                                Image("MRIBedFull")
+                            if showGlowBackground {
+                                // Glowing MRI Room Background
+                                Image("MRIGlow")
                                     .resizable()
                                     .aspectRatio(contentMode: .fill)
                                     .frame(width: contentWidth, height: contentHeight)
                                     .transition(.opacity)
-                            }
-                            
-                            if !isBedFull {
-                                // Hotspot to tap bed
-                                Button(action: {
-                                    tapBed()
-                                }) {
-                                    VStack(spacing: 8) {
-                                        Circle()
-                                            .stroke(Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0), lineWidth: 3.5)
-                                            .frame(width: 68, height: 68)
-                                            .shadow(color: Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0), radius: 8)
-                                        
-                                        Text("Tap the bed to get ready")
-                                            .font(.system(size: 15, weight: .bold))
-                                            .foregroundColor(Color(red: 224 / 255.0, green: 242 / 255.0, blue: 254 / 255.0))
-                                            .padding(.horizontal, 14)
-                                            .padding(.vertical, 6)
-                                            .background(Color(red: 15 / 255.0, green: 23 / 255.0, blue: 42 / 255.0).opacity(0.92))
-                                            .cornerRadius(14)
-                                            .overlay(
-                                                RoundedRectangle(cornerRadius: 14)
-                                                    .stroke(Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0).opacity(0.6), lineWidth: 1)
-                                            )
+                                
+                                // Draggable Bed with Character (MRIBed)
+                                let maxDist = contentHeight * 0.21
+                                let currentProgress = min(1.0, max(0.0, -bedSlideDragOffset / maxDist))
+                                let currentScale = 1.0 - (currentProgress * 0.08)
+                                
+                                ZStack {
+                                    Image("MRIBed")
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: contentWidth, height: contentHeight)
+                                    
+                                    // Bouncing slide guide arrow if not slid in yet
+                                    if !isBedSlidIn {
+                                        VStack(spacing: 8) {
+                                            Image(systemName: "arrow.up")
+                                                .font(.system(size: 24, weight: .bold))
+                                                .foregroundColor(Color(red: 0.01, green: 0.12, blue: 0.19))
+                                                .frame(width: 52, height: 52)
+                                                .background(
+                                                    Circle()
+                                                        .fill(Color(red: 0.0, green: 0.9, blue: 1.0))
+                                                        .shadow(color: Color(red: 0.0, green: 0.9, blue: 1.0).opacity(0.8), radius: 12)
+                                                )
+                                            
+                                            Text("Slide into the machine!")
+                                                .font(.system(size: 14, weight: .bold, design: .rounded))
+                                                .foregroundColor(Color(red: 0.88, green: 0.95, blue: 1.0))
+                                                .padding(.horizontal, 14)
+                                                .padding(.vertical, 6)
+                                                .background(
+                                                    Capsule()
+                                                        .fill(Color(red: 0.06, green: 0.09, blue: 0.16).opacity(0.92))
+                                                        .overlay(
+                                                            Capsule()
+                                                                .stroke(Color(red: 0.0, green: 0.9, blue: 1.0).opacity(0.7), lineWidth: 1)
+                                                        )
+                                                )
+                                        }
+                                        .position(x: contentWidth * 0.50, y: contentHeight * 0.50)
+                                        .opacity(1.0 - currentProgress * 2.0)
+                                        .onTapGesture {
+                                            completeBedSlide(maxDist: maxDist)
+                                        }
                                     }
-                                    .frame(width: contentWidth * 0.44, height: contentHeight * 0.44)
                                 }
-                                .buttonStyle(PlainButtonStyle())
-                                .position(x: contentWidth * 0.50, y: contentHeight * 0.60)
+                                .offset(y: bedSlideDragOffset)
+                                .scaleEffect(currentScale)
+                                .gesture(
+                                    DragGesture()
+                                        .onChanged { value in
+                                            guard !isBedSlidIn else { return }
+                                            let translation = value.translation.height
+                                            if translation < 0 {
+                                                bedSlideDragOffset = max(-maxDist, translation)
+                                            } else {
+                                                bedSlideDragOffset = 0
+                                            }
+                                        }
+                                        .onEnded { value in
+                                            guard !isBedSlidIn else { return }
+                                            if -bedSlideDragOffset >= (maxDist * 0.35) || abs(value.translation.height) < 10 {
+                                                completeBedSlide(maxDist: maxDist)
+                                            } else {
+                                                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                                                    bedSlideDragOffset = 0
+                                                }
+                                            }
+                                        }
+                                )
+                                .onTapGesture {
+                                    if !isBedSlidIn {
+                                        completeBedSlide(maxDist: maxDist)
+                                    }
+                                }
+                            } else {
+                                Image("MRIBedEmpty")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: contentWidth, height: contentHeight)
+                                
+                                if isBedFull {
+                                    Image("MRIBedFull")
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: contentWidth, height: contentHeight)
+                                        .transition(.opacity)
+                                }
+                                
+                                if !isBedFull {
+                                    // Hotspot to tap bed
+                                    Button(action: {
+                                        tapBed()
+                                    }) {
+                                        VStack(spacing: 8) {
+                                            Circle()
+                                                .stroke(Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0), lineWidth: 3.5)
+                                                .frame(width: 68, height: 68)
+                                                .shadow(color: Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0), radius: 8)
+                                            
+                                            Text("Tap the bed to get ready")
+                                                .font(.system(size: 15, weight: .bold))
+                                                .foregroundColor(Color(red: 224 / 255.0, green: 242 / 255.0, blue: 254 / 255.0))
+                                                .padding(.horizontal, 14)
+                                                .padding(.vertical, 6)
+                                                .background(Color(red: 15 / 255.0, green: 23 / 255.0, blue: 42 / 255.0).opacity(0.92))
+                                                .cornerRadius(14)
+                                                .overlay(
+                                                    RoundedRectangle(cornerRadius: 14)
+                                                        .stroke(Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0).opacity(0.6), lineWidth: 1)
+                                                )
+                                        }
+                                        .frame(width: contentWidth * 0.44, height: contentHeight * 0.44)
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
+                                    .position(x: contentWidth * 0.50, y: contentHeight * 0.60)
+                                }
                             }
                         }
                         .transition(.opacity)
@@ -647,6 +734,9 @@ public struct MRIProcedureView: View {
                 .onTapGesture {
                     if isBedScreen && !isBedFull {
                         tapBed()
+                    } else if isBedScreen && isBedFull && !isBedSlidIn {
+                        let maxDist = contentHeight * 0.21
+                        completeBedSlide(maxDist: maxDist)
                     } else if !hasTransitioned {
                         triggerTransition()
                     } else if lightsOff && !isInsideScreen {
@@ -673,6 +763,8 @@ public struct MRIProcedureView: View {
             HapticManager.shared.lightTap()
             if isBedScreen && !isBedFull {
                 tapBed()
+            } else if isBedScreen && isBedFull && !isBedSlidIn {
+                completeBedSlide()
             } else if !hasTransitioned {
                 triggerTransition()
             } else if lightsOff && !isInsideScreen {
@@ -769,6 +861,9 @@ public struct MRIProcedureView: View {
         isInsideScreen = false
         isBedScreen = false
         isBedFull = false
+        showGlowBackground = false
+        isBedSlidIn = false
+        bedSlideDragOffset = 0.0
         waveAnimationToken = UUID()
         leftWaveOpacities = [0, 0, 0, 0]
         rightWaveOpacities = [0, 0, 0, 0]
@@ -881,14 +976,6 @@ public struct MRIProcedureView: View {
         insidePromptTimer?.invalidate()
         insidePromptTimer = Timer.scheduledTimer(withTimeInterval: 2.8, repeats: false) { _ in
             showMRISoundPrompt()
-        }
-        
-        // Start 8-second timer for All Done button
-        allDoneTimer?.invalidate()
-        allDoneTimer = Timer.scheduledTimer(withTimeInterval: 8.0, repeats: false) { _ in
-            withAnimation(.spring(response: 0.5, dampingFraction: 0.75)) {
-                showAllDoneButton = true
-            }
         }
     }
     
@@ -1003,6 +1090,14 @@ public struct MRIProcedureView: View {
             showItems = true
             promptText = "You can choose to watch a program, or chat with a staff member while the MRI is happening! Click on the remote to start a program, or squish the stress ball to chat with staff."
         }
+        
+        // Have the All Done button appear a few seconds after the remote and stress ball appear
+        allDoneTimer?.invalidate()
+        allDoneTimer = Timer.scheduledTimer(withTimeInterval: 3.5, repeats: false) { _ in
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.75)) {
+                showAllDoneButton = true
+            }
+        }
     }
     
     private func squishStressBall() {
@@ -1102,6 +1197,9 @@ public struct MRIProcedureView: View {
             isInsideScreen = false
             isBedScreen = true
             isBedFull = false
+            showGlowBackground = false
+            isBedSlidIn = false
+            bedSlideDragOffset = 0.0
             promptText = "Tap the bed to get ready for your MRI!"
         }
     }
@@ -1109,8 +1207,39 @@ public struct MRIProcedureView: View {
     private func tapBed() {
         guard isBedScreen && !isBedFull else { return }
         HapticManager.shared.success()
+        playYouDidItSound()
         
-        // Play chime sound
+        withAnimation(.easeInOut(duration: 0.5)) {
+            isBedFull = true
+        }
+        
+        // After person is in the bed, replace background with MRI glow and prompt to slide the bed
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            withAnimation(.easeInOut(duration: 0.6)) {
+                showGlowBackground = true
+                promptText = "Slide the bed into the machine!"
+            }
+        }
+    }
+    
+    private func completeBedSlide(maxDist: CGFloat = 160.0) {
+        guard !isBedSlidIn else { return }
+        HapticManager.shared.success()
+        playYouDidItSound()
+        withAnimation(.spring(response: 0.65, dampingFraction: 0.75)) {
+            bedSlideDragOffset = -maxDist
+            isBedSlidIn = true
+            promptText = "Great job! You are all cozy and ready for your MRI!"
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            withAnimation(.spring(response: 0.45, dampingFraction: 0.75)) {
+                showCelebrationModal = true
+            }
+        }
+    }
+    
+    private func playYouDidItSound() {
         if let chimeURL = Bundle.main.url(forResource: "YouDidItChime", withExtension: "mp3") ??
                           Bundle.main.url(forResource: "YouDidIt", withExtension: "mp3") {
             do {
@@ -1118,18 +1247,6 @@ public struct MRIProcedureView: View {
                 mriAudioPlayer?.play()
             } catch {
                 print("Could not play YouDidIt chime: \(error)")
-            }
-        }
-        
-        withAnimation(.easeInOut(duration: 0.6)) {
-            isBedFull = true
-            promptText = "Great job! You are all cozy and ready for your MRI!"
-        }
-        
-        // Show celebration overlay after 1.8 seconds
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
-            withAnimation(.spring(response: 0.45, dampingFraction: 0.75)) {
-                showCelebrationModal = true
             }
         }
     }

@@ -1161,7 +1161,7 @@
       background: #000;
     }
 
-    /* Layer 4: MRI Bed Preparation Screen */
+    /* Layer 4: MRI Bed Preparation & Slide Screen */
     .mri-bed-layer {
       position: absolute;
       top: 0;
@@ -1172,6 +1172,7 @@
       opacity: 0;
       transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
       pointer-events: none;
+      overflow: hidden;
     }
 
     .mri-bed-layer.active {
@@ -1187,6 +1188,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      pointer-events: none;
     }
 
     .mri-hotspot-bed-prep {
@@ -1201,6 +1203,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      transition: opacity 0.3s ease;
     }
 
     .mri-hotspot-bed-prep .mri-pulse-ring {
@@ -1223,6 +1226,96 @@
       font-weight: 700;
       letter-spacing: 0.3px;
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+      white-space: nowrap;
+    }
+
+    /* Draggable Bed Layer (MRIBed.png with character) */
+    .mri-draggable-bed {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 15;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      cursor: grab;
+      transition: transform 0.45s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.6s ease;
+      will-change: transform;
+    }
+
+    .mri-draggable-bed.dragging {
+      cursor: grabbing;
+      transition: none !important;
+    }
+
+    .mri-draggable-bed.slid-in {
+      cursor: default;
+      transition: transform 0.9s cubic-bezier(0.25, 1, 0.5, 1);
+      transform: translateY(-21%) scale(0.92) !important;
+    }
+
+    .mri-bed-cutout {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    /* Slide Guide Indicator */
+    .mri-slide-guide {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      pointer-events: auto;
+      cursor: pointer;
+      z-index: 18;
+      transition: opacity 0.3s ease;
+    }
+
+    .mri-slide-arrow-bounce {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #00f0ff 0%, #00bcff 100%);
+      color: #032030;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 24px rgba(0, 229, 255, 0.9), 0 4px 16px rgba(0, 0, 0, 0.5);
+      animation: mriArrowBounce 1.6s ease-in-out infinite;
+    }
+
+    @keyframes mriArrowBounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-16px);
+      }
+    }
+
+    .mri-slide-label {
+      background: rgba(15, 23, 42, 0.92);
+      color: #e0f2fe;
+      border: 1px solid rgba(0, 229, 255, 0.7);
+      padding: 7px 16px;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
       white-space: nowrap;
     }
 
@@ -7336,11 +7429,28 @@
                   </div>
                 </div>
 
-                <!-- Layer 4: MRI Bed Preparation Screen -->
+                <!-- Layer 4: MRI Bed Preparation & Slide Screen -->
                 <div id="mriBedLayer" class="mri-layer mri-bed-layer" style="display: none;">
                   <img id="mriBedEmptyImg" class="mri-layer mri-bed-screen" src="assets/MRIBedEmpty.png" alt="MRI Bed Empty" />
-                  <img id="mriBedFullImg" class="mri-layer mri-bed-screen" src="assets/MRIBedFull.png" alt="MRI Bed Ready" style="display: none; opacity: 0; transition: opacity 0.8s ease;" />
-                  
+                  <img id="mriBedFullImg" class="mri-layer mri-bed-screen" src="assets/MRIBedFull.png" alt="MRI Bed Ready" style="display: none; opacity: 0; transition: opacity 0.6s ease;" />
+                  <img id="mriGlowBgImg" class="mri-layer mri-bed-screen" src="assets/MRIGlow.png" alt="MRI Machine Glowing" style="display: none; opacity: 0; transition: opacity 0.8s ease;" />
+
+                  <!-- Draggable Bed Layer (bed with character sliding into machine) -->
+                  <div id="mriDraggableBed" class="mri-draggable-bed" style="display: none; opacity: 0;">
+                    <img id="mriBedCutoutImg" class="mri-bed-cutout" src="assets/MRIBed.png" alt="Bed with character" draggable="false" />
+                    
+                    <!-- Upward slide guide indicator -->
+                    <div id="mriSlideGuide" class="mri-slide-guide" onclick="onMRISlideGuideTap(event)" title="Slide into the machine">
+                      <div class="mri-slide-arrow-bounce">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                          <line x1="12" y1="19" x2="12" y2="5"></line>
+                          <polyline points="5 12 12 5 19 12"></polyline>
+                        </svg>
+                      </div>
+                      <span class="mri-slide-label">Slide into the machine!</span>
+                    </div>
+                  </div>
+
                   <!-- Hotspot on the bed to get ready -->
                   <div class="mri-hotspot-bed-prep" id="mriBedHotspot" onclick="onMRIBedTap(event)" title="Tap the bed to get ready for your MRI">
                     <span class="mri-pulse-ring"></span>
@@ -15664,6 +15774,10 @@
     let mriConfettiAnimationId = null;
     let mriBedActive = false;
     let mriBedFull = false;
+    let mriBedSlidIn = false;
+    let mriBedDragActive = false;
+    let mriBedDragStartY = 0;
+    let mriBedDragCurrentY = 0;
     const mriTappedButtons = new Set();
     const mriClickedSpots = new Set();
     const MRI_DISCOVERY_PARTS = ['scanner', 'bed', 'monitors'];
@@ -15672,6 +15786,8 @@
       mriVideoPlaying = false;
       mriBedActive = false;
       mriBedFull = false;
+      mriBedSlidIn = false;
+      mriBedDragActive = false;
       const bedLayer = document.getElementById('mriBedLayer');
       if (bedLayer) {
         bedLayer.classList.remove('active');
@@ -15688,6 +15804,23 @@
       if (bedFullImg) {
         bedFullImg.style.display = 'none';
         bedFullImg.style.opacity = '0';
+      }
+      const glowBgImg = document.getElementById('mriGlowBgImg');
+      if (glowBgImg) {
+        glowBgImg.style.display = 'none';
+        glowBgImg.style.opacity = '0';
+      }
+      const draggableBed = document.getElementById('mriDraggableBed');
+      if (draggableBed) {
+        draggableBed.classList.remove('dragging', 'slid-in');
+        draggableBed.style.display = 'none';
+        draggableBed.style.opacity = '0';
+        draggableBed.style.transform = '';
+      }
+      const slideGuide = document.getElementById('mriSlideGuide');
+      if (slideGuide) {
+        slideGuide.style.display = 'flex';
+        slideGuide.style.opacity = '1';
       }
       const bedHotspot = document.getElementById('mriBedHotspot');
       if (bedHotspot) {
@@ -16086,12 +16219,6 @@
       }
       mriTappedButtons.clear();
 
-      // Start 8-second timer for All Done button to pop up in the middle of the screen
-      if (mriAllDoneTimer) clearTimeout(mriAllDoneTimer);
-      mriAllDoneTimer = setTimeout(() => {
-        showMRIAllDoneButton();
-      }, 8000);
-
       // Ensure room equipment highlights are completely hidden and unclickable
       const highlights = document.getElementById('mriPartsHighlights');
       if (highlights) {
@@ -16251,6 +16378,12 @@
         btnRemote.style.display = 'flex';
         btnRemote.title = "Start Program with Remote";
       }
+
+      // Have the All Done button appear a few seconds after the remote and stress ball appear
+      if (mriAllDoneTimer) clearTimeout(mriAllDoneTimer);
+      mriAllDoneTimer = setTimeout(() => {
+        showMRIAllDoneButton();
+      }, 3500);
 
       const promptBar = document.getElementById('mriBottomPromptBar');
       const promptText = document.getElementById('mriPromptText');
@@ -16458,9 +16591,14 @@
       // Transition to MRI Bed Empty Screen
       mriBedActive = true;
       mriBedFull = false;
+      mriBedSlidIn = false;
+      mriBedDragActive = false;
       const bedLayer = document.getElementById('mriBedLayer');
       const bedEmptyImg = document.getElementById('mriBedEmptyImg');
       const bedFullImg = document.getElementById('mriBedFullImg');
+      const glowBgImg = document.getElementById('mriGlowBgImg');
+      const draggableBed = document.getElementById('mriDraggableBed');
+      const slideGuide = document.getElementById('mriSlideGuide');
       const bedHotspot = document.getElementById('mriBedHotspot');
       if (bedLayer) {
         bedLayer.style.display = 'block';
@@ -16476,6 +16614,20 @@
       if (bedFullImg) {
         bedFullImg.style.display = 'none';
         bedFullImg.style.opacity = '0';
+      }
+      if (glowBgImg) {
+        glowBgImg.style.display = 'none';
+        glowBgImg.style.opacity = '0';
+      }
+      if (draggableBed) {
+        draggableBed.classList.remove('dragging', 'slid-in');
+        draggableBed.style.display = 'none';
+        draggableBed.style.opacity = '0';
+        draggableBed.style.transform = '';
+      }
+      if (slideGuide) {
+        slideGuide.style.display = 'flex';
+        slideGuide.style.opacity = '1';
       }
       if (bedHotspot) {
         bedHotspot.style.display = 'flex';
@@ -16512,6 +16664,140 @@
         bedFullImg.style.opacity = '1';
       }
 
+      // After person is in the bed, replace background with MRI glow and prompt to slide bed into machine
+      setTimeout(() => {
+        transitionToMRIGlowAndDraggableBed();
+      }, 700);
+    }
+
+    function transitionToMRIGlowAndDraggableBed() {
+      if (!mriBedActive) return;
+      const glowBgImg = document.getElementById('mriGlowBgImg');
+      const draggableBed = document.getElementById('mriDraggableBed');
+      const bedEmptyImg = document.getElementById('mriBedEmptyImg');
+      const bedFullImg = document.getElementById('mriBedFullImg');
+      const slideGuide = document.getElementById('mriSlideGuide');
+
+      if (glowBgImg) {
+        glowBgImg.style.display = 'block';
+        void glowBgImg.offsetWidth;
+        glowBgImg.style.opacity = '1';
+      }
+
+      if (draggableBed) {
+        draggableBed.style.display = 'block';
+        draggableBed.classList.remove('slid-in', 'dragging');
+        draggableBed.style.transform = 'translateY(0%) scale(1)';
+        void draggableBed.offsetWidth;
+        draggableBed.style.opacity = '1';
+        setupMRIDraggableBedEvents(draggableBed);
+      }
+
+      if (slideGuide) {
+        slideGuide.style.display = 'flex';
+        slideGuide.style.opacity = '1';
+      }
+
+      // Hide older static bed images once glow and draggable bed are visible
+      setTimeout(() => {
+        if (bedEmptyImg) bedEmptyImg.style.display = 'none';
+        if (bedFullImg) bedFullImg.style.display = 'none';
+      }, 600);
+
+      const promptText = document.getElementById('mriPromptText');
+      const promptDot = document.getElementById('mriPromptDot');
+      const promptBar = document.getElementById('mriBottomPromptBar');
+      if (promptText) {
+        promptText.textContent = "Slide the bed into the machine!";
+      }
+      if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
+      if (promptBar) {
+        promptBar.classList.remove('prompt-pulse');
+        void promptBar.offsetWidth;
+        promptBar.classList.add('prompt-pulse');
+      }
+    }
+
+    function setupMRIDraggableBedEvents(bedEl) {
+      if (!bedEl || bedEl._dragAttached) return;
+      bedEl._dragAttached = true;
+
+      const stageEl = document.getElementById('mriStage') || bedEl.parentElement;
+
+      function onPointerDown(e) {
+        if (mriBedSlidIn) return;
+        mriBedDragActive = true;
+        mriBedDragStartY = e.clientY;
+        mriBedDragCurrentY = 0;
+        bedEl.classList.add('dragging');
+        try { bedEl.setPointerCapture(e.pointerId); } catch (_) {}
+      }
+
+      function onPointerMove(e) {
+        if (!mriBedDragActive || mriBedSlidIn) return;
+        const stageH = stageEl ? stageEl.offsetHeight : 600;
+        const maxSlidePx = stageH * 0.21;
+        const deltaY = e.clientY - mriBedDragStartY;
+        // Upward drag is negative deltaY
+        const upwardPx = Math.max(0, -deltaY);
+        const progress = Math.min(1.0, upwardPx / maxSlidePx);
+        mriBedDragCurrentY = progress;
+
+        const currentPercent = -(progress * 21);
+        const currentScale = 1.0 - (progress * 0.08);
+        bedEl.style.transform = `translateY(${currentPercent}%) scale(${currentScale})`;
+
+        const slideGuide = document.getElementById('mriSlideGuide');
+        if (slideGuide) {
+          slideGuide.style.opacity = Math.max(0, 1 - progress * 2.2).toString();
+        }
+      }
+
+      function onPointerUp(e) {
+        if (!mriBedDragActive) return;
+        mriBedDragActive = false;
+        try { bedEl.releasePointerCapture(e.pointerId); } catch (_) {}
+        bedEl.classList.remove('dragging');
+
+        // If dragged more than 35% of the way or simple tap/click
+        if (mriBedDragCurrentY >= 0.35 || Math.abs(e.clientY - mriBedDragStartY) < 10) {
+          completeMRISlideIn();
+        } else {
+          // Snap back to start position
+          bedEl.style.transform = 'translateY(0%) scale(1)';
+          const slideGuide = document.getElementById('mriSlideGuide');
+          if (slideGuide) slideGuide.style.opacity = '1';
+        }
+      }
+
+      bedEl.addEventListener('pointerdown', onPointerDown);
+      bedEl.addEventListener('pointermove', onPointerMove);
+      bedEl.addEventListener('pointerup', onPointerUp);
+      bedEl.addEventListener('pointercancel', onPointerUp);
+    }
+
+    function onMRISlideGuideTap(event) {
+      if (event) event.stopPropagation();
+      completeMRISlideIn();
+    }
+
+    function completeMRISlideIn() {
+      if (mriBedSlidIn) return;
+      mriBedSlidIn = true;
+      triggerHapticFeedback(true);
+      playYouDidItChimeSound();
+
+      const draggableBed = document.getElementById('mriDraggableBed');
+      const slideGuide = document.getElementById('mriSlideGuide');
+
+      if (slideGuide) slideGuide.style.display = 'none';
+
+      if (draggableBed) {
+        draggableBed.classList.remove('dragging');
+        draggableBed.classList.add('slid-in');
+        draggableBed.style.transform = '';
+      }
+
       const promptText = document.getElementById('mriPromptText');
       const promptDot = document.getElementById('mriPromptDot');
       const promptBar = document.getElementById('mriBottomPromptBar');
@@ -16525,15 +16811,16 @@
         promptBar.classList.add('prompt-pulse');
       }
 
-      // Show celebratory overlay with confetti after 1.8 seconds
+      // Show celebratory overlay with confetti after 1.5 seconds
       setTimeout(() => {
+        if (!mriBedActive) return;
         const successOverlay = document.getElementById('mriSuccessOverlay');
         if (successOverlay) {
           successOverlay.classList.add('visible');
           successOverlay.setAttribute('aria-hidden', 'false');
         }
         startMRIConfetti();
-      }, 1800);
+      }, 1500);
     }
 
     function startMRIConfetti() {
@@ -16656,6 +16943,8 @@
     function handleMRIStageTap(event) {
       if (mriBedActive && !mriBedFull) {
         onMRIBedTap(event);
+      } else if (mriBedActive && mriBedFull && !mriBedSlidIn) {
+        completeMRISlideIn();
       } else if (!mriHasTransitioned) {
         triggerMRIRoomTransition();
       } else if (mriLightsOff && !mriInsideActive && mriInsideTimer) {
@@ -16675,6 +16964,8 @@
     function handleMRIPromptBarTap() {
       if (mriBedActive && !mriBedFull) {
         onMRIBedTap();
+      } else if (mriBedActive && mriBedFull && !mriBedSlidIn) {
+        completeMRISlideIn();
       } else if (!mriHasTransitioned) {
         triggerMRIRoomTransition();
       } else if (mriLightsOff && !mriInsideActive && mriInsideTimer) {
