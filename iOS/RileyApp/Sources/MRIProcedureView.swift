@@ -922,42 +922,54 @@ public struct MRIProcedureView: View {
         mriAudioPlayer = nil
         
         if isVideoPlaying {
-            // Stop the program
+            // Stop / Pause the program (preserves avPlayer and playback position)
             withAnimation(.easeInOut(duration: 0.25)) {
                 isVideoPlaying = false
             }
             avPlayer?.pause()
-            avPlayer = nil
             remoteTapped = false
             withAnimation(.easeInOut(duration: 0.25)) {
-                promptText = "Program stopped! Click on the remote anytime to play your movie, or squish the stress ball to chat with staff."
+                promptText = "Program stopped! Click on the remote anytime to resume your movie, or squish the stress ball to chat with staff."
             }
         } else {
-            // Start playing MRI Video
+            // Start or Resume playing MRI Video
             remoteTapped = true
-            let videoURL = Bundle.main.url(forResource: "MRIVideo", withExtension: "mp4") ??
-                           Bundle.main.url(forResource: "MRI Video 2", withExtension: "mp4") ??
-                           Bundle.main.url(forResource: "MRIVideo2", withExtension: "mp4") ??
-                           Bundle.main.url(forResource: "MRI Video", withExtension: "mp4")
-            if let videoURL = videoURL {
-                let player = AVPlayer(url: videoURL)
-                self.avPlayer = player
+            
+            if let existingPlayer = avPlayer {
                 withAnimation(.easeInOut(duration: 0.3)) {
                     self.isVideoPlaying = true
                 }
-                player.play()
-                
-                NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: player.currentItem, queue: .main) { _ in
-                    withAnimation(.easeInOut(duration: 0.25)) {
-                        self.isVideoPlaying = false
-                        self.remoteTapped = false
-                        self.promptText = "The MRI is finished! You did a fantastic job staying still!"
+                existingPlayer.play()
+                withAnimation(.easeInOut(duration: 0.25)) {
+                    promptText = "Program resumed! Put on your movie or music with headphones while the MRI takes pictures!"
+                }
+            } else {
+                let videoURL = Bundle.main.url(forResource: "MRIVideo", withExtension: "mp4") ??
+                               Bundle.main.url(forResource: "MRI Video 2", withExtension: "mp4") ??
+                               Bundle.main.url(forResource: "MRIVideo2", withExtension: "mp4") ??
+                               Bundle.main.url(forResource: "MRI Video", withExtension: "mp4")
+                if let videoURL = videoURL {
+                    let player = AVPlayer(url: videoURL)
+                    self.avPlayer = player
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        self.isVideoPlaying = true
+                    }
+                    player.play()
+                    
+                    NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: player.currentItem, queue: .main) { [weak player] _ in
+                        withAnimation(.easeInOut(duration: 0.25)) {
+                            self.isVideoPlaying = false
+                            self.remoteTapped = false
+                            self.promptText = "The MRI is finished! You did a fantastic job staying still!"
+                        }
+                        player?.seek(to: .zero)
+                        self.avPlayer = nil
                     }
                 }
-            }
-            
-            withAnimation(.easeInOut(duration: 0.25)) {
-                promptText = "Program started! Put on your movie or music with headphones while the MRI takes pictures!"
+                
+                withAnimation(.easeInOut(duration: 0.25)) {
+                    promptText = "Program started! Put on your movie or music with headphones while the MRI takes pictures!"
+                }
             }
         }
     }

@@ -15906,12 +15906,11 @@
       stopMRISoundWaves();
 
       if (mriVideoPlaying) {
-        // STOP the program
+        // STOP / PAUSE the program
         mriVideoPlaying = false;
         if (mriVideo) {
           try {
             mriVideo.pause();
-            mriVideo.currentTime = 0;
             mriVideo.style.display = 'none';
           } catch (e) {}
         }
@@ -15921,13 +15920,13 @@
         if (btnRemote) {
           btnRemote.classList.remove('video-playing', 'spot-removed');
           btnRemote.style.display = 'flex';
-          btnRemote.title = "Start Program with Remote";
+          btnRemote.title = "Resume Program with Remote";
         }
         if (btnRemoteBody) {
-          btnRemoteBody.title = "Start Program with Remote";
+          btnRemoteBody.title = "Resume Program with Remote";
         }
         if (promptText) {
-          promptText.textContent = "Program stopped! Click on the remote anytime to play your movie, or squish the stress ball to chat with staff.";
+          promptText.textContent = "Program stopped! Click on the remote anytime to resume your movie, or squish the stress ball to chat with staff.";
         }
         if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
         if (promptBar) {
@@ -15936,7 +15935,7 @@
           promptBar.classList.add('prompt-pulse');
         }
       } else {
-        // START the program
+        // START / RESUME the program
         mriVideoPlaying = true;
         if (remoteLayer) {
           remoteLayer.classList.remove('clicked');
@@ -15953,7 +15952,9 @@
         }
         if (mriVideo) {
           mriVideo.style.display = 'block';
-          mriVideo.currentTime = 0;
+          if (mriVideo.ended || (mriVideo.duration && mriVideo.currentTime >= mriVideo.duration - 0.2)) {
+            mriVideo.currentTime = 0;
+          }
           const playPromise = mriVideo.play();
           if (playPromise !== undefined) {
             playPromise.catch(err => {
@@ -15962,6 +15963,7 @@
           }
           mriVideo.onended = function() {
             mriVideoPlaying = false;
+            mriVideo.currentTime = 0;
             mriVideo.style.display = 'none';
             if (btnRemote) {
               btnRemote.classList.remove('video-playing', 'spot-removed');
@@ -15983,8 +15985,11 @@
           };
         }
 
+        const isResuming = mriVideo && mriVideo.currentTime > 0.5;
         if (promptText) {
-          promptText.textContent = "Program started! Put on your movie or music with headphones while the MRI takes pictures!";
+          promptText.textContent = isResuming
+            ? "Program resumed! Put on your movie or music with headphones while the MRI takes pictures!"
+            : "Program started! Put on your movie or music with headphones while the MRI takes pictures!";
         }
         if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
         if (promptBar) {
