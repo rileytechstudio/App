@@ -1215,9 +1215,10 @@ public struct MRIProcedureView: View {
         
         // After person is in the bed, replace background with MRI glow and prompt to slide the bed
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            guard self.isBedScreen && self.isBedFull else { return }
             withAnimation(.easeInOut(duration: 0.6)) {
-                showGlowBackground = true
-                promptText = "Slide the bed into the machine!"
+                self.showGlowBackground = true
+                self.promptText = "Slide the bed into the machine!"
             }
         }
     }
@@ -1233,8 +1234,9 @@ public struct MRIProcedureView: View {
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            guard self.isBedScreen && self.isBedSlidIn else { return }
             withAnimation(.spring(response: 0.45, dampingFraction: 0.75)) {
-                showCelebrationModal = true
+                self.showCelebrationModal = true
             }
         }
     }

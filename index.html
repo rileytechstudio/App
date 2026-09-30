@@ -15708,6 +15708,10 @@
     let mriBedDragActive = false;
     let mriBedDragStartY = 0;
     let mriBedDragCurrentY = 0;
+    let mriBedGlowTimer = null;
+    let mriBedHideTimer = null;
+    let mriItemsTimer = null;
+    let mriCelebrationTimer = null;
     const mriTappedButtons = new Set();
     const mriClickedSpots = new Set();
     const MRI_DISCOVERY_PARTS = ['scanner', 'bed', 'monitors'];
@@ -15718,6 +15722,8 @@
       mriBedFull = false;
       mriBedSlidIn = false;
       mriBedDragActive = false;
+      mriInsideActive = false;
+      mriItemsActive = false;
       const bedLayer = document.getElementById('mriBedLayer');
       if (bedLayer) {
         bedLayer.classList.remove('active');
@@ -15755,10 +15761,27 @@
       const bedHotspot = document.getElementById('mriBedHotspot');
       if (bedHotspot) {
         bedHotspot.style.display = 'flex';
+        bedHotspot.style.pointerEvents = 'auto';
       }
       if (mriAllDoneTimer) {
         clearTimeout(mriAllDoneTimer);
         mriAllDoneTimer = null;
+      }
+      if (mriItemsTimer) {
+        clearTimeout(mriItemsTimer);
+        mriItemsTimer = null;
+      }
+      if (mriBedGlowTimer) {
+        clearTimeout(mriBedGlowTimer);
+        mriBedGlowTimer = null;
+      }
+      if (mriBedHideTimer) {
+        clearTimeout(mriBedHideTimer);
+        mriBedHideTimer = null;
+      }
+      if (mriCelebrationTimer) {
+        clearTimeout(mriCelebrationTimer);
+        mriCelebrationTimer = null;
       }
       const allDoneBtn = document.getElementById('mriAllDoneBtn');
       if (allDoneBtn) {
@@ -15842,9 +15865,11 @@
 
       if (welcomeScreen) {
         welcomeScreen.classList.remove('transition-out');
+        welcomeScreen.style.opacity = '';
       }
       if (roomLightsOn) {
         roomLightsOn.classList.remove('lights-turned-off');
+        roomLightsOn.style.opacity = '';
       }
       if (insideLayer) {
         insideLayer.classList.remove('active');
@@ -15855,9 +15880,10 @@
         stressBallLayer.classList.remove('active');
       }
       if (remoteLayer) {
-        remoteLayer.classList.remove('active');
+        remoteLayer.classList.remove('active', 'clicked');
       }
       if (btnStressBall) {
+        btnStressBall.classList.remove('squished');
         btnStressBall.style.display = 'none';
       }
       const btnRemoteBody = document.getElementById('mriBtnRemoteBody');
@@ -15882,6 +15908,7 @@
       }
       if (highlights) {
         highlights.style.display = 'none';
+        highlights.style.pointerEvents = 'auto';
       }
 
       // Reset discovery spots visibility
@@ -15895,6 +15922,9 @@
         if (spot) {
           spot.classList.remove('spot-removed');
           spot.style.display = 'flex';
+          spot.style.opacity = '';
+          spot.style.transform = '';
+          spot.style.pointerEvents = 'auto';
         }
       });
 
@@ -15904,9 +15934,13 @@
       if (switchSpot) {
         switchSpot.classList.remove('spot-removed');
         switchSpot.style.display = 'none';
+        switchSpot.style.opacity = '';
+        switchSpot.style.transform = '';
+        switchSpot.style.pointerEvents = 'auto';
       }
       if (ceilingSpot) {
         ceilingSpot.style.display = 'none';
+        ceilingSpot.style.pointerEvents = 'auto';
       }
 
       // Reset inside black buttons and sound waves
@@ -15915,10 +15949,14 @@
       if (btnSoundL) {
         btnSoundL.classList.remove('spot-removed', 'sound-playing');
         btnSoundL.style.display = 'flex';
+        btnSoundL.style.opacity = '';
+        btnSoundL.style.pointerEvents = 'auto';
       }
       if (btnSoundR) {
         btnSoundR.classList.remove('spot-removed', 'sound-playing');
         btnSoundR.style.display = 'flex';
+        btnSoundR.style.opacity = '';
+        btnSoundR.style.pointerEvents = 'auto';
       }
       const soundLGroup = document.getElementById('mriSoundLGroup');
       const soundRGroup = document.getElementById('mriSoundRGroup');
@@ -15927,7 +15965,7 @@
 
       if (promptBar) {
         promptBar.classList.add('visible', 'can-confirm');
-        promptBar.classList.remove('is-confirmed');
+        promptBar.classList.remove('is-confirmed', 'prompt-pulse');
       }
       if (promptDot) {
         promptDot.className = 'step-instruction-dot confirm-pulse';
@@ -15972,6 +16010,7 @@
       mriTransitionTimer = setTimeout(() => {
         if (highlights) {
           highlights.style.display = 'block';
+          highlights.style.pointerEvents = 'auto';
         }
         if (promptBar) {
           promptBar.classList.remove('can-confirm');
@@ -16270,7 +16309,8 @@
 
       // If BOTH buttons have been tapped, let the waves ripple and fade completely, then bring up remote and squish ball!
       if (mriTappedButtons.has('left') && mriTappedButtons.has('right')) {
-        setTimeout(() => {
+        if (mriItemsTimer) clearTimeout(mriItemsTimer);
+        mriItemsTimer = setTimeout(() => {
           bringUpMRIRemoteAndSquishBall();
         }, 2700);
         return;
@@ -16498,6 +16538,17 @@
       if (event) event.stopPropagation();
       triggerHapticFeedback(true);
 
+      mriInsideActive = false;
+      mriItemsActive = false;
+      if (mriAllDoneTimer) {
+        clearTimeout(mriAllDoneTimer);
+        mriAllDoneTimer = null;
+      }
+      if (mriItemsTimer) {
+        clearTimeout(mriItemsTimer);
+        mriItemsTimer = null;
+      }
+
       // Pause video if playing
       const mriVideo = document.getElementById('mriVideoPlayer');
       if (mriVideo && !mriVideo.paused) {
@@ -16595,7 +16646,8 @@
       }
 
       // After person is in the bed, replace background with MRI glow and prompt to slide bed into machine
-      setTimeout(() => {
+      if (mriBedGlowTimer) clearTimeout(mriBedGlowTimer);
+      mriBedGlowTimer = setTimeout(() => {
         transitionToMRIGlowAndDraggableBed();
       }, 700);
     }
@@ -16629,7 +16681,8 @@
       }
 
       // Hide older static bed images once glow and draggable bed are visible
-      setTimeout(() => {
+      if (mriBedHideTimer) clearTimeout(mriBedHideTimer);
+      mriBedHideTimer = setTimeout(() => {
         if (bedEmptyImg) bedEmptyImg.style.display = 'none';
         if (bedFullImg) bedFullImg.style.display = 'none';
       }, 600);
@@ -16742,7 +16795,8 @@
       }
 
       // Show celebratory overlay with confetti after 1.5 seconds
-      setTimeout(() => {
+      if (mriCelebrationTimer) clearTimeout(mriCelebrationTimer);
+      mriCelebrationTimer = setTimeout(() => {
         if (!mriBedActive) return;
         const successOverlay = document.getElementById('mriSuccessOverlay');
         if (successOverlay) {
