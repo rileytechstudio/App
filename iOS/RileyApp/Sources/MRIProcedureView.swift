@@ -490,7 +490,7 @@ public struct MRIProcedureView: View {
                             .position(x: contentWidth * 0.853, y: contentHeight * 0.857)
 
                             // Cyan glowing ring originating directly over the red button (x: 86.75%, y: 71.68%)
-                            if !remoteTapped {
+                            if !isVideoPlaying {
                                 ZStack {
                                     Circle()
                                         .fill(Color.white.opacity(0.001))
@@ -913,9 +913,6 @@ public struct MRIProcedureView: View {
     
     private func tapRemote() {
         HapticManager.shared.lightTap()
-        withAnimation(.easeOut(duration: 0.25)) {
-            remoteTapped = true
-        }
         
         // Stop any sound waves and audio
         waveAnimationToken = UUID()
@@ -924,28 +921,44 @@ public struct MRIProcedureView: View {
         mriAudioPlayer?.stop()
         mriAudioPlayer = nil
         
-        // Start playing MRI Video
-        let videoURL = Bundle.main.url(forResource: "MRIVideo", withExtension: "mp4") ??
-                       Bundle.main.url(forResource: "MRI Video 2", withExtension: "mp4") ??
-                       Bundle.main.url(forResource: "MRIVideo2", withExtension: "mp4") ??
-                       Bundle.main.url(forResource: "MRI Video", withExtension: "mp4")
-        if let videoURL = videoURL {
-            let player = AVPlayer(url: videoURL)
-            self.avPlayer = player
-            withAnimation(.easeInOut(duration: 0.3)) {
-                self.isVideoPlaying = true
+        if isVideoPlaying {
+            // Stop the program
+            withAnimation(.easeInOut(duration: 0.25)) {
+                isVideoPlaying = false
             }
-            player.play()
-            
-            NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: player.currentItem, queue: .main) { _ in
-                withAnimation(.easeInOut(duration: 0.25)) {
-                    promptText = "The MRI is finished! You did a fantastic job staying still!"
+            avPlayer?.pause()
+            avPlayer = nil
+            remoteTapped = false
+            withAnimation(.easeInOut(duration: 0.25)) {
+                promptText = "Program stopped! Click on the remote anytime to play your movie, or squish the stress ball to chat with staff."
+            }
+        } else {
+            // Start playing MRI Video
+            remoteTapped = true
+            let videoURL = Bundle.main.url(forResource: "MRIVideo", withExtension: "mp4") ??
+                           Bundle.main.url(forResource: "MRI Video 2", withExtension: "mp4") ??
+                           Bundle.main.url(forResource: "MRIVideo2", withExtension: "mp4") ??
+                           Bundle.main.url(forResource: "MRI Video", withExtension: "mp4")
+            if let videoURL = videoURL {
+                let player = AVPlayer(url: videoURL)
+                self.avPlayer = player
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    self.isVideoPlaying = true
+                }
+                player.play()
+                
+                NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: player.currentItem, queue: .main) { _ in
+                    withAnimation(.easeInOut(duration: 0.25)) {
+                        self.isVideoPlaying = false
+                        self.remoteTapped = false
+                        self.promptText = "The MRI is finished! You did a fantastic job staying still!"
+                    }
                 }
             }
-        }
-        
-        withAnimation(.easeInOut(duration: 0.25)) {
-            promptText = "Program started! Put on your movie or music with headphones while the MRI takes pictures!"
+            
+            withAnimation(.easeInOut(duration: 0.25)) {
+                promptText = "Program started! Put on your movie or music with headphones while the MRI takes pictures!"
+            }
         }
     }
 }
