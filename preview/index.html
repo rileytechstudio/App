@@ -1229,7 +1229,7 @@
       white-space: nowrap;
     }
 
-    /* Draggable Bed Layer (MRIBed.png with character) */
+    /* Draggable Bed Layer (MRIFullBedGirl.png with character) */
     .mri-draggable-bed {
       position: absolute;
       top: 0;
@@ -1243,6 +1243,7 @@
       cursor: grab;
       transition: transform 0.45s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.6s ease;
       will-change: transform;
+      transform: translateY(22%);
     }
 
     .mri-draggable-bed.dragging {
@@ -1252,8 +1253,8 @@
 
     .mri-draggable-bed.slid-in {
       cursor: default;
-      transition: transform 0.9s cubic-bezier(0.25, 1, 0.5, 1);
-      transform: translateY(-21%) scale(0.92) !important;
+      transition: transform 0.85s cubic-bezier(0.25, 1, 0.5, 1);
+      transform: translateY(0%) !important;
     }
 
     .mri-bed-cutout {
@@ -7430,14 +7431,17 @@
                 </div>
 
                 <!-- Layer 4: MRI Bed Preparation & Slide Screen -->
-                <div id="mriBedLayer" class="mri-layer mri-bed-layer" style="display: none;">
-                  <img id="mriBedEmptyImg" class="mri-layer mri-bed-screen" src="assets/MRIBedEmpty.png" alt="MRI Bed Empty" />
-                  <img id="mriBedFullImg" class="mri-layer mri-bed-screen" src="assets/MRIBedFull.png" alt="MRI Bed Ready" style="display: none; opacity: 0; transition: opacity 0.6s ease;" />
-                  <img id="mriGlowBgImg" class="mri-layer mri-bed-screen" src="assets/MRIGlow.png" alt="MRI Machine Glowing" style="display: none; opacity: 0; transition: opacity 0.8s ease;" />
+                <div id="mriBedLayer" class="mri-layer mri-bed-layer" style="display: none;" onclick="onMRIBedLayerTap(event)">
+                  <img id="mriBedEmptyImg" class="mri-layer mri-bed-screen" src="assets/MRIScannerNormal.png" alt="MRI Scanner" />
+                  <img id="mriGlowBgImg" class="mri-layer mri-bed-screen" src="assets/MRIScannerGlow.png" alt="MRI Machine Glowing" style="display: none; opacity: 0; transition: opacity 0.8s ease;" />
+
+                  <!-- Static Empty Bed (in front of machine at translateY(22%)) -->
+                  <img id="mriBedFullImg" class="mri-bed-cutout" src="assets/MRIFullBedGirl.png" alt="MRI Bed Ready" style="display: none; opacity: 0; transform: translateY(22%); transition: opacity 0.6s ease;" />
+                  <img id="mriStaticBedEmptyImg" class="mri-bed-cutout" src="assets/MRIFullBedEmpty.png" alt="MRI Bed Empty" style="transform: translateY(22%); transition: opacity 0.5s ease;" />
 
                   <!-- Draggable Bed Layer (bed with character sliding into machine) -->
-                  <div id="mriDraggableBed" class="mri-draggable-bed" style="display: none; opacity: 0;">
-                    <img id="mriBedCutoutImg" class="mri-bed-cutout" src="assets/MRIBed.png" alt="Bed with character" draggable="false" />
+                  <div id="mriDraggableBed" class="mri-draggable-bed" style="display: none; opacity: 0; transform: translateY(22%);">
+                    <img id="mriBedCutoutImg" class="mri-bed-cutout" src="assets/MRIFullBedGirl.png" alt="Bed with character" draggable="false" />
                     
                     <!-- Upward slide guide indicator -->
                     <div id="mriSlideGuide" class="mri-slide-guide" onclick="onMRISlideGuideTap(event)" title="Slide into the machine">
@@ -15801,6 +15805,12 @@
         bedLayer.style.opacity = '0';
         bedLayer.style.pointerEvents = 'none';
       }
+      const staticBedEmpty = document.getElementById('mriStaticBedEmptyImg');
+      if (staticBedEmpty) {
+        staticBedEmpty.style.display = 'block';
+        staticBedEmpty.style.opacity = '1';
+        staticBedEmpty.style.transform = 'translateY(22%)';
+      }
       const bedEmptyImg = document.getElementById('mriBedEmptyImg');
       if (bedEmptyImg) {
         bedEmptyImg.style.display = 'block';
@@ -15810,6 +15820,7 @@
       if (bedFullImg) {
         bedFullImg.style.display = 'none';
         bedFullImg.style.opacity = '0';
+        bedFullImg.style.transform = 'translateY(22%)';
       }
       const glowBgImg = document.getElementById('mriGlowBgImg');
       if (glowBgImg) {
@@ -15821,7 +15832,7 @@
         draggableBed.classList.remove('dragging', 'slid-in');
         draggableBed.style.display = 'none';
         draggableBed.style.opacity = '0';
-        draggableBed.style.transform = '';
+        draggableBed.style.transform = 'translateY(22%)';
       }
       const slideGuide = document.getElementById('mriSlideGuide');
       if (slideGuide) {
@@ -16647,6 +16658,7 @@
       const bedLayer = document.getElementById('mriBedLayer');
       const bedEmptyImg = document.getElementById('mriBedEmptyImg');
       const bedFullImg = document.getElementById('mriBedFullImg');
+      const staticBedEmpty = document.getElementById('mriStaticBedEmptyImg');
       const glowBgImg = document.getElementById('mriGlowBgImg');
       const draggableBed = document.getElementById('mriDraggableBed');
       const slideGuide = document.getElementById('mriSlideGuide');
@@ -16662,9 +16674,15 @@
         bedEmptyImg.style.display = 'block';
         bedEmptyImg.style.opacity = '1';
       }
+      if (staticBedEmpty) {
+        staticBedEmpty.style.display = 'block';
+        staticBedEmpty.style.opacity = '1';
+        staticBedEmpty.style.transform = 'translateY(22%)';
+      }
       if (bedFullImg) {
         bedFullImg.style.display = 'none';
         bedFullImg.style.opacity = '0';
+        bedFullImg.style.transform = 'translateY(22%)';
       }
       if (glowBgImg) {
         glowBgImg.style.display = 'none';
@@ -16674,7 +16692,7 @@
         draggableBed.classList.remove('dragging', 'slid-in');
         draggableBed.style.display = 'none';
         draggableBed.style.opacity = '0';
-        draggableBed.style.transform = '';
+        draggableBed.style.transform = 'translateY(22%)';
       }
       if (slideGuide) {
         slideGuide.style.display = 'flex';
@@ -16682,6 +16700,7 @@
       }
       if (bedHotspot) {
         bedHotspot.style.display = 'flex';
+        bedHotspot.style.pointerEvents = 'auto';
       }
 
       const promptText = document.getElementById('mriPromptText');
@@ -16708,9 +16727,13 @@
       const bedHotspot = document.getElementById('mriBedHotspot');
       if (bedHotspot) bedHotspot.style.display = 'none';
 
+      const staticBedEmpty = document.getElementById('mriStaticBedEmptyImg');
+      if (staticBedEmpty) staticBedEmpty.style.opacity = '0';
+
       const bedFullImg = document.getElementById('mriBedFullImg');
       if (bedFullImg) {
         bedFullImg.style.display = 'block';
+        bedFullImg.style.transform = 'translateY(22%)';
         void bedFullImg.offsetWidth;
         bedFullImg.style.opacity = '1';
       }
@@ -16722,12 +16745,25 @@
       }, 700);
     }
 
+    function onMRIBedLayerTap(event) {
+      if (!mriBedActive) return;
+      if (!mriBedFull) {
+        onMRIBedTap(event);
+      } else if (!mriBedSlidIn) {
+        const draggableBed = document.getElementById('mriDraggableBed');
+        if (draggableBed && draggableBed.style.display !== 'none') {
+          completeMRISlideIn();
+        }
+      }
+    }
+
     function transitionToMRIGlowAndDraggableBed() {
       if (!mriBedActive) return;
       const glowBgImg = document.getElementById('mriGlowBgImg');
       const draggableBed = document.getElementById('mriDraggableBed');
       const bedEmptyImg = document.getElementById('mriBedEmptyImg');
       const bedFullImg = document.getElementById('mriBedFullImg');
+      const staticBedEmpty = document.getElementById('mriStaticBedEmptyImg');
       const slideGuide = document.getElementById('mriSlideGuide');
 
       if (glowBgImg) {
@@ -16739,7 +16775,7 @@
       if (draggableBed) {
         draggableBed.style.display = 'block';
         draggableBed.classList.remove('slid-in', 'dragging');
-        draggableBed.style.transform = 'translateY(0%) scale(1)';
+        draggableBed.style.transform = 'translateY(22%)';
         void draggableBed.offsetWidth;
         draggableBed.style.opacity = '1';
         setupMRIDraggableBedEvents(draggableBed);
@@ -16755,6 +16791,7 @@
       mriBedHideTimer = setTimeout(() => {
         if (bedEmptyImg) bedEmptyImg.style.display = 'none';
         if (bedFullImg) bedFullImg.style.display = 'none';
+        if (staticBedEmpty) staticBedEmpty.style.display = 'none';
       }, 600);
 
       const promptText = document.getElementById('mriPromptText');
@@ -16789,16 +16826,15 @@
       function onPointerMove(e) {
         if (!mriBedDragActive || mriBedSlidIn) return;
         const stageH = stageEl ? stageEl.offsetHeight : 600;
-        const maxSlidePx = stageH * 0.21;
+        const maxSlidePx = stageH * 0.22;
         const deltaY = e.clientY - mriBedDragStartY;
         // Upward drag is negative deltaY
         const upwardPx = Math.max(0, -deltaY);
         const progress = Math.min(1.0, upwardPx / maxSlidePx);
         mriBedDragCurrentY = progress;
 
-        const currentPercent = -(progress * 21);
-        const currentScale = 1.0 - (progress * 0.08);
-        bedEl.style.transform = `translateY(${currentPercent}%) scale(${currentScale})`;
+        const currentPercent = 22 * (1.0 - progress);
+        bedEl.style.transform = `translateY(${currentPercent}%)`;
 
         const slideGuide = document.getElementById('mriSlideGuide');
         if (slideGuide) {
@@ -16817,7 +16853,7 @@
           completeMRISlideIn();
         } else {
           // Snap back to start position
-          bedEl.style.transform = 'translateY(0%) scale(1)';
+          bedEl.style.transform = 'translateY(22%)';
           const slideGuide = document.getElementById('mriSlideGuide');
           if (slideGuide) slideGuide.style.opacity = '1';
         }
@@ -16848,7 +16884,7 @@
       if (draggableBed) {
         draggableBed.classList.remove('dragging');
         draggableBed.classList.add('slid-in');
-        draggableBed.style.transform = '';
+        draggableBed.style.transform = 'translateY(0%)';
       }
 
       const promptText = document.getElementById('mriPromptText');

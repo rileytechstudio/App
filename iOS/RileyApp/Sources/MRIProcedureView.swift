@@ -571,13 +571,13 @@ public struct MRIProcedureView: View {
                                     .frame(width: contentWidth, height: contentHeight)
                                     .transition(.opacity)
                                 
-                                // Draggable Bed with Character (MRIBed)
-                                let maxDist = contentHeight * 0.21
+                                // Draggable Bed with Character (MRIFullBedGirl)
+                                let maxDist = contentHeight * 0.22
                                 let currentProgress = min(1.0, max(0.0, -bedSlideDragOffset / maxDist))
-                                let currentScale = 1.0 - (currentProgress * 0.08)
+                                let currentOffset = isBedSlidIn ? 0 : (maxDist + bedSlideDragOffset)
                                 
                                 ZStack {
-                                    Image("MRIBed")
+                                    Image("MRIFullBedGirl")
                                         .resizable()
                                         .aspectRatio(contentMode: .fill)
                                         .frame(width: contentWidth, height: contentHeight)
@@ -616,8 +616,7 @@ public struct MRIProcedureView: View {
                                         }
                                     }
                                 }
-                                .offset(y: bedSlideDragOffset)
-                                .scaleEffect(currentScale)
+                                .offset(y: currentOffset)
                                 .gesture(
                                     DragGesture()
                                         .onChanged { value in
@@ -651,11 +650,20 @@ public struct MRIProcedureView: View {
                                     .aspectRatio(contentMode: .fill)
                                     .frame(width: contentWidth, height: contentHeight)
                                 
+                                Image("MRIFullBedEmpty")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: contentWidth, height: contentHeight)
+                                    .offset(y: contentHeight * 0.22)
+                                    .opacity(isBedFull ? 0.0 : 1.0)
+                                    .animation(.easeInOut(duration: 0.4), value: isBedFull)
+                                
                                 if isBedFull {
-                                    Image("MRIBedFull")
+                                    Image("MRIFullBedGirl")
                                         .resizable()
                                         .aspectRatio(contentMode: .fill)
                                         .frame(width: contentWidth, height: contentHeight)
+                                        .offset(y: contentHeight * 0.22)
                                         .transition(.opacity)
                                 }
                                 
@@ -735,7 +743,7 @@ public struct MRIProcedureView: View {
                     if isBedScreen && !isBedFull {
                         tapBed()
                     } else if isBedScreen && isBedFull && !isBedSlidIn {
-                        let maxDist = contentHeight * 0.21
+                        let maxDist = contentHeight * 0.22
                         completeBedSlide(maxDist: maxDist)
                     } else if !hasTransitioned {
                         triggerTransition()
