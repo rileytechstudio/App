@@ -654,6 +654,509 @@
     }
 
     /* ========================================================= */
+    /* MRI PROCEDURE & ROOM EXPLORATION STYLES                   */
+    /* ========================================================= */
+    #screenMRI {
+      background: #0b171c;
+      overflow: hidden;
+      display: none;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+    }
+
+    #screenMRI.active {
+      display: flex;
+    }
+
+    .mri-content {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      background: #0b171c;
+      overflow: hidden;
+    }
+
+    .mri-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px 4px;
+      width: 100%;
+      z-index: 25;
+      flex-shrink: 0;
+      background: rgba(11, 23, 28, 0.75);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .mri-stage-wrapper {
+      position: relative;
+      flex: 1;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #081115;
+    }
+
+    .mri-stage {
+      position: relative;
+      aspect-ratio: 1366 / 1024;
+      max-width: 100%;
+      max-height: 100%;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .mri-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+    }
+
+    /* Layer 0: Room Lights Off Screen (revealed when lights turn off) */
+    .mri-room-lights-off {
+      z-index: 1;
+    }
+
+    /* Layer 1: Room Lights On Screen (interactive exploration layer) */
+    .mri-room-lights-on {
+      z-index: 2;
+      opacity: 1;
+      transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .mri-room-lights-on.lights-turned-off {
+      opacity: 0;
+    }
+
+    /* Layer 2: Welcome Screen (active in the beginning, transitions to Room Lights On) */
+    .mri-welcome-screen {
+      z-index: 5;
+      opacity: 1;
+      transition: opacity 1.1s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+    }
+
+    .mri-welcome-screen.transition-out {
+      opacity: 0;
+    }
+
+    /* Interactive hotspots layer */
+    .mri-parts-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 8;
+      pointer-events: auto;
+    }
+
+    .mri-hotspot {
+      position: absolute;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      transition: transform 0.2s ease, background 0.2s ease, opacity 0.35s ease;
+    }
+
+    .mri-hotspot:hover {
+      transform: scale(1.04);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .mri-hotspot.spot-removed {
+      opacity: 0 !important;
+      transform: scale(0.6) !important;
+      pointer-events: none !important;
+    }
+
+    .mri-hotspot-scanner {
+      top: 26%;
+      left: 5%;
+      width: 22%;
+      height: 62%;
+    }
+
+    .mri-hotspot-bed {
+      top: 58%;
+      left: 25%;
+      width: 49%;
+      height: 28%;
+    }
+
+    .mri-hotspot-switch {
+      top: 9.0%;
+      left: 77.0%;
+      width: 7%;
+      height: 8%;
+    }
+
+    .mri-hotspot-switch .mri-hotspot-label {
+      margin-top: 64px;
+    }
+
+    .mri-hotspot-monitors {
+      top: 32%;
+      left: 81%;
+      width: 12%;
+      height: 44%;
+    }
+
+    /* Layer 3: MRI Inside Screen (explored after room lights off) */
+    .mri-inside-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 20;
+      opacity: 0;
+      transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+    }
+
+    .mri-inside-layer.active {
+      opacity: 1;
+      pointer-events: auto;
+      z-index: 20;
+    }
+
+    .mri-inside-screen {
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+    }
+
+    /* Sound Waves Overlays - sequential wave ripple (appear one by one, fade one by one) */
+    .mri-sound-wave-group {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .mri-sound-wave {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    .mri-sound-wave-group.playing .mri-sound-wave-1 {
+      animation: mriWavePulse 1.35s ease-out 2 forwards;
+      animation-delay: 0.0s;
+    }
+
+    .mri-sound-wave-group.playing .mri-sound-wave-2 {
+      animation: mriWavePulse 1.35s ease-out 2 forwards;
+      animation-delay: 0.18s;
+    }
+
+    .mri-sound-wave-group.playing .mri-sound-wave-3 {
+      animation: mriWavePulse 1.35s ease-out 2 forwards;
+      animation-delay: 0.36s;
+    }
+
+    .mri-sound-wave-group.playing .mri-sound-wave-4 {
+      animation: mriWavePulse 1.35s ease-out 2 forwards;
+      animation-delay: 0.54s;
+    }
+
+    @keyframes mriWavePulse {
+      0% {
+        opacity: 0;
+      }
+      15% {
+        opacity: 1;
+      }
+      45% {
+        opacity: 0.85;
+      }
+      75% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
+
+    /* Hotspot Sound Buttons on Inside Scanner Panel - centered exactly on the black buttons at y: 63.0%, x: 5.93% and 94.0% */
+    .mri-hotspot-sound-l {
+      position: absolute;
+      top: calc(63.0% - 24px);
+      left: calc(5.93% - 24px);
+      width: 48px;
+      height: 48px;
+      z-index: 30;
+      cursor: pointer;
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mri-hotspot-sound-r {
+      position: absolute;
+      top: calc(63.0% - 24px);
+      left: calc(94.0% - 24px);
+      width: 48px;
+      height: 48px;
+      z-index: 30;
+      cursor: pointer;
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mri-hotspot-sound-l .mri-pulse-ring,
+    .mri-hotspot-sound-r .mri-pulse-ring {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 3px solid #00e5ff;
+      box-shadow: 0 0 10px #00e5ff, inset 0 0 6px #00e5ff;
+      animation: mriButtonPulse 1.8s infinite ease-out;
+      pointer-events: none;
+    }
+
+    @keyframes mriButtonPulse {
+      0% {
+        transform: scale(0.9);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1.6);
+        opacity: 0;
+      }
+    }
+
+    .mri-hotspot-sound-l.spot-removed,
+    .mri-hotspot-sound-r.spot-removed,
+    .mri-hotspot-sound-l.spot-removed .mri-pulse-ring,
+    .mri-hotspot-sound-r.spot-removed .mri-pulse-ring {
+      display: none !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
+
+    /* MRI Remote and Stress Ball Layers & Hotspots */
+    .mri-interactive-item-layer {
+      z-index: 5;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(28px) scale(0.96);
+      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .mri-interactive-item-layer.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
+    }
+
+    .mri-interactive-item-layer.clicked img {
+      animation: mriItemBounce 0.4s ease-out;
+    }
+
+    @keyframes mriItemBounce {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.04); }
+      100% { transform: scale(1); }
+    }
+
+    .mri-hotspot-stress-ball {
+      top: 70.0%;
+      left: 5.4%;
+      width: 20.0%;
+      height: 27.0%;
+      cursor: pointer;
+    }
+
+    .mri-hotspot-remote {
+      position: absolute;
+      top: calc(71.68% - 24px);
+      left: calc(86.75% - 24px);
+      width: 48px;
+      height: 48px;
+      z-index: 30;
+      cursor: pointer;
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mri-hotspot-remote .mri-pulse-ring {
+      position: absolute;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 3px solid #00e5ff;
+      box-shadow: 0 0 10px #00e5ff, inset 0 0 6px #00e5ff;
+      animation: mriButtonPulse 1.8s infinite ease-out;
+      pointer-events: none;
+    }
+
+    .mri-hotspot-remote.spot-removed,
+    .mri-hotspot-remote.spot-removed .mri-pulse-ring {
+      display: none !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
+
+    .mri-video-layer {
+      position: absolute;
+      top: 6.45%;
+      left: 42.97%;
+      width: 14.20%;
+      height: 8.40%;
+      object-fit: cover;
+      z-index: 6;
+      border-radius: 3px;
+      overflow: hidden;
+      box-shadow: 0 0 12px rgba(0, 229, 255, 0.45);
+      background: #000;
+    }
+
+    .mri-bottom-prompt-bar .step-instruction-text {
+      white-space: normal;
+      font-size: 14.5px;
+      line-height: 1.35;
+      max-width: 92%;
+    }
+
+    .mri-bottom-prompt-bar {
+      min-height: 52px;
+      height: auto;
+      padding-top: 6px;
+      padding-bottom: 6px;
+    }
+
+    .mri-hotspot-sound-l .mri-hotspot-label,
+    .mri-hotspot-sound-r .mri-hotspot-label {
+      margin-top: 48px;
+      font-size: 11px;
+      padding: 3px 8px;
+    }
+
+    .mri-hotspot.sound-playing .mri-pulse-ring {
+      border-color: #38bdf8;
+      box-shadow: 0 0 18px #38bdf8, inset 0 0 14px #38bdf8;
+    }
+
+    .mri-pulse-ring {
+      position: absolute;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 3px solid #00e5ff;
+      box-shadow: 0 0 12px #00e5ff, inset 0 0 12px #00e5ff;
+      animation: mriPulse 2s infinite ease-out;
+      pointer-events: none;
+    }
+
+    @keyframes mriPulse {
+      0% { transform: scale(0.7); opacity: 1; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+
+    .mri-hotspot-label {
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid rgba(0, 229, 255, 0.6);
+      color: #e0f2fe;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 12px;
+      white-space: nowrap;
+      margin-top: 50px;
+      pointer-events: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Tap hint overlay during welcome */
+    .mri-tap-hint {
+      position: absolute;
+      top: 24px;
+      right: 28px;
+      background: rgba(0, 0, 0, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #e2e8f0;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 20px;
+      z-index: 10;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Bottom Standardized Prompt Bar for MRI (Standardized to Anatomy Explorer format) */
+    .mri-bottom-prompt-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      height: calc(52px + env(safe-area-inset-bottom, 0px));
+      min-height: 52px;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      box-sizing: border-box;
+      z-index: 60;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(180deg, rgba(16, 8, 34, 0.65) 0%, rgba(24, 12, 48, 0.72) 100%);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.32);
+      transition: background 0.35s ease, border-color 0.35s ease, opacity 0.35s ease;
+      cursor: pointer;
+      pointer-events: auto;
+    }
+
+    .mri-bottom-prompt-bar.can-confirm {
+      background: linear-gradient(180deg, rgba(26, 13, 50, 0.78) 0%, rgba(38, 18, 72, 0.86) 100%);
+      border-top: 1px solid rgba(255, 215, 0, 0.38);
+    }
+
+    .mri-bottom-prompt-bar.prompt-pulse {
+      animation: promptBarPulse 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    /* ========================================================= */
     /* IV GAME SCREEN STYLES                                     */
     /* ========================================================= */
     .game-content {
@@ -6303,24 +6806,29 @@
             <div class="prep-scroll-container">
               <div id="prepViewport" class="prep-scroll-viewport" onscroll="handleScroll()">
                 
-                <!-- Card 1: Nasogastric Tube -->
-                <button class="procedure-card" id="card-ng-tube" onclick="openProcedure('NG Tube')">
-                  <img src="assets/ButtonNGTube.png" alt="Nasogastric Tube (NG Tube)" />
-                </button>
-
-                <!-- Card 2: Port Access -->
-                <button class="procedure-card" id="card-port-access" onclick="openProcedure('Port Access')">
-                  <img src="assets/ButtonPortAccess.png" alt="Port Access" />
-                </button>
-
-                <!-- Card 3: Burn Dressing Change -->
+                <!-- Card 1: Burn Dressing Change -->
                 <button class="procedure-card" id="card-burn-dress" onclick="openProcedure('Burn Dressing Change')">
                   <img src="assets/ButtonBurnDress.png" alt="Burn Dressing Change" />
                 </button>
 
-                <!-- Card 4: IV Start -->
+                <!-- Card 2: IV Start -->
                 <button class="procedure-card" id="card-iv-start" onclick="openProcedure('IV Start')">
                   <img src="assets/ButtonIVStart.png" alt="Intravenous Start (IV Start)" />
+                </button>
+
+                <!-- Card 3: Magnetic Resonance Imaging (MRI) -->
+                <button class="procedure-card" id="card-mri" onclick="openProcedure('MRI')">
+                  <img src="assets/ButtonMRI.png" alt="Magnetic Resonance Imaging (MRI)" />
+                </button>
+
+                <!-- Card 4: Nasogastric Tube -->
+                <button class="procedure-card" id="card-ng-tube" onclick="openProcedure('NG Tube')">
+                  <img src="assets/ButtonNGTube.png" alt="Nasogastric Tube (NG Tube)" />
+                </button>
+
+                <!-- Card 5: Port Access -->
+                <button class="procedure-card" id="card-port-access" onclick="openProcedure('Port Access')">
+                  <img src="assets/ButtonPortAccess.png" alt="Port Access" />
                 </button>
 
               </div>
@@ -6363,6 +6871,140 @@
                 <img src="assets/Isolated_Games_Not_Selected.png" alt="Games" />
               </button>
             </div>
+          </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- SCREEN 2B: MRI PROCEDURE & ROOM EXPLORATION               -->
+        <!-- ========================================================= -->
+        <div id="screenMRI" class="app-screen">
+          <div class="mri-content">
+            <!-- Top Navigation Header -->
+            <div class="mri-top-bar">
+              <button class="game-top-btn" onclick="goToPreparations()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                <span>Procedures</span>
+              </button>
+              <div class="game-top-actions">
+                <button class="game-top-btn-icon game-restart-btn" onclick="startMRIWelcomeSequence()" title="Replay Welcome" aria-label="Replay Welcome">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                </button>
+                <button class="header-icon-btn" onclick="goToHome()" title="Home" aria-label="Home" style="width: 32px; height: 32px; padding: 4px;">
+                  <img src="assets/Home.png" alt="Home" />
+                </button>
+              </div>
+            </div>
+
+            <!-- MRI Stage Wrapper (1366:1024 Aspect Ratio, Scales Responsively) -->
+            <div class="mri-stage-wrapper" id="mriStageWrapper">
+              <div class="mri-stage" id="mriStage" onclick="handleMRIStageTap(event)">
+                <!-- Layer 0: Room Lights Off Screen (revealed when lights turn off) -->
+                <img id="mriRoomLightsOff" class="mri-layer mri-room-lights-off" src="assets/MRIRoomLightsOff.png" alt="MRI Room Lights Off" />
+
+                <!-- Layer 1: Room Lights On Screen (the interactive room screen) -->
+                <img id="mriRoomLightsOn" class="mri-layer mri-room-lights-on" src="assets/MRIRoomLightsOn.png" alt="MRI Room Lights On" />
+
+                <!-- Layer 2: Welcome Screen (shown in beginning, transitions to Room Lights On) -->
+                <img id="mriWelcomeScreen" class="mri-layer mri-welcome-screen" src="assets/MRIWelcomeScreen.png" alt="Welcome to MRI" />
+
+                <!-- Interactive Discovery Highlights on Room Parts (Active after lights are on) -->
+                <div id="mriPartsHighlights" class="mri-parts-layer" style="display: none;">
+                  <!-- Hotspot 1: MRI Scanner Donut -->
+                  <div class="mri-hotspot mri-hotspot-scanner" id="mriSpotScanner" onclick="onMRIPartTap(event, 'scanner')" title="MRI Scanner">
+                    <span class="mri-pulse-ring"></span>
+                    <span class="mri-hotspot-label">MRI Scanner</span>
+                  </div>
+                  <!-- Hotspot 2: Patient Bed -->
+                  <div class="mri-hotspot mri-hotspot-bed" id="mriSpotBed" onclick="onMRIPartTap(event, 'bed')" title="Patient Bed">
+                    <span class="mri-pulse-ring"></span>
+                    <span class="mri-hotspot-label">Cozy Moving Bed</span>
+                  </div>
+                  <!-- Hotspot 3: Computer / Monitor Cart -->
+                  <div class="mri-hotspot mri-hotspot-monitors" id="mriSpotMonitors" onclick="onMRIPartTap(event, 'monitors')" title="Monitor Station">
+                    <span class="mri-pulse-ring"></span>
+                    <span class="mri-hotspot-label">Monitors</span>
+                  </div>
+                  <!-- Hotspot 4: Light Switch (Active when all spots are clicked) -->
+                  <div class="mri-hotspot mri-hotspot-switch" id="mriSpotSwitch" onclick="onMRILightSwitchTap(event)" title="Turn Off Lights" style="display: none;">
+                    <span class="mri-pulse-ring"></span>
+                    <span class="mri-hotspot-label">Turn Off Lights</span>
+                  </div>
+                  <!-- Ceiling Light Fixture Tap Target (Active when all spots are clicked) -->
+                  <div class="mri-hotspot-ceiling" id="mriSpotCeiling" onclick="onMRILightSwitchTap(event)" title="Ceiling Lights" style="position: absolute; top: 5%; left: 26%; width: 48%; height: 9%; cursor: pointer; z-index: 8; display: none;"></div>
+                </div>
+
+                <!-- Layer 3: MRI Inside Screen (explored after room lights off) -->
+                <div id="mriInsideLayer" class="mri-layer mri-inside-layer">
+                  <img id="mriInsideScreen" class="mri-layer mri-inside-screen" src="assets/MRIInside.png" alt="MRI Inside View" />
+                  
+                  <!-- MRI Video Player Layer -->
+                  <video id="mriVideoPlayer" class="mri-video-layer" src="assets/MRIVideo.mp4" playsinline webkit-playsinline preload="auto" style="display: none;"></video>
+
+                  <!-- Sound Waves Overlays (Left: Waves 1 to 4) -->
+                  <div id="mriSoundLGroup" class="mri-layer mri-sound-wave-group">
+                    <img class="mri-sound-wave mri-sound-wave-1" src="assets/MRISoundL1.png" alt="Left Wave 1" />
+                    <img class="mri-sound-wave mri-sound-wave-2" src="assets/MRISoundL2.png" alt="Left Wave 2" />
+                    <img class="mri-sound-wave mri-sound-wave-3" src="assets/MRISoundL3.png" alt="Left Wave 3" />
+                    <img class="mri-sound-wave mri-sound-wave-4" src="assets/MRISoundL4.png" alt="Left Wave 4" />
+                  </div>
+
+                  <!-- Sound Waves Overlays (Right: Waves 1 to 4) -->
+                  <div id="mriSoundRGroup" class="mri-layer mri-sound-wave-group">
+                    <img class="mri-sound-wave mri-sound-wave-1" src="assets/MRISoundR1.png" alt="Right Wave 1" />
+                    <img class="mri-sound-wave mri-sound-wave-2" src="assets/MRISoundR2.png" alt="Right Wave 2" />
+                    <img class="mri-sound-wave mri-sound-wave-3" src="assets/MRISoundR3.png" alt="Right Wave 3" />
+                    <img class="mri-sound-wave mri-sound-wave-4" src="assets/MRISoundR4.png" alt="Right Wave 4" />
+                  </div>
+
+                  <!-- Remote Controller Layer (bottom-right) -->
+                  <div id="mriRemoteLayer" class="mri-layer mri-interactive-item-layer" onclick="onMRIRemoteTap(event)" style="cursor: pointer;">
+                    <img id="mriRemoteImg" class="mri-layer" src="assets/MRIRemoteController.png" alt="Remote Controller" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" />
+                  </div>
+
+                  <!-- Stress Ball Layer (bottom-left) -->
+                  <div id="mriStressBallLayer" class="mri-layer mri-interactive-item-layer">
+                    <img id="mriStressBallImg" class="mri-layer" src="assets/MRIStressBall.png" alt="Stress Ball" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" />
+                  </div>
+
+                  <!-- Interactive Buttons on Inside Screen -->
+                  <div class="mri-inside-hotspots" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 8;">
+                    <!-- Left Black Button: Center is at x: 6.0%, y: 63.0% -->
+                    <div class="mri-hotspot mri-hotspot-sound-l" id="mriBtnSoundL" onclick="onMRISoundButtonTap(event, 'left')" title="Left Black Button">
+                      <span class="mri-pulse-ring"></span>
+                    </div>
+                    <!-- Right Black Button: Center is at x: 94.0%, y: 63.0% -->
+                    <div class="mri-hotspot mri-hotspot-sound-r" id="mriBtnSoundR" onclick="onMRISoundButtonTap(event, 'right')" title="Right Black Button">
+                      <span class="mri-pulse-ring"></span>
+                    </div>
+
+                    <!-- Interactive Stress Ball Hotspot (bottom-left) -->
+                    <div class="mri-hotspot mri-hotspot-stress-ball" id="mriBtnStressBall" onclick="onMRIStressBallTap(event)" title="Squish the Stress Ball" style="display: none;">
+                      <span class="mri-pulse-ring" style="width: 54px; height: 54px;"></span>
+                    </div>
+
+                    <!-- Interactive Remote Hotspot (centered over red power button) -->
+                    <div class="mri-hotspot mri-hotspot-remote" id="mriBtnRemote" onclick="onMRIRemoteTap(event)" title="Start Program with Remote" style="display: none;">
+                      <span class="mri-pulse-ring"></span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Subtle tap hint banner -->
+                <div id="mriTapToStart" class="mri-tap-hint">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                  <span>Tap anywhere to begin</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Standard Accessible Bottom Instruction & Prompt Bar (Anatomy Explorer Standard) -->
+            <div class="anatomy-bottom-prompt-bar mri-bottom-prompt-bar visible can-confirm" id="mriBottomPromptBar" role="status" aria-live="polite" onclick="handleMRIPromptBarTap()">
+              <div class="step-instruction-card">
+                <span class="step-instruction-dot confirm-pulse" id="mriPromptDot" aria-hidden="true"></span>
+                <span class="step-instruction-text" id="mriPromptText">Welcome to MRI! Lets find all the different parts of the MRI room together!</span>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -7712,6 +8354,7 @@
       const screenAbout = document.getElementById('screenAbout');
       const screenSettings = document.getElementById('screenSettings');
       const screenAnatomy = document.getElementById('screenAnatomyExplorer');
+      const screenMRI = document.getElementById('screenMRI');
       const select = document.getElementById('screenSelect');
       const statusSpan = document.querySelector('.sim-status div:last-child span');
 
@@ -7722,6 +8365,7 @@
         else if (screenMask && screenMask.classList.contains('active')) previousScreen = 'mask-game';
         else if (screenAbout && screenAbout.classList.contains('active')) previousScreen = 'about';
         else if (screenAnatomy && screenAnatomy.classList.contains('active')) previousScreen = 'anatomy-explorer';
+        else if (screenMRI && screenMRI.classList.contains('active')) previousScreen = 'mri';
         else previousScreen = 'home';
       }
 
@@ -7733,6 +8377,7 @@
       if (screenAbout) screenAbout.classList.remove('active');
       if (screenSettings) screenSettings.classList.remove('active');
       if (screenAnatomy) screenAnatomy.classList.remove('active');
+      if (screenMRI) screenMRI.classList.remove('active');
 
       if (screenName === 'mask-game' || screenName === 'games') {
         clearAnatomyTimers();
@@ -7805,10 +8450,27 @@
         if (select) select.value = 'anatomy-explorer';
         if (statusSpan) statusSpan.textContent = 'Anatomy Explorer Screen Active • Theatrical Entrance & Sequential Marquee Lights';
         startAnatomyExplorerAnimation();
+      } else if (screenName === 'mri') {
+        clearAnatomyTimers();
+        clearIVIntroTimers();
+        clearMRITimers();
+        stopIVBackgroundMusic();
+        stopMaskBackgroundMusic();
+        resetMaskScene();
+        stopClothWipeSound(true);
+        stopClothWetWipeSound(true);
+        stopYouDidItSound(true);
+        if (typeof stopYouDidItChimeSound === 'function') stopYouDidItChimeSound(true);
+        if (typeof stopMaskConfetti === 'function') stopMaskConfetti();
+        if (screenMRI) screenMRI.classList.add('active');
+        if (select) select.value = 'mri';
+        if (statusSpan) statusSpan.textContent = 'MRI Procedure Active • Welcome to the MRI Room';
+        startMRIWelcomeSequence();
       } else {
         // Navigating away from games stops background music and audio
         clearAnatomyTimers();
         clearIVIntroTimers();
+        clearMRITimers();
         stopIVBackgroundMusic();
         stopMaskBackgroundMusic();
         resetMaskScene();
@@ -14233,7 +14895,7 @@
     }
 
     // Arrow Scrolling Logic
-    const cardIds = ['card-ng-tube', 'card-port-access', 'card-burn-dress', 'card-iv-start'];
+    const cardIds = ['card-burn-dress', 'card-iv-start', 'card-mri', 'card-ng-tube', 'card-port-access'];
     let currentCardIndex = 0;
 
     function scrollDown() {
@@ -14499,6 +15161,27 @@
         bottomFade.style.height = fadeH + 'px';
       }
 
+      // Responsive MRI Stage Sizing (Strict 1366:1024 Aspect Ratio Containment)
+      const mriWrapper = document.getElementById('mriStageWrapper');
+      const mriStage = document.getElementById('mriStage');
+      if (mriWrapper && mriStage) {
+        const wrapW = mriWrapper.clientWidth;
+        const wrapH = mriWrapper.clientHeight;
+        if (wrapW > 0 && wrapH > 0) {
+          const targetAspect = 1366 / 1024;
+          let stageW, stageH;
+          if (wrapW / wrapH > targetAspect) {
+            stageH = wrapH;
+            stageW = Math.round(stageH * targetAspect);
+          } else {
+            stageW = wrapW;
+            stageH = Math.round(stageW / targetAspect);
+          }
+          mriStage.style.width = stageW + 'px';
+          mriStage.style.height = stageH + 'px';
+        }
+      }
+
       updateArrowStates();
     }
 
@@ -14508,6 +15191,25 @@
         title: 'Preparations Guide',
         content: `
           <p>Welcome to the Riley Preparations center! Learn about what to expect before, during, and after hospital procedures with child-friendly guides.</p>
+        `
+      },
+      'Burn Dressing Change': {
+        title: 'Burn Dressing Change',
+        content: `
+          <p>Carefully cleaning and changing protective bandages helps delicate skin heal quickly, stay clean, and feel comfortable.</p>
+        `
+      },
+      'IV Start': {
+        title: 'Intravenous Start (IV Start)',
+        content: `
+          <p>An IV is a very small, flexible plastic straw placed into a vein to give your body healing fluids and medicines while you relax.</p>
+        `
+      },
+      'MRI': {
+        title: 'Magnetic Resonance Imaging (MRI)',
+        content: `
+          <p>An MRI (Magnetic Resonance Imaging) is a special camera shaped like a friendly giant donut that takes detailed pictures of the inside of your body using magnets and sound waves.</p>
+          <p style="margin-top: 12px;">It does not hurt at all! You get to lie down cozy on a moving bed and listen to your favorite music or watch a movie with special headphones while the camera taps and hums to take its pictures.</p>
         `
       },
       'NG Tube': {
@@ -14522,18 +15224,6 @@
         content: `
           <p>A port is a tiny, special medical disc placed safely under the skin.</p>
           <p style="margin-top: 12px;">Accessing the port with a gentle, quick touch lets doctors and nurses give medicines and take blood samples easily without multiple pokes.</p>
-        `
-      },
-      'Burn Dressing Change': {
-        title: 'Burn Dressing Change',
-        content: `
-          <p>Carefully cleaning and changing protective bandages helps delicate skin heal quickly, stay clean, and feel comfortable.</p>
-        `
-      },
-      'IV Start': {
-        title: 'Intravenous Start (IV Start)',
-        content: `
-          <p>An IV is a very small, flexible plastic straw placed into a vein to give your body healing fluids and medicines while you relax.</p>
         `
       },
       'Glossary': { title: 'Medical Glossary', content: '<p>Hospital words made simple for kids and families.</p>' },
@@ -14565,8 +15255,750 @@
     function openProcedure(name) {
       if (name === 'IV Start') {
         goToIVStart();
+      } else if (name === 'MRI' || name === 'Magnetic Resonance Imaging' || name === 'Magnetic Resonance Imaging (MRI)') {
+        goToMRI();
       } else {
         openSheet(name);
+      }
+    }
+
+    // =========================================================
+    // MRI PROCEDURE & ROOM EXPLORATION
+    // =========================================================
+    let mriWelcomeTimer = null;
+    let mriTransitionTimer = null;
+    let mriEndPromptTimer = null;
+    let mriInsideTimer = null;
+    let mriInsidePromptTimer = null;
+    let mriSquishTimer = null;
+    let mriHasTransitioned = false;
+    let mriAllSpotsClicked = false;
+    let mriLightsOff = false;
+    let mriInsideActive = false;
+    let mriLeftSoundActive = false;
+    let mriRightSoundActive = false;
+    let mriItemsActive = false;
+    let mriSoundAudio = null;
+    const mriTappedButtons = new Set();
+    const mriClickedSpots = new Set();
+    const MRI_DISCOVERY_PARTS = ['scanner', 'bed', 'monitors'];
+
+    function clearMRITimers() {
+      if (mriWelcomeTimer) {
+        clearTimeout(mriWelcomeTimer);
+        mriWelcomeTimer = null;
+      }
+      if (mriTransitionTimer) {
+        clearTimeout(mriTransitionTimer);
+        mriTransitionTimer = null;
+      }
+      if (mriEndPromptTimer) {
+        clearTimeout(mriEndPromptTimer);
+        mriEndPromptTimer = null;
+      }
+      if (mriInsideTimer) {
+        clearTimeout(mriInsideTimer);
+        mriInsideTimer = null;
+      }
+      if (mriInsidePromptTimer) {
+        clearTimeout(mriInsidePromptTimer);
+        mriInsidePromptTimer = null;
+      }
+      if (mriSquishTimer) {
+        clearTimeout(mriSquishTimer);
+        mriSquishTimer = null;
+      }
+      if (mriSoundAudio) {
+        try {
+          mriSoundAudio.pause();
+          mriSoundAudio.currentTime = 0;
+        } catch (e) {}
+      }
+      const mriVideo = document.getElementById('mriVideoPlayer');
+      if (mriVideo) {
+        try {
+          mriVideo.pause();
+          mriVideo.currentTime = 0;
+        } catch (e) {}
+      }
+      stopMRISoundWaves();
+    }
+
+    function goToMRI() {
+      switchScreen('mri');
+      setTimeout(updateResponsiveLayout, 20);
+    }
+
+    function startMRIWelcomeSequence() {
+      clearMRITimers();
+      updateResponsiveLayout();
+      mriHasTransitioned = false;
+      mriAllSpotsClicked = false;
+      mriLightsOff = false;
+      mriInsideActive = false;
+      mriItemsActive = false;
+      mriTappedButtons.clear();
+      mriClickedSpots.clear();
+
+      const welcomeScreen = document.getElementById('mriWelcomeScreen');
+      const roomLightsOn = document.getElementById('mriRoomLightsOn');
+      const insideLayer = document.getElementById('mriInsideLayer');
+      const stressBallLayer = document.getElementById('mriStressBallLayer');
+      const remoteLayer = document.getElementById('mriRemoteLayer');
+      const btnStressBall = document.getElementById('mriBtnStressBall');
+      const btnRemote = document.getElementById('mriBtnRemote');
+      const stressBallImg = document.getElementById('mriStressBallImg');
+      const promptBar = document.getElementById('mriBottomPromptBar');
+      const promptText = document.getElementById('mriPromptText');
+      const promptDot = document.getElementById('mriPromptDot');
+      const tapPrompt = document.getElementById('mriTapToStart');
+      const highlights = document.getElementById('mriPartsHighlights');
+
+      if (welcomeScreen) {
+        welcomeScreen.classList.remove('transition-out');
+      }
+      if (roomLightsOn) {
+        roomLightsOn.classList.remove('lights-turned-off');
+      }
+      if (insideLayer) {
+        insideLayer.classList.remove('active');
+        insideLayer.style.opacity = '0';
+        insideLayer.style.pointerEvents = 'none';
+      }
+      if (stressBallLayer) {
+        stressBallLayer.classList.remove('active');
+      }
+      if (remoteLayer) {
+        remoteLayer.classList.remove('active');
+      }
+      if (btnStressBall) {
+        btnStressBall.style.display = 'none';
+      }
+      if (btnRemote) {
+        btnRemote.classList.remove('spot-removed');
+        btnRemote.style.display = 'none';
+      }
+      const mriVideoReset = document.getElementById('mriVideoPlayer');
+      if (mriVideoReset) {
+        try {
+          mriVideoReset.pause();
+          mriVideoReset.currentTime = 0;
+          mriVideoReset.style.display = 'none';
+        } catch (e) {}
+      }
+      if (stressBallImg) {
+        stressBallImg.src = 'assets/MRIStressBall.png';
+      }
+      if (highlights) {
+        highlights.style.display = 'none';
+      }
+
+      // Reset discovery spots visibility
+      const spotMap = {
+        'scanner': 'mriSpotScanner',
+        'bed': 'mriSpotBed',
+        'monitors': 'mriSpotMonitors'
+      };
+      Object.values(spotMap).forEach(id => {
+        const spot = document.getElementById(id);
+        if (spot) {
+          spot.classList.remove('spot-removed');
+          spot.style.display = 'flex';
+        }
+      });
+
+      // Hide switch and ceiling until all spots are clicked
+      const switchSpot = document.getElementById('mriSpotSwitch');
+      const ceilingSpot = document.getElementById('mriSpotCeiling');
+      if (switchSpot) {
+        switchSpot.classList.remove('spot-removed');
+        switchSpot.style.display = 'none';
+      }
+      if (ceilingSpot) {
+        ceilingSpot.style.display = 'none';
+      }
+
+      // Reset inside black buttons and sound waves
+      const btnSoundL = document.getElementById('mriBtnSoundL');
+      const btnSoundR = document.getElementById('mriBtnSoundR');
+      if (btnSoundL) {
+        btnSoundL.classList.remove('spot-removed', 'sound-playing');
+        btnSoundL.style.display = 'flex';
+      }
+      if (btnSoundR) {
+        btnSoundR.classList.remove('spot-removed', 'sound-playing');
+        btnSoundR.style.display = 'flex';
+      }
+      const soundLGroup = document.getElementById('mriSoundLGroup');
+      const soundRGroup = document.getElementById('mriSoundRGroup');
+      if (soundLGroup) soundLGroup.classList.remove('playing');
+      if (soundRGroup) soundRGroup.classList.remove('playing');
+
+      if (promptBar) {
+        promptBar.classList.add('visible', 'can-confirm');
+        promptBar.classList.remove('is-confirmed');
+      }
+      if (promptDot) {
+        promptDot.className = 'step-instruction-dot confirm-pulse';
+      }
+      if (promptText) {
+        promptText.textContent = 'Welcome to MRI! Lets find all the different parts of the MRI room together!';
+      }
+      if (tapPrompt) {
+        tapPrompt.style.display = 'flex';
+        tapPrompt.style.opacity = '1';
+      }
+
+      // Automatically transition after 2.8s reading time
+      mriWelcomeTimer = setTimeout(() => {
+        triggerMRIRoomTransition();
+      }, 2800);
+    }
+
+    function triggerMRIRoomTransition() {
+      if (mriHasTransitioned) return;
+      mriHasTransitioned = true;
+      clearMRITimers();
+
+      const welcomeScreen = document.getElementById('mriWelcomeScreen');
+      const promptBar = document.getElementById('mriBottomPromptBar');
+      const promptText = document.getElementById('mriPromptText');
+      const promptDot = document.getElementById('mriPromptDot');
+      const tapPrompt = document.getElementById('mriTapToStart');
+      const highlights = document.getElementById('mriPartsHighlights');
+
+      if (tapPrompt) {
+        tapPrompt.style.opacity = '0';
+        setTimeout(() => { if (tapPrompt) tapPrompt.style.display = 'none'; }, 400);
+      }
+
+      // 1. Transition welcome screen to reveal room lights on
+      if (welcomeScreen) {
+        welcomeScreen.classList.add('transition-out');
+      }
+
+      // Reveal interactive room highlights & update prompt
+      mriTransitionTimer = setTimeout(() => {
+        if (highlights) {
+          highlights.style.display = 'block';
+        }
+        if (promptBar) {
+          promptBar.classList.remove('can-confirm');
+          promptBar.classList.add('prompt-pulse');
+          setTimeout(() => { if (promptBar) promptBar.classList.remove('prompt-pulse'); }, 450);
+        }
+        if (promptDot) {
+          promptDot.className = 'step-instruction-dot';
+        }
+        if (promptText) {
+          promptText.textContent = "Tap on a piece of medical equipment to learn more!";
+        }
+      }, 900);
+    }
+
+    function onMRIPartTap(event, partKey) {
+      if (event) event.stopPropagation();
+      if (!mriHasTransitioned || mriLightsOff) return;
+      if (mriClickedSpots.has(partKey)) return;
+
+      mriClickedSpots.add(partKey);
+
+      // Remove spot once clicked with smooth transition
+      const spotMap = {
+        'scanner': 'mriSpotScanner',
+        'bed': 'mriSpotBed',
+        'monitors': 'mriSpotMonitors'
+      };
+      const spotEl = document.getElementById(spotMap[partKey]);
+      if (spotEl) {
+        spotEl.classList.add('spot-removed');
+        setTimeout(() => { spotEl.style.display = 'none'; }, 380);
+      }
+
+      const promptBar = document.getElementById('mriBottomPromptBar');
+      const promptText = document.getElementById('mriPromptText');
+      const promptDot = document.getElementById('mriPromptDot');
+
+      const partInfo = {
+        'scanner': "The MRI scanner is a giant donut camera that uses magnets and sound waves to take pictures!",
+        'bed': "The cozy moving bed slides smoothly inside the donut while you lie down and listen to music!",
+        'monitors': "The medical team uses these computer monitors to see the amazing pictures of your body!"
+      };
+
+      if (partInfo[partKey] && promptText) {
+        promptText.textContent = partInfo[partKey];
+        if (promptDot) {
+          promptDot.className = 'step-instruction-dot confirm-pulse';
+        }
+        if (promptBar) {
+          promptBar.classList.remove('prompt-pulse');
+          void promptBar.offsetWidth;
+          promptBar.classList.add('prompt-pulse');
+        }
+      }
+
+      // Check if all spots have been clicked
+      if (mriClickedSpots.size >= MRI_DISCOVERY_PARTS.length) {
+        mriAllSpotsClicked = true;
+        if (mriEndPromptTimer) clearTimeout(mriEndPromptTimer);
+        // Allow time to read the last clicked item, then prompt to turn off lights
+        mriEndPromptTimer = setTimeout(() => {
+          showMRITurnOffLightsPrompt();
+        }, 2800);
+      }
+    }
+
+    function showMRITurnOffLightsPrompt() {
+      if (mriLightsOff) return;
+      const promptBar = document.getElementById('mriBottomPromptBar');
+      const promptText = document.getElementById('mriPromptText');
+      const promptDot = document.getElementById('mriPromptDot');
+      const switchSpot = document.getElementById('mriSpotSwitch');
+      const ceilingSpot = document.getElementById('mriSpotCeiling');
+
+      if (promptText) {
+        promptText.textContent = "Turn off the lights to begin!";
+      }
+      if (promptDot) {
+        promptDot.className = 'step-instruction-dot confirm-pulse';
+      }
+      if (promptBar) {
+        promptBar.classList.remove('prompt-pulse');
+        void promptBar.offsetWidth;
+        promptBar.classList.add('prompt-pulse', 'can-confirm');
+      }
+
+      // Activate and display glowing light switch marker
+      if (switchSpot) {
+        switchSpot.classList.remove('spot-removed');
+        switchSpot.style.display = 'flex';
+      }
+      if (ceilingSpot) {
+        ceilingSpot.style.display = 'block';
+      }
+    }
+
+    function onMRILightSwitchTap(event) {
+      if (event) event.stopPropagation();
+      if (!mriHasTransitioned) {
+        triggerMRIRoomTransition();
+        return;
+      }
+      if (!mriAllSpotsClicked) {
+        const promptBar = document.getElementById('mriBottomPromptBar');
+        const promptText = document.getElementById('mriPromptText');
+        const promptDot = document.getElementById('mriPromptDot');
+        if (promptText) {
+          promptText.textContent = "Tap on all the medical equipment first, then turn off the lights to begin!";
+        }
+        if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
+        if (promptBar) {
+          promptBar.classList.remove('prompt-pulse');
+          void promptBar.offsetWidth;
+          promptBar.classList.add('prompt-pulse');
+        }
+        return;
+      }
+
+      turnOffMRILights();
+    }
+
+    function turnOffMRILights() {
+      if (mriLightsOff) return;
+      mriLightsOff = true;
+      clearMRITimers();
+
+      const switchSpot = document.getElementById('mriSpotSwitch');
+      const ceilingSpot = document.getElementById('mriSpotCeiling');
+      const highlights = document.getElementById('mriPartsHighlights');
+      if (switchSpot) {
+        switchSpot.classList.add('spot-removed');
+        setTimeout(() => { switchSpot.style.display = 'none'; }, 380);
+      }
+      if (ceilingSpot) {
+        ceilingSpot.style.display = 'none';
+      }
+      if (highlights) {
+        highlights.style.display = 'none';
+        highlights.style.pointerEvents = 'none';
+      }
+
+      // Transition to room lights off
+      const roomLightsOn = document.getElementById('mriRoomLightsOn');
+      if (roomLightsOn) {
+        roomLightsOn.classList.add('lights-turned-off');
+      }
+
+      const promptBar = document.getElementById('mriBottomPromptBar');
+      const promptText = document.getElementById('mriPromptText');
+      const promptDot = document.getElementById('mriPromptDot');
+      if (promptText) {
+        promptText.textContent = "Great job! The lights are off and the room is nice and cozy. Ready to begin!";
+      }
+      if (promptDot) {
+        promptDot.className = 'step-instruction-dot confirm-pulse';
+      }
+      if (promptBar) {
+        promptBar.classList.remove('prompt-pulse', 'can-confirm');
+        promptBar.classList.add('is-confirmed');
+      }
+
+      // Automatically transition to MRI inside screen after 2.4s reading delay
+      mriInsideTimer = setTimeout(() => {
+        triggerMRIInsideTransition();
+      }, 2400);
+    }
+
+    function triggerMRIInsideTransition() {
+      if (mriInsideActive) return;
+      mriInsideActive = true;
+      if (mriInsideTimer) {
+        clearTimeout(mriInsideTimer);
+        mriInsideTimer = null;
+      }
+      mriTappedButtons.clear();
+
+      // Ensure room equipment highlights are completely hidden and unclickable
+      const highlights = document.getElementById('mriPartsHighlights');
+      if (highlights) {
+        highlights.style.display = 'none';
+        highlights.style.pointerEvents = 'none';
+      }
+
+      const insideLayer = document.getElementById('mriInsideLayer');
+      if (insideLayer) {
+        insideLayer.classList.add('active');
+        insideLayer.style.opacity = '1';
+        insideLayer.style.pointerEvents = 'auto';
+      }
+
+      // Ensure black buttons are reset and visible
+      const btnSoundL = document.getElementById('mriBtnSoundL');
+      const btnSoundR = document.getElementById('mriBtnSoundR');
+      if (btnSoundL) {
+        btnSoundL.classList.remove('spot-removed', 'sound-playing');
+        btnSoundL.style.display = 'flex';
+      }
+      if (btnSoundR) {
+        btnSoundR.classList.remove('spot-removed', 'sound-playing');
+        btnSoundR.style.display = 'flex';
+      }
+      const soundLEl = document.getElementById('mriSoundL');
+      const soundREl = document.getElementById('mriSoundR');
+      if (soundLEl) soundLEl.classList.remove('active');
+      if (soundREl) soundREl.classList.remove('active');
+
+      const promptBar = document.getElementById('mriBottomPromptBar');
+      const promptText = document.getElementById('mriPromptText');
+      const promptDot = document.getElementById('mriPromptDot');
+
+      if (promptText) {
+        promptText.textContent = "First, lets explore the inside of the MRI machine!";
+      }
+      if (promptDot) {
+        promptDot.className = 'step-instruction-dot confirm-pulse';
+      }
+      if (promptBar) {
+        promptBar.classList.remove('prompt-pulse', 'is-confirmed');
+        void promptBar.offsetWidth;
+        promptBar.classList.add('prompt-pulse', 'can-confirm');
+      }
+
+      // Schedule second prompt after reading delay (2.8s)
+      if (mriInsidePromptTimer) {
+        clearTimeout(mriInsidePromptTimer);
+      }
+      mriInsidePromptTimer = setTimeout(() => {
+        mriInsidePromptTimer = null;
+        showMRISoundPrompt();
+      }, 2800);
+    }
+
+    function showMRISoundPrompt() {
+      if (mriInsidePromptTimer) {
+        clearTimeout(mriInsidePromptTimer);
+        mriInsidePromptTimer = null;
+      }
+      const promptBar = document.getElementById('mriBottomPromptBar');
+      const promptText = document.getElementById('mriPromptText');
+      const promptDot = document.getElementById('mriPromptDot');
+
+      if (promptText) {
+        promptText.textContent = "Try tapping on the black buttons to hear what an MRI sounds like";
+      }
+      if (promptDot) {
+        promptDot.className = 'step-instruction-dot confirm-pulse';
+      }
+      if (promptBar) {
+        promptBar.classList.remove('prompt-pulse', 'is-confirmed');
+        void promptBar.offsetWidth;
+        promptBar.classList.add('prompt-pulse');
+      }
+    }
+
+    function onMRISoundButtonTap(event, side) {
+      if (event) event.stopPropagation();
+      if (!mriInsideActive) return;
+
+      if (mriInsidePromptTimer) {
+        clearTimeout(mriInsidePromptTimer);
+        mriInsidePromptTimer = null;
+      }
+
+      const soundLGroup = document.getElementById('mriSoundLGroup');
+      const soundRGroup = document.getElementById('mriSoundRGroup');
+      const btnLEl = document.getElementById('mriBtnSoundL');
+      const btnREl = document.getElementById('mriBtnSoundR');
+
+      mriTappedButtons.add(side);
+
+      // Make the pressed glowing button prompt disappear immediately and play sound wave sequence
+      if (side === 'left') {
+        mriLeftSoundActive = true;
+        if (soundLGroup) {
+          soundLGroup.classList.remove('playing');
+          void soundLGroup.offsetWidth;
+          soundLGroup.classList.add('playing');
+        }
+        if (btnLEl) {
+          btnLEl.classList.add('spot-removed');
+          btnLEl.style.display = 'none';
+        }
+      } else if (side === 'right') {
+        mriRightSoundActive = true;
+        if (soundRGroup) {
+          soundRGroup.classList.remove('playing');
+          void soundRGroup.offsetWidth;
+          soundRGroup.classList.add('playing');
+        }
+        if (btnREl) {
+          btnREl.classList.add('spot-removed');
+          btnREl.style.display = 'none';
+        }
+      }
+
+      // If BOTH buttons have been tapped, let the waves ripple and fade completely, then bring up remote and squish ball!
+      if (mriTappedButtons.has('left') && mriTappedButtons.has('right')) {
+        setTimeout(() => {
+          bringUpMRIRemoteAndSquishBall();
+        }, 2700);
+        return;
+      }
+
+      // If only one button has been tapped so far
+      const promptBar = document.getElementById('mriBottomPromptBar');
+      const promptText = document.getElementById('mriPromptText');
+      const promptDot = document.getElementById('mriPromptDot');
+      if (promptText) {
+        promptText.textContent = "Listen to the sounds the MRI makes! Try tapping the other black button to hear more!";
+      }
+      if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
+      if (promptBar) {
+        promptBar.classList.remove('prompt-pulse');
+        void promptBar.offsetWidth;
+        promptBar.classList.add('prompt-pulse');
+      }
+    }
+
+    function bringUpMRIRemoteAndSquishBall() {
+      mriItemsActive = true;
+      const stressBallLayer = document.getElementById('mriStressBallLayer');
+      const remoteLayer = document.getElementById('mriRemoteLayer');
+      const btnStressBall = document.getElementById('mriBtnStressBall');
+      const btnRemote = document.getElementById('mriBtnRemote');
+
+      if (stressBallLayer) stressBallLayer.classList.add('active');
+      if (remoteLayer) remoteLayer.classList.add('active');
+      if (btnStressBall) btnStressBall.style.display = 'flex';
+      if (btnRemote) {
+        btnRemote.classList.remove('spot-removed');
+        btnRemote.style.display = 'flex';
+      }
+
+      const promptBar = document.getElementById('mriBottomPromptBar');
+      const promptText = document.getElementById('mriPromptText');
+      const promptDot = document.getElementById('mriPromptDot');
+
+      if (promptText) {
+        promptText.textContent = "You can choose to watch a program, or chat with a staff member while the MRI is happening! Click on the remote to start a program, or squish the stress ball to chat with staff.";
+      }
+      if (promptDot) {
+        promptDot.className = 'step-instruction-dot confirm-pulse';
+      }
+      if (promptBar) {
+        promptBar.classList.remove('prompt-pulse', 'is-confirmed');
+        void promptBar.offsetWidth;
+        promptBar.classList.add('prompt-pulse');
+      }
+    }
+
+    function onMRIStressBallTap(event) {
+      if (event) event.stopPropagation();
+      const stressBallImg = document.getElementById('mriStressBallImg');
+      const btnStressBall = document.getElementById('mriBtnStressBall');
+      if (!stressBallImg) return;
+
+      if (mriSquishTimer) clearTimeout(mriSquishTimer);
+      stressBallImg.src = 'assets/MRIStressSquish1.png';
+      if (btnStressBall) btnStressBall.classList.add('squished');
+
+      setTimeout(() => {
+        if (stressBallImg) stressBallImg.src = 'assets/MRIStressSquish2.png';
+      }, 100);
+
+      mriSquishTimer = setTimeout(() => {
+        if (stressBallImg) stressBallImg.src = 'assets/MRIStressBall.png';
+        if (btnStressBall) btnStressBall.classList.remove('squished');
+      }, 380);
+
+      const promptBar = document.getElementById('mriBottomPromptBar');
+      const promptText = document.getElementById('mriPromptText');
+      const promptDot = document.getElementById('mriPromptDot');
+      if (promptText) {
+        promptText.textContent = "Squish! You can squeeze the stress ball to talk with staff anytime through the speaker!";
+      }
+      if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
+      if (promptBar) {
+        promptBar.classList.remove('prompt-pulse');
+        void promptBar.offsetWidth;
+        promptBar.classList.add('prompt-pulse');
+      }
+    }
+
+    function onMRIRemoteTap(event) {
+      if (event) event.stopPropagation();
+      const remoteLayer = document.getElementById('mriRemoteLayer');
+      const btnRemote = document.getElementById('mriBtnRemote');
+      if (remoteLayer) {
+        remoteLayer.classList.remove('clicked');
+        void remoteLayer.offsetWidth;
+        remoteLayer.classList.add('clicked');
+      }
+      if (btnRemote) {
+        btnRemote.classList.add('spot-removed');
+        btnRemote.style.display = 'none';
+      }
+
+      stopMRISoundWaves();
+
+      const mriVideo = document.getElementById('mriVideoPlayer');
+      if (mriVideo) {
+        mriVideo.style.display = 'block';
+        mriVideo.currentTime = 0;
+        const playPromise = mriVideo.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(err => {
+            console.warn('Video play was prevented:', err);
+          });
+        }
+        mriVideo.onended = function() {
+          const promptBar = document.getElementById('mriBottomPromptBar');
+          const promptText = document.getElementById('mriPromptText');
+          const promptDot = document.getElementById('mriPromptDot');
+          if (promptText) {
+            promptText.textContent = "The MRI is finished! You did a fantastic job staying still!";
+          }
+          if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
+          if (promptBar) {
+            promptBar.classList.remove('prompt-pulse');
+            void promptBar.offsetWidth;
+            promptBar.classList.add('prompt-pulse');
+          }
+        };
+      }
+
+      const promptBar = document.getElementById('mriBottomPromptBar');
+      const promptText = document.getElementById('mriPromptText');
+      const promptDot = document.getElementById('mriPromptDot');
+      if (promptText) {
+        promptText.textContent = "Program started! Put on your movie or music with headphones while the MRI takes pictures!";
+      }
+      if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
+      if (promptBar) {
+        promptBar.classList.remove('prompt-pulse');
+        void promptBar.offsetWidth;
+        promptBar.classList.add('prompt-pulse');
+      }
+    }
+
+    function stopMRISoundWaves() {
+      mriLeftSoundActive = false;
+      mriRightSoundActive = false;
+      const soundLGroup = document.getElementById('mriSoundLGroup');
+      const soundRGroup = document.getElementById('mriSoundRGroup');
+      const btnLEl = document.getElementById('mriBtnSoundL');
+      const btnREl = document.getElementById('mriBtnSoundR');
+      if (soundLGroup) soundLGroup.classList.remove('playing');
+      if (soundRGroup) soundRGroup.classList.remove('playing');
+      if (btnLEl) btnLEl.classList.remove('sound-playing');
+      if (btnREl) btnREl.classList.remove('sound-playing');
+    }
+
+    function handleMRIStageTap(event) {
+      if (!mriHasTransitioned) {
+        triggerMRIRoomTransition();
+      } else if (mriLightsOff && !mriInsideActive && mriInsideTimer) {
+        clearTimeout(mriInsideTimer);
+        mriInsideTimer = null;
+        triggerMRIInsideTransition();
+      } else if (mriInsideActive && mriInsidePromptTimer) {
+        showMRISoundPrompt();
+      } else if (mriAllSpotsClicked && !mriLightsOff && mriEndPromptTimer) {
+        // Skip reading delay and show turn off lights prompt immediately
+        clearTimeout(mriEndPromptTimer);
+        mriEndPromptTimer = null;
+        showMRITurnOffLightsPrompt();
+      }
+    }
+
+    function handleMRIPromptBarTap() {
+      if (!mriHasTransitioned) {
+        triggerMRIRoomTransition();
+      } else if (mriLightsOff && !mriInsideActive && mriInsideTimer) {
+        clearTimeout(mriInsideTimer);
+        mriInsideTimer = null;
+        triggerMRIInsideTransition();
+      } else if (mriItemsActive) {
+        const promptBar = document.getElementById('mriBottomPromptBar');
+        const promptText = document.getElementById('mriPromptText');
+        const promptDot = document.getElementById('mriPromptDot');
+        if (promptText) {
+          promptText.textContent = "You can choose to watch a program, or chat with a staff member while the MRI is happening! Click on the remote to start a program, or squish the stress ball to chat with staff.";
+        }
+        if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
+        if (promptBar) {
+          promptBar.classList.remove('prompt-pulse');
+          void promptBar.offsetWidth;
+          promptBar.classList.add('prompt-pulse');
+        }
+      } else if (mriInsideActive) {
+        if (mriInsidePromptTimer) {
+          showMRISoundPrompt();
+        } else if (mriTappedButtons.size === 1) {
+          const promptText = document.getElementById('mriPromptText');
+          if (promptText) {
+            promptText.textContent = "Listen to the sounds the MRI makes! Try tapping the other black button to hear more!";
+          }
+        } else {
+          showMRISoundPrompt();
+        }
+      } else if (mriAllSpotsClicked && !mriLightsOff) {
+        turnOffMRILights();
+      } else if (!mriAllSpotsClicked) {
+        const promptBar = document.getElementById('mriBottomPromptBar');
+        const promptText = document.getElementById('mriPromptText');
+        const promptDot = document.getElementById('mriPromptDot');
+        if (promptText) {
+          promptText.textContent = "Tap on a piece of medical equipment to learn more!";
+        }
+        if (promptDot) {
+          promptDot.className = 'step-instruction-dot';
+        }
+        if (promptBar) {
+          promptBar.classList.remove('prompt-pulse');
+          void promptBar.offsetWidth;
+          promptBar.classList.add('prompt-pulse');
+        }
       }
     }
 

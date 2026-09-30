@@ -64,11 +64,23 @@ public final class HapticManager {
         #endif
     }
     
+    public func mediumTap() {
+        #if os(iOS)
+        let impact = UIImpactFeedbackGenerator(style: .medium)
+        impact.prepare()
+        impact.impactOccurred()
+        #endif
+    }
+    
     public func successNotification() {
         #if os(iOS)
         let notification = UINotificationFeedbackGenerator()
         notification.prepare()
         notification.notificationOccurred(.success)
         #endif
+    }
+    
+    public func success() {
+        successNotification()
     }
 }

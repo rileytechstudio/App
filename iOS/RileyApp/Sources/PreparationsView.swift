@@ -28,28 +28,15 @@ public struct PreparationsView: View {
     @State private var currentScrollIndex: Int = 0
     @State private var selectedProcedure: ProcedureItem? = nil
     @State private var isShowingIVGame: Bool = false
+    @State private var isShowingMRIScreen: Bool = false
     
     public enum RibbonTab {
         case procedures
         case education
     }
     
-    // Procedure items corresponding to the asset cards
+    // Procedure items corresponding to the asset cards (alphabetized)
     private let allProcedures: [ProcedureItem] = [
-        ProcedureItem(
-            id: "ng-tube",
-            title: "Nasogastric Tube",
-            subtitle: "( NG Tube )",
-            imageName: "ButtonNGTube",
-            description: "An NG tube is a thin, flexible, soft tube that gently passes through the nose into the stomach. It helps give nutrition, medicine, or fluids to help your body feel better and stay strong."
-        ),
-        ProcedureItem(
-            id: "port-access",
-            title: "Port Access",
-            subtitle: nil,
-            imageName: "ButtonPortAccess",
-            description: "A port is a tiny, special medical disc placed safely under the skin. Accessing the port with a gentle, quick touch lets doctors and nurses give medicines and take blood samples easily without multiple pokes."
-        ),
         ProcedureItem(
             id: "burn-dressing",
             title: "Burn Dressing Change",
@@ -63,6 +50,27 @@ public struct PreparationsView: View {
             subtitle: "( IV Start )",
             imageName: "ButtonIVStart",
             description: "An IV is a very small, flexible plastic straw placed into a vein to give your body healing fluids and medicines while you relax."
+        ),
+        ProcedureItem(
+            id: "mri",
+            title: "Magnetic Resonance Imaging",
+            subtitle: "( MRI )",
+            imageName: "ButtonMRI",
+            description: "An MRI is a special camera shaped like a friendly giant donut that takes detailed pictures of the inside of your body using magnets and sound waves. It doesn't hurt at all! You get to lie down cozy on a moving bed and listen to music or watch a movie with special headphones while the camera taps and hums to take its pictures."
+        ),
+        ProcedureItem(
+            id: "ng-tube",
+            title: "Nasogastric Tube",
+            subtitle: "( NG Tube )",
+            imageName: "ButtonNGTube",
+            description: "An NG tube is a thin, flexible, soft tube that gently passes through the nose into the stomach. It helps give nutrition, medicine, or fluids to help your body feel better and stay strong."
+        ),
+        ProcedureItem(
+            id: "port-access",
+            title: "Port Access",
+            subtitle: nil,
+            imageName: "ButtonPortAccess",
+            description: "A port is a tiny, special medical disc placed safely under the skin. Accessing the port with a gentle, quick touch lets doctors and nurses give medicines and take blood samples easily without multiple pokes."
         )
     ]
     
@@ -140,6 +148,11 @@ public struct PreparationsView: View {
             .fullScreenCover(isPresented: $isShowingIVGame) {
                 IVGameView(onDismiss: {
                     isShowingIVGame = false
+                })
+            }
+            .fullScreenCover(isPresented: $isShowingMRIScreen) {
+                MRIProcedureView(onDismiss: {
+                    isShowingMRIScreen = false
                 })
             }
         }
@@ -313,6 +326,8 @@ public struct PreparationsView: View {
                             HapticManager.shared.buttonTap()
                             if item.id == "iv-start" {
                                 isShowingIVGame = true
+                            } else if item.id == "mri" {
+                                isShowingMRIScreen = true
                             } else {
                                 selectedProcedure = item
                             }

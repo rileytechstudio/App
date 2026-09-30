@@ -26,11 +26,12 @@ Designed to scale across all iOS devices (iPad Pro, iPad Air, iPad mini, iPhone 
   - Live filtering search bar with magnifying glass and microphone icons.
 - **Top Ribbon**:
   - Interactive `PROCEDURES` and `EDUCATION` segmented bar (`RibbonProceduresSelected` / `RibbonEducationSelected`).
-- **Scrollable Procedures List**:
-  - `Nasogastric Tube (NG Tube)` (`ButtonNGTube`)
-  - `Port Access` (`ButtonPortAccess`)
+- **Scrollable Procedures List (Alphabetized)**:
   - `Burn Dressing Change` (`ButtonBurnDress`)
   - `Intravenous Start (IV Start)` (`ButtonIVStart`)
+  - `Magnetic Resonance Imaging (MRI)` (`ButtonMRI`)
+  - `Nasogastric Tube (NG Tube)` (`ButtonNGTube`)
+  - `Port Access` (`ButtonPortAccess`)
 - **Up & Down Arrow Navigation Controls**:
   - Interactive floating `IconArrowUp` and `IconArrowDown` buttons on the right side.
   - Tapping **Down Arrow** smoothly scrolls to the next procedure.
@@ -41,6 +42,20 @@ Designed to scale across all iOS devices (iPad Pro, iPad Air, iPad mini, iPhone 
   - Content fades smoothly into the purple background before reaching the bottom bar.
 - **Bottom Navigation Bar**:
   - 5-tab bar (`BottomBarPreparations`) with `PREPARATIONS` active in bright cyan.
+
+### 3. MRI Procedure & Room Exploration Screen (`MRIProcedureView.swift`)
+- **Welcome Experience**:
+  - Tapping the **MRI** procedure card opens the interactive room experience.
+  - Displays `MRIWelcomeScreen` / `MRIRoomLightsOff` background with the cheerful little girl explorer (`MRIGirlWelcome`).
+  - Child-friendly prompt: *"Welcome to MRI! Lets find all the different parts of the MRI room together!"*
+- **Animation Sequence**:
+  - Automatically after 2.8 seconds (or on user tap), the little girl transitions smoothly off-screen to the right.
+  - The room smoothly transitions to `MRIRoomLightsOn`.
+- **Interactive Room Discovery Hotspots**:
+  - **MRI Scanner**: *"The MRI scanner is a friendly giant donut camera that uses magnets and sound waves to take pictures!"*
+  - **Cozy Moving Bed**: *"The cozy moving bed slides smoothly inside the donut while you lie down and listen to music!"*
+  - **Room Lights Switch**: *"The room lights can be bright or nice and dim so you can rest comfortably!"*
+  - **Monitor Station**: *"The medical team uses these computer monitors to see the amazing pictures of your body!"*
 
 ---
 
@@ -76,10 +91,15 @@ iOS/RileyApp/
 │   ├── IconBack.imageset/
 │   ├── IconArrowUp.imageset/
 │   ├── IconArrowDown.imageset/
-│   ├── ButtonNGTube.imageset/
-│   ├── ButtonPortAccess.imageset/
 │   ├── ButtonBurnDress.imageset/
 │   ├── ButtonIVStart.imageset/
+│   ├── ButtonMRI.imageset/
+│   ├── ButtonNGTube.imageset/
+│   ├── ButtonPortAccess.imageset/
+│   ├── MRIGirlWelcome.imageset/
+│   ├── MRIRoomLightsOff.imageset/
+│   ├── MRIRoomLightsOn.imageset/
+│   ├── MRIWelcomeScreen.imageset/
 │   ├── RibbonProceduresSelected.imageset/
 │   ├── RibbonEducationSelected.imageset/
 │   └── BottomBarPreparations.imageset/
@@ -91,6 +111,8 @@ iOS/RileyApp/
     ├── HomeScreenView.swift       # Responsive Home Screen view
     ├── HomeScreenPreviews.swift   # Previews for iPad & iPhone
     ├── PreparationsView.swift     # Scrollable Preparations view with arrows
+    ├── MRIProcedureView.swift     # Interactive MRI welcome & room exploration
+    ├── IVGameView.swift           # Interactive IV Start procedural game
     └── RileyApp.swift             # App entry point (@main)
 ```
 
