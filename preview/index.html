@@ -1097,6 +1097,17 @@
       cursor: pointer;
     }
 
+    .mri-hotspot-remote-body {
+      position: absolute;
+      top: 69.7%;
+      left: 74.8%;
+      width: 21.0%;
+      height: 32.0%;
+      cursor: pointer;
+      z-index: 25;
+      pointer-events: auto;
+    }
+
     .mri-hotspot-remote {
       position: absolute;
       top: calc(71.68% - 24px);
@@ -1120,6 +1131,12 @@
       box-shadow: 0 0 10px #00e5ff, inset 0 0 6px #00e5ff;
       animation: mriButtonPulse 1.8s infinite ease-out;
       pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .mri-hotspot-remote.video-playing .mri-pulse-ring {
+      display: none !important;
+      opacity: 0 !important;
     }
 
     .mri-hotspot-remote.spot-removed,
@@ -7041,12 +7058,12 @@
                   </div>
 
                   <!-- Remote Controller Layer (bottom-right) -->
-                  <div id="mriRemoteLayer" class="mri-layer mri-interactive-item-layer" onclick="onMRIRemoteTap(event)" style="cursor: pointer;">
+                  <div id="mriRemoteLayer" class="mri-layer mri-interactive-item-layer" style="pointer-events: none;">
                     <img id="mriRemoteImg" class="mri-layer" src="assets/MRIRemoteController.png" alt="Remote Controller" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" />
                   </div>
 
                   <!-- Stress Ball Layer (bottom-left) -->
-                  <div id="mriStressBallLayer" class="mri-layer mri-interactive-item-layer">
+                  <div id="mriStressBallLayer" class="mri-layer mri-interactive-item-layer" style="pointer-events: none;">
                     <img id="mriStressBallImg" class="mri-layer" src="assets/MRIStressBall.png" alt="Stress Ball" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" />
                   </div>
 
@@ -7066,8 +7083,9 @@
                       <span class="mri-pulse-ring" style="width: 54px; height: 54px;"></span>
                     </div>
 
-                    <!-- Interactive Remote Hotspot (centered over red power button) -->
-                    <div class="mri-hotspot mri-hotspot-remote" id="mriBtnRemote" onclick="onMRIRemoteTap(event)" title="Start Program with Remote" style="display: none;">
+                    <!-- Interactive Remote Hotspots (remote body + red power button) -->
+                    <div class="mri-hotspot-remote-body" id="mriBtnRemoteBody" onclick="onMRIRemoteTap(event)" title="Remote Controller" style="display: none;"></div>
+                    <div class="mri-hotspot-remote" id="mriBtnRemote" onclick="onMRIRemoteTap(event)" title="Start Program with Remote" style="display: none;">
                       <span class="mri-pulse-ring"></span>
                     </div>
                   </div>
@@ -15359,12 +15377,14 @@
     let mriLeftSoundActive = false;
     let mriRightSoundActive = false;
     let mriItemsActive = false;
+    let mriVideoPlaying = false;
     let mriSoundAudio = null;
     const mriTappedButtons = new Set();
     const mriClickedSpots = new Set();
     const MRI_DISCOVERY_PARTS = ['scanner', 'bed', 'monitors'];
 
     function clearMRITimers() {
+      mriVideoPlaying = false;
       if (mriWelcomeTimer) {
         clearTimeout(mriWelcomeTimer);
         mriWelcomeTimer = null;
@@ -15455,10 +15475,15 @@
       if (btnStressBall) {
         btnStressBall.style.display = 'none';
       }
+      const btnRemoteBody = document.getElementById('mriBtnRemoteBody');
+      if (btnRemoteBody) {
+        btnRemoteBody.style.display = 'none';
+      }
       if (btnRemote) {
-        btnRemote.classList.remove('spot-removed');
+        btnRemote.classList.remove('spot-removed', 'video-playing');
         btnRemote.style.display = 'none';
       }
+      mriVideoPlaying = false;
       const mriVideoReset = document.getElementById('mriVideoPlayer');
       if (mriVideoReset) {
         try {
@@ -15891,9 +15916,12 @@
       if (stressBallLayer) stressBallLayer.classList.add('active');
       if (remoteLayer) remoteLayer.classList.add('active');
       if (btnStressBall) btnStressBall.style.display = 'flex';
+      const btnRemoteBody = document.getElementById('mriBtnRemoteBody');
+      if (btnRemoteBody) btnRemoteBody.style.display = 'block';
       if (btnRemote) {
-        btnRemote.classList.remove('spot-removed');
+        btnRemote.classList.remove('spot-removed', 'video-playing');
         btnRemote.style.display = 'flex';
+        btnRemote.title = "Start Program with Remote";
       }
 
       const promptBar = document.getElementById('mriBottomPromptBar');
@@ -15950,55 +15978,101 @@
       if (event) event.stopPropagation();
       const remoteLayer = document.getElementById('mriRemoteLayer');
       const btnRemote = document.getElementById('mriBtnRemote');
-      if (remoteLayer) {
-        remoteLayer.classList.remove('clicked');
-        void remoteLayer.offsetWidth;
-        remoteLayer.classList.add('clicked');
-      }
-      if (btnRemote) {
-        btnRemote.classList.add('spot-removed');
-        btnRemote.style.display = 'none';
-      }
-
-      stopMRISoundWaves();
-
+      const btnRemoteBody = document.getElementById('mriBtnRemoteBody');
       const mriVideo = document.getElementById('mriVideoPlayer');
-      if (mriVideo) {
-        mriVideo.style.display = 'block';
-        mriVideo.currentTime = 0;
-        const playPromise = mriVideo.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(err => {
-            console.warn('Video play was prevented:', err);
-          });
-        }
-        mriVideo.onended = function() {
-          const promptBar = document.getElementById('mriBottomPromptBar');
-          const promptText = document.getElementById('mriPromptText');
-          const promptDot = document.getElementById('mriPromptDot');
-          if (promptText) {
-            promptText.textContent = "The MRI is finished! You did a fantastic job staying still!";
-          }
-          if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
-          if (promptBar) {
-            promptBar.classList.remove('prompt-pulse');
-            void promptBar.offsetWidth;
-            promptBar.classList.add('prompt-pulse');
-          }
-        };
-      }
-
       const promptBar = document.getElementById('mriBottomPromptBar');
       const promptText = document.getElementById('mriPromptText');
       const promptDot = document.getElementById('mriPromptDot');
-      if (promptText) {
-        promptText.textContent = "Program started! Put on your movie or music with headphones while the MRI takes pictures!";
-      }
-      if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
-      if (promptBar) {
-        promptBar.classList.remove('prompt-pulse');
-        void promptBar.offsetWidth;
-        promptBar.classList.add('prompt-pulse');
+
+      stopMRISoundWaves();
+
+      if (mriVideoPlaying) {
+        // STOP the program
+        mriVideoPlaying = false;
+        if (mriVideo) {
+          try {
+            mriVideo.pause();
+            mriVideo.currentTime = 0;
+            mriVideo.style.display = 'none';
+          } catch (e) {}
+        }
+        if (remoteLayer) {
+          remoteLayer.classList.remove('clicked');
+        }
+        if (btnRemote) {
+          btnRemote.classList.remove('video-playing', 'spot-removed');
+          btnRemote.style.display = 'flex';
+          btnRemote.title = "Start Program with Remote";
+        }
+        if (btnRemoteBody) {
+          btnRemoteBody.title = "Start Program with Remote";
+        }
+        if (promptText) {
+          promptText.textContent = "Program stopped! Click on the remote anytime to play your movie, or squish the stress ball to chat with staff.";
+        }
+        if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
+        if (promptBar) {
+          promptBar.classList.remove('prompt-pulse');
+          void promptBar.offsetWidth;
+          promptBar.classList.add('prompt-pulse');
+        }
+      } else {
+        // START the program
+        mriVideoPlaying = true;
+        if (remoteLayer) {
+          remoteLayer.classList.remove('clicked');
+          void remoteLayer.offsetWidth;
+          remoteLayer.classList.add('clicked');
+        }
+        if (btnRemote) {
+          btnRemote.classList.add('video-playing');
+          btnRemote.style.display = 'flex';
+          btnRemote.title = "Stop Program with Remote";
+        }
+        if (btnRemoteBody) {
+          btnRemoteBody.title = "Stop Program with Remote";
+        }
+        if (mriVideo) {
+          mriVideo.style.display = 'block';
+          mriVideo.currentTime = 0;
+          const playPromise = mriVideo.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(err => {
+              console.warn('Video play was prevented:', err);
+            });
+          }
+          mriVideo.onended = function() {
+            mriVideoPlaying = false;
+            mriVideo.style.display = 'none';
+            if (btnRemote) {
+              btnRemote.classList.remove('video-playing', 'spot-removed');
+              btnRemote.style.display = 'flex';
+              btnRemote.title = "Replay Program with Remote";
+            }
+            if (btnRemoteBody) {
+              btnRemoteBody.title = "Replay Program with Remote";
+            }
+            if (promptText) {
+              promptText.textContent = "The MRI is finished! You did a fantastic job staying still!";
+            }
+            if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
+            if (promptBar) {
+              promptBar.classList.remove('prompt-pulse');
+              void promptBar.offsetWidth;
+              promptBar.classList.add('prompt-pulse');
+            }
+          };
+        }
+
+        if (promptText) {
+          promptText.textContent = "Program started! Put on your movie or music with headphones while the MRI takes pictures!";
+        }
+        if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
+        if (promptBar) {
+          promptBar.classList.remove('prompt-pulse');
+          void promptBar.offsetWidth;
+          promptBar.classList.add('prompt-pulse');
+        }
       }
     }
 
