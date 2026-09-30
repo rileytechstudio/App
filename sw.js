@@ -1,8 +1,9 @@
 // Riley PWA Service Worker
-const CACHE_NAME = 'riley-pwa-v99';
+const CACHE_NAME = 'riley-pwa-v100';
 const PRECACHE_ASSETS = [
   './',
   './index.html',
+  './manifest.webmanifest',
   './manifest.json',
   './assets/Character_OlderBoy_Solo.png',
   './assets/Character_OlderGirl_Solo.png',
@@ -364,9 +365,17 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(PRECACHE_ASSETS).catch((err) => {
-        console.warn('Precache individual asset warning:', err);
-      });
+      return Promise.allSettled(
+        PRECACHE_ASSETS.map((asset) =>
+          fetch(asset, { cache: 'no-cache' }).then((res) => {
+            if (res.ok) {
+              return cache.put(asset, res);
+            }
+          }).catch((err) => {
+            console.warn('Skipping precache asset:', asset, err);
+          })
+        )
+      );
     })
   );
 });
@@ -390,9 +399,9 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
   // Network-First for Navigation (HTML) requests so fresh deploys load immediately
-  if (event.request.mode === 'navigate') {
+  if (event.request.mode === 'navigate' || event.request.destination === 'document') {
     event.respondWith(
-      fetch(event.request).then((networkResponse) => {
+      fetch(event.request, { cache: 'no-cache' }).then((networkResponse) => {
         if (networkResponse && networkResponse.status === 200) {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
