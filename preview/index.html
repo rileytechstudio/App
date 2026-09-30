@@ -1161,7 +1161,72 @@
       background: #000;
     }
 
-    /* MRI All Done Center Button (Pops up after 30 seconds inside) */
+    /* Layer 4: MRI Bed Preparation Screen */
+    .mri-bed-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 24;
+      opacity: 0;
+      transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+    }
+
+    .mri-bed-layer.active {
+      opacity: 1;
+      pointer-events: auto;
+      z-index: 24;
+    }
+
+    .mri-bed-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .mri-hotspot-bed-prep {
+      position: absolute;
+      top: 44%;
+      left: 28%;
+      width: 44%;
+      height: 44%;
+      cursor: pointer;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mri-hotspot-bed-prep .mri-pulse-ring {
+      width: 76px;
+      height: 76px;
+      border: 3.5px solid rgba(0, 229, 255, 0.95);
+      border-radius: 50%;
+      animation: mriPulseGlow 1.8s ease-in-out infinite;
+      box-shadow: 0 0 24px rgba(0, 229, 255, 0.85);
+    }
+
+    .mri-hotspot-bed-prep .mri-hotspot-label {
+      margin-top: 14px;
+      background: rgba(15, 23, 42, 0.92);
+      color: #e0f2fe;
+      border: 1px solid rgba(0, 229, 255, 0.6);
+      padding: 7px 16px;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+      white-space: nowrap;
+    }
+
+    /* MRI All Done Center Button (Pops up after 8 seconds inside) */
     .mri-all-done-btn {
       position: absolute;
       top: 50%;
@@ -7271,7 +7336,19 @@
                   </div>
                 </div>
 
-                <!-- All Done! Button (Pops up in center after 30 seconds) -->
+                <!-- Layer 4: MRI Bed Preparation Screen -->
+                <div id="mriBedLayer" class="mri-layer mri-bed-layer" style="display: none;">
+                  <img id="mriBedEmptyImg" class="mri-layer mri-bed-screen" src="assets/MRIBedEmpty.png" alt="MRI Bed Empty" />
+                  <img id="mriBedFullImg" class="mri-layer mri-bed-screen" src="assets/MRIBedFull.png" alt="MRI Bed Ready" style="display: none; opacity: 0; transition: opacity 0.8s ease;" />
+                  
+                  <!-- Hotspot on the bed to get ready -->
+                  <div class="mri-hotspot-bed-prep" id="mriBedHotspot" onclick="onMRIBedTap(event)" title="Tap the bed to get ready for your MRI">
+                    <span class="mri-pulse-ring"></span>
+                    <span class="mri-hotspot-label">Tap the bed to get ready</span>
+                  </div>
+                </div>
+
+                <!-- All Done! Button (Pops up in center after 8 seconds) -->
                 <button class="mri-all-done-btn" id="mriAllDoneBtn" onclick="onMRIAllDoneTap(event)" aria-label="MRI All Done">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                   <span>All Done!</span>
@@ -15585,12 +15662,37 @@
     let mriSoundAudio = null;
     let mriAllDoneTimer = null;
     let mriConfettiAnimationId = null;
+    let mriBedActive = false;
+    let mriBedFull = false;
     const mriTappedButtons = new Set();
     const mriClickedSpots = new Set();
     const MRI_DISCOVERY_PARTS = ['scanner', 'bed', 'monitors'];
 
     function clearMRITimers() {
       mriVideoPlaying = false;
+      mriBedActive = false;
+      mriBedFull = false;
+      const bedLayer = document.getElementById('mriBedLayer');
+      if (bedLayer) {
+        bedLayer.classList.remove('active');
+        bedLayer.style.display = 'none';
+        bedLayer.style.opacity = '0';
+        bedLayer.style.pointerEvents = 'none';
+      }
+      const bedEmptyImg = document.getElementById('mriBedEmptyImg');
+      if (bedEmptyImg) {
+        bedEmptyImg.style.display = 'block';
+        bedEmptyImg.style.opacity = '1';
+      }
+      const bedFullImg = document.getElementById('mriBedFullImg');
+      if (bedFullImg) {
+        bedFullImg.style.display = 'none';
+        bedFullImg.style.opacity = '0';
+      }
+      const bedHotspot = document.getElementById('mriBedHotspot');
+      if (bedHotspot) {
+        bedHotspot.style.display = 'flex';
+      }
       if (mriAllDoneTimer) {
         clearTimeout(mriAllDoneTimer);
         mriAllDoneTimer = null;
@@ -15984,11 +16086,11 @@
       }
       mriTappedButtons.clear();
 
-      // Start 30-second timer for All Done button to pop up in the middle of the screen
+      // Start 8-second timer for All Done button to pop up in the middle of the screen
       if (mriAllDoneTimer) clearTimeout(mriAllDoneTimer);
       mriAllDoneTimer = setTimeout(() => {
         showMRIAllDoneButton();
-      }, 30000);
+      }, 8000);
 
       // Ensure room equipment highlights are completely hidden and unclickable
       const highlights = document.getElementById('mriPartsHighlights');
@@ -16332,7 +16434,6 @@
     function onMRIAllDoneTap(event) {
       if (event) event.stopPropagation();
       triggerHapticFeedback(true);
-      playYouDidItChimeSound();
 
       // Pause video if playing
       const mriVideo = document.getElementById('mriVideoPlayer');
@@ -16340,24 +16441,51 @@
         try { mriVideo.pause(); } catch (e) {}
       }
       mriVideoPlaying = false;
+      stopMRISoundWaves();
 
       // Hide All Done button
       const allDoneBtn = document.getElementById('mriAllDoneBtn');
       if (allDoneBtn) allDoneBtn.classList.remove('visible');
 
-      // Show success celebration overlay
-      const successOverlay = document.getElementById('mriSuccessOverlay');
-      if (successOverlay) {
-        successOverlay.classList.add('visible');
-        successOverlay.setAttribute('aria-hidden', 'false');
+      // Hide inside screen layer
+      const insideLayer = document.getElementById('mriInsideLayer');
+      if (insideLayer) {
+        insideLayer.classList.remove('active');
+        insideLayer.style.opacity = '0';
+        insideLayer.style.pointerEvents = 'none';
       }
-      startMRIConfetti();
+
+      // Transition to MRI Bed Empty Screen
+      mriBedActive = true;
+      mriBedFull = false;
+      const bedLayer = document.getElementById('mriBedLayer');
+      const bedEmptyImg = document.getElementById('mriBedEmptyImg');
+      const bedFullImg = document.getElementById('mriBedFullImg');
+      const bedHotspot = document.getElementById('mriBedHotspot');
+      if (bedLayer) {
+        bedLayer.style.display = 'block';
+        void bedLayer.offsetWidth;
+        bedLayer.classList.add('active');
+        bedLayer.style.opacity = '1';
+        bedLayer.style.pointerEvents = 'auto';
+      }
+      if (bedEmptyImg) {
+        bedEmptyImg.style.display = 'block';
+        bedEmptyImg.style.opacity = '1';
+      }
+      if (bedFullImg) {
+        bedFullImg.style.display = 'none';
+        bedFullImg.style.opacity = '0';
+      }
+      if (bedHotspot) {
+        bedHotspot.style.display = 'flex';
+      }
 
       const promptText = document.getElementById('mriPromptText');
       const promptDot = document.getElementById('mriPromptDot');
       const promptBar = document.getElementById('mriBottomPromptBar');
       if (promptText) {
-        promptText.textContent = "Hooray! You completed your MRI procedure! You did a fantastic job staying still!";
+        promptText.textContent = "Tap the bed to get ready for your MRI!";
       }
       if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
       if (promptBar) {
@@ -16365,6 +16493,47 @@
         void promptBar.offsetWidth;
         promptBar.classList.add('prompt-pulse');
       }
+    }
+
+    function onMRIBedTap(event) {
+      if (event) event.stopPropagation();
+      if (!mriBedActive || mriBedFull) return;
+      mriBedFull = true;
+      triggerHapticFeedback(true);
+      playYouDidItChimeSound();
+
+      const bedHotspot = document.getElementById('mriBedHotspot');
+      if (bedHotspot) bedHotspot.style.display = 'none';
+
+      const bedFullImg = document.getElementById('mriBedFullImg');
+      if (bedFullImg) {
+        bedFullImg.style.display = 'block';
+        void bedFullImg.offsetWidth;
+        bedFullImg.style.opacity = '1';
+      }
+
+      const promptText = document.getElementById('mriPromptText');
+      const promptDot = document.getElementById('mriPromptDot');
+      const promptBar = document.getElementById('mriBottomPromptBar');
+      if (promptText) {
+        promptText.textContent = "Great job! You are all cozy and ready for your MRI!";
+      }
+      if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
+      if (promptBar) {
+        promptBar.classList.remove('prompt-pulse');
+        void promptBar.offsetWidth;
+        promptBar.classList.add('prompt-pulse');
+      }
+
+      // Show celebratory overlay with confetti after 1.8 seconds
+      setTimeout(() => {
+        const successOverlay = document.getElementById('mriSuccessOverlay');
+        if (successOverlay) {
+          successOverlay.classList.add('visible');
+          successOverlay.setAttribute('aria-hidden', 'false');
+        }
+        startMRIConfetti();
+      }, 1800);
     }
 
     function startMRIConfetti() {
@@ -16485,7 +16654,9 @@
     }
 
     function handleMRIStageTap(event) {
-      if (!mriHasTransitioned) {
+      if (mriBedActive && !mriBedFull) {
+        onMRIBedTap(event);
+      } else if (!mriHasTransitioned) {
         triggerMRIRoomTransition();
       } else if (mriLightsOff && !mriInsideActive && mriInsideTimer) {
         clearTimeout(mriInsideTimer);
@@ -16502,7 +16673,9 @@
     }
 
     function handleMRIPromptBarTap() {
-      if (!mriHasTransitioned) {
+      if (mriBedActive && !mriBedFull) {
+        onMRIBedTap();
+      } else if (!mriHasTransitioned) {
         triggerMRIRoomTransition();
       } else if (mriLightsOff && !mriInsideActive && mriInsideTimer) {
         clearTimeout(mriInsideTimer);

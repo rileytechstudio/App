@@ -45,6 +45,8 @@ public struct MRIProcedureView: View {
     @State private var allDoneTimer: Timer? = nil
     @State private var showAllDoneButton: Bool = false
     @State private var showCelebrationModal: Bool = false
+    @State private var isBedScreen: Bool = false
+    @State private var isBedFull: Bool = false
     
     // Interactive Room Discovery Parts (Medical Equipment)
     private let roomParts: [MRIPart] = [
@@ -555,6 +557,54 @@ public struct MRIProcedureView: View {
                         .transition(.scale.combined(with: .opacity))
                     }
                     
+                    // Layer 3.8: Bed Preparation Screen (shown after All Done button is pressed)
+                    if isBedScreen {
+                        ZStack {
+                            Image("MRIBedEmpty")
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: contentWidth, height: contentHeight)
+                            
+                            if isBedFull {
+                                Image("MRIBedFull")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: contentWidth, height: contentHeight)
+                                    .transition(.opacity)
+                            }
+                            
+                            if !isBedFull {
+                                // Hotspot to tap bed
+                                Button(action: {
+                                    tapBed()
+                                }) {
+                                    VStack(spacing: 8) {
+                                        Circle()
+                                            .stroke(Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0), lineWidth: 3.5)
+                                            .frame(width: 68, height: 68)
+                                            .shadow(color: Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0), radius: 8)
+                                        
+                                        Text("Tap the bed to get ready")
+                                            .font(.system(size: 15, weight: .bold))
+                                            .foregroundColor(Color(red: 224 / 255.0, green: 242 / 255.0, blue: 254 / 255.0))
+                                            .padding(.horizontal, 14)
+                                            .padding(.vertical, 6)
+                                            .background(Color(red: 15 / 255.0, green: 23 / 255.0, blue: 42 / 255.0).opacity(0.92))
+                                            .cornerRadius(14)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 14)
+                                                    .stroke(Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0).opacity(0.6), lineWidth: 1)
+                                            )
+                                    }
+                                    .frame(width: contentWidth * 0.44, height: contentHeight * 0.44)
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                .position(x: contentWidth * 0.50, y: contentHeight * 0.60)
+                            }
+                        }
+                        .transition(.opacity)
+                    }
+                    
                     // Layer 4: Welcome Screen (shown in beginning, transitions to Room Lights On)
                     Image("MRIWelcomeScreen")
                         .resizable()
@@ -595,7 +645,9 @@ public struct MRIProcedureView: View {
                 .clipped()
                 .contentShape(Rectangle())
                 .onTapGesture {
-                    if !hasTransitioned {
+                    if isBedScreen && !isBedFull {
+                        tapBed()
+                    } else if !hasTransitioned {
                         triggerTransition()
                     } else if lightsOff && !isInsideScreen {
                         insideTransitionTimer?.invalidate()
@@ -619,7 +671,9 @@ public struct MRIProcedureView: View {
     private var bottomPromptBar: some View {
         Button(action: {
             HapticManager.shared.lightTap()
-            if !hasTransitioned {
+            if isBedScreen && !isBedFull {
+                tapBed()
+            } else if !hasTransitioned {
                 triggerTransition()
             } else if lightsOff && !isInsideScreen {
                 insideTransitionTimer?.invalidate()
@@ -713,6 +767,8 @@ public struct MRIProcedureView: View {
         allSpotsClicked = false
         lightsOff = false
         isInsideScreen = false
+        isBedScreen = false
+        isBedFull = false
         waveAnimationToken = UUID()
         leftWaveOpacities = [0, 0, 0, 0]
         rightWaveOpacities = [0, 0, 0, 0]
@@ -827,9 +883,9 @@ public struct MRIProcedureView: View {
             showMRISoundPrompt()
         }
         
-        // Start 30-second timer for All Done button
+        // Start 8-second timer for All Done button
         allDoneTimer?.invalidate()
-        allDoneTimer = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: false) { _ in
+        allDoneTimer = Timer.scheduledTimer(withTimeInterval: 8.0, repeats: false) { _ in
             withAnimation(.spring(response: 0.5, dampingFraction: 0.75)) {
                 showAllDoneButton = true
             }
@@ -1031,7 +1087,7 @@ public struct MRIProcedureView: View {
     
     // MARK: - All Done & Celebration
     private func tapAllDone() {
-        HapticManager.shared.success()
+        HapticManager.shared.lightTap()
         
         // Pause video
         isVideoPlaying = false
@@ -1040,6 +1096,19 @@ public struct MRIProcedureView: View {
         // Stop mri audio
         mriAudioPlayer?.stop()
         mriAudioPlayer = nil
+        
+        withAnimation(.easeInOut(duration: 0.6)) {
+            showAllDoneButton = false
+            isInsideScreen = false
+            isBedScreen = true
+            isBedFull = false
+            promptText = "Tap the bed to get ready for your MRI!"
+        }
+    }
+    
+    private func tapBed() {
+        guard isBedScreen && !isBedFull else { return }
+        HapticManager.shared.success()
         
         // Play chime sound
         if let chimeURL = Bundle.main.url(forResource: "YouDidItChime", withExtension: "mp3") ??
@@ -1052,10 +1121,16 @@ public struct MRIProcedureView: View {
             }
         }
         
-        withAnimation(.easeInOut(duration: 0.3)) {
-            showAllDoneButton = false
-            showCelebrationModal = true
-            promptText = "Hooray! You completed your MRI procedure! You did a fantastic job staying still!"
+        withAnimation(.easeInOut(duration: 0.6)) {
+            isBedFull = true
+            promptText = "Great job! You are all cozy and ready for your MRI!"
+        }
+        
+        // Show celebration overlay after 1.8 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
+            withAnimation(.spring(response: 0.45, dampingFraction: 0.75)) {
+                showCelebrationModal = true
+            }
         }
     }
     
