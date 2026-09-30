@@ -42,6 +42,9 @@ public struct MRIProcedureView: View {
     @State private var isVideoPlaying: Bool = false
     @State private var avPlayer: AVPlayer? = nil
     @State private var remoteTapped: Bool = false
+    @State private var allDoneTimer: Timer? = nil
+    @State private var showAllDoneButton: Bool = false
+    @State private var showCelebrationModal: Bool = false
     
     // Interactive Room Discovery Parts (Medical Equipment)
     private let roomParts: [MRIPart] = [
@@ -107,6 +110,11 @@ public struct MRIProcedureView: View {
                     // Accessible Bottom Prompt Banner (Anatomy Explorer Standard)
                     bottomPromptBar
                 }
+                
+                // Celebration Overlay Modal
+                if showCelebrationModal {
+                    celebrationOverlayView(screenSize: screenSize)
+                }
             }
             .onAppear {
                 startWelcomeSequence()
@@ -120,6 +128,8 @@ public struct MRIProcedureView: View {
                 insideTransitionTimer = nil
                 insidePromptTimer?.invalidate()
                 insidePromptTimer = nil
+                allDoneTimer?.invalidate()
+                allDoneTimer = nil
                 mriAudioPlayer?.stop()
                 mriAudioPlayer = nil
                 avPlayer?.pause()
@@ -512,6 +522,39 @@ public struct MRIProcedureView: View {
                         }
                     }
                     
+                    // Layer 3.5: All Done Button (Pops up in center after 30 seconds)
+                    if isInsideScreen && showAllDoneButton && !showCelebrationModal {
+                        Button(action: {
+                            tapAllDone()
+                        }) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 18, weight: .black))
+                                Text("All Done!")
+                                    .font(.system(size: 20, weight: .bold))
+                            }
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 28)
+                            .padding(.vertical, 14)
+                            .background(
+                                LinearGradient(
+                                    colors: [Color(red: 16/255, green: 185/255, blue: 129/255), Color(red: 5/255, green: 150/255, blue: 105/255)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .clipShape(Capsule())
+                            .overlay(
+                                Capsule()
+                                    .stroke(Color.white.opacity(0.6), lineWidth: 2)
+                            )
+                            .shadow(color: Color(red: 16/255, green: 185/255, blue: 129/255).opacity(0.6), radius: 14, x: 0, y: 6)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .position(x: contentWidth * 0.5, y: contentHeight * 0.5)
+                        .transition(.scale.combined(with: .opacity))
+                    }
+                    
                     // Layer 4: Welcome Screen (shown in beginning, transitions to Room Lights On)
                     Image("MRIWelcomeScreen")
                         .resizable()
@@ -659,7 +702,11 @@ public struct MRIProcedureView: View {
         insideTransitionTimer = nil
         insidePromptTimer?.invalidate()
         insidePromptTimer = nil
+        allDoneTimer?.invalidate()
+        allDoneTimer = nil
         
+        showAllDoneButton = false
+        showCelebrationModal = false
         hasTransitioned = false
         selectedPartId = nil
         clickedPartIds.removeAll()
@@ -778,6 +825,14 @@ public struct MRIProcedureView: View {
         insidePromptTimer?.invalidate()
         insidePromptTimer = Timer.scheduledTimer(withTimeInterval: 2.8, repeats: false) { _ in
             showMRISoundPrompt()
+        }
+        
+        // Start 30-second timer for All Done button
+        allDoneTimer?.invalidate()
+        allDoneTimer = Timer.scheduledTimer(withTimeInterval: 30.0, repeats: false) { _ in
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.75)) {
+                showAllDoneButton = true
+            }
         }
     }
     
@@ -971,6 +1026,118 @@ public struct MRIProcedureView: View {
                     promptText = "Program started! Put on your movie or music with headphones while the MRI takes pictures!"
                 }
             }
+        }
+    }
+    
+    // MARK: - All Done & Celebration
+    private func tapAllDone() {
+        HapticManager.shared.success()
+        
+        // Pause video
+        isVideoPlaying = false
+        avPlayer?.pause()
+        
+        // Stop mri audio
+        mriAudioPlayer?.stop()
+        mriAudioPlayer = nil
+        
+        // Play chime sound
+        if let chimeURL = Bundle.main.url(forResource: "YouDidItChime", withExtension: "mp3") ??
+                          Bundle.main.url(forResource: "YouDidIt", withExtension: "mp3") {
+            do {
+                mriAudioPlayer = try AVAudioPlayer(contentsOf: chimeURL)
+                mriAudioPlayer?.play()
+            } catch {
+                print("Could not play YouDidIt chime: \(error)")
+            }
+        }
+        
+        withAnimation(.easeInOut(duration: 0.3)) {
+            showAllDoneButton = false
+            showCelebrationModal = true
+            promptText = "Hooray! You completed your MRI procedure! You did a fantastic job staying still!"
+        }
+    }
+    
+    @ViewBuilder
+    private func celebrationOverlayView(screenSize: CGSize) -> some View {
+        ZStack {
+            Color.black.opacity(0.65)
+                .ignoresSafeArea()
+                .onTapGesture { }
+            
+            ConfettiAnimationView()
+                .ignoresSafeArea()
+                .allowsHitTesting(false)
+            
+            VStack(spacing: 20) {
+                Image("GameYouDidIt")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: 420)
+                    .shadow(color: Color.black.opacity(0.6), radius: 16, x: 0, y: 8)
+                
+                Text("You completed your MRI procedure! You did a fantastic job staying still!")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
+                
+                HStack(spacing: 16) {
+                    Button(action: {
+                        HapticManager.shared.buttonTap()
+                        showCelebrationModal = false
+                        startWelcomeSequence()
+                    }) {
+                        Text("Explore Again")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(Color(red: 15/255, green: 23/255, blue: 42/255))
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 12)
+                            .background(Color.white)
+                            .clipShape(Capsule())
+                            .shadow(color: Color.black.opacity(0.2), radius: 6, y: 3)
+                    }
+                    
+                    Button(action: {
+                        HapticManager.shared.buttonTap()
+                        showCelebrationModal = false
+                        if let onDismiss = onDismiss {
+                            onDismiss()
+                        } else {
+                            presentationMode.wrappedValue.dismiss()
+                        }
+                    }) {
+                        Text("Back to Procedures")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 12)
+                            .background(
+                                LinearGradient(
+                                    colors: [Color(red: 14/255, green: 165/255, blue: 233/255), Color(red: 2/255, green: 132/255, blue: 199/255)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .clipShape(Capsule())
+                            .shadow(color: Color(red: 2/255, green: 132/255, blue: 199/255).opacity(0.4), radius: 8, y: 4)
+                    }
+                }
+            }
+            .padding(28)
+            .background(
+                Color(red: 15/255, green: 23/255, blue: 42/255).opacity(0.92)
+                    .background(.ultraThinMaterial)
+            )
+            .cornerRadius(24)
+            .overlay(
+                RoundedRectangle(cornerRadius: 24)
+                    .stroke(Color.white.opacity(0.2), lineWidth: 1.5)
+            )
+            .shadow(color: Color.black.opacity(0.5), radius: 24, y: 12)
+            .padding(.horizontal, 24)
+            .transition(.scale.combined(with: .opacity))
         }
     }
 }

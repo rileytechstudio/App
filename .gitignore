@@ -12,7 +12,7 @@
 xcuserdata/
 DerivedData/
 .build/
-scratch/swift-cache/
+scratch/
 
 # Chrome / Browser Automation Data
 .chrome-data/
