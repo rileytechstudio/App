@@ -1868,7 +1868,9 @@ public struct MRIProcedureView: View {
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 16)
+                .allowsHitTesting(false)
             }
+            .frame(width: contentWidth, height: contentHeight)
         }
         .frame(width: contentWidth, height: contentHeight)
     }

@@ -1500,8 +1500,8 @@
     }
 
     .mri-still-ring-warning.active .mri-still-ring-core {
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
       background: radial-gradient(circle, #fef08a 0%, #f59e0b 80%, transparent 100%);
       box-shadow: 0 0 24px #f59e0b;
@@ -1797,25 +1797,25 @@
 
     .mri-contrast-label {
       position: absolute;
-      bottom: clamp(12px, 2vw, 20px);
+      bottom: calc(56px + clamp(10px, 1.8vw, 18px));
       display: inline-block;
       color: #ffffff;
-      font-size: clamp(13px, 1.8vw, 16px);
+      font-size: clamp(14px, 1.9vw, 17px);
       font-weight: 800;
       letter-spacing: 0.3px;
       pointer-events: none;
-      z-index: 10;
+      z-index: 30;
       text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95), 0 0 12px rgba(0, 0, 0, 0.85);
       user-select: none;
       -webkit-user-select: none;
     }
 
     .mri-contrast-label-left {
-      left: clamp(14px, 2.5vw, 24px);
+      left: clamp(16px, 2.5vw, 28px);
     }
 
     .mri-contrast-label-right {
-      right: clamp(14px, 2.5vw, 24px);
+      right: clamp(16px, 2.5vw, 28px);
     }
 
     .mri-contrast-done-btn {
@@ -16677,8 +16677,8 @@
       }
       const staticBedEmpty = document.getElementById('mriStaticBedEmptyImg');
       if (staticBedEmpty) {
+        staticBedEmpty.style.display = 'block';
         staticBedEmpty.style.opacity = '1';
-        staticBedEmpty.style.pointerEvents = 'auto';
         staticBedEmpty.style.transform = 'translateY(22%)';
       }
       const bedEmptyImg = document.getElementById('mriBedEmptyImg');
