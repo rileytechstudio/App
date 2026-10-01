@@ -1654,10 +1654,12 @@ public struct MRIProcedureView: View {
     private func setupStillVideoPlayer() {
         if stillVideoPlayer == nil {
             var videoURL = Bundle.main.url(forResource: "MRIDance", withExtension: "mp4") ??
+                           Bundle.main.url(forResource: "MRI Dance 2", withExtension: "mp4") ??
                            Bundle.main.url(forResource: "MRI Dance", withExtension: "mp4")
             #if SWIFT_PACKAGE
             if videoURL == nil {
                 videoURL = Bundle.module.url(forResource: "MRIDance", withExtension: "mp4") ??
+                           Bundle.module.url(forResource: "MRI Dance 2", withExtension: "mp4") ??
                            Bundle.module.url(forResource: "MRI Dance", withExtension: "mp4")
             }
             #endif
