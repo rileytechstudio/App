@@ -915,6 +915,42 @@
       height: 44%;
     }
 
+    /* Layer 0.5: Monitors Layer in Dimmed Room */
+    .mri-monitors-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 4;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+      cursor: pointer;
+    }
+
+    .mri-monitors-layer img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+    }
+
+    .mri-hotspot-monitors-active {
+      top: 28%;
+      left: 80%;
+      width: 14%;
+      height: 32%;
+      z-index: 10;
+    }
+
+    .mri-hotspot-monitors-active .mri-hotspot-label {
+      margin-top: 54px;
+    }
+
     /* Layer 3: MRI Inside Screen (explored after room lights off) */
     .mri-inside-layer {
       position: absolute;
@@ -8060,6 +8096,15 @@
                 <!-- Layer 0: Room Lights Off Screen (revealed when lights turn off) -->
                 <img id="mriRoomLightsOff" class="mri-layer mri-room-lights-off" src="assets/MRIRoomLightsOff.png" alt="MRI Room Lights Off" />
 
+                <!-- Layer 0.5: Monitors Layer in Dimmed Room -->
+                <div id="mriMonitorsLayer" class="mri-layer mri-monitors-layer" style="display: none; opacity: 0; pointer-events: none;" onclick="onMRIMonitorsTap(event)">
+                  <img id="mriMonitorsImg" class="mri-layer" src="assets/Monitors.png" alt="Monitors" draggable="false" />
+                  <div class="mri-hotspot mri-hotspot-monitors-active" id="mriSpotMonitorsActive" title="Click on the monitors">
+                    <span class="mri-pulse-ring"></span>
+                    <span class="mri-hotspot-label">Monitors</span>
+                  </div>
+                </div>
+
                 <!-- Layer 1: Room Lights On Screen (the interactive room screen) -->
                 <img id="mriRoomLightsOn" class="mri-layer mri-room-lights-on" src="assets/MRIRoomLightsOn.png" alt="MRI Room Lights On" />
 
@@ -8296,10 +8341,10 @@
                       <span>With Contrast</span>
                     </div>
 
-                    <!-- All Done Button -->
-                    <button id="mriContrastDoneBtn" class="mri-contrast-done-btn" onclick="finishMRIContrastToCelebration(event)" aria-label="Finish MRI Exploration">
+                    <!-- Continue Button -->
+                    <button id="mriContrastDoneBtn" class="mri-contrast-done-btn" onclick="finishMRIContrast(event)" aria-label="Continue MRI Preparation">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                      <span>All Done!</span>
+                      <span>Continue</span>
                     </button>
                   </div>
                 </div>
@@ -16635,6 +16680,8 @@
     let mriContrastTransitionTimer = null;
     let mriContrastActive = false;
     let mriContrastPercent = 50;
+    let mriMonitorsActive = false;
+    let mriMonitorsDone = false;
     let mriStillGameActive = false;
     let mriStillGameDone = false;
     let mriStillGameState = 'MOVE'; // 'MOVE' | 'FREEZE' | 'COMPLETE'
@@ -16698,6 +16745,14 @@
         contrastOverlay.classList.remove('active');
         contrastOverlay.style.display = 'none';
         contrastOverlay.style.opacity = '0';
+      }
+      mriMonitorsActive = false;
+      mriMonitorsDone = false;
+      const monitorsLayer = document.getElementById('mriMonitorsLayer');
+      if (monitorsLayer) {
+        monitorsLayer.style.display = 'none';
+        monitorsLayer.style.opacity = '0';
+        monitorsLayer.style.pointerEvents = 'none';
       }
       const vWO = document.getElementById('mriVideoWOContrast');
       const vC = document.getElementById('mriVideoContrast');
@@ -16858,10 +16913,19 @@
       mriHasTransitioned = false;
       mriAllSpotsClicked = false;
       mriLightsOff = false;
+      mriMonitorsActive = false;
+      mriMonitorsDone = false;
       mriInsideActive = false;
       mriItemsActive = false;
       mriTappedButtons.clear();
       mriClickedSpots.clear();
+
+      const monitorsLayer = document.getElementById('mriMonitorsLayer');
+      if (monitorsLayer) {
+        monitorsLayer.style.display = 'none';
+        monitorsLayer.style.opacity = '0';
+        monitorsLayer.style.pointerEvents = 'none';
+      }
 
       const welcomeScreen = document.getElementById('mriWelcomeScreen');
       const roomLightsOn = document.getElementById('mriRoomLightsOn');
@@ -17173,24 +17237,39 @@
         roomLightsOn.classList.add('lights-turned-off');
       }
 
+      // Activate Monitors step in dimmed room
+      mriMonitorsActive = true;
+      mriMonitorsDone = false;
+
+      const monitorsLayer = document.getElementById('mriMonitorsLayer');
+      if (monitorsLayer) {
+        monitorsLayer.style.display = 'block';
+        monitorsLayer.style.pointerEvents = 'auto';
+        requestAnimationFrame(() => {
+          monitorsLayer.style.opacity = '1';
+        });
+      }
+
       const promptBar = document.getElementById('mriBottomPromptBar');
       const promptText = document.getElementById('mriPromptText');
       const promptDot = document.getElementById('mriPromptDot');
       if (promptText) {
-        promptText.textContent = "Great job! The lights are off and the room is nice and cozy. Ready to begin!";
+        promptText.textContent = "Click on the monitors to see an example of what an MRI looks like with and without contrast.";
       }
       if (promptDot) {
         promptDot.className = 'step-instruction-dot confirm-pulse';
       }
       if (promptBar) {
         promptBar.classList.remove('prompt-pulse', 'can-confirm');
-        promptBar.classList.add('is-confirmed');
+        requestAnimationFrame(() => promptBar.classList.add('prompt-pulse'));
       }
+    }
 
-      // Automatically transition to MRI inside screen after 2.4s reading delay
-      mriInsideTimer = setTimeout(() => {
-        triggerMRIInsideTransition();
-      }, 2400);
+    function onMRIMonitorsTap(event) {
+      if (event && event.stopPropagation) event.stopPropagation();
+      if (!mriMonitorsActive || mriContrastActive || mriMonitorsDone) return;
+      triggerHapticFeedback(true);
+      startMRIContrastComparison();
     }
 
     function triggerMRIInsideTransition() {
@@ -17238,7 +17317,7 @@
       const promptDot = document.getElementById('mriPromptDot');
 
       if (promptText) {
-        promptText.textContent = "First, lets explore the inside of the MRI machine!";
+        promptText.textContent = "Now, lets explore the inside of the MRI machine!";
       }
       if (promptDot) {
         promptDot.className = 'step-instruction-dot confirm-pulse';
@@ -17735,7 +17814,7 @@
     }
 
     function onMRIBedLayerTap(event) {
-      if (!mriBedActive || mriStillGameActive || mriContrastActive) return;
+      if (!mriBedActive || mriStillGameActive || mriContrastActive || mriMonitorsActive) return;
       if (!mriBedFull) {
         onMRIBedTap(event);
       } else if (!mriStillGameDone) {
@@ -17748,7 +17827,7 @@
       } else if (mriBedCanSlideOut && !mriBedSlidOut) {
         completeMRISlideOut();
       } else if (mriBedSlidOut) {
-        startMRIContrastComparison();
+        showMRISuccessCelebration();
       }
     }
 
@@ -18396,7 +18475,7 @@
       const promptDot = document.getElementById('mriPromptDot');
       const promptBar = document.getElementById('mriBottomPromptBar');
       if (promptText) {
-        promptText.textContent = "Lets see what an MRI with and without contrast might look like.";
+        promptText.textContent = "Great job! You completed your MRI scan!";
       }
       if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
       if (promptBar) {
@@ -18404,12 +18483,11 @@
         requestAnimationFrame(() => promptBar.classList.add('prompt-pulse'));
       }
 
-      // Transition to Contrast Comparison scene after 1.5s
-      if (mriContrastTransitionTimer) clearTimeout(mriContrastTransitionTimer);
-      mriContrastTransitionTimer = setTimeout(() => {
-        if (!mriBedActive || mriContrastActive) return;
-        startMRIContrastComparison();
-      }, 1500);
+      // Preparation ends here once bed slides back out!
+      if (mriCelebrationTimer) clearTimeout(mriCelebrationTimer);
+      mriCelebrationTimer = setTimeout(() => {
+        showMRISuccessCelebration();
+      }, 700);
     }
 
     function startMRIContrastComparison() {
@@ -18601,7 +18679,7 @@
       container.addEventListener('pointercancel', onUp);
     }
 
-    function finishMRIContrastToCelebration(event) {
+    function finishMRIContrast(event) {
       if (event && event.stopPropagation) event.stopPropagation();
       triggerHapticFeedback(true);
 
@@ -18620,12 +18698,43 @@
         }, 400);
       }
 
+      mriContrastActive = false;
+      mriMonitorsActive = false;
+      mriMonitorsDone = true;
+
+      const monitorsLayer = document.getElementById('mriMonitorsLayer');
+      if (monitorsLayer) {
+        monitorsLayer.style.opacity = '0';
+        monitorsLayer.style.pointerEvents = 'none';
+        setTimeout(() => { monitorsLayer.style.display = 'none'; }, 400);
+      }
+
+      triggerMRIInsideTransition();
+    }
+
+    function finishMRIContrastToCelebration(event) {
+      finishMRIContrast(event);
+    }
+
+    function showMRISuccessCelebration() {
+      if (mriCelebrationTimer) {
+        clearTimeout(mriCelebrationTimer);
+        mriCelebrationTimer = null;
+      }
+      triggerHapticFeedback(true);
+      playYouDidItSound();
+
       const successOverlay = document.getElementById('mriSuccessOverlay');
       if (successOverlay) {
         successOverlay.classList.add('visible');
         successOverlay.setAttribute('aria-hidden', 'false');
       }
       startMRIConfetti();
+
+      const promptText = document.getElementById('mriPromptText');
+      if (promptText) {
+        promptText.textContent = "Great job! You completed your MRI scan!";
+      }
     }
 
     function startMRIConfetti() {
@@ -18756,13 +18865,11 @@
       } else if (mriBedActive && mriBedCanSlideOut && !mriBedSlidOut) {
         completeMRISlideOut();
       } else if (mriBedActive && mriBedSlidOut) {
-        startMRIContrastComparison();
+        showMRISuccessCelebration();
       } else if (!mriHasTransitioned) {
         triggerMRIRoomTransition();
-      } else if (mriLightsOff && !mriInsideActive && mriInsideTimer) {
-        clearTimeout(mriInsideTimer);
-        mriInsideTimer = null;
-        triggerMRIInsideTransition();
+      } else if (mriLightsOff && mriMonitorsActive && !mriMonitorsDone) {
+        startMRIContrastComparison();
       } else if (mriInsideActive && mriInsidePromptTimer) {
         showMRISoundPrompt();
       } else if (mriAllSpotsClicked && !mriLightsOff && mriEndPromptTimer) {
@@ -18784,13 +18891,11 @@
       } else if (mriBedActive && mriBedCanSlideOut && !mriBedSlidOut) {
         completeMRISlideOut();
       } else if (mriBedActive && mriBedSlidOut) {
-        startMRIContrastComparison();
+        showMRISuccessCelebration();
       } else if (!mriHasTransitioned) {
         triggerMRIRoomTransition();
-      } else if (mriLightsOff && !mriInsideActive && mriInsideTimer) {
-        clearTimeout(mriInsideTimer);
-        mriInsideTimer = null;
-        triggerMRIInsideTransition();
+      } else if (mriLightsOff && mriMonitorsActive && !mriMonitorsDone) {
+        startMRIContrastComparison();
       } else if (mriItemsActive) {
         const promptBar = document.getElementById('mriBottomPromptBar');
         const promptText = document.getElementById('mriPromptText');

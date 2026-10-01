@@ -67,6 +67,9 @@ public struct MRIProcedureView: View {
     @State private var contrastSliderPosition: CGFloat = 0.5
     @State private var woContrastPlayer: AVPlayer? = nil
     @State private var contrastPlayer: AVPlayer? = nil
+    @State private var isMonitorsStepActive: Bool = false
+    @State private var isMonitorsDone: Bool = false
+    @State private var celebrationTimer: Timer? = nil
     
     // Staying Still Game States
     @State private var showStillGamePromptButton: Bool = false
@@ -201,6 +204,8 @@ public struct MRIProcedureView: View {
                 woContrastPlayer = nil
                 contrastPlayer?.pause()
                 contrastPlayer = nil
+                celebrationTimer?.invalidate()
+                celebrationTimer = nil
             }
         }
     }
@@ -331,6 +336,13 @@ public struct MRIProcedureView: View {
                         .frame(width: contentWidth, height: contentHeight)
                         .opacity(lightsOff ? 0.0 : 1.0)
                         .animation(.easeInOut(duration: 0.8), value: lightsOff)
+                    
+                    // Layer 0.5: Monitors Step Layer (Monitors image overlay & hotspot over MRIRoomLightsOff)
+                    if lightsOff && isMonitorsStepActive && !isInsideScreen {
+                        monitorsStepView(contentWidth: contentWidth, contentHeight: contentHeight)
+                            .transition(.opacity)
+                            .zIndex(4)
+                    }
                     
                     // Layer 2: Interactive Room Parts (Active after transition, while lights are on)
                     if hasTransitioned && !lightsOff {
@@ -718,7 +730,7 @@ public struct MRIProcedureView: View {
                                     } else if isBedCanSlideOut && !isBedSlidOut {
                                         completeBedSlideOut(maxDist: maxDist)
                                     } else if isBedSlidOut {
-                                        startContrastComparison()
+                                        showCelebrationModal = true
                                     }
                                 }
                             
@@ -935,13 +947,11 @@ public struct MRIProcedureView: View {
                         let maxDist = contentHeight * 0.22
                         completeBedSlideOut(maxDist: maxDist)
                     } else if isBedScreen && isBedSlidOut {
-                        startContrastComparison()
+                        showCelebrationModal = true
                     } else if !hasTransitioned {
                         triggerTransition()
-                    } else if lightsOff && !isInsideScreen {
-                        insideTransitionTimer?.invalidate()
-                        insideTransitionTimer = nil
-                        triggerInsideTransition()
+                    } else if lightsOff && isMonitorsStepActive && !isMonitorsDone {
+                        startContrastComparison()
                     } else if isInsideScreen && insidePromptTimer != nil {
                         showMRISoundPrompt()
                     } else if allSpotsClicked && !lightsOff && endPromptTimer != nil {
@@ -972,13 +982,11 @@ public struct MRIProcedureView: View {
             } else if isBedScreen && isBedCanSlideOut && !isBedSlidOut {
                 completeBedSlideOut()
             } else if isBedScreen && isBedSlidOut {
-                startContrastComparison()
+                showCelebrationModal = true
             } else if !hasTransitioned {
                 triggerTransition()
-            } else if lightsOff && !isInsideScreen {
-                insideTransitionTimer?.invalidate()
-                insideTransitionTimer = nil
-                triggerInsideTransition()
+            } else if lightsOff && isMonitorsStepActive && !isMonitorsDone {
+                startContrastComparison()
             } else if showItems {
                 withAnimation(.easeInOut(duration: 0.25)) {
                     promptText = "You can choose to watch a program, or chat with a staff member while the MRI is happening! Click on the remote to start a program, or squish the stress ball to chat with staff."
@@ -1126,6 +1134,10 @@ public struct MRIProcedureView: View {
         woContrastPlayer = nil
         contrastPlayer?.pause()
         contrastPlayer = nil
+        isMonitorsStepActive = false
+        isMonitorsDone = false
+        celebrationTimer?.invalidate()
+        celebrationTimer = nil
         
         showTapHint = true
         promptText = "Welcome to MRI! Lets find all the different parts of the MRI room together!"
@@ -1197,15 +1209,20 @@ public struct MRIProcedureView: View {
         withAnimation(.easeInOut(duration: 0.8)) {
             lightsOff = true
         }
-        withAnimation(.easeInOut(duration: 0.3)) {
-            promptText = "Great job! The lights are off and the room is nice and cozy. Ready to begin!"
-        }
         
-        // Transition to Inside Screen after 2.4 seconds
-        insideTransitionTimer?.invalidate()
-        insideTransitionTimer = Timer.scheduledTimer(withTimeInterval: 2.4, repeats: false) { _ in
-            triggerInsideTransition()
+        // Activate Monitors step in dimmed room
+        isMonitorsStepActive = true
+        isMonitorsDone = false
+        
+        withAnimation(.easeInOut(duration: 0.3)) {
+            promptText = "Click on the monitors to see an example of what an MRI looks like with and without contrast."
         }
+    }
+    
+    private func tapMonitors() {
+        guard isMonitorsStepActive && !isMonitorsDone && !isContrastSceneActive else { return }
+        HapticManager.shared.buttonTap()
+        startContrastComparison()
     }
     
     // MARK: - Inside Screen & Sound Controls
@@ -1220,7 +1237,7 @@ public struct MRIProcedureView: View {
         }
         
         withAnimation(.easeInOut(duration: 0.3)) {
-            promptText = "First, lets explore the inside of the MRI machine!"
+            promptText = "Now, lets explore the inside of the MRI machine!"
         }
         
         insidePromptTimer?.invalidate()
@@ -1502,14 +1519,14 @@ public struct MRIProcedureView: View {
         withAnimation(.spring(response: 0.65, dampingFraction: 0.75)) {
             bedSlideDragOffset = 0
             isBedSlidOut = true
-            promptText = "Lets see what an MRI with and without contrast might look like."
+            promptText = "Great job! You completed your MRI scan!"
         }
         
-        // Transition to Contrast Comparison scene after 1.5s
-        contrastTransitionTimer?.invalidate()
-        contrastTransitionTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { _ in
-            guard self.isBedScreen && self.isBedSlidOut && !self.isContrastSceneActive else { return }
-            self.startContrastComparison()
+        // Preparation ends here once bed slides back out!
+        celebrationTimer?.invalidate()
+        celebrationTimer = Timer.scheduledTimer(withTimeInterval: 0.7, repeats: false) { _ in
+            guard self.isBedScreen && self.isBedSlidOut else { return }
+            self.showCelebrationModal = true
         }
     }
     
@@ -1663,6 +1680,54 @@ public struct MRIProcedureView: View {
         .zIndex(15)
     }
     
+    // MARK: - Layer 0.5: Monitors Step View
+    @ViewBuilder
+    private func monitorsStepView(contentWidth: CGFloat, contentHeight: CGFloat) -> some View {
+        ZStack {
+            Image("MRIMonitors")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: contentWidth, height: contentHeight)
+            
+            // Interactive button over monitors
+            Button(action: {
+                tapMonitors()
+            }) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color.white.opacity(0.01))
+                    
+                    // Pulsing Cyan Discovery Indicator
+                    Circle()
+                        .stroke(Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0), lineWidth: 3)
+                        .frame(width: 44, height: 44)
+                        .shadow(color: Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0), radius: 6)
+                    
+                    // Part Label Pill
+                    Text("Monitors")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundColor(Color(red: 224 / 255.0, green: 242 / 255.0, blue: 254 / 255.0))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .background(Color(red: 15 / 255.0, green: 23 / 255.0, blue: 42 / 255.0).opacity(0.88))
+                        .cornerRadius(12)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0).opacity(0.6), lineWidth: 1)
+                        )
+                        .offset(y: 46)
+                }
+                .frame(width: contentWidth * 0.12, height: contentHeight * 0.22)
+            }
+            .buttonStyle(PlainButtonStyle())
+            .position(x: contentWidth * 0.87, y: contentHeight * 0.415)
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            tapMonitors()
+        }
+    }
+    
     // MARK: - Layer 3.95: MRI Contrast Comparison Screen
     @ViewBuilder
     private func contrastComparisonView(contentWidth: CGFloat, contentHeight: CGFloat) -> some View {
@@ -1788,14 +1853,14 @@ public struct MRIProcedureView: View {
                     .overlay(Capsule().stroke(Color.white.opacity(0.3), lineWidth: 1.5))
                     .shadow(color: Color.black.opacity(0.4), radius: 6, x: 0, y: 3)
                     
-                    // Done Button
+                    // Continue Button
                     Button(action: {
-                        finishContrastToCelebration()
+                        finishContrast()
                     }) {
                         HStack(spacing: 6) {
-                            Image(systemName: "checkmark")
+                            Image(systemName: "arrow.right")
                                 .font(.system(size: 15, weight: .black))
-                            Text("All Done!")
+                            Text("Continue")
                                 .font(.system(size: 15, weight: .heavy, design: .rounded))
                         }
                         .foregroundColor(.white)
@@ -1897,14 +1962,20 @@ public struct MRIProcedureView: View {
         }
     }
     
-    private func finishContrastToCelebration() {
+    private func finishContrast() {
         HapticManager.shared.success()
         woContrastPlayer?.pause()
         contrastPlayer?.pause()
         withAnimation(.easeInOut(duration: 0.4)) {
             isContrastSceneActive = false
-            showCelebrationModal = true
+            isMonitorsStepActive = false
+            isMonitorsDone = true
         }
+        triggerInsideTransition()
+    }
+    
+    private func finishContrastToCelebration() {
+        finishContrast()
     }
     
     // MARK: - Still Game Helpers & Lifecycle
