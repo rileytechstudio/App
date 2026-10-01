@@ -7781,7 +7781,7 @@
 
                   <!-- Center Stage: Dancing Skeleton Video (Plays in fluid loop, freezes during freeze intervals) -->
                   <div class="mri-still-skeleton-stage" id="mriStillSkeletonStage">
-                    <video id="mriStillVideo" class="mri-still-video" loop playsinline muted preload="auto">
+                    <video id="mriStillVideo" class="mri-still-video" src="assets/MRIDance.mp4" loop playsinline webkit-playsinline muted preload="auto">
                       <source src="assets/MRIDance.mp4" type="video/mp4">
                       <source src="assets/MRI%20Dance.mp4" type="video/mp4">
                     </video>
@@ -17428,8 +17428,7 @@
       const video = document.getElementById('mriStillVideo');
       if (video) {
         video.muted = true;
-        video.currentTime = 0;
-        try { video.load(); } catch (_) {}
+        try { video.currentTime = 0; } catch (_) {}
       }
 
       enterStillGameMovePhase();
@@ -17455,10 +17454,20 @@
       if (video) {
         video.muted = true;
         video.playsInline = true;
+        if (!video.src || video.src === '') {
+          video.src = 'assets/MRIDance.mp4';
+        }
         const playPromise = video.play();
         if (playPromise !== undefined) {
           playPromise.catch((err) => {
-            console.warn("mriStillVideo play error:", err);
+            console.warn("mriStillVideo play error, attaching retry listener:", err);
+            const retryPlay = () => {
+              video.removeEventListener('canplay', retryPlay);
+              if (mriStillGameActive && mriStillGameState === 'MOVE') {
+                video.play().catch(() => {});
+              }
+            };
+            video.addEventListener('canplay', retryPlay);
           });
         }
       }
@@ -17559,6 +17568,14 @@
         void wrapperEl.offsetWidth;
         wrapperEl.classList.add('tap-active');
         setTimeout(() => wrapperEl.classList.remove('tap-active'), 400);
+      }
+
+      // Resume or start video playback on direct user tap if browser paused it
+      const stillVideo = document.getElementById('mriStillVideo');
+      if (stillVideo && stillVideo.paused && mriStillGameState === 'MOVE') {
+        stillVideo.muted = true;
+        stillVideo.playsInline = true;
+        stillVideo.play().catch(() => {});
       }
     }
 

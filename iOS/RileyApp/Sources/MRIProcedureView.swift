@@ -151,6 +151,7 @@ public struct MRIProcedureView: View {
             }
             .onAppear {
                 startWelcomeSequence()
+                setupStillVideoPlayer()
             }
             .onDisappear {
                 autoTransitionTimer?.invalidate()
