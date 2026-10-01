@@ -837,7 +837,7 @@ public struct MRIProcedureView: View {
                             }
                             
                             // Floating prompt button to practice holding still
-                            if isBedFull && !isStillGameDone && showStillGamePromptButton {
+                            if isBedFull && !isStillGameDone && showStillGamePromptButton && !isStillGameActive {
                                 Button(action: {
                                     startStillGame()
                                 }) {
@@ -1463,7 +1463,7 @@ public struct MRIProcedureView: View {
         
         // After person is in the bed, prompt that their most important job is to hold perfectly still!
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.65) {
-            guard self.isBedScreen && self.isBedFull && !self.isStillGameDone else { return }
+            guard self.isBedScreen && self.isBedFull && !self.isStillGameDone && !self.isStillGameActive else { return }
             withAnimation(.easeInOut(duration: 0.35)) {
                 self.promptText = "Your most important job during the MRI is to hold perfectly still!"
                 self.showStillGamePromptButton = true
@@ -2011,6 +2011,7 @@ public struct MRIProcedureView: View {
     }
     
     private func startStillGame() {
+        guard !isStillGameActive else { return }
         HapticManager.shared.buttonTap()
         
         showStillGamePromptButton = false

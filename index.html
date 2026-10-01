@@ -8116,7 +8116,7 @@
                 </div>
 
                 <!-- Layer 5: Staying Still Game Screen (Interrupts scene before bed slides into machine) -->
-                <div id="mriStillGameOverlay" class="mri-layer mri-still-game-layer" style="display: none; opacity: 0;" aria-hidden="true">
+                <div id="mriStillGameOverlay" class="mri-layer mri-still-game-layer" style="display: none; opacity: 0;" aria-hidden="true" onclick="onMRIStillGameOverlayTap(event)">
                   <!-- Game Top HUD / Header -->
                   <div class="mri-still-hud">
                     <div class="mri-still-score-badge" id="mriStillScoreBadge">
@@ -17615,7 +17615,7 @@
       // and prompt them to tap the button to play the staying still game!
       if (mriBedPromptTimer) clearTimeout(mriBedPromptTimer);
       mriBedPromptTimer = setTimeout(() => {
-        if (!mriBedActive || mriStillGameDone) return;
+        if (!mriBedActive || mriStillGameDone || mriStillGameActive) return;
         showMRIHoldingStillPrompt();
       }, 650);
     }
@@ -17640,6 +17640,7 @@
     }
 
     function showMRIHoldingStillPrompt() {
+      if (mriStillGameActive || mriStillGameDone) return;
       setMRIStillPrompt(null, "Your most important job during the MRI is to hold perfectly still!");
       const stageBtn = document.getElementById('mriStageStillGameBtn');
       if (stageBtn) stageBtn.style.display = 'flex';
@@ -17651,7 +17652,7 @@
     }
 
     function onMRIBedLayerTap(event) {
-      if (!mriBedActive || mriContrastActive) return;
+      if (!mriBedActive || mriStillGameActive || mriContrastActive) return;
       if (!mriBedFull) {
         onMRIBedTap(event);
       } else if (!mriStillGameDone) {
@@ -17718,8 +17719,19 @@
       // Sound removed from MRI preparation for now
     }
 
+    function onMRIStillGameOverlayTap(event) {
+      if (event && event.stopPropagation) event.stopPropagation();
+      if (!mriStillGameActive) return;
+      if (mriStillGameState === 'FREEZE') {
+        showStillWarningToast("Hold still! Freeze like a statue!");
+        playStillWarningSound();
+        triggerHapticFeedback(true);
+      }
+    }
+
     function startMRIStillGame(event) {
       if (event && event.stopPropagation) event.stopPropagation();
+      if (mriStillGameActive) return;
       triggerHapticFeedback(true);
 
       // Hide center launcher button
@@ -18582,7 +18594,7 @@
     }
 
     function handleMRIStageTap(event) {
-      if (mriContrastActive) return;
+      if (mriStillGameActive || mriContrastActive) return;
       if (mriBedActive && !mriBedFull) {
         onMRIBedTap(event);
       } else if (mriBedActive && mriBedFull && !mriStillGameDone) {
