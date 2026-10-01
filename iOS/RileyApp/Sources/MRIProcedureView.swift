@@ -1683,21 +1683,16 @@ public struct MRIProcedureView: View {
             }
             .allowsHitTesting(false)
             
-            // Top Layer: With Contrast Video (Clipped by mask on the right side)
+            // Top Layer: With Contrast Video (Clipped by frame from the right side)
             Group {
                 if let player = contrastPlayer {
-                    MRIInlinePlayerView(player: player)
-                        .frame(width: contentWidth, height: contentHeight)
-                        .mask(
-                            HStack(spacing: 0) {
-                                Spacer(minLength: 0)
-                                    .frame(width: max(0, contentWidth * contrastSliderPosition))
-                                Rectangle()
-                                    .fill(Color.black)
-                                    .frame(width: max(0, contentWidth * (1.0 - contrastSliderPosition)))
-                            }
+                    ZStack(alignment: .trailing) {
+                        MRIInlinePlayerView(player: player)
                             .frame(width: contentWidth, height: contentHeight)
-                        )
+                    }
+                    .frame(width: max(0, contentWidth * (1.0 - contrastSliderPosition)), height: contentHeight, alignment: .trailing)
+                    .clipped()
+                    .position(x: contentWidth * (contrastSliderPosition + (1.0 - contrastSliderPosition) * 0.5), y: contentHeight * 0.5)
                 }
             }
             .allowsHitTesting(false)
@@ -1747,6 +1742,8 @@ public struct MRIProcedureView: View {
                 .gesture(
                     DragGesture(minimumDistance: 0)
                         .onChanged { value in
+                            if woContrastPlayer?.rate == 0 { woContrastPlayer?.play() }
+                            if contrastPlayer?.rate == 0 { contrastPlayer?.play() }
                             let raw = value.location.x / contentWidth
                             contrastSliderPosition = min(0.98, max(0.02, raw))
                         }

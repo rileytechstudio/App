@@ -1781,7 +1781,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      object-fit: cover;
       pointer-events: none;
     }
 
@@ -1792,6 +1792,7 @@
       width: 100%;
       height: 100%;
       pointer-events: none;
+      -webkit-clip-path: inset(0 0 0 50%);
       clip-path: inset(0 0 0 50%);
       will-change: clip-path;
     }
@@ -8258,14 +8259,14 @@
                   <!-- Contrast Comparison Stage Container -->
                   <div class="mri-contrast-container" id="mriContrastContainer">
                     <!-- Base Video: Without Contrast (WO Contrast) -->
-                    <video id="mriVideoWOContrast" class="mri-contrast-video" src="assets/MRIWOContrast.mp4" loop playsinline webkit-playsinline muted preload="auto">
+                    <video id="mriVideoWOContrast" class="mri-contrast-video" src="assets/MRIWOContrast.mp4" autoplay loop playsinline webkit-playsinline muted preload="auto">
                       <source src="assets/MRIWOContrast.mp4" type="video/mp4">
                       <source src="assets/MRI%20WO%20Contrast.mp4" type="video/mp4">
                     </video>
 
                     <!-- Top Video Wrapper: With Contrast (Clipped via clip-path) -->
                     <div id="mriContrastClipWrapper" class="mri-contrast-clip-wrapper">
-                      <video id="mriVideoContrast" class="mri-contrast-video" src="assets/MRIContrast.mp4" loop playsinline webkit-playsinline muted preload="auto">
+                      <video id="mriVideoContrast" class="mri-contrast-video" src="assets/MRIContrast.mp4" autoplay loop playsinline webkit-playsinline muted preload="auto">
                         <source src="assets/MRIContrast.mp4" type="video/mp4">
                         <source src="assets/MRI%20Contrast.mp4" type="video/mp4">
                       </video>
@@ -18433,25 +18434,85 @@
       const vWO = document.getElementById('mriVideoWOContrast');
       const vC = document.getElementById('mriVideoContrast');
 
+      function safePlayVideo(v) {
+        if (!v) return;
+        v.muted = true;
+        v.defaultMuted = true;
+        v.playsInline = true;
+        v.setAttribute('muted', '');
+        v.setAttribute('playsinline', '');
+        v.setAttribute('webkit-playsinline', '');
+
+        if (v.readyState === 0) {
+          try { v.load(); } catch (_) {}
+        }
+
+        const p = v.play();
+        if (p !== undefined) {
+          p.catch((err) => {
+            console.warn("Contrast video play error, waiting for canplay:", err);
+            const onCanPlay = () => {
+              v.removeEventListener('canplay', onCanPlay);
+              if (mriContrastActive) {
+                v.play().catch(() => {});
+              }
+            };
+            v.addEventListener('canplay', onCanPlay);
+          });
+        }
+      }
+
       if (vWO && vC) {
         vWO.muted = true;
         vC.muted = true;
         vWO.playsInline = true;
         vC.playsInline = true;
 
-        try {
-          vWO.currentTime = 0;
-          vC.currentTime = 0;
-        } catch (_) {}
+        if (vWO.readyState >= 1) {
+          try { vWO.currentTime = 0; } catch (_) {}
+        }
+        if (vC.readyState >= 1) {
+          try { vC.currentTime = 0; } catch (_) {}
+        }
 
-        vWO.play().catch(() => {});
-        vC.play().catch(() => {});
+        safePlayVideo(vWO);
+        safePlayVideo(vC);
 
-        // Keep videos strictly in sync
+        // Keep videos synced when looping or on major drift (>0.35s)
+        let lastTimeWO = 0;
+        let lastSyncTime = 0;
+
         vWO.ontimeupdate = () => {
-          if (Math.abs(vWO.currentTime - vC.currentTime) > 0.08) {
-            vC.currentTime = vWO.currentTime;
+          if (!mriContrastActive) return;
+          const now = Date.now();
+
+          // Loop detected: time jumped backwards
+          if (vWO.currentTime < lastTimeWO - 1.0) {
+            try { vC.currentTime = vWO.currentTime; } catch (_) {}
+            lastTimeWO = vWO.currentTime;
+            return;
           }
+          lastTimeWO = vWO.currentTime;
+
+          // Gentle sync: only if drift > 0.35s and not seeking, rate-limited to once every 2s
+          if (now - lastSyncTime > 2000 && !vC.seeking) {
+            const diff = Math.abs(vWO.currentTime - vC.currentTime);
+            if (diff > 0.35) {
+              lastSyncTime = now;
+              try { vC.currentTime = vWO.currentTime; } catch (_) {}
+            }
+          }
+        };
+
+        // When WO loops or ends, ensure both loop together
+        vWO.onended = () => {
+          if (!mriContrastActive) return;
+          try {
+            vWO.currentTime = 0;
+            vC.currentTime = 0;
+          } catch (_) {}
+          safePlayVideo(vWO);
+          safePlayVideo(vC);
         };
       }
 
@@ -18478,6 +18539,7 @@
       const divider = document.getElementById('mriContrastDivider');
 
       if (clipWrapper) {
+        clipWrapper.style.webkitClipPath = `inset(0 0 0 ${mriContrastPercent}%)`;
         clipWrapper.style.clipPath = `inset(0 0 0 ${mriContrastPercent}%)`;
       }
       if (divider) {
@@ -18489,6 +18551,18 @@
       const container = document.getElementById('mriContrastContainer');
       if (!container || container._sliderAttached) return;
       container._sliderAttached = true;
+
+      const vWO = document.getElementById('mriVideoWOContrast');
+      const vC = document.getElementById('mriVideoContrast');
+
+      function ensurePlaying() {
+        if (vWO && vWO.paused) {
+          vWO.play().catch(() => {});
+        }
+        if (vC && vC.paused) {
+          vC.play().catch(() => {});
+        }
+      }
 
       let isDragging = false;
 
@@ -18502,6 +18576,7 @@
       function onDown(e) {
         if (e.target.closest('.mri-contrast-done-btn')) return;
         isDragging = true;
+        ensurePlaying();
         triggerHapticFeedback(false);
         const p = getPercentFromEvent(e);
         updateMRIContrastSlider(p);

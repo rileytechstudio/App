@@ -1,5 +1,5 @@
 // Riley PWA Service Worker
-const CACHE_NAME = 'riley-pwa-v115';
+const CACHE_NAME = 'riley-pwa-v116';
 const PRECACHE_ASSETS = [
   './',
   './index.html',
@@ -427,6 +427,19 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+
+  // Bypass Service Worker for Range requests and media streaming (videos/audio) so native 206 Partial Content works
+  if (
+    event.request.headers.get('range') ||
+    event.request.destination === 'video' ||
+    event.request.destination === 'audio' ||
+    event.request.url.endsWith('.mp4') ||
+    event.request.url.includes('.mp4?') ||
+    event.request.url.endsWith('.m4a') ||
+    event.request.url.endsWith('.mp3')
+  ) {
+    return;
+  }
 
   // Network-First for Navigation (HTML) requests so fresh deploys load immediately
   if (event.request.mode === 'navigate' || event.request.destination === 'document') {
