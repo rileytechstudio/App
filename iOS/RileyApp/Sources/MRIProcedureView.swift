@@ -1814,44 +1814,10 @@ public struct MRIProcedureView: View {
                         }
                 )
             
-            // Top HUD Overlay: Badges and Done Button
+            // HUD Overlay: Top Continue Button and Bottom Captions
             VStack {
                 HStack(alignment: .center) {
-                    // Left Badge: Without Contrast
-                    HStack(spacing: 8) {
-                        Circle()
-                            .fill(Color(red: 148/255, green: 163/255, blue: 184/255))
-                            .frame(width: 10, height: 10)
-                            .shadow(color: Color(red: 148/255, green: 163/255, blue: 184/255).opacity(0.9), radius: 4)
-                        Text("Without Contrast")
-                            .font(.system(size: 14, weight: .heavy, design: .rounded))
-                            .foregroundColor(.white)
-                    }
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 8)
-                    .background(Color(red: 15/255, green: 23/255, blue: 42/255).opacity(0.78))
-                    .clipShape(Capsule())
-                    .overlay(Capsule().stroke(Color.white.opacity(0.3), lineWidth: 1.5))
-                    .shadow(color: Color.black.opacity(0.4), radius: 6, x: 0, y: 3)
-                    
                     Spacer()
-                    
-                    // Right Badge: With Contrast
-                    HStack(spacing: 8) {
-                        Circle()
-                            .fill(Color(red: 56/255, green: 189/255, blue: 248/255))
-                            .frame(width: 10, height: 10)
-                            .shadow(color: Color(red: 56/255, green: 189/255, blue: 248/255), radius: 5)
-                        Text("With Contrast")
-                            .font(.system(size: 14, weight: .heavy, design: .rounded))
-                            .foregroundColor(.white)
-                    }
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 8)
-                    .background(Color(red: 15/255, green: 23/255, blue: 42/255).opacity(0.78))
-                    .clipShape(Capsule())
-                    .overlay(Capsule().stroke(Color.white.opacity(0.3), lineWidth: 1.5))
-                    .shadow(color: Color.black.opacity(0.4), radius: 6, x: 0, y: 3)
                     
                     // Continue Button
                     Button(action: {
@@ -1883,6 +1849,25 @@ public struct MRIProcedureView: View {
                 .padding(.top, 14)
                 
                 Spacer()
+                
+                // Bottom Captions: Without Contrast (Left) & With Contrast (Right)
+                HStack(alignment: .bottom) {
+                    Text("Without Contrast")
+                        .font(.system(size: 15, weight: .heavy, design: .rounded))
+                        .foregroundColor(.white)
+                        .shadow(color: Color.black.opacity(0.95), radius: 4, x: 0, y: 2)
+                        .shadow(color: Color.black.opacity(0.85), radius: 8, x: 0, y: 3)
+                    
+                    Spacer()
+                    
+                    Text("With Contrast")
+                        .font(.system(size: 15, weight: .heavy, design: .rounded))
+                        .foregroundColor(.white)
+                        .shadow(color: Color.black.opacity(0.95), radius: 4, x: 0, y: 2)
+                        .shadow(color: Color.black.opacity(0.85), radius: 8, x: 0, y: 3)
+                }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 16)
             }
         }
         .frame(width: contentWidth, height: contentHeight)

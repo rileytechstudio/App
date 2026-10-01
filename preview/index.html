@@ -1897,47 +1897,25 @@
 
     .mri-contrast-label {
       position: absolute;
-      top: 18px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
-      background: rgba(15, 23, 42, 0.75);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1.5px solid rgba(255, 255, 255, 0.3);
-      border-radius: 999px;
+      bottom: clamp(12px, 2vw, 20px);
+      display: inline-block;
       color: #ffffff;
-      font-size: 14px;
+      font-size: clamp(13px, 1.8vw, 16px);
       font-weight: 800;
-      letter-spacing: 0.2px;
+      letter-spacing: 0.3px;
       pointer-events: none;
       z-index: 10;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95), 0 0 12px rgba(0, 0, 0, 0.85);
+      user-select: none;
+      -webkit-user-select: none;
     }
 
     .mri-contrast-label-left {
-      left: 20px;
+      left: clamp(14px, 2.5vw, 24px);
     }
 
     .mri-contrast-label-right {
-      right: 150px;
-    }
-
-    .mri-contrast-label-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-    }
-
-    .mri-contrast-label-dot.wo-contrast-dot {
-      background: #94a3b8;
-      box-shadow: 0 0 8px rgba(148, 163, 184, 0.9);
-    }
-
-    .mri-contrast-label-dot.contrast-dot {
-      background: #38bdf8;
-      box-shadow: 0 0 10px rgba(56, 189, 248, 1);
+      right: clamp(14px, 2.5vw, 24px);
     }
 
     .mri-contrast-done-btn {
@@ -8331,13 +8309,11 @@
                       </div>
                     </div>
 
-                    <!-- Top Labels -->
+                    <!-- Bottom Contrast Captions -->
                     <div class="mri-contrast-label mri-contrast-label-left">
-                      <span class="mri-contrast-label-dot wo-contrast-dot"></span>
                       <span>Without Contrast</span>
                     </div>
                     <div class="mri-contrast-label mri-contrast-label-right">
-                      <span class="mri-contrast-label-dot contrast-dot"></span>
                       <span>With Contrast</span>
                     </div>
 
