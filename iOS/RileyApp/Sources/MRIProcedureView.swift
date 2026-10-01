@@ -13,6 +13,14 @@ public struct MRIPart: Identifiable {
     public let heightRatio: CGFloat
 }
 
+// MARK: - Staying Still Game State
+enum StillGameState {
+    case move
+    case freeze
+    case success
+    case complete
+}
+
 // MARK: - MRI Procedure View
 public struct MRIProcedureView: View {
     @Environment(\.presentationMode) var presentationMode
@@ -50,6 +58,26 @@ public struct MRIProcedureView: View {
     @State private var showGlowBackground: Bool = false
     @State private var isBedSlidIn: Bool = false
     @State private var bedSlideDragOffset: CGFloat = 0.0
+    
+    // Staying Still Game States
+    @State private var showStillGamePromptButton: Bool = false
+    @State private var isStillGameActive: Bool = false
+    @State private var isStillGameDone: Bool = false
+    @State private var stillGameState: StillGameState = .move
+    @State private var stillGamePauseCount: Int = 0
+    @State private var stillGameTimer: Timer? = nil
+    @State private var stillGameMetronomeTimer: Timer? = nil
+    @State private var stillWarningTimer: Timer? = nil
+    @State private var showStillWarningToast: Bool = false
+    @State private var stillWarningMessage: String = "Hold still! Freeze like a statue! 🤫"
+    @State private var stillVideoPlayer: AVPlayer? = nil
+    @State private var keyboardChordNoteIdx: Int = 0
+    @State private var handbellTappedAnim: Bool = false
+    @State private var keyboardTappedAnim: Bool = false
+    @State private var tambourineTappedAnim: Bool = false
+    @State private var stillConfettiActive: Bool = false
+    @State private var sfxTonePlayer: AVAudioPlayer? = nil
+    @State private var metronomeAudioPlayer: AVAudioPlayer? = nil
     
     // Interactive Room Discovery Parts (Medical Equipment)
     private let roomParts: [MRIPart] = [
@@ -140,6 +168,19 @@ public struct MRIProcedureView: View {
                 avPlayer?.pause()
                 avPlayer = nil
                 waveAnimationToken = UUID()
+                
+                stillGameTimer?.invalidate()
+                stillGameTimer = nil
+                stillGameMetronomeTimer?.invalidate()
+                stillGameMetronomeTimer = nil
+                stillWarningTimer?.invalidate()
+                stillWarningTimer = nil
+                stillVideoPlayer?.pause()
+                stillVideoPlayer = nil
+                metronomeAudioPlayer?.stop()
+                metronomeAudioPlayer = nil
+                sfxTonePlayer?.stop()
+                sfxTonePlayer = nil
             }
         }
     }
@@ -705,8 +746,45 @@ public struct MRIProcedureView: View {
                                 .position(x: contentWidth * 0.50, y: contentHeight * 0.60)
                                 .transition(.opacity)
                             }
+                            
+                            // Floating prompt button to practice holding still
+                            if isBedFull && !isStillGameDone {
+                                Button(action: {
+                                    startStillGame()
+                                }) {
+                                    HStack(spacing: 10) {
+                                        Text("🎮")
+                                            .font(.system(size: 22))
+                                        Text("Practice Holding Still!")
+                                            .font(.system(size: 18, weight: .black, design: .rounded))
+                                    }
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 24)
+                                    .padding(.vertical, 14)
+                                    .background(
+                                        LinearGradient(
+                                            colors: [Color(red: 6/255, green: 182/255, blue: 212/255), Color(red: 2/255, green: 132/255, blue: 199/255)],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .clipShape(Capsule())
+                                    .overlay(
+                                        Capsule()
+                                            .stroke(Color.white.opacity(0.85), lineWidth: 2.5)
+                                    )
+                                    .shadow(color: Color(red: 6/255, green: 182/255, blue: 212/255).opacity(0.75), radius: 14)
+                                }
+                                .position(x: contentWidth * 0.50, y: contentHeight * 0.68)
+                                .transition(.scale.combined(with: .opacity))
+                            }
                         }
                         .transition(.opacity)
+                    }
+                    
+                    // Layer 3.9: Staying Still Game Overlay
+                    if isStillGameActive {
+                        stillGameOverlayView(contentWidth: contentWidth, contentHeight: contentHeight)
                     }
                     
                     // Layer 4: Welcome Screen (shown in beginning, transitions to Room Lights On)
@@ -749,8 +827,13 @@ public struct MRIProcedureView: View {
                 .clipped()
                 .contentShape(Rectangle())
                 .onTapGesture {
+                    if isStillGameActive {
+                        return
+                    }
                     if isBedScreen && !isBedFull {
                         tapBed()
+                    } else if isBedScreen && isBedFull && !isStillGameDone {
+                        startStillGame()
                     } else if isBedScreen && isBedFull && !isBedSlidIn {
                         let maxDist = contentHeight * 0.22
                         completeBedSlide(maxDist: maxDist)
@@ -778,8 +861,13 @@ public struct MRIProcedureView: View {
     private var bottomPromptBar: some View {
         Button(action: {
             HapticManager.shared.lightTap()
+            if isStillGameActive {
+                return
+            }
             if isBedScreen && !isBedFull {
                 tapBed()
+            } else if isBedScreen && isBedFull && !isStillGameDone {
+                startStillGame()
             } else if isBedScreen && isBedFull && !isBedSlidIn {
                 completeBedSlide()
             } else if !hasTransitioned {
@@ -825,6 +913,37 @@ public struct MRIProcedureView: View {
                     .lineLimit(2)
                     .minimumScaleFactor(0.70)
                     .multilineTextAlignment(.leading)
+                
+                if isBedScreen && isBedFull && !isStillGameDone {
+                    Spacer(minLength: 6)
+                    Button(action: {
+                        startStillGame()
+                    }) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "play.fill")
+                                .font(.system(size: 11, weight: .bold))
+                            Text("Practice Holding Still!")
+                                .font(.system(size: 13, weight: .heavy, design: .rounded))
+                        }
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(
+                            LinearGradient(
+                                colors: [Color(red: 6/255, green: 182/255, blue: 212/255), Color(red: 2/255, green: 132/255, blue: 199/255)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .clipShape(Capsule())
+                        .overlay(
+                            Capsule()
+                                .stroke(Color.white.opacity(0.85), lineWidth: 1.5)
+                        )
+                        .shadow(color: Color(red: 6/255, green: 182/255, blue: 212/255).opacity(0.7), radius: 8)
+                    }
+                    .transition(.scale.combined(with: .opacity))
+                }
             }
             .padding(.horizontal, 20)
             .frame(maxWidth: .infinity)
@@ -893,6 +1012,25 @@ public struct MRIProcedureView: View {
         stressBallSquishFrame = 0
         mriAudioPlayer?.stop()
         mriAudioPlayer = nil
+        
+        showStillGamePromptButton = false
+        isStillGameActive = false
+        isStillGameDone = false
+        stillGameState = .move
+        stillGamePauseCount = 0
+        stillConfettiActive = false
+        stillGameTimer?.invalidate()
+        stillGameTimer = nil
+        stillGameMetronomeTimer?.invalidate()
+        stillGameMetronomeTimer = nil
+        stillWarningTimer?.invalidate()
+        stillWarningTimer = nil
+        stillVideoPlayer?.pause()
+        stillVideoPlayer = nil
+        metronomeAudioPlayer?.stop()
+        metronomeAudioPlayer = nil
+        sfxTonePlayer?.stop()
+        sfxTonePlayer = nil
         
         showTapHint = true
         promptText = "Welcome to MRI! Lets find all the different parts of the MRI room together!"
@@ -1217,6 +1355,12 @@ public struct MRIProcedureView: View {
             showGlowBackground = false
             isBedSlidIn = false
             bedSlideDragOffset = 0.0
+            showStillGamePromptButton = false
+            isStillGameActive = false
+            isStillGameDone = false
+            stillGameState = .move
+            stillGamePauseCount = 0
+            stillConfettiActive = false
             promptText = "Tap the bed to get ready for your MRI!"
         }
     }
@@ -1230,12 +1374,12 @@ public struct MRIProcedureView: View {
             isBedFull = true
         }
         
-        // After person is in the bed, replace background with MRI glow and prompt to slide the bed
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-            guard self.isBedScreen && self.isBedFull else { return }
-            withAnimation(.easeInOut(duration: 0.6)) {
-                self.showGlowBackground = true
-                self.promptText = "Slide the bed into the machine!"
+        // After person is in the bed, prompt that their most important job is to hold perfectly still!
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.65) {
+            guard self.isBedScreen && self.isBedFull && !self.isStillGameDone else { return }
+            withAnimation(.easeInOut(duration: 0.35)) {
+                self.promptText = "Your most important job during the MRI is to hold perfectly still!"
+                self.showStillGamePromptButton = true
             }
         }
     }
@@ -1268,6 +1412,570 @@ public struct MRIProcedureView: View {
                 print("Could not play YouDidIt chime: \(error)")
             }
         }
+    }
+    
+    // MARK: - Layer 3.9: Staying Still Game Overlay Screen
+    @ViewBuilder
+    private func stillGameOverlayView(contentWidth: CGFloat, contentHeight: CGFloat) -> some View {
+        ZStack {
+            // Pure Black Stage Background
+            Color.black
+                .frame(width: contentWidth, height: contentHeight)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    if stillGameState == .freeze {
+                        showStillWarningToastAlert(msg: "Hold still! Freeze like a statue! 🤫")
+                    }
+                }
+            
+            // Top HUD
+            VStack {
+                HStack(spacing: 12) {
+                    // Back button
+                    Button(action: {
+                        exitStillGame(isCompleted: false)
+                    }) {
+                        HStack(spacing: 5) {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 14, weight: .bold))
+                            Text("Back")
+                                .font(.system(size: 14, weight: .bold))
+                        }
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 7)
+                        .background(Color.white.opacity(0.18))
+                        .clipShape(Capsule())
+                    }
+                    
+                    Spacer()
+                    
+                    // Status Pill
+                    HStack(spacing: 8) {
+                        Circle()
+                            .fill(stillGameState == .freeze ? Color.red : (stillGameState == .complete ? Color.green : Color.yellow))
+                            .frame(width: 8, height: 8)
+                        
+                        Text(statusPillText)
+                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                            .foregroundColor(.white)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 7)
+                    .background(statusPillGradient)
+                    .clipShape(Capsule())
+                    .overlay(
+                        Capsule()
+                            .stroke(Color.white.opacity(0.6), lineWidth: 1.5)
+                    )
+                    .shadow(color: statusPillGlowColor, radius: 10)
+                    
+                    Spacer()
+                    
+                    // Freeze count badge
+                    Text("Freezes: \(stillGamePauseCount)/3")
+                        .font(.system(size: 13, weight: .heavy, design: .rounded))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 7)
+                        .background(Color.white.opacity(0.18))
+                        .clipShape(Capsule())
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 16)
+                
+                Spacer()
+            }
+            .zIndex(10)
+            
+            // Center Dancing Skeleton (Video if available, or animated image)
+            Group {
+                if let player = stillVideoPlayer {
+                    MRIInlinePlayerView(player: player)
+                        .frame(width: contentWidth * 0.44, height: contentHeight * 0.52)
+                        .position(x: contentWidth * 0.50, y: contentHeight * 0.40)
+                } else {
+                    Image("MRIDance")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: contentWidth * 0.44, height: contentHeight * 0.52)
+                        .scaleEffect(stillGameState == .move ? 1.03 : 1.0)
+                        .rotationEffect(.degrees(stillGameState == .move ? -2.0 : 0.0))
+                        .animation(stillGameState == .move ? Animation.easeInOut(duration: 0.45).repeatForever(autoreverses: true) : .default, value: stillGameState)
+                        .position(x: contentWidth * 0.50, y: contentHeight * 0.40)
+                }
+            }
+            .allowsHitTesting(false)
+            
+            // Handbell (Lower Left)
+            ZStack {
+                Image("Handbell")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: contentWidth, height: contentHeight)
+                    .scaleEffect(handbellTappedAnim ? 1.14 : 1.0, anchor: UnitPoint(x: 0.104, y: 0.641))
+                    .rotationEffect(.degrees(handbellTappedAnim ? 7.0 : 0.0), anchor: UnitPoint(x: 0.104, y: 0.641))
+                    .animation(.spring(response: 0.28, dampingFraction: 0.5), value: handbellTappedAnim)
+                
+                // Touch Hotspot for Handbell
+                Color.clear
+                    .frame(width: contentWidth * 0.16, height: contentHeight * 0.28)
+                    .contentShape(Rectangle())
+                    .position(x: contentWidth * 0.104, y: contentHeight * 0.641)
+                    .onTapGesture {
+                        onTapInstrument(type: "bell")
+                    }
+            }
+            
+            // Keyboard (Bottom Center)
+            ZStack {
+                Image("Keyboard")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: contentWidth, height: contentHeight)
+                    .scaleEffect(keyboardTappedAnim ? 1.08 : 1.0, anchor: UnitPoint(x: 0.50, y: 0.82))
+                    .animation(.spring(response: 0.28, dampingFraction: 0.5), value: keyboardTappedAnim)
+                
+                // Touch Hotspot for Keyboard
+                Color.clear
+                    .frame(width: contentWidth * 0.56, height: contentHeight * 0.30)
+                    .contentShape(Rectangle())
+                    .position(x: contentWidth * 0.50, y: contentHeight * 0.82)
+                    .onTapGesture {
+                        onTapInstrument(type: "keyboard")
+                    }
+            }
+            
+            // Tambourine (Lower Right)
+            ZStack {
+                Image("Tambourine")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: contentWidth, height: contentHeight)
+                    .scaleEffect(tambourineTappedAnim ? 1.14 : 1.0, anchor: UnitPoint(x: 0.90, y: 0.633))
+                    .rotationEffect(.degrees(tambourineTappedAnim ? -8.0 : 0.0), anchor: UnitPoint(x: 0.90, y: 0.633))
+                    .animation(.spring(response: 0.28, dampingFraction: 0.5), value: tambourineTappedAnim)
+                
+                // Touch Hotspot for Tambourine
+                Color.clear
+                    .frame(width: contentWidth * 0.18, height: contentHeight * 0.26)
+                    .contentShape(Rectangle())
+                    .position(x: contentWidth * 0.90, y: contentHeight * 0.633)
+                    .onTapGesture {
+                        onTapInstrument(type: "tambourine")
+                    }
+            }
+            
+            // Freeze Warning Toast
+            if showStillWarningToast {
+                HStack(spacing: 8) {
+                    Text("🛑")
+                        .font(.system(size: 20))
+                    Text(stillWarningMessage)
+                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 10)
+                .background(Color(red: 220/255, green: 38/255, blue: 38/255).opacity(0.96))
+                .clipShape(Capsule())
+                .shadow(color: Color.red.opacity(0.6), radius: 10, y: 3)
+                .position(x: contentWidth * 0.50, y: contentHeight * 0.68)
+                .transition(.scale.combined(with: .opacity))
+                .zIndex(20)
+            }
+            
+            // Confetti in Still Game
+            if stillConfettiActive {
+                ConfettiAnimationView()
+                    .allowsHitTesting(false)
+                    .zIndex(25)
+            }
+        }
+        .frame(width: contentWidth, height: contentHeight)
+        .transition(.opacity)
+        .zIndex(15)
+    }
+    
+    // MARK: - Still Game Helpers & Lifecycle
+    private var statusPillText: String {
+        switch stillGameState {
+        case .move:
+            return "🎵 Move & Play Music! Tap the instruments! 🎶"
+        case .freeze:
+            return "🛑 FREEZE! Hold perfectly still! 🤫"
+        case .success:
+            return "🌟 Great job holding still! Get ready to move!"
+        case .complete:
+            return "🎉 Great job! You are an expert at holding still!"
+        }
+    }
+    
+    private var statusPillGradient: LinearGradient {
+        switch stillGameState {
+        case .move:
+            return LinearGradient(
+                colors: [Color(red: 6/255, green: 182/255, blue: 212/255), Color(red: 2/255, green: 132/255, blue: 199/255)],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+        case .freeze:
+            return LinearGradient(
+                colors: [Color(red: 239/255, green: 68/255, blue: 68/255), Color(red: 185/255, green: 28/255, blue: 28/255)],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+        case .success:
+            return LinearGradient(
+                colors: [Color(red: 245/255, green: 158/255, blue: 11/255), Color(red: 217/255, green: 119/255, blue: 6/255)],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+        case .complete:
+            return LinearGradient(
+                colors: [Color(red: 16/255, green: 185/255, blue: 129/255), Color(red: 5/255, green: 150/255, blue: 105/255)],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+        }
+    }
+    
+    private var statusPillGlowColor: Color {
+        switch stillGameState {
+        case .move:
+            return Color(red: 6/255, green: 182/255, blue: 212/255).opacity(0.6)
+        case .freeze:
+            return Color(red: 239/255, green: 68/255, blue: 68/255).opacity(0.8)
+        case .success:
+            return Color(red: 245/255, green: 158/255, blue: 11/255).opacity(0.6)
+        case .complete:
+            return Color(red: 16/255, green: 185/255, blue: 129/255).opacity(0.7)
+        }
+    }
+    
+    private func setupStillVideoPlayer() {
+        if stillVideoPlayer == nil {
+            let videoURL = Bundle.main.url(forResource: "MRIDance", withExtension: "mp4") ??
+                           Bundle.main.url(forResource: "MRI Dance", withExtension: "mp4")
+            if let url = videoURL {
+                let player = AVPlayer(url: url)
+                player.isMuted = true
+                player.actionAtItemEnd = .none
+                NotificationCenter.default.addObserver(
+                    forName: .AVPlayerItemDidPlayToEndTime,
+                    object: player.currentItem,
+                    queue: .main
+                ) { [weak player] _ in
+                    player?.seek(to: .zero)
+                    player?.play()
+                }
+                stillVideoPlayer = player
+            }
+        }
+    }
+    
+    private func startStillGame() {
+        HapticManager.shared.buttonTap()
+        playYouDidItSound()
+        
+        showStillGamePromptButton = false
+        isStillGameActive = true
+        stillGamePauseCount = 0
+        stillConfettiActive = false
+        
+        setupStillVideoPlayer()
+        enterStillGameMovePhase()
+    }
+    
+    private func enterStillGameMovePhase() {
+        guard isStillGameActive else { return }
+        withAnimation(.easeInOut(duration: 0.3)) {
+            stillGameState = .move
+        }
+        stillVideoPlayer?.play()
+        startMetronome()
+        
+        stillGameTimer?.invalidate()
+        let moveDuration = 3.5 + Double.random(in: 0.0...1.5)
+        stillGameTimer = Timer.scheduledTimer(withTimeInterval: moveDuration, repeats: false) { _ in
+            self.enterStillGameFreezePhase()
+        }
+    }
+    
+    private func enterStillGameFreezePhase() {
+        guard isStillGameActive else { return }
+        stopMetronome()
+        stillVideoPlayer?.pause()
+        
+        stillGamePauseCount += 1
+        withAnimation(.easeInOut(duration: 0.25)) {
+            stillGameState = .freeze
+        }
+        
+        playFreezeCueSound()
+        HapticManager.shared.mediumTap()
+        
+        stillGameTimer?.invalidate()
+        stillGameTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: false) { _ in
+            self.onStillGameFreezeCompleted()
+        }
+    }
+    
+    private func onStillGameFreezeCompleted() {
+        guard isStillGameActive else { return }
+        playYouDidItSound()
+        HapticManager.shared.success()
+        
+        if stillGamePauseCount < 3 {
+            withAnimation(.easeInOut(duration: 0.25)) {
+                stillGameState = .success
+            }
+            stillGameTimer?.invalidate()
+            stillGameTimer = Timer.scheduledTimer(withTimeInterval: 1.2, repeats: false) { _ in
+                self.enterStillGameMovePhase()
+            }
+        } else {
+            finishStillGameSuccess()
+        }
+    }
+    
+    private func onTapInstrument(type: String) {
+        guard isStillGameActive else { return }
+        if stillGameState == .freeze {
+            showStillWarningToastAlert(msg: "Oops! Hold still! Freeze like a statue! 🤫")
+            playStillWarningSound()
+            HapticManager.shared.mediumTap()
+            return
+        }
+        
+        HapticManager.shared.lightTap()
+        if type == "bell" {
+            playHandbellSound()
+            handbellTappedAnim = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                self.handbellTappedAnim = false
+            }
+        } else if type == "keyboard" {
+            playKeyboardSound()
+            keyboardTappedAnim = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                self.keyboardTappedAnim = false
+            }
+        } else if type == "tambourine" {
+            playTambourineSound()
+            tambourineTappedAnim = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                self.tambourineTappedAnim = false
+            }
+        }
+    }
+    
+    private func showStillWarningToastAlert(msg: String) {
+        stillWarningMessage = msg
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+            showStillWarningToast = true
+        }
+        stillWarningTimer?.invalidate()
+        stillWarningTimer = Timer.scheduledTimer(withTimeInterval: 1.6, repeats: false) { _ in
+            withAnimation(.easeOut(duration: 0.25)) {
+                self.showStillWarningToast = false
+            }
+        }
+    }
+    
+    private func finishStillGameSuccess() {
+        stopMetronome()
+        withAnimation(.easeInOut(duration: 0.3)) {
+            stillGameState = .complete
+            stillConfettiActive = true
+        }
+        playYouDidItSound()
+        HapticManager.shared.success()
+        
+        stillGameTimer?.invalidate()
+        stillGameTimer = Timer.scheduledTimer(withTimeInterval: 2.3, repeats: false) { _ in
+            self.exitStillGame(isCompleted: true)
+        }
+    }
+    
+    private func exitStillGame(isCompleted: Bool) {
+        stopMetronome()
+        stillVideoPlayer?.pause()
+        stillGameTimer?.invalidate()
+        stillGameTimer = nil
+        stillWarningTimer?.invalidate()
+        stillWarningTimer = nil
+        showStillWarningToast = false
+        
+        withAnimation(.easeInOut(duration: 0.4)) {
+            isStillGameActive = false
+            stillConfettiActive = false
+        }
+        
+        if isCompleted {
+            isStillGameDone = true
+            withAnimation(.easeInOut(duration: 0.8)) {
+                showGlowBackground = true
+                promptText = "Great job! You're ready for your MRI! Slide the bed into the machine!"
+            }
+        } else {
+            promptText = "Your most important job during the MRI is to hold perfectly still!"
+            showStillGamePromptButton = true
+        }
+    }
+    
+    private func startMetronome() {
+        stopMetronome()
+        playMetronomeTick()
+        stillGameMetronomeTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
+            self.playMetronomeTick()
+        }
+    }
+    
+    private func stopMetronome() {
+        stillGameMetronomeTimer?.invalidate()
+        stillGameMetronomeTimer = nil
+    }
+    
+    // MARK: - In-Memory Sound Synthesis
+    private func createWavData(samples: [Int16], sampleRate: Int = 44100) -> Data {
+        var data = Data()
+        let numSamples = Int32(samples.count)
+        let subChunk2Size = numSamples * 2
+        let chunkSize = 36 + subChunk2Size
+        
+        data.append(contentsOf: [0x52, 0x49, 0x46, 0x46]) // "RIFF"
+        var chunkSizeLE = chunkSize.littleEndian
+        data.append(Data(bytes: &chunkSizeLE, count: 4))
+        data.append(contentsOf: [0x57, 0x41, 0x56, 0x45]) // "WAVE"
+        
+        data.append(contentsOf: [0x66, 0x6D, 0x74, 0x20]) // "fmt "
+        var subChunk1Size: Int32 = 16
+        data.append(Data(bytes: &subChunk1Size, count: 4))
+        var audioFormat: Int16 = 1
+        data.append(Data(bytes: &audioFormat, count: 2))
+        var numChannels: Int16 = 1
+        data.append(Data(bytes: &numChannels, count: 2))
+        var sr = Int32(sampleRate).littleEndian
+        data.append(Data(bytes: &sr, count: 4))
+        var byteRate = (Int32(sampleRate) * 2).littleEndian
+        data.append(Data(bytes: &byteRate, count: 4))
+        var blockAlign: Int16 = 2
+        data.append(Data(bytes: &blockAlign, count: 2))
+        var bitsPerSample: Int16 = 16
+        data.append(Data(bytes: &bitsPerSample, count: 2))
+        
+        data.append(contentsOf: [0x64, 0x61, 0x74, 0x61]) // "data"
+        var subChunk2SizeLE = subChunk2Size.littleEndian
+        data.append(Data(bytes: &subChunk2SizeLE, count: 4))
+        
+        samples.withUnsafeBufferPointer { buffer in
+            data.append(Data(buffer: buffer))
+        }
+        return data
+    }
+    
+    private func playTone(samples: [Int16], sampleRate: Int = 44100) {
+        let wav = createWavData(samples: samples, sampleRate: sampleRate)
+        do {
+            sfxTonePlayer = try AVAudioPlayer(data: wav)
+            sfxTonePlayer?.play()
+        } catch {
+            print("Could not play synthesized tone: \(error)")
+        }
+    }
+    
+    private func playMetronomeTick() {
+        let sr = 44100
+        let n = Int(0.026 * Double(sr))
+        var samples = [Int16](repeating: 0, count: n)
+        for i in 0..<n {
+            let t = Double(i) / Double(sr)
+            let f = 1150.0 + (320.0 - 1150.0) * (t / 0.026)
+            let env = exp(-Double(i) / (Double(n) * 0.25))
+            samples[i] = Int16(sin(2.0 * .pi * f * t) * env * 22000)
+        }
+        let wav = createWavData(samples: samples, sampleRate: sr)
+        try? metronomeAudioPlayer = AVAudioPlayer(data: wav)
+        metronomeAudioPlayer?.play()
+    }
+    
+    private func playHandbellSound() {
+        let sr = 44100
+        let n = Int(1.1 * Double(sr))
+        var samples = [Int16](repeating: 0, count: n)
+        let freqs = [1046.5, 2093.0, 3135.9]
+        let gains = [0.45, 0.25, 0.12]
+        let decays = [1.1, 0.65, 0.35]
+        for i in 0..<n {
+            let t = Double(i) / Double(sr)
+            var val = 0.0
+            for (idx, f) in freqs.enumerated() {
+                let env = exp(-t / decays[idx])
+                val += sin(2.0 * .pi * f * t) * gains[idx] * env
+            }
+            samples[i] = Int16(max(-32767, min(32767, val * 26000)))
+        }
+        playTone(samples: samples)
+    }
+    
+    private func playKeyboardSound() {
+        let chordNotes = [523.25, 659.25, 783.99, 1046.50, 880.00, 783.99, 659.25]
+        let freq = chordNotes[keyboardChordNoteIdx % chordNotes.count]
+        keyboardChordNoteIdx += 1
+        let sr = 44100
+        let n = Int(0.65 * Double(sr))
+        var samples = [Int16](repeating: 0, count: n)
+        for i in 0..<n {
+            let t = Double(i) / Double(sr)
+            let env = exp(-t / 0.28)
+            let val = (sin(2.0 * .pi * freq * t) * 0.6 + sin(2.0 * .pi * freq * 2.0 * t) * 0.3) * env
+            samples[i] = Int16(max(-32767, min(32767, val * 26000)))
+        }
+        playTone(samples: samples)
+    }
+    
+    private func playTambourineSound() {
+        let sr = 44100
+        let n = Int(0.18 * Double(sr))
+        var samples = [Int16](repeating: 0, count: n)
+        for i in 0..<n {
+            let t = Double(i) / Double(sr)
+            let env = exp(-Double(i) / (Double(n) * 0.28))
+            let noise = Double.random(in: -1.0...1.0) * 0.75
+            let jingle = sin(2.0 * .pi * 5200.0 * t) * 0.35 * exp(-t / 0.12)
+            let val = (noise + jingle) * env
+            samples[i] = Int16(max(-32767, min(32767, val * 24000)))
+        }
+        playTone(samples: samples)
+    }
+    
+    private func playFreezeCueSound() {
+        let sr = 44100
+        let n = Int(0.32 * Double(sr))
+        var samples = [Int16](repeating: 0, count: n)
+        for i in 0..<n {
+            let t = Double(i) / Double(sr)
+            let f = 920.0 + (420.0 - 920.0) * (t / 0.32)
+            let env = exp(-Double(i) / (Double(n) * 0.4))
+            samples[i] = Int16(sin(2.0 * .pi * f * t) * env * 24000)
+        }
+        playTone(samples: samples)
+    }
+    
+    private func playStillWarningSound() {
+        let sr = 44100
+        let n = Int(0.22 * Double(sr))
+        var samples = [Int16](repeating: 0, count: n)
+        for i in 0..<n {
+            let t = Double(i) / Double(sr)
+            let f = t < 0.08 ? 240.0 : 180.0
+            let env = exp(-t / 0.16)
+            let phase = f * t
+            let saw = (phase - floor(phase + 0.5)) * 2.0
+            samples[i] = Int16(saw * env * 20000)
+        }
+        playTone(samples: samples)
     }
     
     @ViewBuilder

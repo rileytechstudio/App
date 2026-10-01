@@ -1236,6 +1236,385 @@
       white-space: nowrap;
     }
 
+    /* ========================================================= */
+    /* MRI STAYING STILL GAME                                    */
+    /* ========================================================= */
+    .mri-still-game-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000000;
+      z-index: 40;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      overflow: hidden;
+    }
+
+    .mri-still-game-layer.active {
+      display: block;
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .mri-still-hud {
+      position: absolute;
+      top: 20px;
+      left: 0;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      z-index: 45;
+      pointer-events: auto;
+    }
+
+    .mri-still-back-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 999px;
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .mri-still-back-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: scale(1.04);
+    }
+
+    .mri-still-status-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 24px;
+      border-radius: 999px;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      transition: all 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+      user-select: none;
+    }
+
+    .mri-still-status-pill.move-mode {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.95), rgba(5, 150, 105, 0.95));
+      border: 2px solid #34d399;
+      color: #ffffff;
+      box-shadow: 0 0 24px rgba(16, 185, 129, 0.6), 0 4px 16px rgba(0, 0, 0, 0.5);
+      animation: statusPulseMove 1.6s ease-in-out infinite;
+    }
+
+    @keyframes statusPulseMove {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+    }
+
+    .mri-still-status-pill.freeze-mode {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.98), rgba(185, 28, 28, 0.98));
+      border: 2px solid #f87171;
+      color: #ffffff;
+      box-shadow: 0 0 32px rgba(239, 68, 68, 0.8), 0 4px 20px rgba(0, 0, 0, 0.6);
+      animation: statusFreezeShake 0.6s ease-in-out infinite alternate;
+      font-size: 20px;
+      letter-spacing: 0.6px;
+    }
+
+    @keyframes statusFreezeShake {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.05); }
+    }
+
+    .mri-still-status-pill.success-mode {
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.98), rgba(2, 132, 199, 0.98));
+      border: 2px solid #38bdf8;
+      color: #ffffff;
+      box-shadow: 0 0 28px rgba(14, 165, 233, 0.75);
+    }
+
+    .mri-still-status-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .mri-still-score-badge {
+      padding: 8px 18px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 999px;
+      color: #e0f2fe;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+    }
+
+    /* Skeleton Video & Image Stage */
+    .mri-still-skeleton-stage {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 41;
+      overflow: hidden;
+    }
+
+    .mri-still-video,
+    .mri-still-skeleton-img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .mri-still-skeleton-stage.dancing .mri-still-skeleton-img {
+      animation: mriSkeletonGroove 2.0s ease-in-out infinite;
+      transform-origin: 60% 75%;
+    }
+
+    .mri-still-skeleton-stage.frozen .mri-still-skeleton-img,
+    .mri-still-skeleton-stage.frozen .mri-still-video {
+      animation-play-state: paused !important;
+    }
+
+    @keyframes mriSkeletonGroove {
+      0%, 100% {
+        transform: translateY(0) rotate(0deg);
+      }
+      25% {
+        transform: translateY(-12px) rotate(-3deg);
+      }
+      50% {
+        transform: translateY(0) rotate(0deg);
+      }
+      75% {
+        transform: translateY(-12px) rotate(3deg);
+      }
+    }
+
+    /* Instruments Positioning & Animation */
+    .mri-inst-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 42;
+    }
+
+    .mri-inst-wrapper img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+      transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1), filter 0.2s ease;
+    }
+
+    .mri-inst-bell img {
+      transform-origin: 10.4% 64.1%;
+    }
+
+    .mri-inst-keyboard img {
+      transform-origin: 50.0% 82.0%;
+    }
+
+    .mri-inst-tambourine img {
+      transform-origin: 90.0% 63.3%;
+    }
+
+    /* Interactive hotspots */
+    .mri-inst-hotspot {
+      position: absolute;
+      background: transparent;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      z-index: 43;
+      pointer-events: auto;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .mri-hotspot-bell {
+      left: 3.5%;
+      top: 50%;
+      width: 14%;
+      height: 28%;
+      border-radius: 40px;
+    }
+
+    .mri-hotspot-keyboard {
+      left: 22%;
+      top: 66%;
+      width: 56%;
+      height: 32%;
+      border-radius: 24px;
+    }
+
+    .mri-hotspot-tambourine {
+      left: 81%;
+      top: 51%;
+      width: 17%;
+      height: 26%;
+      border-radius: 50%;
+    }
+
+    /* Instrument Tap Animations */
+    .mri-inst-bell.tap-active img {
+      animation: mriBellRing 0.4s ease-out;
+    }
+
+    @keyframes mriBellRing {
+      0% { transform: rotate(0deg); }
+      25% { transform: rotate(-18deg) scale(1.06); }
+      50% { transform: rotate(16deg) scale(1.04); }
+      75% { transform: rotate(-8deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    .mri-inst-keyboard.tap-active img {
+      animation: mriKeyboardBounce 0.25s ease-out;
+    }
+
+    @keyframes mriKeyboardBounce {
+      0% { transform: scale(1); }
+      50% { transform: scale(0.97) translateY(4px); filter: brightness(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    .mri-inst-tambourine.tap-active img {
+      animation: mriTambourineShake 0.35s ease-out;
+    }
+
+    @keyframes mriTambourineShake {
+      0% { transform: rotate(0deg); }
+      25% { transform: rotate(18deg) translateY(-8px) scale(1.05); }
+      50% { transform: rotate(-14deg) translateY(6px); }
+      75% { transform: rotate(8deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    /* Freeze Warning Toast */
+    .mri-still-warning-toast {
+      position: absolute;
+      top: 90px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, rgba(220, 38, 38, 0.98), rgba(185, 28, 28, 0.98));
+      color: #ffffff;
+      padding: 12px 28px;
+      border-radius: 999px;
+      font-size: 18px;
+      font-weight: 800;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7), 0 0 24px rgba(239, 68, 68, 0.8);
+      border: 2px solid #fca5a5;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      z-index: 48;
+      pointer-events: none;
+      animation: mriWarningBounce 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes mriWarningBounce {
+      0% { transform: translateX(-50%) scale(0.8); opacity: 0; }
+      100% { transform: translateX(-50%) scale(1); opacity: 1; }
+    }
+
+    /* Confetti Canvas in Still Game */
+    .mri-still-confetti-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 49;
+    }
+
+    /* Play Still Game Button in Prompt Bar */
+    .mri-play-still-game-btn {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 15px;
+      padding: 9px 20px;
+      border-radius: 999px;
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 0 0 16px rgba(6, 182, 212, 0.7), 0 4px 12px rgba(0, 0, 0, 0.4);
+      cursor: pointer;
+      animation: pulseStillBtn 1.8s infinite;
+      margin-left: 12px;
+      flex-shrink: 0;
+      transition: transform 0.15s, background 0.2s;
+    }
+
+    .mri-play-still-game-btn:hover {
+      transform: scale(1.05);
+      background: linear-gradient(135deg, #22d3ee 0%, #0369a1 100%);
+    }
+
+    @keyframes pulseStillBtn {
+      0%, 100% { box-shadow: 0 0 16px rgba(6, 182, 212, 0.7), 0 4px 12px rgba(0, 0, 0, 0.4); }
+      50% { box-shadow: 0 0 28px rgba(6, 182, 212, 0.95), 0 6px 16px rgba(0, 0, 0, 0.5); }
+    }
+
+    .mri-stage-still-game-btn {
+      position: absolute;
+      top: 68%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 20px;
+      padding: 14px 28px;
+      border-radius: 999px;
+      border: 2.5px solid rgba(255, 255, 255, 0.85);
+      box-shadow: 0 0 24px rgba(6, 182, 212, 0.8), 0 6px 20px rgba(0, 0, 0, 0.5);
+      cursor: pointer;
+      z-index: 25;
+      animation: pulseStillBtn 1.8s infinite;
+      transition: transform 0.15s;
+    }
+
+    .mri-stage-still-game-btn:hover {
+      transform: translate(-50%, -50%) scale(1.06);
+    }
+
     /* MRI All Done Center Button (Pops up after 8 seconds inside) */
     .mri-all-done-btn {
       position: absolute;
@@ -7395,6 +7774,64 @@
                     <span class="mri-pulse-ring"></span>
                     <span class="mri-hotspot-label">Tap the bed to get ready</span>
                   </div>
+
+                  <!-- Floating prompt button to practice holding still -->
+                  <button id="mriStageStillGameBtn" class="mri-stage-still-game-btn" onclick="startMRIStillGame(event)" title="Practice Holding Still">
+                    <span>🎮</span>
+                    <span>Practice Holding Still!</span>
+                  </button>
+                </div>
+
+                <!-- Layer 5: Staying Still Game Screen (Interrupts scene before bed slides into machine) -->
+                <div id="mriStillGameOverlay" class="mri-layer mri-still-game-layer" style="display: none; opacity: 0;" aria-hidden="true">
+                  <!-- Game Top HUD / Header -->
+                  <div class="mri-still-hud">
+                    <button class="mri-still-back-btn" onclick="exitMRIStillGame(event)" aria-label="Exit Game">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                      <span>Back</span>
+                    </button>
+                    <div class="mri-still-status-pill move-mode" id="mriStillStatusPill">
+                      <span class="mri-still-status-dot" id="mriStillStatusDot"></span>
+                      <span class="mri-still-status-text" id="mriStillStatusText">🎵 Move & Play Music! Tap the instruments! 🎶</span>
+                    </div>
+                    <div class="mri-still-score-badge" id="mriStillScoreBadge">
+                      <span id="mriStillPauseCountText">Freezes: 0/3</span>
+                    </div>
+                  </div>
+
+                  <!-- Center Stage: Dancing Skeleton Video / Image -->
+                  <div class="mri-still-skeleton-stage dancing" id="mriStillSkeletonStage">
+                    <video id="mriStillVideo" class="mri-still-video" src="assets/MRIDance.mp4" loop playsinline muted></video>
+                    <img id="mriStillSkeletonImg" class="mri-still-skeleton-img" src="assets/MRIDance.png" alt="Dancing Skeleton" />
+                  </div>
+
+                  <!-- Interactive Instruments Layers & Hotspots -->
+                  <!-- Handbell (Lower Left) -->
+                  <div id="mriInstBellWrapper" class="mri-inst-wrapper mri-inst-bell">
+                    <img id="mriInstBellImg" src="assets/Handbell.png" alt="Handbell" draggable="false" />
+                    <button class="mri-inst-hotspot mri-hotspot-bell" onclick="onMRIInstrumentTap('bell', event)" title="Tap Handbell" aria-label="Handbell"></button>
+                  </div>
+
+                  <!-- Keyboard (Bottom Center) -->
+                  <div id="mriInstKeyboardWrapper" class="mri-inst-wrapper mri-inst-keyboard">
+                    <img id="mriInstKeyboardImg" src="assets/Keyboard.png" alt="Keyboard" draggable="false" />
+                    <button class="mri-inst-hotspot mri-hotspot-keyboard" onclick="onMRIInstrumentTap('keyboard', event)" title="Tap Keyboard" aria-label="Keyboard"></button>
+                  </div>
+
+                  <!-- Tambourine (Lower Right) -->
+                  <div id="mriInstTambourineWrapper" class="mri-inst-wrapper mri-inst-tambourine">
+                    <img id="mriInstTambourineImg" src="assets/Tambourine.png" alt="Tambourine" draggable="false" />
+                    <button class="mri-inst-hotspot mri-hotspot-tambourine" onclick="onMRIInstrumentTap('tambourine', event)" title="Tap Tambourine" aria-label="Tambourine"></button>
+                  </div>
+
+                  <!-- Freeze Warning Toast / Gentle Alert -->
+                  <div id="mriStillWarningToast" class="mri-still-warning-toast" aria-live="assertive">
+                    <span class="mri-still-warning-icon">🛑</span>
+                    <span id="mriStillWarningMsg">Hold still! Freeze like a statue! 🤫</span>
+                  </div>
+
+                  <!-- Confetti Canvas in Still Game -->
+                  <canvas id="mriStillConfettiCanvas" class="mri-still-confetti-canvas"></canvas>
                 </div>
 
                 <!-- All Done! Button (Pops up in center after 8 seconds) -->
@@ -7434,6 +7871,10 @@
               <div class="step-instruction-card">
                 <span class="step-instruction-dot confirm-pulse" id="mriPromptDot" aria-hidden="true"></span>
                 <span class="step-instruction-text" id="mriPromptText">Welcome to MRI! Lets find all the different parts of the MRI room together!</span>
+                <button id="mriPlayStillGameBtn" class="mri-play-still-game-btn" onclick="startMRIStillGame(event)" style="display: none;" title="Practice Holding Still">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                  <span>Practice Holding Still!</span>
+                </button>
               </div>
             </div>
 
@@ -15721,8 +16162,17 @@
     let mriBedDragCurrentY = 0;
     let mriBedGlowTimer = null;
     let mriBedHideTimer = null;
+    let mriBedPromptTimer = null;
     let mriItemsTimer = null;
     let mriCelebrationTimer = null;
+    let mriStillGameActive = false;
+    let mriStillGameDone = false;
+    let mriStillGameState = 'MOVE'; // 'MOVE' | 'FREEZE' | 'COMPLETE'
+    let mriStillGamePauseCount = 0;
+    let mriStillGameTimer = null;
+    let mriMetronomeTimer = null;
+    let mriStillWarningTimer = null;
+    let mriStillConfettiAnimationId = null;
     const mriTappedButtons = new Set();
     const mriClickedSpots = new Set();
     const MRI_DISCOVERY_PARTS = ['scanner', 'bed', 'monitors'];
@@ -15735,6 +16185,40 @@
       mriBedDragActive = false;
       mriInsideActive = false;
       mriItemsActive = false;
+      mriStillGameActive = false;
+      mriStillGameDone = false;
+      mriStillGameState = 'MOVE';
+      mriStillGamePauseCount = 0;
+      if (mriStillGameTimer) {
+        clearTimeout(mriStillGameTimer);
+        mriStillGameTimer = null;
+      }
+      if (mriMetronomeTimer) {
+        clearInterval(mriMetronomeTimer);
+        mriMetronomeTimer = null;
+      }
+      if (mriStillWarningTimer) {
+        clearTimeout(mriStillWarningTimer);
+        mriStillWarningTimer = null;
+      }
+      if (mriBedPromptTimer) {
+        clearTimeout(mriBedPromptTimer);
+        mriBedPromptTimer = null;
+      }
+      stopMRIStillConfetti();
+      const stillOverlay = document.getElementById('mriStillGameOverlay');
+      if (stillOverlay) {
+        stillOverlay.classList.remove('active');
+        stillOverlay.style.display = 'none';
+        stillOverlay.style.opacity = '0';
+      }
+      const playStillBtn = document.getElementById('mriPlayStillGameBtn');
+      if (playStillBtn) playStillBtn.style.display = 'none';
+      const stageStillBtn = document.getElementById('mriStageStillGameBtn');
+      if (stageStillBtn) stageStillBtn.style.display = 'none';
+      const stillVideo = document.getElementById('mriStillVideo');
+      if (stillVideo) stillVideo.pause();
+
       const insideLayer = document.getElementById('mriInsideLayer');
       if (insideLayer) {
         insideLayer.classList.remove('active');
@@ -15751,8 +16235,8 @@
       }
       const staticBedEmpty = document.getElementById('mriStaticBedEmptyImg');
       if (staticBedEmpty) {
-        staticBedEmpty.style.display = 'block';
         staticBedEmpty.style.opacity = '1';
+        staticBedEmpty.style.pointerEvents = 'auto';
         staticBedEmpty.style.transform = 'translateY(22%)';
       }
       const bedEmptyImg = document.getElementById('mriBedEmptyImg');
@@ -16711,22 +17195,529 @@
       const bedFullImg = document.getElementById('mriBedFullImg');
       if (bedFullImg) bedFullImg.style.display = 'none';
 
-      // After person is in the bed, smoothly illuminate the scanner with MRI glow
-      if (mriBedGlowTimer) clearTimeout(mriBedGlowTimer);
-      mriBedGlowTimer = setTimeout(() => {
-        transitionToMRIGlowAndDraggableBed();
-      }, 700);
+      // After person is in the bed, show prompt that their most important job is to hold perfectly still,
+      // and prompt them to tap the button to play the staying still game!
+      if (mriBedPromptTimer) clearTimeout(mriBedPromptTimer);
+      mriBedPromptTimer = setTimeout(() => {
+        if (!mriBedActive || mriStillGameDone) return;
+        showMRIHoldingStillPrompt();
+      }, 650);
+    }
+
+    function showMRIHoldingStillPrompt() {
+      const promptText = document.getElementById('mriPromptText');
+      const promptDot = document.getElementById('mriPromptDot');
+      const promptBar = document.getElementById('mriBottomPromptBar');
+      const playBtn = document.getElementById('mriPlayStillGameBtn');
+      const stageBtn = document.getElementById('mriStageStillGameBtn');
+
+      if (promptText) {
+        promptText.textContent = "Your most important job during the MRI is to hold perfectly still!";
+      }
+      if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
+      if (playBtn) playBtn.style.display = 'inline-flex';
+      if (stageBtn) stageBtn.style.display = 'flex';
+      if (promptBar) {
+        promptBar.classList.remove('prompt-pulse');
+        requestAnimationFrame(() => promptBar.classList.add('prompt-pulse'));
+      }
     }
 
     function onMRIBedLayerTap(event) {
       if (!mriBedActive) return;
       if (!mriBedFull) {
         onMRIBedTap(event);
+      } else if (!mriStillGameDone) {
+        startMRIStillGame(event);
       } else if (!mriBedSlidIn) {
         const draggableBed = document.getElementById('mriDraggableBed');
         if (draggableBed && draggableBed._dragAttached) {
           completeMRISlideIn();
         }
+      }
+    }
+
+    /* ========================================================= */
+    /* MRI STAYING STILL GAME LOGIC & AUDIO SYNTHESIS            */
+    /* ========================================================= */
+    function getMRIAudioCtx() {
+      if (!window._sharedAudioCtx) {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) window._sharedAudioCtx = new AudioCtx();
+      }
+      if (window._sharedAudioCtx && window._sharedAudioCtx.state === 'suspended') {
+        window._sharedAudioCtx.resume().catch(() => {});
+      }
+      return window._sharedAudioCtx;
+    }
+
+    function playMetronomeTick() {
+      try {
+        const ctx = getMRIAudioCtx();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1150, now);
+        osc.frequency.exponentialRampToValueAtTime(320, now + 0.024);
+        gain.gain.setValueAtTime(0.28, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.026);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.028);
+      } catch (_) {}
+    }
+
+    function startMetronome() {
+      stopMetronome();
+      playMetronomeTick();
+      mriMetronomeTimer = setInterval(playMetronomeTick, 500); // 120 BPM
+    }
+
+    function stopMetronome() {
+      if (mriMetronomeTimer) {
+        clearInterval(mriMetronomeTimer);
+        mriMetronomeTimer = null;
+      }
+    }
+
+    function playHandbellSound() {
+      try {
+        const ctx = getMRIAudioCtx();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const freqs = [1046.5, 2093.0, 3135.9]; // C6, C7, G7 harmonics
+        const gains = [0.4, 0.22, 0.12];
+        const decays = [1.2, 0.65, 0.35];
+        freqs.forEach((f, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = i === 0 ? 'sine' : 'triangle';
+          osc.frequency.setValueAtTime(f, now);
+          gain.gain.setValueAtTime(gains[i], now);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + decays[i]);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + decays[i]);
+        });
+      } catch (_) {}
+    }
+
+    let _keyboardChordNoteIdx = 0;
+    const _keyboardChordNotes = [523.25, 659.25, 783.99, 1046.50, 880.00, 783.99, 659.25];
+    function playKeyboardSound() {
+      try {
+        const ctx = getMRIAudioCtx();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const freq = _keyboardChordNotes[_keyboardChordNoteIdx % _keyboardChordNotes.length];
+        _keyboardChordNoteIdx++;
+
+        const osc = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc2.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now);
+        osc2.frequency.setValueAtTime(freq * 2, now);
+
+        gain.gain.setValueAtTime(0.35, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+
+        osc.connect(gain);
+        osc2.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now);
+        osc2.start(now);
+        osc.stop(now + 0.7);
+        osc2.stop(now + 0.7);
+      } catch (_) {}
+    }
+
+    function playTambourineSound() {
+      try {
+        const ctx = getMRIAudioCtx();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const bufferSize = Math.floor(ctx.sampleRate * 0.14);
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.28));
+        }
+        const noise = ctx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(6500, now);
+        filter.Q.setValueAtTime(2.2, now);
+
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.4, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        noise.start(now);
+
+        const jingle = ctx.createOscillator();
+        const jingleGain = ctx.createGain();
+        jingle.type = 'triangle';
+        jingle.frequency.setValueAtTime(5200, now);
+        jingleGain.gain.setValueAtTime(0.18, now);
+        jingleGain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+        jingle.connect(jingleGain);
+        jingleGain.connect(ctx.destination);
+        jingle.start(now);
+        jingle.stop(now + 0.15);
+      } catch (_) {}
+    }
+
+    function playFreezeCueSound() {
+      try {
+        const ctx = getMRIAudioCtx();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(920, now);
+        osc.frequency.exponentialRampToValueAtTime(420, now + 0.28);
+        gain.gain.setValueAtTime(0.28, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.33);
+      } catch (_) {}
+    }
+
+    function playStillWarningSound() {
+      try {
+        const ctx = getMRIAudioCtx();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(240, now);
+        osc.frequency.setValueAtTime(180, now + 0.08);
+        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.22);
+      } catch (_) {}
+    }
+
+    function startMRIStillGame(event) {
+      if (event) event.stopPropagation();
+      triggerHapticFeedback(true);
+      playYouDidItChimeSound();
+
+      // Hide launcher buttons
+      const playBtn = document.getElementById('mriPlayStillGameBtn');
+      if (playBtn) playBtn.style.display = 'none';
+      const stageBtn = document.getElementById('mriStageStillGameBtn');
+      if (stageBtn) stageBtn.style.display = 'none';
+
+      mriStillGameActive = true;
+      mriStillGamePauseCount = 0;
+      mriStillGameState = 'MOVE';
+
+      const overlay = document.getElementById('mriStillGameOverlay');
+      if (overlay) {
+        overlay.style.display = 'block';
+        requestAnimationFrame(() => {
+          overlay.classList.add('active');
+          overlay.style.opacity = '1';
+        });
+      }
+
+      const pauseText = document.getElementById('mriStillPauseCountText');
+      if (pauseText) pauseText.textContent = 'Freezes: 0/3';
+
+      enterStillGameMovePhase();
+    }
+
+    function enterStillGameMovePhase() {
+      if (!mriStillGameActive) return;
+      mriStillGameState = 'MOVE';
+
+      const statusPill = document.getElementById('mriStillStatusPill');
+      const statusText = document.getElementById('mriStillStatusText');
+      const skeletonStage = document.getElementById('mriStillSkeletonStage');
+      const video = document.getElementById('mriStillVideo');
+
+      if (statusPill) statusPill.className = 'mri-still-status-pill move-mode';
+      if (statusText) statusText.textContent = "🎵 Move & Play Music! Tap the instruments! 🎶";
+
+      if (skeletonStage) {
+        skeletonStage.classList.remove('frozen');
+        skeletonStage.classList.add('dancing');
+      }
+
+      if (video) {
+        video.play().catch(() => {});
+      }
+
+      startMetronome();
+
+      // Interspersed random pause duration (between 3.5s and 5.0s)
+      if (mriStillGameTimer) clearTimeout(mriStillGameTimer);
+      const moveDuration = 3500 + Math.random() * 1500;
+      mriStillGameTimer = setTimeout(() => {
+        enterStillGameFreezePhase();
+      }, moveDuration);
+    }
+
+    function enterStillGameFreezePhase() {
+      if (!mriStillGameActive) return;
+      mriStillGameState = 'FREEZE';
+      mriStillGamePauseCount++;
+
+      const pauseText = document.getElementById('mriStillPauseCountText');
+      if (pauseText) {
+        pauseText.textContent = `Freezes: ${mriStillGamePauseCount}/3`;
+      }
+
+      stopMetronome();
+
+      const video = document.getElementById('mriStillVideo');
+      if (video) video.pause();
+
+      const skeletonStage = document.getElementById('mriStillSkeletonStage');
+      if (skeletonStage) {
+        skeletonStage.classList.remove('dancing');
+        skeletonStage.classList.add('frozen');
+      }
+
+      playFreezeCueSound();
+      triggerHapticFeedback(true);
+
+      const statusPill = document.getElementById('mriStillStatusPill');
+      const statusText = document.getElementById('mriStillStatusText');
+      if (statusPill) statusPill.className = 'mri-still-status-pill freeze-mode';
+      if (statusText) statusText.textContent = "🛑 FREEZE! Hold perfectly still! 🤫";
+
+      // 3.0s freeze interval
+      if (mriStillGameTimer) clearTimeout(mriStillGameTimer);
+      mriStillGameTimer = setTimeout(() => {
+        onFreezeCompleted();
+      }, 3000);
+    }
+
+    function onFreezeCompleted() {
+      if (!mriStillGameActive) return;
+      playYouDidItChimeSound();
+      triggerHapticFeedback(true);
+
+      if (mriStillGamePauseCount < 3) {
+        const statusPill = document.getElementById('mriStillStatusPill');
+        const statusText = document.getElementById('mriStillStatusText');
+        if (statusPill) statusPill.className = 'mri-still-status-pill success-mode';
+        if (statusText) statusText.textContent = "🌟 Great job holding still! Get ready to move!";
+
+        if (mriStillGameTimer) clearTimeout(mriStillGameTimer);
+        mriStillGameTimer = setTimeout(() => {
+          enterStillGameMovePhase();
+        }, 1200);
+      } else {
+        finishStillGameSuccess();
+      }
+    }
+
+    function onMRIInstrumentTap(type, event) {
+      if (event) event.stopPropagation();
+      if (!mriStillGameActive) return;
+
+      if (mriStillGameState === 'FREEZE') {
+        showStillWarningToast("Oops! Hold still! Freeze like a statue! 🤫");
+        playStillWarningSound();
+        triggerHapticFeedback(true);
+        return;
+      }
+
+      triggerHapticFeedback(false);
+      let wrapperEl = null;
+
+      if (type === 'bell') {
+        playHandbellSound();
+        wrapperEl = document.getElementById('mriInstBellWrapper');
+      } else if (type === 'keyboard') {
+        playKeyboardSound();
+        wrapperEl = document.getElementById('mriInstKeyboardWrapper');
+      } else if (type === 'tambourine') {
+        playTambourineSound();
+        wrapperEl = document.getElementById('mriInstTambourineWrapper');
+      }
+
+      if (wrapperEl) {
+        wrapperEl.classList.remove('tap-active');
+        void wrapperEl.offsetWidth;
+        wrapperEl.classList.add('tap-active');
+        setTimeout(() => wrapperEl.classList.remove('tap-active'), 400);
+      }
+    }
+
+    function showStillWarningToast(msg) {
+      const toast = document.getElementById('mriStillWarningToast');
+      const msgEl = document.getElementById('mriStillWarningMsg');
+      if (!toast) return;
+      if (msgEl) msgEl.textContent = msg;
+      toast.style.display = 'flex';
+
+      if (mriStillWarningTimer) clearTimeout(mriStillWarningTimer);
+      mriStillWarningTimer = setTimeout(() => {
+        toast.style.display = 'none';
+      }, 1600);
+    }
+
+    function finishStillGameSuccess() {
+      mriStillGameState = 'COMPLETE';
+      stopMetronome();
+
+      const statusPill = document.getElementById('mriStillStatusPill');
+      const statusText = document.getElementById('mriStillStatusText');
+      if (statusPill) statusPill.className = 'mri-still-status-pill success-mode';
+      if (statusText) statusText.textContent = "🎉 Great job! You are an expert at holding still!";
+
+      playYouDidItChimeSound();
+      triggerHapticFeedback(true);
+      startMRIStillConfetti();
+
+      if (mriStillGameTimer) clearTimeout(mriStillGameTimer);
+      mriStillGameTimer = setTimeout(() => {
+        exitMRIStillGame(true);
+      }, 2300);
+    }
+
+    function exitMRIStillGame(isCompleted) {
+      mriStillGameActive = false;
+      stopMetronome();
+      stopMRIStillConfetti();
+
+      const video = document.getElementById('mriStillVideo');
+      if (video) video.pause();
+
+      if (mriStillGameTimer) {
+        clearTimeout(mriStillGameTimer);
+        mriStillGameTimer = null;
+      }
+
+      const overlay = document.getElementById('mriStillGameOverlay');
+      if (overlay) {
+        overlay.classList.remove('active');
+        overlay.style.opacity = '0';
+        setTimeout(() => {
+          overlay.style.display = 'none';
+        }, 400);
+      }
+
+      if (isCompleted) {
+        mriStillGameDone = true;
+        // Seamlessly illuminate the scanner and activate draggable bed
+        transitionToMRIGlowAndDraggableBed();
+        const promptText = document.getElementById('mriPromptText');
+        if (promptText) {
+          promptText.textContent = "Great job! You're ready for your MRI! Slide the bed into the machine!";
+        }
+      } else {
+        showMRIHoldingStillPrompt();
+      }
+    }
+
+    function startMRIStillConfetti() {
+      const canvas = document.getElementById('mriStillConfettiCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = 1366;
+      const h = 1024;
+      canvas.width = w;
+      canvas.height = h;
+
+      const particles = [];
+      const particleCount = 100;
+
+      for (let i = 0; i < particleCount; i++) {
+        const isBurst = i < 50;
+        const angle = isBurst ? Math.random() * Math.PI * 2 : 0;
+        const speed = isBurst ? Math.random() * 14 + 5 : 0;
+        particles.push({
+          x: isBurst ? w / 2 + (Math.random() - 0.5) * 220 : Math.random() * w,
+          y: isBurst ? h / 2 + (Math.random() - 0.5) * 90 : Math.random() * -h,
+          w: Math.random() * 12 + 10,
+          h: Math.random() * 20 + 12,
+          color: MASK_CONFETTI_COLORS[Math.floor(Math.random() * MASK_CONFETTI_COLORS.length)],
+          rotation: Math.random() * 360,
+          rotationSpeed: (Math.random() - 0.5) * 8,
+          vx: isBurst ? Math.cos(angle) * speed : (Math.random() - 0.5) * 2.5,
+          vy: isBurst ? Math.sin(angle) * speed - 2.5 : Math.random() * 3.2 + 2.5,
+          gravity: 0.18,
+          drag: isBurst ? 0.94 : 0.99,
+          wobble: Math.random() * Math.PI * 2,
+          wobbleSpeed: Math.random() * 0.09 + 0.03,
+          isCircle: Math.random() > 0.78
+        });
+      }
+
+      function render() {
+        ctx.clearRect(0, 0, w, h);
+
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          p.vx *= p.drag;
+          p.vy = p.vy * p.drag + p.gravity;
+          p.x += p.vx + Math.sin(p.wobble) * 2;
+          p.y += p.vy;
+          p.rotation += p.rotationSpeed;
+          p.wobble += p.wobbleSpeed;
+
+          if (p.y > h + 40) {
+            p.y = -30;
+            p.x = Math.random() * w;
+            p.vy = Math.random() * 3.2 + 2.5;
+            p.vx = (Math.random() - 0.5) * 2.5;
+            p.drag = 0.99;
+          }
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rotation * Math.PI) / 180);
+          ctx.scale(Math.cos(p.wobble), 1);
+
+          ctx.fillStyle = p.color;
+          if (p.isCircle) {
+            ctx.beginPath();
+            ctx.arc(0, 0, p.w / 2, 0, Math.PI * 2);
+            ctx.fill();
+          } else {
+            ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          }
+          ctx.restore();
+        }
+
+        mriStillConfettiAnimationId = requestAnimationFrame(render);
+      }
+
+      render();
+    }
+
+    function stopMRIStillConfetti() {
+      if (mriStillConfettiAnimationId) {
+        cancelAnimationFrame(mriStillConfettiAnimationId);
+        mriStillConfettiAnimationId = null;
+      }
+      const canvas = document.getElementById('mriStillConfettiCanvas');
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
       }
     }
 
@@ -17014,6 +18005,8 @@
     function handleMRIStageTap(event) {
       if (mriBedActive && !mriBedFull) {
         onMRIBedTap(event);
+      } else if (mriBedActive && mriBedFull && !mriStillGameDone) {
+        startMRIStillGame(event);
       } else if (mriBedActive && mriBedFull && !mriBedSlidIn) {
         completeMRISlideIn();
       } else if (!mriHasTransitioned) {
@@ -17035,6 +18028,8 @@
     function handleMRIPromptBarTap() {
       if (mriBedActive && !mriBedFull) {
         onMRIBedTap();
+      } else if (mriBedActive && mriBedFull && !mriStillGameDone) {
+        startMRIStillGame();
       } else if (mriBedActive && mriBedFull && !mriBedSlidIn) {
         completeMRISlideIn();
       } else if (!mriHasTransitioned) {
