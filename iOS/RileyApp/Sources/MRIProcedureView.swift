@@ -1684,7 +1684,7 @@ public struct MRIProcedureView: View {
     @ViewBuilder
     private func monitorsStepView(contentWidth: CGFloat, contentHeight: CGFloat) -> some View {
         ZStack {
-            Image("MRIMonitors")
+            Image("MRIMonitors 2")
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(width: contentWidth, height: contentHeight)
