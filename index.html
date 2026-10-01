@@ -8329,22 +8329,11 @@
   <script>
 // Register Riley PWA Service Worker
     if ('serviceWorker' in navigator) {
-      let refreshing = false;
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!refreshing) {
-          refreshing = true;
-          window.location.reload();
-        }
-      });
-
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js', { scope: './' })
           .then(reg => {
             console.log('Riley PWA ServiceWorker active with scope:', reg.scope);
             reg.update();
-            setInterval(() => {
-              reg.update();
-            }, 60000);
           })
           .catch(err => console.warn('ServiceWorker registration error:', err));
       });
@@ -8910,7 +8899,6 @@
         // Navigating away from games stops background music and audio
         clearAnatomyTimers();
         clearIVIntroTimers();
-        clearMRITimers();
         stopIVBackgroundMusic();
         stopMaskBackgroundMusic();
         resetMaskScene();
