@@ -1169,6 +1169,19 @@
       -webkit-user-drag: none;
     }
 
+    .mri-glow-top {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+      z-index: 16;
+    }
+
     /* Slide Guide Indicator */
     .mri-slide-guide {
       position: absolute;
@@ -7358,17 +7371,20 @@
                   <!-- Draggable Bed Layer (bed with character sliding into machine) -->
                   <div id="mriDraggableBed" class="mri-draggable-bed" style="display: none; opacity: 0; transform: translateY(22%);">
                     <img id="mriBedCutoutImg" class="mri-bed-cutout" src="assets/MRIFullBedGirl.png" alt="Bed with character" draggable="false" onerror="if(this.src.indexOf('Full%20Bed%20with%20Girl.png')===-1&&this.src.indexOf('Full Bed with Girl.png')===-1)this.src='assets/Full Bed with Girl.png';" />
-                    
-                    <!-- Upward slide guide indicator -->
-                    <div id="mriSlideGuide" class="mri-slide-guide" onclick="onMRISlideGuideTap(event)" title="Slide into the machine">
-                      <div class="mri-slide-arrow-bounce">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                          <line x1="12" y1="19" x2="12" y2="5"></line>
-                          <polyline points="5 12 12 5 19 12"></polyline>
-                        </svg>
-                      </div>
-                      <span class="mri-slide-label">Slide into the machine!</span>
+                  </div>
+
+                  <!-- MRI Glow Top Layer (placed OVER draggable bed so bed slides INTO the machine bore) -->
+                  <img id="mriGlowTopImg" class="mri-layer mri-glow-top" src="assets/MRIGlowTop.png" alt="MRI Scanner Opening" onerror="if(this.src.indexOf('MRI%20Glow%20Top.png')===-1&&this.src.indexOf('MRI Glow Top.png')===-1)this.src='assets/MRI Glow Top.png';" style="display: none; opacity: 0; pointer-events: none; z-index: 16; transition: opacity 0.8s ease;" />
+
+                  <!-- Upward slide guide indicator (placed on top of everything at z-index: 18) -->
+                  <div id="mriSlideGuide" class="mri-slide-guide" onclick="onMRISlideGuideTap(event)" title="Slide into the machine" style="display: none;">
+                    <div class="mri-slide-arrow-bounce">
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="19" x2="12" y2="5"></line>
+                        <polyline points="5 12 12 5 19 12"></polyline>
+                      </svg>
                     </div>
+                    <span class="mri-slide-label">Slide into the machine!</span>
                   </div>
 
                   <!-- Hotspot on the bed to get ready -->
@@ -15764,6 +15780,11 @@
         glowBgImg.style.display = 'none';
         glowBgImg.style.opacity = '0';
       }
+      const glowTopImg = document.getElementById('mriGlowTopImg');
+      if (glowTopImg) {
+        glowTopImg.style.display = 'none';
+        glowTopImg.style.opacity = '0';
+      }
       const draggableBed = document.getElementById('mriDraggableBed');
       if (draggableBed) {
         draggableBed.classList.remove('dragging', 'slid-in');
@@ -15773,8 +15794,8 @@
       }
       const slideGuide = document.getElementById('mriSlideGuide');
       if (slideGuide) {
-        slideGuide.style.display = 'flex';
-        slideGuide.style.opacity = '1';
+        slideGuide.style.display = 'none';
+        slideGuide.style.opacity = '0';
       }
       const bedHotspot = document.getElementById('mriBedHotspot');
       if (bedHotspot) {
@@ -16633,9 +16654,14 @@
         draggableBed.style.opacity = '0';
         draggableBed.style.transform = 'translateY(22%)';
       }
+      const glowTopImg = document.getElementById('mriGlowTopImg');
+      if (glowTopImg) {
+        glowTopImg.style.display = 'none';
+        glowTopImg.style.opacity = '0';
+      }
       if (slideGuide) {
-        slideGuide.style.display = 'flex';
-        slideGuide.style.opacity = '1';
+        slideGuide.style.display = 'none';
+        slideGuide.style.opacity = '0';
       }
       if (bedHotspot) {
         bedHotspot.style.display = 'flex';
@@ -16700,10 +16726,20 @@
       if (!mriBedActive) return;
       const glowBgImg = document.getElementById('mriGlowBgImg');
       const draggableBed = document.getElementById('mriDraggableBed');
+      const glowTopImg = document.getElementById('mriGlowTopImg');
       const bedEmptyImg = document.getElementById('mriBedEmptyImg');
       const bedFullImg = document.getElementById('mriBedFullImg');
       const staticBedEmpty = document.getElementById('mriStaticBedEmptyImg');
       const slideGuide = document.getElementById('mriSlideGuide');
+
+      // Hide older static bed images immediately so nothing is stuck behind the draggable bed
+      if (bedEmptyImg) bedEmptyImg.style.display = 'none';
+      if (bedFullImg) bedFullImg.style.display = 'none';
+      if (staticBedEmpty) staticBedEmpty.style.display = 'none';
+      if (mriBedHideTimer) {
+        clearTimeout(mriBedHideTimer);
+        mriBedHideTimer = null;
+      }
 
       if (glowBgImg) {
         glowBgImg.style.display = 'block';
@@ -16720,18 +16756,17 @@
         setupMRIDraggableBedEvents(draggableBed);
       }
 
-      if (slideGuide) {
-        slideGuide.style.display = 'flex';
-        slideGuide.style.opacity = '1';
+      if (glowTopImg) {
+        glowTopImg.style.display = 'block';
+        void glowTopImg.offsetWidth;
+        glowTopImg.style.opacity = '1';
       }
 
-      // Hide older static bed images once glow and draggable bed are visible
-      if (mriBedHideTimer) clearTimeout(mriBedHideTimer);
-      mriBedHideTimer = setTimeout(() => {
-        if (bedEmptyImg) bedEmptyImg.style.display = 'none';
-        if (bedFullImg) bedFullImg.style.display = 'none';
-        if (staticBedEmpty) staticBedEmpty.style.display = 'none';
-      }, 600);
+      if (slideGuide) {
+        slideGuide.style.display = 'flex';
+        void slideGuide.offsetWidth;
+        slideGuide.style.opacity = '1';
+      }
 
       const promptText = document.getElementById('mriPromptText');
       const promptDot = document.getElementById('mriPromptDot');

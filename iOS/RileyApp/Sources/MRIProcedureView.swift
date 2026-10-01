@@ -576,71 +576,77 @@ public struct MRIProcedureView: View {
                                 let currentProgress = min(1.0, max(0.0, -bedSlideDragOffset / maxDist))
                                 let currentOffset = isBedSlidIn ? 0 : (maxDist + bedSlideDragOffset)
                                 
-                                ZStack {
-                                    Image("MRIFullBedGirl")
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                        .frame(width: contentWidth, height: contentHeight)
-                                    
-                                    // Bouncing slide guide arrow if not slid in yet
-                                    if !isBedSlidIn {
-                                        VStack(spacing: 8) {
-                                            Image(systemName: "arrow.up")
-                                                .font(.system(size: 24, weight: .bold))
-                                                .foregroundColor(Color(red: 0.01, green: 0.12, blue: 0.19))
-                                                .frame(width: 52, height: 52)
-                                                .background(
-                                                    Circle()
-                                                        .fill(Color(red: 0.0, green: 0.9, blue: 1.0))
-                                                        .shadow(color: Color(red: 0.0, green: 0.9, blue: 1.0).opacity(0.8), radius: 12)
-                                                )
-                                            
-                                            Text("Slide into the machine!")
-                                                .font(.system(size: 14, weight: .bold, design: .rounded))
-                                                .foregroundColor(Color(red: 0.88, green: 0.95, blue: 1.0))
-                                                .padding(.horizontal, 14)
-                                                .padding(.vertical, 6)
-                                                .background(
-                                                    Capsule()
-                                                        .fill(Color(red: 0.06, green: 0.09, blue: 0.16).opacity(0.92))
-                                                        .overlay(
-                                                            Capsule()
-                                                                .stroke(Color(red: 0.0, green: 0.9, blue: 1.0).opacity(0.7), lineWidth: 1)
-                                                        )
-                                                )
-                                        }
-                                        .position(x: contentWidth * 0.50, y: contentHeight * 0.50)
-                                        .opacity(1.0 - currentProgress * 2.0)
-                                        .onTapGesture {
-                                            completeBedSlide(maxDist: maxDist)
-                                        }
-                                    }
-                                }
-                                .offset(y: currentOffset)
-                                .gesture(
-                                    DragGesture()
-                                        .onChanged { value in
-                                            guard !isBedSlidIn else { return }
-                                            let translation = value.translation.height
-                                            if translation < 0 {
-                                                bedSlideDragOffset = max(-maxDist, translation)
-                                            } else {
-                                                bedSlideDragOffset = 0
-                                            }
-                                        }
-                                        .onEnded { value in
-                                            guard !isBedSlidIn else { return }
-                                            if -bedSlideDragOffset >= (maxDist * 0.35) || abs(value.translation.height) < 10 {
-                                                completeBedSlide(maxDist: maxDist)
-                                            } else {
-                                                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                                Image("MRIFullBedGirl")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: contentWidth, height: contentHeight)
+                                    .offset(y: currentOffset)
+                                    .gesture(
+                                        DragGesture()
+                                            .onChanged { value in
+                                                guard !isBedSlidIn else { return }
+                                                let translation = value.translation.height
+                                                if translation < 0 {
+                                                    bedSlideDragOffset = max(-maxDist, translation)
+                                                } else {
                                                     bedSlideDragOffset = 0
                                                 }
                                             }
+                                            .onEnded { value in
+                                                guard !isBedSlidIn else { return }
+                                                if -bedSlideDragOffset >= (maxDist * 0.35) || abs(value.translation.height) < 10 {
+                                                    completeBedSlide(maxDist: maxDist)
+                                                } else {
+                                                    withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                                                        bedSlideDragOffset = 0
+                                                    }
+                                                }
+                                            }
+                                    )
+                                    .onTapGesture {
+                                        if !isBedSlidIn {
+                                            completeBedSlide(maxDist: maxDist)
                                         }
-                                )
-                                .onTapGesture {
-                                    if !isBedSlidIn {
+                                    }
+                                
+                                // MRI Glow Top Layer - placed OVER draggable bed so bed slides INTO the machine bore
+                                Image("MRIGlowTop")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: contentWidth, height: contentHeight)
+                                    .allowsHitTesting(false)
+                                    .transition(.opacity)
+                                
+                                // Bouncing slide guide arrow if not slid in yet (placed above MRIGlowTop)
+                                if !isBedSlidIn {
+                                    VStack(spacing: 8) {
+                                        Image(systemName: "arrow.up")
+                                            .font(.system(size: 24, weight: .bold))
+                                            .foregroundColor(Color(red: 0.01, green: 0.12, blue: 0.19))
+                                            .frame(width: 52, height: 52)
+                                            .background(
+                                                Circle()
+                                                    .fill(Color(red: 0.0, green: 0.9, blue: 1.0))
+                                                    .shadow(color: Color(red: 0.0, green: 0.9, blue: 1.0).opacity(0.8), radius: 12)
+                                            )
+                                        
+                                        Text("Slide into the machine!")
+                                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                                            .foregroundColor(Color(red: 0.88, green: 0.95, blue: 1.0))
+                                            .padding(.horizontal, 14)
+                                            .padding(.vertical, 6)
+                                            .background(
+                                                Capsule()
+                                                    .fill(Color(red: 0.06, green: 0.09, blue: 0.16).opacity(0.92))
+                                                    .overlay(
+                                                        Capsule()
+                                                            .stroke(Color(red: 0.0, green: 0.9, blue: 1.0).opacity(0.7), lineWidth: 1)
+                                                    )
+                                            )
+                                    }
+                                    .position(x: contentWidth * 0.50, y: contentHeight * 0.50)
+                                    .opacity(1.0 - currentProgress * 2.0)
+                                    .onTapGesture {
                                         completeBedSlide(maxDist: maxDist)
                                     }
                                 }
