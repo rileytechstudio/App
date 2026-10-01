@@ -1223,6 +1223,21 @@
       }
     }
 
+    .mri-slide-guide.mri-slide-out-guide {
+      top: 52%;
+    }
+    .mri-slide-arrow-down {
+      animation: mriArrowBounceDown 1.6s ease-in-out infinite;
+    }
+    @keyframes mriArrowBounceDown {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(16px);
+      }
+    }
+
     .mri-slide-label {
       background: rgba(15, 23, 42, 0.92);
       color: #e0f2fe;
@@ -1266,7 +1281,7 @@
       width: 100%;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-end;
       padding: 0 28px;
       z-index: 45;
       pointer-events: auto;
@@ -1624,6 +1639,195 @@
       height: 100%;
       pointer-events: none;
       z-index: 49;
+    }
+
+    /* ========================================================= */
+    /* MRI CONTRAST VS WITHOUT CONTRAST COMPARISON SCREEN        */
+    /* ========================================================= */
+    .mri-contrast-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000000;
+      z-index: 50;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      overflow: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .mri-contrast-overlay.active {
+      display: block;
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .mri-contrast-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      touch-action: none;
+      cursor: ew-resize;
+    }
+
+    .mri-contrast-video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+    }
+
+    .mri-contrast-clip-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      clip-path: inset(0 0 0 50%);
+      will-change: clip-path;
+    }
+
+    .mri-contrast-divider {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 0;
+      pointer-events: none;
+      transform: translateX(-50%);
+      z-index: 15;
+      will-change: left;
+    }
+
+    .mri-contrast-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 3px;
+      transform: translateX(-50%);
+      background: #ffffff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.8), 0 0 16px rgba(6, 182, 212, 0.85);
+    }
+
+    .mri-contrast-handle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);
+      border: 3px solid #ffffff;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 20px rgba(6, 182, 212, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      color: #ffffff;
+      pointer-events: auto;
+      cursor: grab;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .mri-contrast-handle:active {
+      cursor: grabbing;
+      transform: translate(-50%, -50%) scale(1.1);
+      box-shadow: 0 6px 26px rgba(0, 0, 0, 0.75), 0 0 26px rgba(6, 182, 212, 1);
+    }
+
+    .mri-contrast-handle-arrow {
+      color: #ffffff;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+    }
+
+    .mri-contrast-handle-grip {
+      width: 2px;
+      height: 18px;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 1px;
+    }
+
+    .mri-contrast-label {
+      position: absolute;
+      top: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1.5px solid rgba(255, 255, 255, 0.3);
+      border-radius: 999px;
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      pointer-events: none;
+      z-index: 10;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    }
+
+    .mri-contrast-label-left {
+      left: 20px;
+    }
+
+    .mri-contrast-label-right {
+      right: 150px;
+    }
+
+    .mri-contrast-label-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .mri-contrast-label-dot.wo-contrast-dot {
+      background: #94a3b8;
+      box-shadow: 0 0 8px rgba(148, 163, 184, 0.9);
+    }
+
+    .mri-contrast-label-dot.contrast-dot {
+      background: #38bdf8;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 1);
+    }
+
+    .mri-contrast-done-btn {
+      position: absolute;
+      top: 14px;
+      right: 20px;
+      z-index: 20;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 20px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border: 2px solid #34d399;
+      border-radius: 999px;
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 18px rgba(16, 185, 129, 0.65);
+      transition: transform 0.15s ease, background 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .mri-contrast-done-btn:hover,
+    .mri-contrast-done-btn:active {
+      transform: scale(1.05);
+      background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+      box-shadow: 0 6px 22px rgba(16, 185, 129, 0.85);
     }
 
     /* Play Still Game Button in Prompt Bar */
@@ -7888,6 +8092,17 @@
                     <span class="mri-slide-label">Slide into the machine!</span>
                   </div>
 
+                  <!-- Downward slide out guide indicator -->
+                  <div id="mriSlideOutGuide" class="mri-slide-guide mri-slide-out-guide" onclick="onMRISlideOutGuideTap(event)" title="Slide out of the machine" style="opacity: 0; pointer-events: none; display: none;">
+                    <div class="mri-slide-arrow-bounce mri-slide-arrow-down">
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <polyline points="19 12 12 19 5 12"></polyline>
+                      </svg>
+                    </div>
+                    <span class="mri-slide-label">Slide out of the machine!</span>
+                  </div>
+
                   <!-- Hotspot on the bed to get ready -->
                   <div class="mri-hotspot-bed-prep" id="mriBedHotspot" onclick="onMRIBedTap(event)" title="Tap the bed to get ready for your MRI">
                     <span class="mri-pulse-ring"></span>
@@ -7904,10 +8119,6 @@
                 <div id="mriStillGameOverlay" class="mri-layer mri-still-game-layer" style="display: none; opacity: 0;" aria-hidden="true">
                   <!-- Game Top HUD / Header -->
                   <div class="mri-still-hud">
-                    <button class="mri-still-back-btn" onclick="exitMRIStillGame(false, event)" aria-label="Exit Game">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                      <span>Back</span>
-                    </button>
                     <div class="mri-still-score-badge" id="mriStillScoreBadge">
                       <span id="mriStillPauseCountText">Freezes: 0/3</span>
                     </div>
@@ -7956,6 +8167,56 @@
 
                   <!-- Confetti Canvas in Still Game -->
                   <canvas id="mriStillConfettiCanvas" class="mri-still-confetti-canvas"></canvas>
+                </div>
+
+                <!-- Layer 6: MRI Contrast vs Without Contrast Comparison Screen -->
+                <div id="mriContrastOverlay" class="mri-layer mri-contrast-overlay" style="display: none; opacity: 0;" aria-hidden="true">
+                  <!-- Contrast Comparison Stage Container -->
+                  <div class="mri-contrast-container" id="mriContrastContainer">
+                    <!-- Base Video: Without Contrast (WO Contrast) -->
+                    <video id="mriVideoWOContrast" class="mri-contrast-video" src="assets/MRIWOContrast.mp4" loop playsinline webkit-playsinline muted preload="auto">
+                      <source src="assets/MRIWOContrast.mp4" type="video/mp4">
+                      <source src="assets/MRI%20WO%20Contrast.mp4" type="video/mp4">
+                    </video>
+
+                    <!-- Top Video Wrapper: With Contrast (Clipped via clip-path) -->
+                    <div id="mriContrastClipWrapper" class="mri-contrast-clip-wrapper">
+                      <video id="mriVideoContrast" class="mri-contrast-video" src="assets/MRIContrast.mp4" loop playsinline webkit-playsinline muted preload="auto">
+                        <source src="assets/MRIContrast.mp4" type="video/mp4">
+                        <source src="assets/MRI%20Contrast.mp4" type="video/mp4">
+                      </video>
+                    </div>
+
+                    <!-- Draggable Split Divider Line & Handle -->
+                    <div id="mriContrastDivider" class="mri-contrast-divider">
+                      <div class="mri-contrast-line"></div>
+                      <div class="mri-contrast-handle" aria-label="Drag slider to compare with and without contrast">
+                        <svg class="mri-contrast-handle-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                        <div class="mri-contrast-handle-grip"></div>
+                        <svg class="mri-contrast-handle-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                      </div>
+                    </div>
+
+                    <!-- Top Labels -->
+                    <div class="mri-contrast-label mri-contrast-label-left">
+                      <span class="mri-contrast-label-dot wo-contrast-dot"></span>
+                      <span>Without Contrast</span>
+                    </div>
+                    <div class="mri-contrast-label mri-contrast-label-right">
+                      <span class="mri-contrast-label-dot contrast-dot"></span>
+                      <span>With Contrast</span>
+                    </div>
+
+                    <!-- All Done Button -->
+                    <button id="mriContrastDoneBtn" class="mri-contrast-done-btn" onclick="finishMRIContrastToCelebration(event)" aria-label="Finish MRI Exploration">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      <span>All Done!</span>
+                    </button>
+                  </div>
                 </div>
 
                 <!-- All Done! Button (Pops up in center after 8 seconds) -->
@@ -16277,6 +16538,8 @@
     let mriBedActive = false;
     let mriBedFull = false;
     let mriBedSlidIn = false;
+    let mriBedCanSlideOut = false;
+    let mriBedSlidOut = false;
     let mriBedDragActive = false;
     let mriBedDragStartY = 0;
     let mriBedDragCurrentY = 0;
@@ -16285,6 +16548,10 @@
     let mriBedPromptTimer = null;
     let mriItemsTimer = null;
     let mriCelebrationTimer = null;
+    let mriScanPauseTimer = null;
+    let mriContrastTransitionTimer = null;
+    let mriContrastActive = false;
+    let mriContrastPercent = 50;
     let mriStillGameActive = false;
     let mriStillGameDone = false;
     let mriStillGameState = 'MOVE'; // 'MOVE' | 'FREEZE' | 'COMPLETE'
@@ -16302,6 +16569,8 @@
       mriBedActive = false;
       mriBedFull = false;
       mriBedSlidIn = false;
+      mriBedCanSlideOut = false;
+      mriBedSlidOut = false;
       mriBedDragActive = false;
       mriInsideActive = false;
       mriItemsActive = false;
@@ -16309,6 +16578,15 @@
       mriStillGameDone = false;
       mriStillGameState = 'MOVE';
       mriStillGamePauseCount = 0;
+      mriContrastActive = false;
+      if (mriScanPauseTimer) {
+        clearTimeout(mriScanPauseTimer);
+        mriScanPauseTimer = null;
+      }
+      if (mriContrastTransitionTimer) {
+        clearTimeout(mriContrastTransitionTimer);
+        mriContrastTransitionTimer = null;
+      }
       if (mriStillGameTimer) {
         clearTimeout(mriStillGameTimer);
         mriStillGameTimer = null;
@@ -16332,6 +16610,16 @@
         stillOverlay.style.display = 'none';
         stillOverlay.style.opacity = '0';
       }
+      const contrastOverlay = document.getElementById('mriContrastOverlay');
+      if (contrastOverlay) {
+        contrastOverlay.classList.remove('active');
+        contrastOverlay.style.display = 'none';
+        contrastOverlay.style.opacity = '0';
+      }
+      const vWO = document.getElementById('mriVideoWOContrast');
+      const vC = document.getElementById('mriVideoContrast');
+      if (vWO) vWO.pause();
+      if (vC) vC.pause();
       const stillPromptBar = document.getElementById('mriBottomPromptBar');
       if (stillPromptBar) {
         stillPromptBar.classList.remove('still-move-mode', 'still-warning-mode', 'still-freeze-mode', 'still-success-mode');
@@ -16393,6 +16681,13 @@
       if (slideGuide) {
         slideGuide.style.opacity = '0';
         slideGuide.style.pointerEvents = 'none';
+        slideGuide.style.display = 'flex';
+      }
+      const slideOutGuide = document.getElementById('mriSlideOutGuide');
+      if (slideOutGuide) {
+        slideOutGuide.style.opacity = '0';
+        slideOutGuide.style.pointerEvents = 'none';
+        slideOutGuide.style.display = 'none';
       }
       const bedHotspot = document.getElementById('mriBedHotspot');
       if (bedHotspot) {
@@ -17356,7 +17651,7 @@
     }
 
     function onMRIBedLayerTap(event) {
-      if (!mriBedActive) return;
+      if (!mriBedActive || mriContrastActive) return;
       if (!mriBedFull) {
         onMRIBedTap(event);
       } else if (!mriStillGameDone) {
@@ -17366,6 +17661,10 @@
         if (draggableBed && draggableBed._dragAttached) {
           completeMRISlideIn();
         }
+      } else if (mriBedCanSlideOut && !mriBedSlidOut) {
+        completeMRISlideOut();
+      } else if (mriBedSlidOut) {
+        startMRIContrastComparison();
       }
     }
 
@@ -17833,7 +18132,7 @@
       const stageEl = document.getElementById('mriStage') || bedEl.parentElement;
 
       function onPointerDown(e) {
-        if (mriBedSlidIn) return;
+        if (mriBedSlidIn && (!mriBedCanSlideOut || mriBedSlidOut)) return;
         mriBedDragActive = true;
         mriBedDragStartY = e.clientY;
         mriBedDragCurrentY = 0;
@@ -17842,21 +18141,35 @@
       }
 
       function onPointerMove(e) {
-        if (!mriBedDragActive || mriBedSlidIn) return;
+        if (!mriBedDragActive) return;
         const stageH = stageEl ? stageEl.offsetHeight : 600;
         const maxSlidePx = stageH * 0.22;
         const deltaY = e.clientY - mriBedDragStartY;
-        // Upward drag is negative deltaY
-        const upwardPx = Math.max(0, -deltaY);
-        const progress = Math.min(1.0, upwardPx / maxSlidePx);
-        mriBedDragCurrentY = progress;
 
-        const currentPercent = 22 * (1.0 - progress);
-        bedEl.style.transform = `translateY(${currentPercent}%)`;
+        if (!mriBedSlidIn) {
+          // Upward drag is negative deltaY (from 22% to 0%)
+          const upwardPx = Math.max(0, -deltaY);
+          const progress = Math.min(1.0, upwardPx / maxSlidePx);
+          mriBedDragCurrentY = progress;
+          const currentPercent = 22 * (1.0 - progress);
+          bedEl.style.transform = `translateY(${currentPercent}%)`;
 
-        const slideGuide = document.getElementById('mriSlideGuide');
-        if (slideGuide) {
-          slideGuide.style.opacity = Math.max(0, 1 - progress * 2.2).toString();
+          const slideGuide = document.getElementById('mriSlideGuide');
+          if (slideGuide) {
+            slideGuide.style.opacity = Math.max(0, 1 - progress * 2.2).toString();
+          }
+        } else if (mriBedCanSlideOut && !mriBedSlidOut) {
+          // Downward drag is positive deltaY (from 0% to 22%)
+          const downwardPx = Math.max(0, deltaY);
+          const progress = Math.min(1.0, downwardPx / maxSlidePx);
+          mriBedDragCurrentY = progress;
+          const currentPercent = 22 * progress;
+          bedEl.style.transform = `translateY(${currentPercent}%)`;
+
+          const slideOutGuide = document.getElementById('mriSlideOutGuide');
+          if (slideOutGuide) {
+            slideOutGuide.style.opacity = Math.max(0, 1 - progress * 2.2).toString();
+          }
         }
       }
 
@@ -17866,14 +18179,22 @@
         try { bedEl.releasePointerCapture(e.pointerId); } catch (_) {}
         bedEl.classList.remove('dragging');
 
-        // If dragged more than 35% of the way or simple tap/click
-        if (mriBedDragCurrentY >= 0.35 || Math.abs(e.clientY - mriBedDragStartY) < 10) {
-          completeMRISlideIn();
-        } else {
-          // Snap back to start position
-          bedEl.style.transform = 'translateY(22%)';
-          const slideGuide = document.getElementById('mriSlideGuide');
-          if (slideGuide) slideGuide.style.opacity = '1';
+        if (!mriBedSlidIn) {
+          if (mriBedDragCurrentY >= 0.35 || Math.abs(e.clientY - mriBedDragStartY) < 10) {
+            completeMRISlideIn();
+          } else {
+            bedEl.style.transform = 'translateY(22%)';
+            const slideGuide = document.getElementById('mriSlideGuide');
+            if (slideGuide) slideGuide.style.opacity = '1';
+          }
+        } else if (mriBedCanSlideOut && !mriBedSlidOut) {
+          if (mriBedDragCurrentY >= 0.35 || Math.abs(e.clientY - mriBedDragStartY) < 10) {
+            completeMRISlideOut();
+          } else {
+            bedEl.style.transform = 'translateY(0%)';
+            const slideOutGuide = document.getElementById('mriSlideOutGuide');
+            if (slideOutGuide) slideOutGuide.style.opacity = '1';
+          }
         }
       }
 
@@ -17888,9 +18209,16 @@
       completeMRISlideIn();
     }
 
+    function onMRISlideOutGuideTap(event) {
+      if (event) event.stopPropagation();
+      completeMRISlideOut();
+    }
+
     function completeMRISlideIn() {
       if (mriBedSlidIn) return;
       mriBedSlidIn = true;
+      mriBedCanSlideOut = false;
+      mriBedSlidOut = false;
       triggerHapticFeedback(true);
 
       const draggableBed = document.getElementById('mriDraggableBed');
@@ -17899,6 +18227,7 @@
       if (slideGuide) {
         slideGuide.style.opacity = '0';
         slideGuide.style.pointerEvents = 'none';
+        slideGuide.style.display = 'none';
       }
 
       if (draggableBed) {
@@ -17911,7 +18240,7 @@
       const promptDot = document.getElementById('mriPromptDot');
       const promptBar = document.getElementById('mriBottomPromptBar');
       if (promptText) {
-        promptText.textContent = "Great job! You are all cozy and ready for your MRI!";
+        promptText.textContent = "The MRI scan is starting! Hold perfectly still...";
       }
       if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
       if (promptBar) {
@@ -17921,17 +18250,218 @@
         });
       }
 
-      // Show celebratory overlay with confetti after 1.5 seconds
-      if (mriCelebrationTimer) clearTimeout(mriCelebrationTimer);
-      mriCelebrationTimer = setTimeout(() => {
+      // Pause for a few seconds for sound (user will populate sound later), then prompt to slide back out
+      if (mriScanPauseTimer) clearTimeout(mriScanPauseTimer);
+      mriScanPauseTimer = setTimeout(() => {
         if (!mriBedActive) return;
-        const successOverlay = document.getElementById('mriSuccessOverlay');
-        if (successOverlay) {
-          successOverlay.classList.add('visible');
-          successOverlay.setAttribute('aria-hidden', 'false');
+        mriBedCanSlideOut = true;
+        triggerHapticFeedback(true);
+
+        const promptText = document.getElementById('mriPromptText');
+        const promptBar = document.getElementById('mriBottomPromptBar');
+        if (promptText) {
+          promptText.textContent = "Your scan is complete! Slide the bed back out!";
         }
-        startMRIConfetti();
+        if (promptBar) {
+          promptBar.classList.remove('prompt-pulse');
+          requestAnimationFrame(() => promptBar.classList.add('prompt-pulse'));
+        }
+
+        const slideOutGuide = document.getElementById('mriSlideOutGuide');
+        if (slideOutGuide) {
+          slideOutGuide.style.display = 'flex';
+          slideOutGuide.style.pointerEvents = 'auto';
+          requestAnimationFrame(() => {
+            slideOutGuide.style.opacity = '1';
+          });
+        }
+      }, 4000);
+    }
+
+    function completeMRISlideOut() {
+      if (!mriBedCanSlideOut || mriBedSlidOut) return;
+      mriBedSlidOut = true;
+      triggerHapticFeedback(true);
+
+      const draggableBed = document.getElementById('mriDraggableBed');
+      const slideOutGuide = document.getElementById('mriSlideOutGuide');
+
+      if (slideOutGuide) {
+        slideOutGuide.style.opacity = '0';
+        slideOutGuide.style.pointerEvents = 'none';
+        setTimeout(() => { slideOutGuide.style.display = 'none'; }, 400);
+      }
+
+      if (draggableBed) {
+        draggableBed.classList.remove('slid-in', 'dragging');
+        draggableBed.style.transform = 'translateY(22%)';
+      }
+
+      const promptText = document.getElementById('mriPromptText');
+      const promptDot = document.getElementById('mriPromptDot');
+      const promptBar = document.getElementById('mriBottomPromptBar');
+      if (promptText) {
+        promptText.textContent = "Lets see what an MRI with and without contrast might look like.";
+      }
+      if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
+      if (promptBar) {
+        promptBar.classList.remove('prompt-pulse');
+        requestAnimationFrame(() => promptBar.classList.add('prompt-pulse'));
+      }
+
+      // Transition to Contrast Comparison scene after 1.5s
+      if (mriContrastTransitionTimer) clearTimeout(mriContrastTransitionTimer);
+      mriContrastTransitionTimer = setTimeout(() => {
+        if (!mriBedActive || mriContrastActive) return;
+        startMRIContrastComparison();
       }, 1500);
+    }
+
+    function startMRIContrastComparison() {
+      if (mriContrastTransitionTimer) {
+        clearTimeout(mriContrastTransitionTimer);
+        mriContrastTransitionTimer = null;
+      }
+      mriContrastActive = true;
+      mriContrastPercent = 50;
+      triggerHapticFeedback(true);
+
+      const overlay = document.getElementById('mriContrastOverlay');
+      if (overlay) {
+        overlay.style.display = 'block';
+        requestAnimationFrame(() => {
+          overlay.classList.add('active');
+          overlay.style.opacity = '1';
+          overlay.setAttribute('aria-hidden', 'false');
+        });
+      }
+
+      const vWO = document.getElementById('mriVideoWOContrast');
+      const vC = document.getElementById('mriVideoContrast');
+
+      if (vWO && vC) {
+        vWO.muted = true;
+        vC.muted = true;
+        vWO.playsInline = true;
+        vC.playsInline = true;
+
+        try {
+          vWO.currentTime = 0;
+          vC.currentTime = 0;
+        } catch (_) {}
+
+        vWO.play().catch(() => {});
+        vC.play().catch(() => {});
+
+        // Keep videos strictly in sync
+        vWO.ontimeupdate = () => {
+          if (Math.abs(vWO.currentTime - vC.currentTime) > 0.08) {
+            vC.currentTime = vWO.currentTime;
+          }
+        };
+      }
+
+      updateMRIContrastSlider(50);
+      setupMRIContrastSliderEvents();
+
+      const promptText = document.getElementById('mriPromptText');
+      const promptDot = document.getElementById('mriPromptDot');
+      const promptBar = document.getElementById('mriBottomPromptBar');
+      if (promptText) {
+        promptText.textContent = "Drag the slider left and right to see the MRI with and without contrast!";
+      }
+      if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
+      if (promptBar) {
+        promptBar.classList.remove('still-move-mode', 'still-warning-mode', 'still-freeze-mode', 'still-success-mode');
+        promptBar.classList.remove('prompt-pulse');
+        requestAnimationFrame(() => promptBar.classList.add('prompt-pulse'));
+      }
+    }
+
+    function updateMRIContrastSlider(percent) {
+      mriContrastPercent = Math.max(2, Math.min(98, percent));
+      const clipWrapper = document.getElementById('mriContrastClipWrapper');
+      const divider = document.getElementById('mriContrastDivider');
+
+      if (clipWrapper) {
+        clipWrapper.style.clipPath = `inset(0 0 0 ${mriContrastPercent}%)`;
+      }
+      if (divider) {
+        divider.style.left = `${mriContrastPercent}%`;
+      }
+    }
+
+    function setupMRIContrastSliderEvents() {
+      const container = document.getElementById('mriContrastContainer');
+      if (!container || container._sliderAttached) return;
+      container._sliderAttached = true;
+
+      let isDragging = false;
+
+      function getPercentFromEvent(e) {
+        const rect = container.getBoundingClientRect();
+        const clientX = (e.touches && e.touches.length > 0) ? e.touches[0].clientX : e.clientX;
+        const x = clientX - rect.left;
+        return (x / rect.width) * 100;
+      }
+
+      function onDown(e) {
+        if (e.target.closest('.mri-contrast-done-btn')) return;
+        isDragging = true;
+        triggerHapticFeedback(false);
+        const p = getPercentFromEvent(e);
+        updateMRIContrastSlider(p);
+        try { container.setPointerCapture(e.pointerId); } catch (_) {}
+      }
+
+      function onMove(e) {
+        if (!isDragging) return;
+        const p = getPercentFromEvent(e);
+        updateMRIContrastSlider(p);
+      }
+
+      function onUp(e) {
+        if (!isDragging) return;
+        isDragging = false;
+        try { container.releasePointerCapture(e.pointerId); } catch (_) {}
+      }
+
+      container.addEventListener('pointerdown', onDown);
+      container.addEventListener('pointermove', onMove);
+      container.addEventListener('pointerup', onUp);
+      container.addEventListener('pointercancel', onUp);
+    }
+
+    function finishMRIContrastToCelebration(event) {
+      if (event && event.stopPropagation) event.stopPropagation();
+      triggerHapticFeedback(true);
+
+      const vWO = document.getElementById('mriVideoWOContrast');
+      const vC = document.getElementById('mriVideoContrast');
+      if (vWO) vWO.pause();
+      if (vC) vC.pause();
+
+      const overlay = document.getElementById('mriContrastOverlay');
+      if (overlay) {
+        overlay.classList.remove('active');
+        overlay.style.opacity = '0';
+        setTimeout(() => {
+          overlay.style.display = 'none';
+          overlay.setAttribute('aria-hidden', 'true');
+        }, 400);
+      }
+
+      const successOverlay = document.getElementById('mriSuccessOverlay');
+      if (successOverlay) {
+        successOverlay.classList.add('visible');
+        successOverlay.setAttribute('aria-hidden', 'false');
+      }
+      startMRIConfetti();
+
+      const promptText = document.getElementById('mriPromptText');
+      if (promptText) {
+        promptText.textContent = "Great job! You completed your MRI scan!";
+      }
     }
 
     function startMRIConfetti() {
@@ -18052,12 +18582,17 @@
     }
 
     function handleMRIStageTap(event) {
+      if (mriContrastActive) return;
       if (mriBedActive && !mriBedFull) {
         onMRIBedTap(event);
       } else if (mriBedActive && mriBedFull && !mriStillGameDone) {
         startMRIStillGame(event);
       } else if (mriBedActive && mriBedFull && !mriBedSlidIn) {
         completeMRISlideIn();
+      } else if (mriBedActive && mriBedCanSlideOut && !mriBedSlidOut) {
+        completeMRISlideOut();
+      } else if (mriBedActive && mriBedSlidOut) {
+        startMRIContrastComparison();
       } else if (!mriHasTransitioned) {
         triggerMRIRoomTransition();
       } else if (mriLightsOff && !mriInsideActive && mriInsideTimer) {
@@ -18075,13 +18610,17 @@
     }
 
     function handleMRIPromptBarTap() {
-      if (mriStillGameActive) return;
+      if (mriStillGameActive || mriContrastActive) return;
       if (mriBedActive && !mriBedFull) {
         onMRIBedTap();
       } else if (mriBedActive && mriBedFull && !mriStillGameDone) {
         startMRIStillGame();
       } else if (mriBedActive && mriBedFull && !mriBedSlidIn) {
         completeMRISlideIn();
+      } else if (mriBedActive && mriBedCanSlideOut && !mriBedSlidOut) {
+        completeMRISlideOut();
+      } else if (mriBedActive && mriBedSlidOut) {
+        startMRIContrastComparison();
       } else if (!mriHasTransitioned) {
         triggerMRIRoomTransition();
       } else if (mriLightsOff && !mriInsideActive && mriInsideTimer) {

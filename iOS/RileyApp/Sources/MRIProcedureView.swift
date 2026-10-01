@@ -58,7 +58,15 @@ public struct MRIProcedureView: View {
     @State private var isBedFull: Bool = false
     @State private var showGlowBackground: Bool = false
     @State private var isBedSlidIn: Bool = false
+    @State private var isBedCanSlideOut: Bool = false
+    @State private var isBedSlidOut: Bool = false
     @State private var bedSlideDragOffset: CGFloat = 0.0
+    @State private var scanPauseTimer: Timer? = nil
+    @State private var contrastTransitionTimer: Timer? = nil
+    @State private var isContrastSceneActive: Bool = false
+    @State private var contrastSliderPosition: CGFloat = 0.5
+    @State private var woContrastPlayer: AVPlayer? = nil
+    @State private var contrastPlayer: AVPlayer? = nil
     
     // Staying Still Game States
     @State private var showStillGamePromptButton: Bool = false
@@ -184,6 +192,15 @@ public struct MRIProcedureView: View {
                 metronomeAudioPlayer = nil
                 sfxTonePlayer?.stop()
                 sfxTonePlayer = nil
+                
+                scanPauseTimer?.invalidate()
+                scanPauseTimer = nil
+                contrastTransitionTimer?.invalidate()
+                contrastTransitionTimer = nil
+                woContrastPlayer?.pause()
+                woContrastPlayer = nil
+                contrastPlayer?.pause()
+                contrastPlayer = nil
             }
         }
     }
@@ -608,7 +625,17 @@ public struct MRIProcedureView: View {
                     if isBedScreen {
                         let maxDist = contentHeight * 0.22
                         let currentProgress = min(1.0, max(0.0, -bedSlideDragOffset / maxDist))
-                        let currentOffset = isBedSlidIn ? 0 : (maxDist + bedSlideDragOffset)
+                        let currentOffset: CGFloat = {
+                            if !isBedSlidIn {
+                                return maxDist + bedSlideDragOffset
+                            } else if isBedSlidOut {
+                                return maxDist
+                            } else if isBedCanSlideOut {
+                                return bedSlideDragOffset
+                            } else {
+                                return 0
+                            }
+                        }()
                         
                         ZStack {
                             // Base MRI Scanner Room Background
@@ -634,7 +661,7 @@ public struct MRIProcedureView: View {
                                 .opacity(isBedFull ? 0.0 : 1.0)
                                 .animation(.easeInOut(duration: 0.3).delay(isBedFull ? 0.35 : 0.0), value: isBedFull)
                             
-                            // Bed with Child (persistent view: fades in on tap, then slides into machine)
+                            // Bed with Child (persistent view: fades in on tap, then slides into machine, then slides back out)
                             Image("MRIFullBedGirl")
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
@@ -645,21 +672,40 @@ public struct MRIProcedureView: View {
                                 .gesture(
                                     DragGesture()
                                         .onChanged { value in
-                                            guard showGlowBackground && !isBedSlidIn else { return }
-                                            let translation = value.translation.height
-                                            if translation < 0 {
-                                                bedSlideDragOffset = max(-maxDist, translation)
-                                            } else {
-                                                bedSlideDragOffset = 0
+                                            guard showGlowBackground else { return }
+                                            if !isBedSlidIn {
+                                                let translation = value.translation.height
+                                                if translation < 0 {
+                                                    bedSlideDragOffset = max(-maxDist, translation)
+                                                } else {
+                                                    bedSlideDragOffset = 0
+                                                }
+                                            } else if isBedCanSlideOut && !isBedSlidOut {
+                                                let translation = value.translation.height
+                                                if translation > 0 {
+                                                    bedSlideDragOffset = min(maxDist, translation)
+                                                } else {
+                                                    bedSlideDragOffset = 0
+                                                }
                                             }
                                         }
                                         .onEnded { value in
-                                            guard showGlowBackground && !isBedSlidIn else { return }
-                                            if -bedSlideDragOffset >= (maxDist * 0.35) || abs(value.translation.height) < 10 {
-                                                completeBedSlide(maxDist: maxDist)
-                                            } else {
-                                                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                                                    bedSlideDragOffset = 0
+                                            guard showGlowBackground else { return }
+                                            if !isBedSlidIn {
+                                                if -bedSlideDragOffset >= (maxDist * 0.35) || abs(value.translation.height) < 10 {
+                                                    completeBedSlide(maxDist: maxDist)
+                                                } else {
+                                                    withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                                                        bedSlideDragOffset = 0
+                                                    }
+                                                }
+                                            } else if isBedCanSlideOut && !isBedSlidOut {
+                                                if bedSlideDragOffset >= (maxDist * 0.35) || abs(value.translation.height) < 10 {
+                                                    completeBedSlideOut(maxDist: maxDist)
+                                                } else {
+                                                    withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                                                        bedSlideDragOffset = 0
+                                                    }
                                                 }
                                             }
                                         }
@@ -669,6 +715,10 @@ public struct MRIProcedureView: View {
                                         tapBed()
                                     } else if showGlowBackground && !isBedSlidIn {
                                         completeBedSlide(maxDist: maxDist)
+                                    } else if isBedCanSlideOut && !isBedSlidOut {
+                                        completeBedSlideOut(maxDist: maxDist)
+                                    } else if isBedSlidOut {
+                                        startContrastComparison()
                                     }
                                 }
                             
@@ -712,6 +762,42 @@ public struct MRIProcedureView: View {
                                 .opacity(1.0 - currentProgress * 2.0)
                                 .onTapGesture {
                                     completeBedSlide(maxDist: maxDist)
+                                }
+                                .transition(.opacity)
+                            }
+                            
+                            // Downward slide guide arrow if scan is complete and bed needs to slide back out
+                            if isBedCanSlideOut && !isBedSlidOut {
+                                let outProgress = min(1.0, max(0.0, bedSlideDragOffset / maxDist))
+                                VStack(spacing: 8) {
+                                    Image(systemName: "arrow.down")
+                                        .font(.system(size: 24, weight: .bold))
+                                        .foregroundColor(Color(red: 0.01, green: 0.12, blue: 0.19))
+                                        .frame(width: 52, height: 52)
+                                        .background(
+                                            Circle()
+                                                .fill(Color(red: 0.0, green: 0.9, blue: 1.0))
+                                                .shadow(color: Color(red: 0.0, green: 0.9, blue: 1.0).opacity(0.8), radius: 12)
+                                        )
+                                    
+                                    Text("Slide out of the machine!")
+                                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                                        .foregroundColor(Color(red: 0.88, green: 0.95, blue: 1.0))
+                                        .padding(.horizontal, 14)
+                                        .padding(.vertical, 6)
+                                        .background(
+                                            Capsule()
+                                                .fill(Color(red: 0.06, green: 0.09, blue: 0.16).opacity(0.92))
+                                                .overlay(
+                                                    Capsule()
+                                                        .stroke(Color(red: 0.0, green: 0.9, blue: 1.0).opacity(0.7), lineWidth: 1)
+                                                )
+                                        )
+                                }
+                                .position(x: contentWidth * 0.50, y: contentHeight * 0.52)
+                                .opacity(1.0 - outProgress * 2.0)
+                                .onTapGesture {
+                                    completeBedSlideOut(maxDist: maxDist)
                                 }
                                 .transition(.opacity)
                             }
@@ -788,6 +874,13 @@ public struct MRIProcedureView: View {
                         stillGameOverlayView(contentWidth: contentWidth, contentHeight: contentHeight)
                     }
                     
+                    // Layer 3.95: MRI Contrast Comparison Screen
+                    if isContrastSceneActive {
+                        contrastComparisonView(contentWidth: contentWidth, contentHeight: contentHeight)
+                            .transition(.opacity)
+                            .zIndex(25)
+                    }
+                    
                     // Layer 4: Welcome Screen (shown in beginning, transitions to Room Lights On)
                     Image("MRIWelcomeScreen")
                         .resizable()
@@ -828,7 +921,7 @@ public struct MRIProcedureView: View {
                 .clipped()
                 .contentShape(Rectangle())
                 .onTapGesture {
-                    if isStillGameActive {
+                    if isStillGameActive || isContrastSceneActive {
                         return
                     }
                     if isBedScreen && !isBedFull {
@@ -838,6 +931,11 @@ public struct MRIProcedureView: View {
                     } else if isBedScreen && isBedFull && !isBedSlidIn {
                         let maxDist = contentHeight * 0.22
                         completeBedSlide(maxDist: maxDist)
+                    } else if isBedScreen && isBedCanSlideOut && !isBedSlidOut {
+                        let maxDist = contentHeight * 0.22
+                        completeBedSlideOut(maxDist: maxDist)
+                    } else if isBedScreen && isBedSlidOut {
+                        startContrastComparison()
                     } else if !hasTransitioned {
                         triggerTransition()
                     } else if lightsOff && !isInsideScreen {
@@ -862,7 +960,7 @@ public struct MRIProcedureView: View {
     private var bottomPromptBar: some View {
         Button(action: {
             HapticManager.shared.lightTap()
-            if isStillGameActive {
+            if isStillGameActive || isContrastSceneActive {
                 return
             }
             if isBedScreen && !isBedFull {
@@ -871,6 +969,10 @@ public struct MRIProcedureView: View {
                 startStillGame()
             } else if isBedScreen && isBedFull && !isBedSlidIn {
                 completeBedSlide()
+            } else if isBedScreen && isBedCanSlideOut && !isBedSlidOut {
+                completeBedSlideOut()
+            } else if isBedScreen && isBedSlidOut {
+                startContrastComparison()
             } else if !hasTransitioned {
                 triggerTransition()
             } else if lightsOff && !isInsideScreen {
@@ -1011,6 +1113,19 @@ public struct MRIProcedureView: View {
         metronomeAudioPlayer = nil
         sfxTonePlayer?.stop()
         sfxTonePlayer = nil
+        
+        isBedCanSlideOut = false
+        isBedSlidOut = false
+        scanPauseTimer?.invalidate()
+        scanPauseTimer = nil
+        contrastTransitionTimer?.invalidate()
+        contrastTransitionTimer = nil
+        isContrastSceneActive = false
+        contrastSliderPosition = 0.5
+        woContrastPlayer?.pause()
+        woContrastPlayer = nil
+        contrastPlayer?.pause()
+        contrastPlayer = nil
         
         showTapHint = true
         promptText = "Welcome to MRI! Lets find all the different parts of the MRI room together!"
@@ -1361,16 +1476,40 @@ public struct MRIProcedureView: View {
         HapticManager.shared.success()
         playYouDidItSound()
         withAnimation(.spring(response: 0.65, dampingFraction: 0.75)) {
-            bedSlideDragOffset = -maxDist
+            bedSlideDragOffset = 0
             isBedSlidIn = true
-            promptText = "Great job! You are all cozy and ready for your MRI!"
+            isBedCanSlideOut = false
+            isBedSlidOut = false
+            promptText = "The MRI scan is starting! Hold perfectly still..."
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            guard self.isBedScreen && self.isBedSlidIn else { return }
-            withAnimation(.spring(response: 0.45, dampingFraction: 0.75)) {
-                self.showCelebrationModal = true
+        // Pause for a few seconds for sound (user will populate sound later), then prompt to slide back out
+        scanPauseTimer?.invalidate()
+        scanPauseTimer = Timer.scheduledTimer(withTimeInterval: 4.0, repeats: false) { _ in
+            guard self.isBedScreen && self.isBedSlidIn && !self.isBedSlidOut else { return }
+            HapticManager.shared.buttonTap()
+            withAnimation(.easeInOut(duration: 0.35)) {
+                self.isBedCanSlideOut = true
+                self.promptText = "Your scan is complete! Slide the bed back out!"
             }
+        }
+    }
+    
+    private func completeBedSlideOut(maxDist: CGFloat = 160.0) {
+        guard isBedCanSlideOut && !isBedSlidOut else { return }
+        HapticManager.shared.success()
+        
+        withAnimation(.spring(response: 0.65, dampingFraction: 0.75)) {
+            bedSlideDragOffset = 0
+            isBedSlidOut = true
+            promptText = "Lets see what an MRI with and without contrast might look like."
+        }
+        
+        // Transition to Contrast Comparison scene after 1.5s
+        contrastTransitionTimer?.invalidate()
+        contrastTransitionTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { _ in
+            guard self.isBedScreen && self.isBedSlidOut && !self.isContrastSceneActive else { return }
+            self.startContrastComparison()
         }
     }
     
@@ -1392,26 +1531,9 @@ public struct MRIProcedureView: View {
                     }
                 }
             
-            // Top HUD: Back button on left, Freeze count badge on right
+            // Top HUD: Freeze count badge on right (Back button removed per request)
             VStack {
                 HStack {
-                    // Back button
-                    Button(action: {
-                        exitStillGame(isCompleted: false)
-                    }) {
-                        HStack(spacing: 5) {
-                            Image(systemName: "chevron.left")
-                                .font(.system(size: 14, weight: .bold))
-                            Text("Back")
-                                .font(.system(size: 14, weight: .bold))
-                        }
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 7)
-                        .background(Color.white.opacity(0.18))
-                        .clipShape(Capsule())
-                    }
-                    
                     Spacer()
                     
                     // Freeze count badge
@@ -1539,6 +1661,253 @@ public struct MRIProcedureView: View {
         .frame(width: contentWidth, height: contentHeight)
         .transition(.opacity)
         .zIndex(15)
+    }
+    
+    // MARK: - Layer 3.95: MRI Contrast Comparison Screen
+    @ViewBuilder
+    private func contrastComparisonView(contentWidth: CGFloat, contentHeight: CGFloat) -> some View {
+        ZStack {
+            // Pure Black Background
+            Color.black
+                .frame(width: contentWidth, height: contentHeight)
+            
+            // Base Layer: Without Contrast Video
+            Group {
+                if let player = woContrastPlayer {
+                    MRIInlinePlayerView(player: player)
+                        .frame(width: contentWidth, height: contentHeight)
+                } else {
+                    Color.black
+                        .frame(width: contentWidth, height: contentHeight)
+                }
+            }
+            .allowsHitTesting(false)
+            
+            // Top Layer: With Contrast Video (Clipped by mask on the right side)
+            Group {
+                if let player = contrastPlayer {
+                    MRIInlinePlayerView(player: player)
+                        .frame(width: contentWidth, height: contentHeight)
+                        .mask(
+                            HStack(spacing: 0) {
+                                Spacer(minLength: 0)
+                                    .frame(width: max(0, contentWidth * contrastSliderPosition))
+                                Rectangle()
+                                    .fill(Color.black)
+                                    .frame(width: max(0, contentWidth * (1.0 - contrastSliderPosition)))
+                            }
+                            .frame(width: contentWidth, height: contentHeight)
+                        )
+                }
+            }
+            .allowsHitTesting(false)
+            
+            // Draggable Split Divider Line & Handle
+            Rectangle()
+                .fill(Color.white)
+                .frame(width: 3, height: contentHeight)
+                .shadow(color: Color(red: 6/255, green: 182/255, blue: 212/255).opacity(0.85), radius: 8)
+                .position(x: contentWidth * contrastSliderPosition, y: contentHeight * 0.5)
+                .allowsHitTesting(false)
+            
+            // Slider Handle Circle
+            Circle()
+                .fill(
+                    LinearGradient(
+                        colors: [Color(red: 6/255, green: 182/255, blue: 212/255), Color(red: 2/255, green: 132/255, blue: 199/255)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .frame(width: 52, height: 52)
+                .overlay(Circle().stroke(Color.white, lineWidth: 3))
+                .shadow(color: Color.black.opacity(0.6), radius: 8, x: 0, y: 4)
+                .shadow(color: Color(red: 6/255, green: 182/255, blue: 212/255).opacity(0.8), radius: 10)
+                .overlay(
+                    HStack(spacing: 2) {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 13, weight: .black))
+                            .foregroundColor(.white)
+                        Rectangle()
+                            .fill(Color.white.opacity(0.6))
+                            .frame(width: 2, height: 18)
+                            .cornerRadius(1)
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 13, weight: .black))
+                            .foregroundColor(.white)
+                    }
+                )
+                .position(x: contentWidth * contrastSliderPosition, y: contentHeight * 0.5)
+                .allowsHitTesting(false)
+            
+            // Transparent Drag Surface across the stage
+            Color.clear
+                .contentShape(Rectangle())
+                .frame(width: contentWidth, height: contentHeight)
+                .gesture(
+                    DragGesture(minimumDistance: 0)
+                        .onChanged { value in
+                            let raw = value.location.x / contentWidth
+                            contrastSliderPosition = min(0.98, max(0.02, raw))
+                        }
+                )
+            
+            // Top HUD Overlay: Badges and Done Button
+            VStack {
+                HStack(alignment: .center) {
+                    // Left Badge: Without Contrast
+                    HStack(spacing: 8) {
+                        Circle()
+                            .fill(Color(red: 148/255, green: 163/255, blue: 184/255))
+                            .frame(width: 10, height: 10)
+                            .shadow(color: Color(red: 148/255, green: 163/255, blue: 184/255).opacity(0.9), radius: 4)
+                        Text("Without Contrast")
+                            .font(.system(size: 14, weight: .heavy, design: .rounded))
+                            .foregroundColor(.white)
+                    }
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(Color(red: 15/255, green: 23/255, blue: 42/255).opacity(0.78))
+                    .clipShape(Capsule())
+                    .overlay(Capsule().stroke(Color.white.opacity(0.3), lineWidth: 1.5))
+                    .shadow(color: Color.black.opacity(0.4), radius: 6, x: 0, y: 3)
+                    
+                    Spacer()
+                    
+                    // Right Badge: With Contrast
+                    HStack(spacing: 8) {
+                        Circle()
+                            .fill(Color(red: 56/255, green: 189/255, blue: 248/255))
+                            .frame(width: 10, height: 10)
+                            .shadow(color: Color(red: 56/255, green: 189/255, blue: 248/255), radius: 5)
+                        Text("With Contrast")
+                            .font(.system(size: 14, weight: .heavy, design: .rounded))
+                            .foregroundColor(.white)
+                    }
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(Color(red: 15/255, green: 23/255, blue: 42/255).opacity(0.78))
+                    .clipShape(Capsule())
+                    .overlay(Capsule().stroke(Color.white.opacity(0.3), lineWidth: 1.5))
+                    .shadow(color: Color.black.opacity(0.4), radius: 6, x: 0, y: 3)
+                    
+                    // Done Button
+                    Button(action: {
+                        finishContrastToCelebration()
+                    }) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 15, weight: .black))
+                            Text("All Done!")
+                                .font(.system(size: 15, weight: .heavy, design: .rounded))
+                        }
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 18)
+                        .padding(.vertical, 9)
+                        .background(
+                            LinearGradient(
+                                colors: [Color(red: 16/255, green: 185/255, blue: 129/255), Color(red: 5/255, green: 150/255, blue: 105/255)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .clipShape(Capsule())
+                        .overlay(Capsule().stroke(Color(red: 52/255, green: 211/255, blue: 153/255), lineWidth: 2))
+                        .shadow(color: Color(red: 16/255, green: 185/255, blue: 129/255).opacity(0.65), radius: 8, x: 0, y: 3)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 14)
+                
+                Spacer()
+            }
+        }
+        .frame(width: contentWidth, height: contentHeight)
+    }
+    
+    private func setupContrastVideoPlayers() {
+        if woContrastPlayer == nil {
+            var woURL = Bundle.main.url(forResource: "MRIWOContrast", withExtension: "mp4") ??
+                        Bundle.main.url(forResource: "MRI WO Contrast", withExtension: "mp4")
+            #if SWIFT_PACKAGE
+            if woURL == nil {
+                woURL = Bundle.module.url(forResource: "MRIWOContrast", withExtension: "mp4") ??
+                        Bundle.module.url(forResource: "MRI WO Contrast", withExtension: "mp4")
+            }
+            #endif
+            
+            if let url = woURL {
+                let p = AVPlayer(url: url)
+                p.isMuted = true
+                p.actionAtItemEnd = .none
+                NotificationCenter.default.addObserver(
+                    forName: .AVPlayerItemDidPlayToEndTime,
+                    object: p.currentItem,
+                    queue: .main
+                ) { [weak p] _ in
+                    p?.seek(to: .zero)
+                    p?.play()
+                }
+                woContrastPlayer = p
+            }
+        }
+        
+        if contrastPlayer == nil {
+            var cURL = Bundle.main.url(forResource: "MRIContrast", withExtension: "mp4") ??
+                       Bundle.main.url(forResource: "MRI Contrast", withExtension: "mp4")
+            #if SWIFT_PACKAGE
+            if cURL == nil {
+                cURL = Bundle.module.url(forResource: "MRIContrast", withExtension: "mp4") ??
+                        Bundle.module.url(forResource: "MRI Contrast", withExtension: "mp4")
+            }
+            #endif
+            
+            if let url = cURL {
+                let p = AVPlayer(url: url)
+                p.isMuted = true
+                p.actionAtItemEnd = .none
+                NotificationCenter.default.addObserver(
+                    forName: .AVPlayerItemDidPlayToEndTime,
+                    object: p.currentItem,
+                    queue: .main
+                ) { [weak p] _ in
+                    p?.seek(to: .zero)
+                    p?.play()
+                }
+                contrastPlayer = p
+            }
+        }
+    }
+    
+    private func startContrastComparison() {
+        contrastTransitionTimer?.invalidate()
+        contrastTransitionTimer = nil
+        
+        isContrastSceneActive = true
+        contrastSliderPosition = 0.5
+        HapticManager.shared.success()
+        
+        setupContrastVideoPlayers()
+        
+        woContrastPlayer?.seek(to: .zero)
+        contrastPlayer?.seek(to: .zero)
+        woContrastPlayer?.play()
+        contrastPlayer?.play()
+        
+        withAnimation(.easeInOut(duration: 0.3)) {
+            promptText = "Drag the slider left and right to see the MRI with and without contrast!"
+        }
+    }
+    
+    private func finishContrastToCelebration() {
+        HapticManager.shared.success()
+        woContrastPlayer?.pause()
+        contrastPlayer?.pause()
+        withAnimation(.easeInOut(duration: 0.4)) {
+            isContrastSceneActive = false
+            showCelebrationModal = true
+        }
     }
     
     // MARK: - Still Game Helpers & Lifecycle
