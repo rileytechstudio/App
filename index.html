@@ -7348,16 +7348,16 @@
 
                 <!-- Layer 4: MRI Bed Preparation & Slide Screen -->
                 <div id="mriBedLayer" class="mri-layer mri-bed-layer" style="display: none;" onclick="onMRIBedLayerTap(event)">
-                  <img id="mriBedEmptyImg" class="mri-layer mri-bed-screen" src="assets/MRIScannerNormal.png" alt="MRI Scanner" />
-                  <img id="mriGlowBgImg" class="mri-layer mri-bed-screen" src="assets/MRIScannerGlow.png" alt="MRI Machine Glowing" style="display: none; opacity: 0; transition: opacity 0.8s ease;" />
+                  <img id="mriBedEmptyImg" class="mri-layer mri-bed-screen" src="assets/MRIScannerNormal.png" alt="MRI Scanner" onerror="if(this.src.indexOf('MRIBedEmpty.png')===-1)this.src='assets/MRIBedEmpty.png';" />
+                  <img id="mriGlowBgImg" class="mri-layer mri-bed-screen" src="assets/MRIScannerGlow.png" alt="MRI Machine Glowing" onerror="if(this.src.indexOf('MRIGlow.png')===-1)this.src='assets/MRIGlow.png';" style="display: none; opacity: 0; transition: opacity 0.8s ease;" />
 
                   <!-- Static Empty Bed (in front of machine at translateY(22%)) -->
-                  <img id="mriBedFullImg" class="mri-bed-cutout" src="assets/MRIFullBedGirl.png" alt="MRI Bed Ready" style="display: none; opacity: 0; transform: translateY(22%); transition: opacity 0.6s ease;" />
-                  <img id="mriStaticBedEmptyImg" class="mri-bed-cutout" src="assets/MRIFullBedEmpty.png" alt="MRI Bed Empty" style="transform: translateY(22%); transition: opacity 0.5s ease;" />
+                  <img id="mriBedFullImg" class="mri-bed-cutout" src="assets/MRIFullBedGirl.png" alt="MRI Bed Ready" onerror="if(this.src.indexOf('Full%20Bed%20with%20Girl.png')===-1&&this.src.indexOf('Full Bed with Girl.png')===-1)this.src='assets/Full Bed with Girl.png';" style="display: none; opacity: 0; transform: translateY(22%); transition: opacity 0.6s ease;" />
+                  <img id="mriStaticBedEmptyImg" class="mri-bed-cutout" src="assets/MRIFullBedEmpty.png" alt="MRI Bed Empty" onerror="if(this.src.indexOf('Full%20Bed%202.png')===-1&&this.src.indexOf('Full Bed 2.png')===-1)this.src='assets/Full Bed 2.png';" style="transform: translateY(22%); transition: opacity 0.5s ease;" />
 
                   <!-- Draggable Bed Layer (bed with character sliding into machine) -->
                   <div id="mriDraggableBed" class="mri-draggable-bed" style="display: none; opacity: 0; transform: translateY(22%);">
-                    <img id="mriBedCutoutImg" class="mri-bed-cutout" src="assets/MRIFullBedGirl.png" alt="Bed with character" draggable="false" />
+                    <img id="mriBedCutoutImg" class="mri-bed-cutout" src="assets/MRIFullBedGirl.png" alt="Bed with character" draggable="false" onerror="if(this.src.indexOf('Full%20Bed%20with%20Girl.png')===-1&&this.src.indexOf('Full Bed with Girl.png')===-1)this.src='assets/Full Bed with Girl.png';" />
                     
                     <!-- Upward slide guide indicator -->
                     <div id="mriSlideGuide" class="mri-slide-guide" onclick="onMRISlideGuideTap(event)" title="Slide into the machine">
@@ -15728,6 +15728,13 @@
       mriBedDragActive = false;
       mriInsideActive = false;
       mriItemsActive = false;
+      const insideLayer = document.getElementById('mriInsideLayer');
+      if (insideLayer) {
+        insideLayer.classList.remove('active');
+        insideLayer.style.display = 'none';
+        insideLayer.style.opacity = '0';
+        insideLayer.style.pointerEvents = 'none';
+      }
       const bedLayer = document.getElementById('mriBedLayer');
       if (bedLayer) {
         bedLayer.classList.remove('active');
@@ -16208,6 +16215,7 @@
 
       const insideLayer = document.getElementById('mriInsideLayer');
       if (insideLayer) {
+        insideLayer.style.display = 'block';
         insideLayer.classList.add('active');
         insideLayer.style.opacity = '1';
         insideLayer.style.pointerEvents = 'auto';
@@ -16578,6 +16586,7 @@
         insideLayer.classList.remove('active');
         insideLayer.style.opacity = '0';
         insideLayer.style.pointerEvents = 'none';
+        insideLayer.style.display = 'none';
       }
 
       // Transition to MRI Bed Empty Screen
