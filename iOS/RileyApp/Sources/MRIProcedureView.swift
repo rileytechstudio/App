@@ -581,14 +581,14 @@ public struct MRIProcedureView: View {
                                 .opacity(showGlowBackground ? 1.0 : 0.0)
                                 .animation(.easeInOut(duration: 0.8), value: showGlowBackground)
                             
-                            // Empty Bed (fades out when child gets into bed)
+                            // Empty Bed (fades out after child is fully in bed, preventing mattress dimming)
                             Image("MRIFullBedEmpty")
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
                                 .frame(width: contentWidth, height: contentHeight)
                                 .offset(y: contentHeight * 0.22)
                                 .opacity(isBedFull ? 0.0 : 1.0)
-                                .animation(.easeInOut(duration: 0.5), value: isBedFull)
+                                .animation(.easeInOut(duration: 0.3).delay(isBedFull ? 0.35 : 0.0), value: isBedFull)
                             
                             // Bed with Child (persistent view: fades in on tap, then slides into machine)
                             Image("MRIFullBedGirl")
