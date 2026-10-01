@@ -1960,7 +1960,7 @@
       -webkit-backdrop-filter: blur(20px);
       border-top: 1px solid rgba(255, 255, 255, 0.16);
       box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.32);
-      transition: background 0.35s ease, border-color 0.35s ease, opacity 0.35s ease;
+      transition: background 0.35s ease, border-color 0.35s ease, opacity 0.35s ease, box-shadow 0.35s ease, color 0.35s ease;
       cursor: pointer;
       pointer-events: auto;
     }
@@ -1972,6 +1972,58 @@
 
     .mri-bottom-prompt-bar.prompt-pulse {
       animation: promptBarPulse 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    /* Still Game Dynamic Prompt Bar Color States */
+    .mri-bottom-prompt-bar.still-move-mode {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.95), rgba(5, 150, 105, 0.95)) !important;
+      border-top: 2px solid #34d399 !important;
+      box-shadow: 0 -4px 24px rgba(16, 185, 129, 0.6) !important;
+      color: #ffffff !important;
+    }
+    .mri-bottom-prompt-bar.still-move-mode .step-instruction-dot {
+      background: #ffffff !important;
+      box-shadow: 0 0 10px #34d399 !important;
+    }
+
+    .mri-bottom-prompt-bar.still-warning-mode {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.98), rgba(217, 119, 6, 0.98)) !important;
+      border-top: 2px solid #fbbf24 !important;
+      box-shadow: 0 -4px 28px rgba(245, 158, 11, 0.8) !important;
+      color: #ffffff !important;
+      animation: promptBarPulse 0.5s ease-in-out infinite alternate !important;
+    }
+    .mri-bottom-prompt-bar.still-warning-mode .step-instruction-dot {
+      background: #ffffff !important;
+      box-shadow: 0 0 12px #fbbf24 !important;
+    }
+
+    .mri-bottom-prompt-bar.still-freeze-mode {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.98), rgba(185, 28, 28, 0.98)) !important;
+      border-top: 2px solid #f87171 !important;
+      box-shadow: 0 -4px 32px rgba(239, 68, 68, 0.8) !important;
+      color: #ffffff !important;
+      animation: promptBarShake 0.5s ease-in-out infinite alternate !important;
+    }
+    .mri-bottom-prompt-bar.still-freeze-mode .step-instruction-dot {
+      background: #ffffff !important;
+      box-shadow: 0 0 14px #f87171 !important;
+    }
+
+    .mri-bottom-prompt-bar.still-success-mode {
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.98), rgba(2, 132, 199, 0.98)) !important;
+      border-top: 2px solid #38bdf8 !important;
+      box-shadow: 0 -4px 28px rgba(14, 165, 233, 0.75) !important;
+      color: #ffffff !important;
+    }
+    .mri-bottom-prompt-bar.still-success-mode .step-instruction-dot {
+      background: #ffffff !important;
+      box-shadow: 0 0 12px #38bdf8 !important;
+    }
+
+    @keyframes promptBarShake {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-2px); }
     }
 
     /* ========================================================= */
@@ -7852,14 +7904,10 @@
                 <div id="mriStillGameOverlay" class="mri-layer mri-still-game-layer" style="display: none; opacity: 0;" aria-hidden="true">
                   <!-- Game Top HUD / Header -->
                   <div class="mri-still-hud">
-                    <button class="mri-still-back-btn" onclick="exitMRIStillGame(event)" aria-label="Exit Game">
+                    <button class="mri-still-back-btn" onclick="exitMRIStillGame(false, event)" aria-label="Exit Game">
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
                       <span>Back</span>
                     </button>
-                    <div class="mri-still-status-pill move-mode" id="mriStillStatusPill">
-                      <span class="mri-still-status-dot" id="mriStillStatusDot"></span>
-                      <span class="mri-still-status-text" id="mriStillStatusText">Move and play music! Tap the instruments!</span>
-                    </div>
                     <div class="mri-still-score-badge" id="mriStillScoreBadge">
                       <span id="mriStillPauseCountText">Freezes: 0/3</span>
                     </div>
@@ -7947,10 +7995,6 @@
               <div class="step-instruction-card">
                 <span class="step-instruction-dot confirm-pulse" id="mriPromptDot" aria-hidden="true"></span>
                 <span class="step-instruction-text" id="mriPromptText">Welcome to MRI! Lets find all the different parts of the MRI room together!</span>
-                <button id="mriPlayStillGameBtn" class="mri-play-still-game-btn" onclick="startMRIStillGame(event)" style="display: none;" title="Practice Holding Still">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                  <span>Practice Holding Still!</span>
-                </button>
               </div>
             </div>
 
@@ -16288,8 +16332,10 @@
         stillOverlay.style.display = 'none';
         stillOverlay.style.opacity = '0';
       }
-      const playStillBtn = document.getElementById('mriPlayStillGameBtn');
-      if (playStillBtn) playStillBtn.style.display = 'none';
+      const stillPromptBar = document.getElementById('mriBottomPromptBar');
+      if (stillPromptBar) {
+        stillPromptBar.classList.remove('still-move-mode', 'still-warning-mode', 'still-freeze-mode', 'still-success-mode');
+      }
       const stageStillBtn = document.getElementById('mriStageStillGameBtn');
       if (stageStillBtn) stageStillBtn.style.display = 'none';
       const stillVideo = document.getElementById('mriStillVideo');
@@ -17279,19 +17325,30 @@
       }, 650);
     }
 
-    function showMRIHoldingStillPrompt() {
+    function setMRIStillPrompt(mode, text) {
+      const promptBar = document.getElementById('mriBottomPromptBar');
       const promptText = document.getElementById('mriPromptText');
       const promptDot = document.getElementById('mriPromptDot');
-      const promptBar = document.getElementById('mriBottomPromptBar');
-      const playBtn = document.getElementById('mriPlayStillGameBtn');
-      const stageBtn = document.getElementById('mriStageStillGameBtn');
 
-      if (promptText) {
-        promptText.textContent = "Your most important job during the MRI is to hold perfectly still!";
+      if (promptText && text) {
+        promptText.textContent = text;
       }
-      if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
-      if (playBtn) playBtn.style.display = 'inline-flex';
+      if (promptBar) {
+        promptBar.classList.remove('still-move-mode', 'still-warning-mode', 'still-freeze-mode', 'still-success-mode');
+        if (mode) {
+          promptBar.classList.add(`still-${mode}-mode`);
+        }
+      }
+      if (promptDot) {
+        promptDot.className = 'step-instruction-dot confirm-pulse';
+      }
+    }
+
+    function showMRIHoldingStillPrompt() {
+      setMRIStillPrompt(null, "Your most important job during the MRI is to hold perfectly still!");
+      const stageBtn = document.getElementById('mriStageStillGameBtn');
       if (stageBtn) stageBtn.style.display = 'flex';
+      const promptBar = document.getElementById('mriBottomPromptBar');
       if (promptBar) {
         promptBar.classList.remove('prompt-pulse');
         requestAnimationFrame(() => promptBar.classList.add('prompt-pulse'));
@@ -17363,12 +17420,10 @@
     }
 
     function startMRIStillGame(event) {
-      if (event) event.stopPropagation();
+      if (event && event.stopPropagation) event.stopPropagation();
       triggerHapticFeedback(true);
 
-      // Hide launcher buttons
-      const playBtn = document.getElementById('mriPlayStillGameBtn');
-      if (playBtn) playBtn.style.display = 'none';
+      // Hide center launcher button
       const stageBtn = document.getElementById('mriStageStillGameBtn');
       if (stageBtn) stageBtn.style.display = 'none';
 
@@ -17407,13 +17462,10 @@
       const ringWarning = document.getElementById('mriStillRingWarning');
       if (ringWarning) ringWarning.classList.remove('active');
 
-      const statusPill = document.getElementById('mriStillStatusPill');
-      const statusText = document.getElementById('mriStillStatusText');
+      setMRIStillPrompt('move', "Move and play music! Tap the instruments!");
+
       const skeletonStage = document.getElementById('mriStillSkeletonStage');
       const video = document.getElementById('mriStillVideo');
-
-      if (statusPill) statusPill.className = 'mri-still-status-pill move-mode';
-      if (statusText) statusText.textContent = "Move and play music! Tap the instruments!";
 
       if (skeletonStage) {
         skeletonStage.classList.remove('frozen');
@@ -17455,10 +17507,7 @@
       if (!mriStillGameActive) return;
       mriStillGameState = 'WARNING';
 
-      const statusPill = document.getElementById('mriStillStatusPill');
-      const statusText = document.getElementById('mriStillStatusText');
-      if (statusPill) statusPill.className = 'mri-still-status-pill warning-mode';
-      if (statusText) statusText.textContent = "Get ready to freeze...";
+      setMRIStillPrompt('warning', "Get ready to freeze...");
 
       const ringWarning = document.getElementById('mriStillRingWarning');
       if (ringWarning) {
@@ -17503,10 +17552,7 @@
       playFreezeCueSound();
       triggerHapticFeedback(true);
 
-      const statusPill = document.getElementById('mriStillStatusPill');
-      const statusText = document.getElementById('mriStillStatusText');
-      if (statusPill) statusPill.className = 'mri-still-status-pill freeze-mode';
-      if (statusText) statusText.textContent = "FREEZE! Hold perfectly still!";
+      setMRIStillPrompt('freeze', "FREEZE! Hold perfectly still!");
 
       // 3.0s freeze interval
       if (mriStillGameTimer) clearTimeout(mriStillGameTimer);
@@ -17520,10 +17566,7 @@
       triggerHapticFeedback(true);
 
       if (mriStillGamePauseCount < 3) {
-        const statusPill = document.getElementById('mriStillStatusPill');
-        const statusText = document.getElementById('mriStillStatusText');
-        if (statusPill) statusPill.className = 'mri-still-status-pill success-mode';
-        if (statusText) statusText.textContent = "Great job holding still! Get ready to move!";
+        setMRIStillPrompt('success', "Great job holding still! Get ready to move!");
 
         if (mriStillGameTimer) clearTimeout(mriStillGameTimer);
         mriStillGameTimer = setTimeout(() => {
@@ -17592,10 +17635,7 @@
       mriStillGameState = 'COMPLETE';
       stopMetronome();
 
-      const statusPill = document.getElementById('mriStillStatusPill');
-      const statusText = document.getElementById('mriStillStatusText');
-      if (statusPill) statusPill.className = 'mri-still-status-pill success-mode';
-      if (statusText) statusText.textContent = "Great job! You are an expert at holding still!";
+      setMRIStillPrompt('success', "Great job! You are an expert at holding still!");
 
       triggerHapticFeedback(true);
       startMRIStillConfetti();
@@ -17606,7 +17646,9 @@
       }, 2300);
     }
 
-    function exitMRIStillGame(isCompleted) {
+    function exitMRIStillGame(isCompleted, event) {
+      if (event && event.stopPropagation) event.stopPropagation();
+      const completed = isCompleted === true;
       mriStillGameActive = false;
       stopMetronome();
       stopMRIStillConfetti();
@@ -17631,14 +17673,11 @@
         }, 400);
       }
 
-      if (isCompleted) {
+      if (completed) {
         mriStillGameDone = true;
         // Seamlessly illuminate the scanner and activate draggable bed
         transitionToMRIGlowAndDraggableBed();
-        const promptText = document.getElementById('mriPromptText');
-        if (promptText) {
-          promptText.textContent = "Great job! You're ready for your MRI! Slide the bed into the machine!";
-        }
+        setMRIStillPrompt(null, "Great job! You're ready for your MRI! Slide the bed into the machine!");
       } else {
         showMRIHoldingStillPrompt();
       }
@@ -18036,6 +18075,7 @@
     }
 
     function handleMRIPromptBarTap() {
+      if (mriStillGameActive) return;
       if (mriBedActive && !mriBedFull) {
         onMRIBedTap();
       } else if (mriBedActive && mriBedFull && !mriStillGameDone) {

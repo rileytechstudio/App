@@ -751,7 +751,7 @@ public struct MRIProcedureView: View {
                             }
                             
                             // Floating prompt button to practice holding still
-                            if isBedFull && !isStillGameDone {
+                            if isBedFull && !isStillGameDone && showStillGamePromptButton {
                                 Button(action: {
                                     startStillGame()
                                 }) {
@@ -897,80 +897,59 @@ public struct MRIProcedureView: View {
             }
         }) {
             HStack(spacing: 9) {
-                // Status Indicator Dot (glowing amber with pulse during welcome/confirmation)
+                // Status Indicator Dot (glowing white in game, amber in welcome/confirmation)
                 Circle()
-                    .fill((!hasTransitioned || (allSpotsClicked && !lightsOff) || isInsideScreen) ? Color(red: 1.0, green: 0.84, blue: 0.0) : Color(red: 0.98, green: 0.75, blue: 0.14))
-                    .frame(width: (!hasTransitioned || (allSpotsClicked && !lightsOff) || isInsideScreen) ? 10 : 8, height: (!hasTransitioned || (allSpotsClicked && !lightsOff) || isInsideScreen) ? 10 : 8)
+                    .fill(isStillGameActive ? Color.white : ((!hasTransitioned || (allSpotsClicked && !lightsOff) || isInsideScreen) ? Color(red: 1.0, green: 0.84, blue: 0.0) : Color(red: 0.98, green: 0.75, blue: 0.14)))
+                    .frame(width: (isStillGameActive || !hasTransitioned || (allSpotsClicked && !lightsOff) || isInsideScreen) ? 10 : 8, height: (isStillGameActive || !hasTransitioned || (allSpotsClicked && !lightsOff) || isInsideScreen) ? 10 : 8)
                     .shadow(
-                        color: (!hasTransitioned || (allSpotsClicked && !lightsOff) || isInsideScreen)
-                            ? Color(red: 1.0, green: 0.84, blue: 0.0).opacity(0.85)
-                            : Color(red: 0.98, green: 0.75, blue: 0.14, opacity: 0.7),
-                        radius: 4
+                        color: isStillGameActive
+                            ? stillBannerBorderColor.opacity(0.9)
+                            : ((!hasTransitioned || (allSpotsClicked && !lightsOff) || isInsideScreen)
+                                ? Color(red: 1.0, green: 0.84, blue: 0.0).opacity(0.85)
+                                : Color(red: 0.98, green: 0.75, blue: 0.14, opacity: 0.7)),
+                        radius: isStillGameActive ? 6 : 4
                     )
                 
-                Text(promptText)
+                Text(isStillGameActive ? statusPillText : promptText)
                     .font(.system(size: 15.5, weight: .bold, design: .rounded))
                     .foregroundColor(.white)
                     .lineLimit(2)
                     .minimumScaleFactor(0.70)
                     .multilineTextAlignment(.leading)
-                
-                if isBedScreen && isBedFull && !isStillGameDone {
-                    Spacer(minLength: 6)
-                    Button(action: {
-                        startStillGame()
-                    }) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "play.fill")
-                                .font(.system(size: 11, weight: .bold))
-                            Text("Practice Holding Still!")
-                                .font(.system(size: 13, weight: .heavy, design: .rounded))
-                        }
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(
-                            LinearGradient(
-                                colors: [Color(red: 6/255, green: 182/255, blue: 212/255), Color(red: 2/255, green: 132/255, blue: 199/255)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .clipShape(Capsule())
-                        .overlay(
-                            Capsule()
-                                .stroke(Color.white.opacity(0.85), lineWidth: 1.5)
-                        )
-                        .shadow(color: Color(red: 6/255, green: 182/255, blue: 212/255).opacity(0.7), radius: 8)
-                    }
-                    .transition(.scale.combined(with: .opacity))
-                }
             }
             .padding(.horizontal, 20)
             .frame(maxWidth: .infinity)
             .frame(minHeight: 52)
             .padding(.vertical, 4)
             .background(
-                LinearGradient(
-                    colors: (!hasTransitioned || (allSpotsClicked && !lightsOff)) ? [
-                        Color(red: 0.10, green: 0.05, blue: 0.20, opacity: 0.78),
-                        Color(red: 0.15, green: 0.07, blue: 0.28, opacity: 0.86)
-                    ] : [
-                        Color(red: 0.06, green: 0.03, blue: 0.13, opacity: 0.65),
-                        Color(red: 0.09, green: 0.05, blue: 0.19, opacity: 0.72)
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .background(.ultraThinMaterial)
+                Group {
+                    if isStillGameActive {
+                        stillBannerGradient
+                    } else {
+                        LinearGradient(
+                            colors: (!hasTransitioned || (allSpotsClicked && !lightsOff)) ? [
+                                Color(red: 0.10, green: 0.05, blue: 0.20, opacity: 0.78),
+                                Color(red: 0.15, green: 0.07, blue: 0.28, opacity: 0.86)
+                            ] : [
+                                Color(red: 0.06, green: 0.03, blue: 0.13, opacity: 0.65),
+                                Color(red: 0.09, green: 0.05, blue: 0.19, opacity: 0.72)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                        .background(.ultraThinMaterial)
+                    }
+                }
             )
             .overlay(
                 Rectangle()
-                    .fill((!hasTransitioned || (allSpotsClicked && !lightsOff)) ? Color(red: 1.0, green: 0.84, blue: 0.0).opacity(0.38) : Color.white.opacity(0.16))
-                    .frame(height: 1.0),
+                    .fill(isStillGameActive ? stillBannerBorderColor : ((!hasTransitioned || (allSpotsClicked && !lightsOff)) ? Color(red: 1.0, green: 0.84, blue: 0.0).opacity(0.38) : Color.white.opacity(0.16)))
+                    .frame(height: isStillGameActive ? 2.0 : 1.0),
                 alignment: .top
             )
-            .shadow(color: Color.black.opacity(0.32), radius: 10, y: -3)
+            .shadow(color: isStillGameActive ? stillBannerGlowColor : Color.black.opacity(0.32), radius: isStillGameActive ? 14 : 10, y: -3)
+            .animation(.easeInOut(duration: 0.35), value: stillGameState)
+            .animation(.easeInOut(duration: 0.35), value: isStillGameActive)
         }
         .buttonStyle(PlainButtonStyle())
     }
@@ -1413,9 +1392,9 @@ public struct MRIProcedureView: View {
                     }
                 }
             
-            // Top HUD
+            // Top HUD: Back button on left, Freeze count badge on right
             VStack {
-                HStack(spacing: 12) {
+                HStack {
                     // Back button
                     Button(action: {
                         exitStillGame(isCompleted: false)
@@ -1432,28 +1411,6 @@ public struct MRIProcedureView: View {
                         .background(Color.white.opacity(0.18))
                         .clipShape(Capsule())
                     }
-                    
-                    Spacer()
-                    
-                    // Status Pill
-                    HStack(spacing: 8) {
-                        Circle()
-                            .fill(stillGameState == .freeze ? Color.red : (stillGameState == .warning ? Color.orange : (stillGameState == .complete ? Color.green : Color.yellow)))
-                            .frame(width: 8, height: 8)
-                        
-                        Text(statusPillText)
-                            .font(.system(size: 14, weight: .bold, design: .rounded))
-                            .foregroundColor(.white)
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 7)
-                    .background(statusPillGradient)
-                    .clipShape(Capsule())
-                    .overlay(
-                        Capsule()
-                            .stroke(Color.white.opacity(0.6), lineWidth: 1.5)
-                    )
-                    .shadow(color: statusPillGlowColor, radius: 10)
                     
                     Spacer()
                     
@@ -1600,42 +1557,49 @@ public struct MRIProcedureView: View {
         }
     }
     
-    private var statusPillGradient: LinearGradient {
+    private var stillBannerGradient: LinearGradient {
         switch stillGameState {
         case .move:
             return LinearGradient(
                 colors: [Color(red: 16/255, green: 185/255, blue: 129/255), Color(red: 5/255, green: 150/255, blue: 105/255)],
-                startPoint: .leading,
-                endPoint: .trailing
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
             )
         case .warning:
             return LinearGradient(
                 colors: [Color(red: 245/255, green: 158/255, blue: 11/255), Color(red: 217/255, green: 119/255, blue: 6/255)],
-                startPoint: .leading,
-                endPoint: .trailing
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
             )
         case .freeze:
             return LinearGradient(
                 colors: [Color(red: 239/255, green: 68/255, blue: 68/255), Color(red: 185/255, green: 28/255, blue: 28/255)],
-                startPoint: .leading,
-                endPoint: .trailing
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
             )
-        case .success:
+        case .success, .complete:
             return LinearGradient(
                 colors: [Color(red: 14/255, green: 165/255, blue: 233/255), Color(red: 2/255, green: 132/255, blue: 199/255)],
-                startPoint: .leading,
-                endPoint: .trailing
-            )
-        case .complete:
-            return LinearGradient(
-                colors: [Color(red: 14/255, green: 165/255, blue: 233/255), Color(red: 2/255, green: 132/255, blue: 199/255)],
-                startPoint: .leading,
-                endPoint: .trailing
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
             )
         }
     }
     
-    private var statusPillGlowColor: Color {
+    private var stillBannerBorderColor: Color {
+        switch stillGameState {
+        case .move:
+            return Color(red: 52/255, green: 211/255, blue: 153/255)
+        case .warning:
+            return Color(red: 251/255, green: 191/255, blue: 36/255)
+        case .freeze:
+            return Color(red: 248/255, green: 113/255, blue: 113/255)
+        case .success, .complete:
+            return Color(red: 56/255, green: 189/255, blue: 248/255)
+        }
+    }
+    
+    private var stillBannerGlowColor: Color {
         switch stillGameState {
         case .move:
             return Color(red: 16/255, green: 185/255, blue: 129/255).opacity(0.6)
@@ -1643,10 +1607,8 @@ public struct MRIProcedureView: View {
             return Color(red: 245/255, green: 158/255, blue: 11/255).opacity(0.8)
         case .freeze:
             return Color(red: 239/255, green: 68/255, blue: 68/255).opacity(0.8)
-        case .success:
-            return Color(red: 14/255, green: 165/255, blue: 233/255).opacity(0.7)
-        case .complete:
-            return Color(red: 14/255, green: 165/255, blue: 233/255).opacity(0.7)
+        case .success, .complete:
+            return Color(red: 14/255, green: 165/255, blue: 233/255).opacity(0.75)
         }
     }
     
@@ -1697,6 +1659,7 @@ public struct MRIProcedureView: View {
         ringContractProgress = 0.0
         withAnimation(.easeInOut(duration: 0.3)) {
             stillGameState = .move
+            promptText = statusPillText
         }
         stillVideoPlayer?.play()
         startMetronome()
@@ -1713,6 +1676,7 @@ public struct MRIProcedureView: View {
         ringContractProgress = 0.0
         withAnimation(.easeInOut(duration: 0.25)) {
             stillGameState = .warning
+            promptText = statusPillText
         }
         withAnimation(.timingCurve(0.2, 0.8, 0.3, 1.0, duration: 1.4)) {
             ringContractProgress = 1.0
@@ -1733,6 +1697,7 @@ public struct MRIProcedureView: View {
         stillGamePauseCount += 1
         withAnimation(.easeInOut(duration: 0.25)) {
             stillGameState = .freeze
+            promptText = statusPillText
         }
         
         playFreezeCueSound()
@@ -1751,6 +1716,7 @@ public struct MRIProcedureView: View {
         if stillGamePauseCount < 3 {
             withAnimation(.easeInOut(duration: 0.25)) {
                 stillGameState = .success
+                promptText = statusPillText
             }
             stillGameTimer?.invalidate()
             stillGameTimer = Timer.scheduledTimer(withTimeInterval: 1.2, repeats: false) { _ in
@@ -1810,6 +1776,7 @@ public struct MRIProcedureView: View {
         withAnimation(.easeInOut(duration: 0.3)) {
             stillGameState = .complete
             stillConfettiActive = true
+            promptText = statusPillText
         }
         HapticManager.shared.success()
         
