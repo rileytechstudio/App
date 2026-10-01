@@ -16683,15 +16683,21 @@
       const staticBedEmpty = document.getElementById('mriStaticBedEmptyImg');
       if (staticBedEmpty) staticBedEmpty.style.opacity = '0';
 
-      const bedFullImg = document.getElementById('mriBedFullImg');
-      if (bedFullImg) {
-        bedFullImg.style.display = 'block';
-        bedFullImg.style.transform = 'translateY(22%)';
-        void bedFullImg.offsetWidth;
-        bedFullImg.style.opacity = '1';
+      // Directly fade in the draggable bed with character (avoids swapping elements or flickering later)
+      const draggableBed = document.getElementById('mriDraggableBed');
+      if (draggableBed) {
+        draggableBed.style.display = 'block';
+        draggableBed.classList.remove('slid-in', 'dragging');
+        draggableBed.style.transform = 'translateY(22%)';
+        draggableBed.style.opacity = '0';
+        void draggableBed.offsetWidth;
+        draggableBed.style.opacity = '1';
       }
 
-      // After person is in the bed, replace background with MRI glow and prompt to slide bed into machine
+      const bedFullImg = document.getElementById('mriBedFullImg');
+      if (bedFullImg) bedFullImg.style.display = 'none';
+
+      // After person is in the bed, smoothly illuminate the scanner with MRI glow
       if (mriBedGlowTimer) clearTimeout(mriBedGlowTimer);
       mriBedGlowTimer = setTimeout(() => {
         transitionToMRIGlowAndDraggableBed();
@@ -16704,7 +16710,7 @@
         onMRIBedTap(event);
       } else if (!mriBedSlidIn) {
         const draggableBed = document.getElementById('mriDraggableBed');
-        if (draggableBed && draggableBed.style.display !== 'none') {
+        if (draggableBed && draggableBed.style.display !== 'none' && draggableBed._dragAttached) {
           completeMRISlideIn();
         }
       }
@@ -16715,35 +16721,31 @@
       const glowBgImg = document.getElementById('mriGlowBgImg');
       const draggableBed = document.getElementById('mriDraggableBed');
       const glowTopImg = document.getElementById('mriGlowTopImg');
-      const bedEmptyImg = document.getElementById('mriBedEmptyImg');
-      const bedFullImg = document.getElementById('mriBedFullImg');
       const staticBedEmpty = document.getElementById('mriStaticBedEmptyImg');
       const slideGuide = document.getElementById('mriSlideGuide');
 
-      // Hide older static bed images immediately so nothing is stuck behind the draggable bed
-      if (bedEmptyImg) bedEmptyImg.style.display = 'none';
-      if (bedFullImg) bedFullImg.style.display = 'none';
+      // Clean up static empty bed after fade out has completed
       if (staticBedEmpty) staticBedEmpty.style.display = 'none';
       if (mriBedHideTimer) {
         clearTimeout(mriBedHideTimer);
         mriBedHideTimer = null;
       }
 
+      // Smoothly cross-fade glow background on top of normal scanner background (keep base scanner underneath to avoid screen flicker)
       if (glowBgImg) {
         glowBgImg.style.display = 'block';
         void glowBgImg.offsetWidth;
         glowBgImg.style.opacity = '1';
       }
 
+      // Draggable bed is already visible with opacity 1; attach dragging events without any opacity or display reset
       if (draggableBed) {
         draggableBed.style.display = 'block';
-        draggableBed.classList.remove('slid-in', 'dragging');
-        draggableBed.style.transform = 'translateY(22%)';
-        void draggableBed.offsetWidth;
         draggableBed.style.opacity = '1';
         setupMRIDraggableBedEvents(draggableBed);
       }
 
+      // Smoothly fade in glow top opening
       if (glowTopImg) {
         glowTopImg.style.display = 'block';
         void glowTopImg.offsetWidth;

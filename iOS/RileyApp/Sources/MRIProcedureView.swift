@@ -562,145 +562,148 @@ public struct MRIProcedureView: View {
                     
                     // Layer 3.8: Bed Preparation & Slide Screen
                     if isBedScreen {
+                        let maxDist = contentHeight * 0.22
+                        let currentProgress = min(1.0, max(0.0, -bedSlideDragOffset / maxDist))
+                        let currentOffset = isBedSlidIn ? 0 : (maxDist + bedSlideDragOffset)
+                        
                         ZStack {
-                            if showGlowBackground {
-                                // Glowing MRI Room Background
-                                Image("MRIGlow")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: contentWidth, height: contentHeight)
-                                    .transition(.opacity)
-                                
-                                // Draggable Bed with Character (MRIFullBedGirl)
-                                let maxDist = contentHeight * 0.22
-                                let currentProgress = min(1.0, max(0.0, -bedSlideDragOffset / maxDist))
-                                let currentOffset = isBedSlidIn ? 0 : (maxDist + bedSlideDragOffset)
-                                
-                                Image("MRIFullBedGirl")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: contentWidth, height: contentHeight)
-                                    .offset(y: currentOffset)
-                                    .gesture(
-                                        DragGesture()
-                                            .onChanged { value in
-                                                guard !isBedSlidIn else { return }
-                                                let translation = value.translation.height
-                                                if translation < 0 {
-                                                    bedSlideDragOffset = max(-maxDist, translation)
-                                                } else {
+                            // Base MRI Scanner Room Background
+                            Image("MRIBedEmpty")
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: contentWidth, height: contentHeight)
+                            
+                            // Glowing MRI Room Background (smoothly cross-fades in on top)
+                            Image("MRIGlow")
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: contentWidth, height: contentHeight)
+                                .opacity(showGlowBackground ? 1.0 : 0.0)
+                                .animation(.easeInOut(duration: 0.8), value: showGlowBackground)
+                            
+                            // Empty Bed (fades out when child gets into bed)
+                            Image("MRIFullBedEmpty")
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: contentWidth, height: contentHeight)
+                                .offset(y: contentHeight * 0.22)
+                                .opacity(isBedFull ? 0.0 : 1.0)
+                                .animation(.easeInOut(duration: 0.5), value: isBedFull)
+                            
+                            // Bed with Child (persistent view: fades in on tap, then slides into machine)
+                            Image("MRIFullBedGirl")
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: contentWidth, height: contentHeight)
+                                .offset(y: currentOffset)
+                                .opacity(isBedFull ? 1.0 : 0.0)
+                                .animation(.easeInOut(duration: 0.5), value: isBedFull)
+                                .gesture(
+                                    DragGesture()
+                                        .onChanged { value in
+                                            guard showGlowBackground && !isBedSlidIn else { return }
+                                            let translation = value.translation.height
+                                            if translation < 0 {
+                                                bedSlideDragOffset = max(-maxDist, translation)
+                                            } else {
+                                                bedSlideDragOffset = 0
+                                            }
+                                        }
+                                        .onEnded { value in
+                                            guard showGlowBackground && !isBedSlidIn else { return }
+                                            if -bedSlideDragOffset >= (maxDist * 0.35) || abs(value.translation.height) < 10 {
+                                                completeBedSlide(maxDist: maxDist)
+                                            } else {
+                                                withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                                                     bedSlideDragOffset = 0
                                                 }
                                             }
-                                            .onEnded { value in
-                                                guard !isBedSlidIn else { return }
-                                                if -bedSlideDragOffset >= (maxDist * 0.35) || abs(value.translation.height) < 10 {
-                                                    completeBedSlide(maxDist: maxDist)
-                                                } else {
-                                                    withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                                                        bedSlideDragOffset = 0
-                                                    }
-                                                }
-                                            }
-                                    )
-                                    .onTapGesture {
-                                        if !isBedSlidIn {
-                                            completeBedSlide(maxDist: maxDist)
                                         }
-                                    }
-                                
-                                // MRI Glow Top Layer - placed OVER draggable bed so bed slides INTO the machine bore
-                                Image("MRIGlowTop")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: contentWidth, height: contentHeight)
-                                    .allowsHitTesting(false)
-                                    .transition(.opacity)
-                                
-                                // Bouncing slide guide arrow if not slid in yet (placed above MRIGlowTop)
-                                if !isBedSlidIn {
-                                    VStack(spacing: 8) {
-                                        Image(systemName: "arrow.up")
-                                            .font(.system(size: 24, weight: .bold))
-                                            .foregroundColor(Color(red: 0.01, green: 0.12, blue: 0.19))
-                                            .frame(width: 52, height: 52)
-                                            .background(
-                                                Circle()
-                                                    .fill(Color(red: 0.0, green: 0.9, blue: 1.0))
-                                                    .shadow(color: Color(red: 0.0, green: 0.9, blue: 1.0).opacity(0.8), radius: 12)
-                                            )
-                                        
-                                        Text("Slide into the machine!")
-                                            .font(.system(size: 14, weight: .bold, design: .rounded))
-                                            .foregroundColor(Color(red: 0.88, green: 0.95, blue: 1.0))
-                                            .padding(.horizontal, 14)
-                                            .padding(.vertical, 6)
-                                            .background(
-                                                Capsule()
-                                                    .fill(Color(red: 0.06, green: 0.09, blue: 0.16).opacity(0.92))
-                                                    .overlay(
-                                                        Capsule()
-                                                            .stroke(Color(red: 0.0, green: 0.9, blue: 1.0).opacity(0.7), lineWidth: 1)
-                                                    )
-                                            )
-                                    }
-                                    .position(x: contentWidth * 0.50, y: contentHeight * 0.50)
-                                    .opacity(1.0 - currentProgress * 2.0)
-                                    .onTapGesture {
+                                )
+                                .onTapGesture {
+                                    if !isBedFull {
+                                        tapBed()
+                                    } else if showGlowBackground && !isBedSlidIn {
                                         completeBedSlide(maxDist: maxDist)
                                     }
                                 }
-                            } else {
-                                Image("MRIBedEmpty")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: contentWidth, height: contentHeight)
-                                
-                                Image("MRIFullBedEmpty")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: contentWidth, height: contentHeight)
-                                    .offset(y: contentHeight * 0.22)
-                                    .opacity(isBedFull ? 0.0 : 1.0)
-                                    .animation(.easeInOut(duration: 0.4), value: isBedFull)
-                                
-                                if isBedFull {
-                                    Image("MRIFullBedGirl")
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                        .frame(width: contentWidth, height: contentHeight)
-                                        .offset(y: contentHeight * 0.22)
-                                        .transition(.opacity)
-                                }
-                                
-                                if !isBedFull {
-                                    // Hotspot to tap bed
-                                    Button(action: {
-                                        tapBed()
-                                    }) {
-                                        VStack(spacing: 8) {
+                            
+                            // MRI Glow Top Layer - placed OVER draggable bed so bed slides INTO the machine bore
+                            Image("MRIGlowTop")
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: contentWidth, height: contentHeight)
+                                .allowsHitTesting(false)
+                                .opacity(showGlowBackground ? 1.0 : 0.0)
+                                .animation(.easeInOut(duration: 0.8), value: showGlowBackground)
+                            
+                            // Bouncing slide guide arrow if ready to slide and not slid in yet
+                            if showGlowBackground && !isBedSlidIn {
+                                VStack(spacing: 8) {
+                                    Image(systemName: "arrow.up")
+                                        .font(.system(size: 24, weight: .bold))
+                                        .foregroundColor(Color(red: 0.01, green: 0.12, blue: 0.19))
+                                        .frame(width: 52, height: 52)
+                                        .background(
                                             Circle()
-                                                .stroke(Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0), lineWidth: 3.5)
-                                                .frame(width: 68, height: 68)
-                                                .shadow(color: Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0), radius: 8)
-                                            
-                                            Text("Tap the bed to get ready")
-                                                .font(.system(size: 15, weight: .bold))
-                                                .foregroundColor(Color(red: 224 / 255.0, green: 242 / 255.0, blue: 254 / 255.0))
-                                                .padding(.horizontal, 14)
-                                                .padding(.vertical, 6)
-                                                .background(Color(red: 15 / 255.0, green: 23 / 255.0, blue: 42 / 255.0).opacity(0.92))
-                                                .cornerRadius(14)
+                                                .fill(Color(red: 0.0, green: 0.9, blue: 1.0))
+                                                .shadow(color: Color(red: 0.0, green: 0.9, blue: 1.0).opacity(0.8), radius: 12)
+                                        )
+                                    
+                                    Text("Slide into the machine!")
+                                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                                        .foregroundColor(Color(red: 0.88, green: 0.95, blue: 1.0))
+                                        .padding(.horizontal, 14)
+                                        .padding(.vertical, 6)
+                                        .background(
+                                            Capsule()
+                                                .fill(Color(red: 0.06, green: 0.09, blue: 0.16).opacity(0.92))
                                                 .overlay(
-                                                    RoundedRectangle(cornerRadius: 14)
-                                                        .stroke(Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0).opacity(0.6), lineWidth: 1)
+                                                    Capsule()
+                                                        .stroke(Color(red: 0.0, green: 0.9, blue: 1.0).opacity(0.7), lineWidth: 1)
                                                 )
-                                        }
-                                        .frame(width: contentWidth * 0.44, height: contentHeight * 0.44)
-                                    }
-                                    .buttonStyle(PlainButtonStyle())
-                                    .position(x: contentWidth * 0.50, y: contentHeight * 0.60)
+                                        )
                                 }
+                                .position(x: contentWidth * 0.50, y: contentHeight * 0.50)
+                                .opacity(1.0 - currentProgress * 2.0)
+                                .onTapGesture {
+                                    completeBedSlide(maxDist: maxDist)
+                                }
+                                .transition(.opacity)
+                            }
+                            
+                            if !isBedFull {
+                                // Hotspot to tap bed
+                                Button(action: {
+                                    tapBed()
+                                }) {
+                                    VStack(spacing: 8) {
+                                        Circle()
+                                            .stroke(Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0), lineWidth: 3.5)
+                                            .frame(width: 68, height: 68)
+                                            .shadow(color: Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0), radius: 8)
+                                            .overlay(
+                                                Circle()
+                                                    .fill(Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0).opacity(0.2))
+                                            )
+                                        
+                                        Text("Tap the bed to get ready")
+                                            .font(.system(size: 15, weight: .bold))
+                                            .foregroundColor(Color(red: 224 / 255.0, green: 242 / 255.0, blue: 254 / 255.0))
+                                            .padding(.horizontal, 14)
+                                            .padding(.vertical, 6)
+                                            .background(Color(red: 15 / 255.0, green: 23 / 255.0, blue: 42 / 255.0).opacity(0.92))
+                                            .cornerRadius(14)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 14)
+                                                    .stroke(Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0).opacity(0.6), lineWidth: 1)
+                                            )
+                                    }
+                                    .frame(width: contentWidth * 0.44, height: contentHeight * 0.44)
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                .position(x: contentWidth * 0.50, y: contentHeight * 0.60)
+                                .transition(.opacity)
                             }
                         }
                         .transition(.opacity)
