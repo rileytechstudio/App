@@ -1488,7 +1488,7 @@ public struct MRIProcedureView: View {
             }
             .zIndex(10)
             
-            // Center Dancing Skeleton (Video if available, or animated image)
+            // Center Dancing Skeleton (Plays MP4 video in fluid loop, freezes during freeze intervals)
             Group {
                 if let player = stillVideoPlayer {
                     MRIInlinePlayerView(player: player)
@@ -1499,9 +1499,6 @@ public struct MRIProcedureView: View {
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: contentWidth * 0.44, height: contentHeight * 0.52)
-                        .scaleEffect(stillGameState == .move ? 1.03 : 1.0)
-                        .rotationEffect(.degrees(stillGameState == .move ? -2.0 : 0.0))
-                        .animation(stillGameState == .move ? Animation.easeInOut(duration: 0.45).repeatForever(autoreverses: true) : .default, value: stillGameState)
                         .position(x: contentWidth * 0.50, y: contentHeight * 0.40)
                 }
             }
@@ -1655,8 +1652,14 @@ public struct MRIProcedureView: View {
     
     private func setupStillVideoPlayer() {
         if stillVideoPlayer == nil {
-            let videoURL = Bundle.main.url(forResource: "MRIDance", withExtension: "mp4") ??
+            var videoURL = Bundle.main.url(forResource: "MRIDance", withExtension: "mp4") ??
                            Bundle.main.url(forResource: "MRI Dance", withExtension: "mp4")
+            #if SWIFT_PACKAGE
+            if videoURL == nil {
+                videoURL = Bundle.module.url(forResource: "MRIDance", withExtension: "mp4") ??
+                           Bundle.module.url(forResource: "MRI Dance", withExtension: "mp4")
+            }
+            #endif
             if let url = videoURL {
                 let player = AVPlayer(url: url)
                 player.isMuted = true
