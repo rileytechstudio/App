@@ -16,6 +16,7 @@ public struct MRIPart: Identifiable {
 // MARK: - Staying Still Game State
 enum StillGameState {
     case move
+    case warning
     case freeze
     case success
     case complete
@@ -69,7 +70,8 @@ public struct MRIProcedureView: View {
     @State private var stillGameMetronomeTimer: Timer? = nil
     @State private var stillWarningTimer: Timer? = nil
     @State private var showStillWarningToast: Bool = false
-    @State private var stillWarningMessage: String = "Hold still! Freeze like a statue! 🤫"
+    @State private var stillWarningMessage: String = "Hold still! Freeze like a statue!"
+    @State private var ringContractProgress: CGFloat = 0.0
     @State private var stillVideoPlayer: AVPlayer? = nil
     @State private var keyboardChordNoteIdx: Int = 0
     @State private var handbellTappedAnim: Bool = false
@@ -754,8 +756,6 @@ public struct MRIProcedureView: View {
                                     startStillGame()
                                 }) {
                                     HStack(spacing: 10) {
-                                        Text("🎮")
-                                            .font(.system(size: 22))
                                         Text("Practice Holding Still!")
                                             .font(.system(size: 18, weight: .black, design: .rounded))
                                     }
@@ -1160,15 +1160,7 @@ public struct MRIProcedureView: View {
     }
     
     private func playMRISound() {
-        if let soundURL = Bundle.main.url(forResource: "MRISound", withExtension: "mp3") {
-            do {
-                mriAudioPlayer?.stop()
-                mriAudioPlayer = try AVAudioPlayer(contentsOf: soundURL)
-                mriAudioPlayer?.play()
-            } catch {
-                print("Could not play MRI sound: \(error)")
-            }
-        }
+        // Sound removed from MRI preparation for now
     }
     
     private func triggerWaveRipple(side: SoundSide) {
@@ -1404,15 +1396,7 @@ public struct MRIProcedureView: View {
     }
     
     private func playYouDidItSound() {
-        if let chimeURL = Bundle.main.url(forResource: "YouDidItChime", withExtension: "mp3") ??
-                          Bundle.main.url(forResource: "YouDidIt", withExtension: "mp3") {
-            do {
-                mriAudioPlayer = try AVAudioPlayer(contentsOf: chimeURL)
-                mriAudioPlayer?.play()
-            } catch {
-                print("Could not play YouDidIt chime: \(error)")
-            }
-        }
+        // Sound removed from MRI preparation for now
     }
     
     // MARK: - Layer 3.9: Staying Still Game Overlay Screen
@@ -1425,7 +1409,7 @@ public struct MRIProcedureView: View {
                 .contentShape(Rectangle())
                 .onTapGesture {
                     if stillGameState == .freeze {
-                        showStillWarningToastAlert(msg: "Hold still! Freeze like a statue! 🤫")
+                        showStillWarningToastAlert(msg: "Hold still! Freeze like a statue!")
                     }
                 }
             
@@ -1454,7 +1438,7 @@ public struct MRIProcedureView: View {
                     // Status Pill
                     HStack(spacing: 8) {
                         Circle()
-                            .fill(stillGameState == .freeze ? Color.red : (stillGameState == .complete ? Color.green : Color.yellow))
+                            .fill(stillGameState == .freeze ? Color.red : (stillGameState == .warning ? Color.orange : (stillGameState == .complete ? Color.green : Color.yellow)))
                             .frame(width: 8, height: 8)
                         
                         Text(statusPillText)
@@ -1504,6 +1488,13 @@ public struct MRIProcedureView: View {
                 }
             }
             .allowsHitTesting(false)
+            
+            // Concentric Ring Anticipatory Warning (Closes in on center before freeze)
+            if stillGameState == .warning {
+                StillWarningRingsView(progress: ringContractProgress, contentWidth: contentWidth, contentHeight: contentHeight)
+                    .allowsHitTesting(false)
+                    .zIndex(12)
+            }
             
             // Handbell (Lower Left)
             ZStack {
@@ -1567,8 +1558,6 @@ public struct MRIProcedureView: View {
             // Freeze Warning Toast
             if showStillWarningToast {
                 HStack(spacing: 8) {
-                    Text("🛑")
-                        .font(.system(size: 20))
                     Text(stillWarningMessage)
                         .font(.system(size: 15, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
@@ -1599,13 +1588,15 @@ public struct MRIProcedureView: View {
     private var statusPillText: String {
         switch stillGameState {
         case .move:
-            return "🎵 Move & Play Music! Tap the instruments! 🎶"
+            return "Move and play music! Tap the instruments!"
+        case .warning:
+            return "Get ready to freeze..."
         case .freeze:
-            return "🛑 FREEZE! Hold perfectly still! 🤫"
+            return "FREEZE! Hold perfectly still!"
         case .success:
-            return "🌟 Great job holding still! Get ready to move!"
+            return "Great job holding still! Get ready to move!"
         case .complete:
-            return "🎉 Great job! You are an expert at holding still!"
+            return "Great job! You are an expert at holding still!"
         }
     }
     
@@ -1613,7 +1604,13 @@ public struct MRIProcedureView: View {
         switch stillGameState {
         case .move:
             return LinearGradient(
-                colors: [Color(red: 6/255, green: 182/255, blue: 212/255), Color(red: 2/255, green: 132/255, blue: 199/255)],
+                colors: [Color(red: 16/255, green: 185/255, blue: 129/255), Color(red: 5/255, green: 150/255, blue: 105/255)],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+        case .warning:
+            return LinearGradient(
+                colors: [Color(red: 245/255, green: 158/255, blue: 11/255), Color(red: 217/255, green: 119/255, blue: 6/255)],
                 startPoint: .leading,
                 endPoint: .trailing
             )
@@ -1625,13 +1622,13 @@ public struct MRIProcedureView: View {
             )
         case .success:
             return LinearGradient(
-                colors: [Color(red: 245/255, green: 158/255, blue: 11/255), Color(red: 217/255, green: 119/255, blue: 6/255)],
+                colors: [Color(red: 14/255, green: 165/255, blue: 233/255), Color(red: 2/255, green: 132/255, blue: 199/255)],
                 startPoint: .leading,
                 endPoint: .trailing
             )
         case .complete:
             return LinearGradient(
-                colors: [Color(red: 16/255, green: 185/255, blue: 129/255), Color(red: 5/255, green: 150/255, blue: 105/255)],
+                colors: [Color(red: 14/255, green: 165/255, blue: 233/255), Color(red: 2/255, green: 132/255, blue: 199/255)],
                 startPoint: .leading,
                 endPoint: .trailing
             )
@@ -1641,13 +1638,15 @@ public struct MRIProcedureView: View {
     private var statusPillGlowColor: Color {
         switch stillGameState {
         case .move:
-            return Color(red: 6/255, green: 182/255, blue: 212/255).opacity(0.6)
+            return Color(red: 16/255, green: 185/255, blue: 129/255).opacity(0.6)
+        case .warning:
+            return Color(red: 245/255, green: 158/255, blue: 11/255).opacity(0.8)
         case .freeze:
             return Color(red: 239/255, green: 68/255, blue: 68/255).opacity(0.8)
         case .success:
-            return Color(red: 245/255, green: 158/255, blue: 11/255).opacity(0.6)
+            return Color(red: 14/255, green: 165/255, blue: 233/255).opacity(0.7)
         case .complete:
-            return Color(red: 16/255, green: 185/255, blue: 129/255).opacity(0.7)
+            return Color(red: 14/255, green: 165/255, blue: 233/255).opacity(0.7)
         }
     }
     
@@ -1682,12 +1681,12 @@ public struct MRIProcedureView: View {
     
     private func startStillGame() {
         HapticManager.shared.buttonTap()
-        playYouDidItSound()
         
         showStillGamePromptButton = false
         isStillGameActive = true
         stillGamePauseCount = 0
         stillConfettiActive = false
+        ringContractProgress = 0.0
         
         setupStillVideoPlayer()
         enterStillGameMovePhase()
@@ -1695,6 +1694,7 @@ public struct MRIProcedureView: View {
     
     private func enterStillGameMovePhase() {
         guard isStillGameActive else { return }
+        ringContractProgress = 0.0
         withAnimation(.easeInOut(duration: 0.3)) {
             stillGameState = .move
         }
@@ -1702,8 +1702,25 @@ public struct MRIProcedureView: View {
         startMetronome()
         
         stillGameTimer?.invalidate()
-        let moveDuration = 3.5 + Double.random(in: 0.0...1.5)
+        let moveDuration = 3.0 + Double.random(in: 0.0...1.2)
         stillGameTimer = Timer.scheduledTimer(withTimeInterval: moveDuration, repeats: false) { _ in
+            self.enterStillGameWarningPhase()
+        }
+    }
+    
+    private func enterStillGameWarningPhase() {
+        guard isStillGameActive else { return }
+        ringContractProgress = 0.0
+        withAnimation(.easeInOut(duration: 0.25)) {
+            stillGameState = .warning
+        }
+        withAnimation(.timingCurve(0.2, 0.8, 0.3, 1.0, duration: 1.4)) {
+            ringContractProgress = 1.0
+        }
+        HapticManager.shared.lightTap()
+        
+        stillGameTimer?.invalidate()
+        stillGameTimer = Timer.scheduledTimer(withTimeInterval: 1.4, repeats: false) { _ in
             self.enterStillGameFreezePhase()
         }
     }
@@ -1729,7 +1746,6 @@ public struct MRIProcedureView: View {
     
     private func onStillGameFreezeCompleted() {
         guard isStillGameActive else { return }
-        playYouDidItSound()
         HapticManager.shared.success()
         
         if stillGamePauseCount < 3 {
@@ -1748,7 +1764,7 @@ public struct MRIProcedureView: View {
     private func onTapInstrument(type: String) {
         guard isStillGameActive else { return }
         if stillGameState == .freeze {
-            showStillWarningToastAlert(msg: "Oops! Hold still! Freeze like a statue! 🤫")
+            showStillWarningToastAlert(msg: "Hold still! Freeze like a statue!")
             playStillWarningSound()
             HapticManager.shared.mediumTap()
             return
@@ -1795,7 +1811,6 @@ public struct MRIProcedureView: View {
             stillGameState = .complete
             stillConfettiActive = true
         }
-        playYouDidItSound()
         HapticManager.shared.success()
         
         stillGameTimer?.invalidate()
@@ -1812,6 +1827,7 @@ public struct MRIProcedureView: View {
         stillWarningTimer?.invalidate()
         stillWarningTimer = nil
         showStillWarningToast = false
+        ringContractProgress = 0.0
         
         withAnimation(.easeInOut(duration: 0.4)) {
             isStillGameActive = false
@@ -1832,10 +1848,7 @@ public struct MRIProcedureView: View {
     
     private func startMetronome() {
         stopMetronome()
-        playMetronomeTick()
-        stillGameMetronomeTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
-            self.playMetronomeTick()
-        }
+        // Sound removed from MRI preparation for now
     }
     
     private func stopMetronome() {
@@ -1882,106 +1895,31 @@ public struct MRIProcedureView: View {
     }
     
     private func playTone(samples: [Int16], sampleRate: Int = 44100) {
-        let wav = createWavData(samples: samples, sampleRate: sampleRate)
-        do {
-            sfxTonePlayer = try AVAudioPlayer(data: wav)
-            sfxTonePlayer?.play()
-        } catch {
-            print("Could not play synthesized tone: \(error)")
-        }
+        // Sound removed from MRI preparation for now
     }
     
     private func playMetronomeTick() {
-        let sr = 44100
-        let n = Int(0.026 * Double(sr))
-        var samples = [Int16](repeating: 0, count: n)
-        for i in 0..<n {
-            let t = Double(i) / Double(sr)
-            let f = 1150.0 + (320.0 - 1150.0) * (t / 0.026)
-            let env = exp(-Double(i) / (Double(n) * 0.25))
-            samples[i] = Int16(sin(2.0 * .pi * f * t) * env * 22000)
-        }
-        let wav = createWavData(samples: samples, sampleRate: sr)
-        try? metronomeAudioPlayer = AVAudioPlayer(data: wav)
-        metronomeAudioPlayer?.play()
+        // Sound removed from MRI preparation for now
     }
     
     private func playHandbellSound() {
-        let sr = 44100
-        let n = Int(1.1 * Double(sr))
-        var samples = [Int16](repeating: 0, count: n)
-        let freqs = [1046.5, 2093.0, 3135.9]
-        let gains = [0.45, 0.25, 0.12]
-        let decays = [1.1, 0.65, 0.35]
-        for i in 0..<n {
-            let t = Double(i) / Double(sr)
-            var val = 0.0
-            for (idx, f) in freqs.enumerated() {
-                let env = exp(-t / decays[idx])
-                val += sin(2.0 * .pi * f * t) * gains[idx] * env
-            }
-            samples[i] = Int16(max(-32767, min(32767, val * 26000)))
-        }
-        playTone(samples: samples)
+        // Sound removed from MRI preparation for now
     }
     
     private func playKeyboardSound() {
-        let chordNotes = [523.25, 659.25, 783.99, 1046.50, 880.00, 783.99, 659.25]
-        let freq = chordNotes[keyboardChordNoteIdx % chordNotes.count]
-        keyboardChordNoteIdx += 1
-        let sr = 44100
-        let n = Int(0.65 * Double(sr))
-        var samples = [Int16](repeating: 0, count: n)
-        for i in 0..<n {
-            let t = Double(i) / Double(sr)
-            let env = exp(-t / 0.28)
-            let val = (sin(2.0 * .pi * freq * t) * 0.6 + sin(2.0 * .pi * freq * 2.0 * t) * 0.3) * env
-            samples[i] = Int16(max(-32767, min(32767, val * 26000)))
-        }
-        playTone(samples: samples)
+        // Sound removed from MRI preparation for now
     }
     
     private func playTambourineSound() {
-        let sr = 44100
-        let n = Int(0.18 * Double(sr))
-        var samples = [Int16](repeating: 0, count: n)
-        for i in 0..<n {
-            let t = Double(i) / Double(sr)
-            let env = exp(-Double(i) / (Double(n) * 0.28))
-            let noise = Double.random(in: -1.0...1.0) * 0.75
-            let jingle = sin(2.0 * .pi * 5200.0 * t) * 0.35 * exp(-t / 0.12)
-            let val = (noise + jingle) * env
-            samples[i] = Int16(max(-32767, min(32767, val * 24000)))
-        }
-        playTone(samples: samples)
+        // Sound removed from MRI preparation for now
     }
     
     private func playFreezeCueSound() {
-        let sr = 44100
-        let n = Int(0.32 * Double(sr))
-        var samples = [Int16](repeating: 0, count: n)
-        for i in 0..<n {
-            let t = Double(i) / Double(sr)
-            let f = 920.0 + (420.0 - 920.0) * (t / 0.32)
-            let env = exp(-Double(i) / (Double(n) * 0.4))
-            samples[i] = Int16(sin(2.0 * .pi * f * t) * env * 24000)
-        }
-        playTone(samples: samples)
+        // Sound removed from MRI preparation for now
     }
     
     private func playStillWarningSound() {
-        let sr = 44100
-        let n = Int(0.22 * Double(sr))
-        var samples = [Int16](repeating: 0, count: n)
-        for i in 0..<n {
-            let t = Double(i) / Double(sr)
-            let f = t < 0.08 ? 240.0 : 180.0
-            let env = exp(-t / 0.16)
-            let phase = f * t
-            let saw = (phase - floor(phase + 0.5)) * 2.0
-            samples[i] = Int16(saw * env * 20000)
-        }
-        playTone(samples: samples)
+        // Sound removed from MRI preparation for now
     }
     
     @ViewBuilder
@@ -2111,3 +2049,71 @@ struct MRIInlinePlayerView: UIViewRepresentable {
         }
     }
 }
+
+// MARK: - Anticipatory Concentric Rings Warning View (Closes in before freeze)
+struct StillWarningRingsView: View {
+    var progress: CGFloat
+    var contentWidth: CGFloat
+    var contentHeight: CGFloat
+    
+    var body: some View {
+        let baseSize: CGFloat = min(contentWidth * 0.46, contentHeight * 0.54)
+        let center = CGPoint(x: contentWidth * 0.50, y: contentHeight * 0.40)
+        
+        let p3 = progress
+        let p2 = min(1.0, max(0.0, (progress - 0.08) / 0.92))
+        let p1 = min(1.0, max(0.0, (progress - 0.16) / 0.84))
+        
+        let size3 = max(24, baseSize * (1.1 - 0.95 * p3))
+        let size2 = max(18, baseSize * (0.92 - 0.80 * p2))
+        let size1 = max(14, baseSize * (0.75 - 0.65 * p1))
+        
+        ZStack {
+            // Outer Ring 3
+            Circle()
+                .stroke(
+                    Color(red: 251/255, green: 191/255, blue: 36/255).opacity(0.95),
+                    lineWidth: 3.5
+                )
+                .frame(width: size3, height: size3)
+                .shadow(color: Color(red: 245/255, green: 158/255, blue: 11/255).opacity(0.8), radius: 10)
+            
+            // Middle Ring 2
+            Circle()
+                .stroke(
+                    Color(red: 245/255, green: 158/255, blue: 11/255).opacity(0.9),
+                    lineWidth: 2.5
+                )
+                .frame(width: size2, height: size2)
+                .shadow(color: Color(red: 245/255, green: 158/255, blue: 11/255).opacity(0.6), radius: 8)
+            
+            // Inner Dashed Ring 1
+            Circle()
+                .stroke(
+                    Color(red: 254/255, green: 240/255, blue: 138/255).opacity(0.95),
+                    style: StrokeStyle(lineWidth: 2.0, dash: [6, 4])
+                )
+                .frame(width: size1, height: size1)
+                .shadow(color: Color(red: 251/255, green: 191/255, blue: 36/255).opacity(0.7), radius: 6)
+            
+            // Glowing Core
+            Circle()
+                .fill(
+                    RadialGradient(
+                        gradient: Gradient(colors: [
+                            Color(red: 254/255, green: 240/255, blue: 138/255),
+                            Color(red: 245/255, green: 158/255, blue: 11/255),
+                            Color.clear
+                        ]),
+                        center: .center,
+                        startRadius: 2,
+                        endRadius: 14
+                    )
+                )
+                .frame(width: 22, height: 22)
+                .shadow(color: Color(red: 245/255, green: 158/255, blue: 11/255), radius: 12)
+        }
+        .position(center)
+    }
+}
+
