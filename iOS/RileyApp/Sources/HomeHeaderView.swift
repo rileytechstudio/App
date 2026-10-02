@@ -21,7 +21,7 @@ public struct HomeHeaderView: View {
         showSettingsButton: Bool = true,
         onBackTapped: @escaping () -> Void = {},
         onHomeTapped: @escaping () -> Void = {},
-        onSettingsTapped: @escaping () -> Void
+        onSettingsTapped: @escaping () -> Void = {}
     ) {
         self.availableWidth = availableWidth
         self.availableHeight = availableHeight

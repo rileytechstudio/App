@@ -234,8 +234,6 @@ public struct AnatomyExplorerView: View {
     public var body: some View {
         GeometryReader { proxy in
             let isLandscape = proxy.size.width > proxy.size.height
-            let headerHeight: CGFloat = isLandscape ? min(max(proxy.size.height * 0.11, 68), 88) : min(max(proxy.size.height * 0.095, 58), 76)
-            let iconButtonSize: CGFloat = 44
             let signWidth = min(proxy.size.width * (isLandscape ? 0.82 : 0.94), 860)
             let signHeight = signWidth * (1024.0 / 1366.0)
             
@@ -398,9 +396,46 @@ public struct AnatomyExplorerView: View {
                 }
                 
                 VStack(spacing: 0) {
-                    // Top Apple Glass Navigation Bar
-                    headerBar(width: proxy.size.width, height: headerHeight, iconSize: iconButtonSize)
-                        .zIndex(10)
+                    // Top Header Bar matching Home screen
+                    HomeHeaderView(
+                        availableWidth: proxy.size.width,
+                        availableHeight: proxy.size.height,
+                        safeAreaTop: proxy.safeAreaInsets.top,
+                        showBackButton: true,
+                        showHomeButton: true,
+                        showSettingsButton: true,
+                        onBackTapped: {
+                            HapticManager.shared.lightTap()
+                            if activeStudioOrgan != nil {
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                    activeStudioOrgan = nil
+                                }
+                            } else if isConfirmed {
+                                withAnimation(.spring(response: 0.38, dampingFraction: 0.75)) {
+                                    isConfirmed = false
+                                    selectedCharacter = nil
+                                    magnifierOffset = .zero
+                                    magnifierBaseOffset = .zero
+                                    isMagnifierOverCharacter = false
+                                    selectedSystemId = nil
+                                    isSystemSelectionSecondary = false
+                                    selectedOrganId = nil
+                                    selectedBoneId = nil
+                                }
+                            } else {
+                                onBackToHome()
+                            }
+                        },
+                        onHomeTapped: {
+                            HapticManager.shared.lightTap()
+                            onBackToHome()
+                        },
+                        onSettingsTapped: {
+                            HapticManager.shared.buttonTap()
+                            onSettingsTapped()
+                        }
+                    )
+                    .zIndex(10)
                     
                     // Main Theatrical Stage Area
                     ZStack {
@@ -447,82 +482,7 @@ public struct AnatomyExplorerView: View {
         }
     }
     
-    // MARK: - Header Bar
-    @ViewBuilder
-    private func headerBar(width: CGFloat, height: CGFloat, iconSize: CGFloat) -> some View {
-        ZStack {
-            // Header Banner in Center - prominent and readable
-            Image("HeaderBanner")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(
-                    maxWidth: max(width - 260, 160),
-                    maxHeight: min(max(height * 0.92, 62), 76)
-                )
-                .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 3)
-            
-            // Header Action Buttons
-            HStack {
-                // Back Button (Left)
-                HeaderIconButton(
-                    systemIconName: "arrowshape.turn.up.backward.fill",
-                    title: "Back",
-                    size: iconSize,
-                    action: {
-                        HapticManager.shared.lightTap()
-                        if activeStudioOrgan != nil {
-                            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                                activeStudioOrgan = nil
-                            }
-                        } else if isConfirmed {
-                            withAnimation(.spring(response: 0.38, dampingFraction: 0.75)) {
-                                isConfirmed = false
-                                selectedCharacter = nil
-                                magnifierOffset = .zero
-                                magnifierBaseOffset = .zero
-                                isMagnifierOverCharacter = false
-                                selectedSystemId = nil
-                                isSystemSelectionSecondary = false
-                                selectedOrganId = nil
-                                selectedBoneId = nil
-                            }
-                        } else {
-                            onBackToHome()
-                        }
-                    }
-                )
-                .padding(.leading, 20)
-                
-                Spacer()
-                
-                // Home & Settings Buttons (Right)
-                HStack(spacing: 12) {
-                    HeaderIconButton(
-                        systemIconName: "house.fill",
-                        title: "Home",
-                        size: iconSize,
-                        action: {
-                            HapticManager.shared.lightTap()
-                            onBackToHome()
-                        }
-                    )
-                    
-                    HeaderIconButton(
-                        systemIconName: "gearshape.fill",
-                        title: "Settings",
-                        size: iconSize,
-                        action: {
-                            HapticManager.shared.buttonTap()
-                            onSettingsTapped()
-                        }
-                    )
-                }
-                .padding(.trailing, 20)
-            }
-        }
-        .frame(width: width, height: height)
-        .background(Color.clear)
-    }
+
     
     // MARK: - Sign Assembly
     @ViewBuilder

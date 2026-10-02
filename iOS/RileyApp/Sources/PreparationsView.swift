@@ -96,9 +96,7 @@ public struct PreparationsView: View {
             let screenSize = geometry.size
             let isLandscape = screenSize.width > screenSize.height
             
-            // Scaled sizing metrics - sleek floating navigation header
-            let headerHeight: CGFloat = isLandscape ? min(max(screenSize.height * 0.11, 68), 88) : min(max(screenSize.height * 0.095, 58), 76)
-            let iconButtonSize: CGFloat = 44
+            // Scaled sizing metrics
             let cardWidth: CGFloat = min(max(screenSize.width * 0.72, 280), 840)
             let bottomBarHeight: CGFloat = min(max(screenSize.height * 0.09, 48), 85)
             
@@ -108,11 +106,36 @@ public struct PreparationsView: View {
                     .ignoresSafeArea()
                 
                 VStack(spacing: 0) {
-                    // MARK: - Top Header with Back, Banner, Settings, Home
-                    topHeaderBar(
-                        width: screenSize.width,
-                        height: headerHeight,
-                        iconSize: iconButtonSize
+                    // MARK: - Top Header matching Home screen
+                    HomeHeaderView(
+                        availableWidth: screenSize.width,
+                        availableHeight: screenSize.height,
+                        safeAreaTop: geometry.safeAreaInsets.top,
+                        showBackButton: true,
+                        showHomeButton: true,
+                        showSettingsButton: true,
+                        onBackTapped: {
+                            HapticManager.shared.lightTap()
+                            if let onBackToHome = onBackToHome {
+                                onBackToHome()
+                            } else {
+                                presentationMode.wrappedValue.dismiss()
+                            }
+                        },
+                        onHomeTapped: {
+                            HapticManager.shared.lightTap()
+                            if let onBackToHome = onBackToHome {
+                                onBackToHome()
+                            } else {
+                                presentationMode.wrappedValue.dismiss()
+                            }
+                        },
+                        onSettingsTapped: {
+                            HapticManager.shared.buttonTap()
+                            if let onSettingsTapped = onSettingsTapped {
+                                onSettingsTapped()
+                            }
+                        }
                     )
                     
                     // MARK: - Search Bar
@@ -158,74 +181,7 @@ public struct PreparationsView: View {
         }
     }
     
-    // MARK: - Top Header Bar
-    @ViewBuilder
-    private func topHeaderBar(width: CGFloat, height: CGFloat, iconSize: CGFloat) -> some View {
-        ZStack {
-            // Header Banner in Center - prominent and readable
-            Image("HeaderBanner")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(
-                    maxWidth: max(width - 260, 160),
-                    maxHeight: min(max(height * 0.92, 62), 76)
-                )
-                .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 3)
-            
-            // Header Action Buttons
-            HStack {
-                // Back Button (Left)
-                HeaderIconButton(
-                    systemIconName: "arrowshape.turn.up.backward.fill",
-                    title: "Back to Home",
-                    size: iconSize,
-                    action: {
-                        HapticManager.shared.lightTap()
-                        if let onBackToHome = onBackToHome {
-                            onBackToHome()
-                        } else {
-                            presentationMode.wrappedValue.dismiss()
-                        }
-                    }
-                )
-                .padding(.leading, 20)
-                
-                Spacer()
-                
-                // Home & Settings Buttons (Right)
-                HStack(spacing: 12) {
-                    HeaderIconButton(
-                        systemIconName: "house.fill",
-                        title: "Home",
-                        size: iconSize,
-                        action: {
-                            HapticManager.shared.lightTap()
-                            if let onBackToHome = onBackToHome {
-                                onBackToHome()
-                            } else {
-                                presentationMode.wrappedValue.dismiss()
-                            }
-                        }
-                    )
-                    
-                    HeaderIconButton(
-                        systemIconName: "gearshape.fill",
-                        title: "Settings",
-                        size: iconSize,
-                        action: {
-                            HapticManager.shared.buttonTap()
-                            if let onSettingsTapped = onSettingsTapped {
-                                onSettingsTapped()
-                            }
-                        }
-                    )
-                }
-                .padding(.trailing, 20)
-            }
-        }
-        .frame(width: width, height: height)
-        .background(Color.clear)
-    }
+
     
     // MARK: - Search Bar View
     @ViewBuilder

@@ -25,12 +25,25 @@ public struct SettingsView: View {
     public var body: some View {
         GeometryReader { proxy in
             let isLandscape = proxy.size.width > proxy.size.height
-            let headerHeight: CGFloat = isLandscape ? min(max(proxy.size.height * 0.11, 68), 88) : min(max(proxy.size.height * 0.095, 58), 76)
-            let iconButtonSize: CGFloat = 44
-            
             VStack(spacing: 0) {
-                // Top Apple Glass Navigation Bar
-                headerView(width: proxy.size.width, height: headerHeight, iconSize: iconButtonSize)
+                // Top Header Bar matching Home screen
+                HomeHeaderView(
+                    availableWidth: proxy.size.width,
+                    availableHeight: proxy.size.height,
+                    safeAreaTop: proxy.safeAreaInsets.top,
+                    showBackButton: true,
+                    showHomeButton: true,
+                    showSettingsButton: false,
+                    onBackTapped: {
+                        HapticManager.shared.lightTap()
+                        onBack()
+                    },
+                    onHomeTapped: {
+                        HapticManager.shared.lightTap()
+                        onHomeTapped()
+                    }
+                )
+                .zIndex(10)
                 
                 // Settings Body with Animated Repeating Gear Background
                 ZStack {
@@ -93,52 +106,7 @@ public struct SettingsView: View {
         }
     }
     
-    // MARK: - Header
-    private func headerView(width: CGFloat, height: CGFloat, iconSize: CGFloat) -> some View {
-        ZStack {
-            // Header Banner in Center - prominent and readable
-            Image("HeaderBanner")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(
-                    maxWidth: max(width - 200, 160),
-                    maxHeight: min(max(height * 0.92, 62), 76)
-                )
-                .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 3)
-            
-            // Header Action Buttons
-            HStack {
-                // Left: Back button
-                HeaderIconButton(
-                    systemIconName: "arrowshape.turn.up.backward.fill",
-                    title: "Back",
-                    size: iconSize,
-                    action: {
-                        HapticManager.shared.lightTap()
-                        onBack()
-                    }
-                )
-                .padding(.leading, 20)
-                
-                Spacer()
-                
-                // Right: Home button
-                HeaderIconButton(
-                    systemIconName: "house.fill",
-                    title: "Home",
-                    size: iconSize,
-                    action: {
-                        HapticManager.shared.lightTap()
-                        onHomeTapped()
-                    }
-                )
-                .padding(.trailing, 20)
-            }
-        }
-        .frame(width: width, height: height)
-        .background(Color.clear)
-        .zIndex(10)
-    }
+
     
     // MARK: - Animated Background Pattern
     private func scrollingPatternLayer(size: CGSize) -> some View {

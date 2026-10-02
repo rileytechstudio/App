@@ -213,16 +213,20 @@ public struct MRIProcedureView: View {
     // MARK: - Top Navigation Header
     @ViewBuilder
     private func topBarView(screenSize: CGSize) -> some View {
+        let isLandscape = screenSize.width > screenSize.height
+        let bannerHeight: CGFloat = isLandscape ? min(max(screenSize.height * 0.12, 72), 86) : min(max(screenSize.height * 0.095, 60), 74)
+        
         ZStack {
-            // Header Banner in Center - prominent and readable
+            // Header Banner in Center - prominent and readable matching Home screen
             Image("HeaderBanner")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(
-                    maxWidth: max(screenSize.width - 240, 160),
-                    maxHeight: 68
+                    maxWidth: max(screenSize.width - (isLandscape ? 200 : 160), 120),
+                    maxHeight: bannerHeight
                 )
-                .shadow(color: Color.black.opacity(0.15), radius: 6, x: 0, y: 2)
+                .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4)
+                .accessibilityLabel(Text("Riley Children's Health Indiana University Health"))
             
             HStack(spacing: 12) {
                 // Procedures Back Button
@@ -290,7 +294,7 @@ public struct MRIProcedureView: View {
                     )
                 }
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, isLandscape ? 24 : 16)
         }
         .padding(.vertical, 8)
         .background(

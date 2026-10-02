@@ -240,23 +240,23 @@ def build_distribution():
 
     /* Consistent Navigation Header Across All Screens - Transparent floating header matching Home */
     .app-header, .about-header {
+      padding-top: calc(env(safe-area-inset-top, 0px) + 16px) !important;
+      padding-left: max(24px, env(safe-area-inset-left, 0px)) !important;
+      padding-right: max(24px, env(safe-area-inset-right, 0px)) !important;
+      padding-bottom: 0 !important;
       width: 100% !important;
-      height: 64px !important;
-      position: relative !important;
-      flex-shrink: 0 !important;
-      box-shadow: none !important;
-      z-index: 30 !important;
       display: flex !important;
-      align-items: center !important;
       justify-content: space-between !important;
+      align-items: center !important;
+      position: relative !important;
+      z-index: 30 !important;
+      box-sizing: border-box !important;
       background: transparent !important;
       -webkit-backdrop-filter: none !important;
       backdrop-filter: none !important;
       border-bottom: none !important;
-      padding-top: env(safe-area-inset-top, 0px) !important;
-      padding-left: max(20px, env(safe-area-inset-left, 0px)) !important;
-      padding-right: max(20px, env(safe-area-inset-right, 0px)) !important;
-      box-sizing: border-box !important;
+      box-shadow: none !important;
+      flex-shrink: 0 !important;
     }
 
     .app-header::after, .about-header::after {
@@ -269,12 +269,12 @@ def build_distribution():
       z-index: 5 !important;
       display: flex !important;
       align-items: center !important;
-      gap: 12px !important;
-      min-width: 44px !important;
+      min-width: 56px !important;
     }
 
     .app-header .header-right, .about-header .header-right {
       justify-content: flex-end !important;
+      gap: 12px !important;
     }
 
     .app-header .header-center, .about-header .header-center {
@@ -285,18 +285,19 @@ def build_distribution():
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
-      height: auto !important;
-      max-width: calc(100% - 260px) !important;
       pointer-events: none !important;
-      z-index: 3 !important;
+      width: auto !important;
+      max-width: calc(100% - 160px) !important;
+      height: auto !important;
+      z-index: 2 !important;
     }
 
     .consistent-header-banner {
-      height: 70px !important;
-      max-height: 78px !important;
+      height: 76px !important;
+      max-height: 84px !important;
       max-width: 100% !important;
       object-fit: contain !important;
-      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08)) !important;
+      filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.09)) !important;
     }
 
     .pill-btn {

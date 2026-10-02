@@ -14,65 +14,29 @@ public struct AboutView: View {
     public var body: some View {
         GeometryReader { proxy in
             let isLandscape = proxy.size.width > proxy.size.height
-            let headerHeight: CGFloat = isLandscape ? min(max(proxy.size.height * 0.11, 68), 88) : min(max(proxy.size.height * 0.095, 58), 76)
-            let iconButtonSize: CGFloat = 44
             
             VStack(spacing: 0) {
-                // Top Header Bar
-                ZStack {
-                    // Header Banner in Center - prominent and readable
-                    Image("HeaderBanner")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(
-                            maxWidth: max(proxy.size.width - 260, 160),
-                            maxHeight: min(max(headerHeight * 0.92, 62), 76)
-                        )
-                        .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 3)
-                    
-                    // Header Action Buttons
-                    HStack {
-                        // Back Button (Left)
-                        HeaderIconButton(
-                            systemIconName: "arrowshape.turn.up.backward.fill",
-                            title: "Back to Home",
-                            size: iconButtonSize,
-                            action: {
-                                HapticManager.shared.lightTap()
-                                onBackToHome()
-                            }
-                        )
-                        .padding(.leading, 20)
-                        
-                        Spacer()
-                        
-                        // Home & Settings Buttons (Right)
-                        HStack(spacing: 12) {
-                            HeaderIconButton(
-                                systemIconName: "house.fill",
-                                title: "Home",
-                                size: iconButtonSize,
-                                action: {
-                                    HapticManager.shared.lightTap()
-                                    onBackToHome()
-                                }
-                            )
-                            
-                            HeaderIconButton(
-                                systemIconName: "gearshape.fill",
-                                title: "Settings",
-                                size: iconButtonSize,
-                                action: {
-                                    HapticManager.shared.buttonTap()
-                                    onSettingsTapped()
-                                }
-                            )
-                        }
-                        .padding(.trailing, 20)
+                // Top Header Bar matching Home screen
+                HomeHeaderView(
+                    availableWidth: proxy.size.width,
+                    availableHeight: proxy.size.height,
+                    safeAreaTop: proxy.safeAreaInsets.top,
+                    showBackButton: true,
+                    showHomeButton: true,
+                    showSettingsButton: true,
+                    onBackTapped: {
+                        HapticManager.shared.lightTap()
+                        onBackToHome()
+                    },
+                    onHomeTapped: {
+                        HapticManager.shared.lightTap()
+                        onBackToHome()
+                    },
+                    onSettingsTapped: {
+                        HapticManager.shared.buttonTap()
+                        onSettingsTapped()
                     }
-                }
-                .frame(width: proxy.size.width, height: headerHeight)
-                .background(Color.clear)
+                )
                 .zIndex(2)
                 
                 // Content Body
