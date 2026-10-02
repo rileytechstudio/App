@@ -213,90 +213,82 @@ public struct MRIProcedureView: View {
     // MARK: - Top Navigation Header
     @ViewBuilder
     private func topBarView(screenSize: CGSize) -> some View {
-        HStack(spacing: 12) {
-            // Procedures Back Button
-            Button(action: {
-                HapticManager.shared.buttonTap()
-                autoTransitionTimer?.invalidate()
-                insideTransitionTimer?.invalidate()
-                insidePromptTimer?.invalidate()
-                mriAudioPlayer?.stop()
-                avPlayer?.pause()
-                avPlayer = nil
-                if let onDismiss = onDismiss {
-                    onDismiss()
-                } else {
-                    presentationMode.wrappedValue.dismiss()
-                }
-            }) {
-                HStack(spacing: 6) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 15, weight: .bold))
-                    Text("Procedures")
-                        .font(.system(size: 15, weight: .semibold))
-                }
-                .foregroundColor(.white)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 8)
-                .background(Color.white.opacity(0.15))
-                .cornerRadius(20)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.white.opacity(0.25), lineWidth: 1)
+        ZStack {
+            // Header Banner in Center
+            Image("HeaderBanner")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: min(screenSize.width * 0.50, 480), height: 38)
+                .shadow(color: Color.black.opacity(0.15), radius: 6, x: 0, y: 2)
+            
+            HStack(spacing: 12) {
+                // Procedures Back Button
+                HeaderIconButton(
+                    systemIconName: "arrowshape.turn.up.backward.fill",
+                    title: "Back to Procedures",
+                    size: 38,
+                    action: {
+                        HapticManager.shared.buttonTap()
+                        autoTransitionTimer?.invalidate()
+                        insideTransitionTimer?.invalidate()
+                        insidePromptTimer?.invalidate()
+                        mriAudioPlayer?.stop()
+                        avPlayer?.pause()
+                        avPlayer = nil
+                        if let onDismiss = onDismiss {
+                            onDismiss()
+                        } else {
+                            presentationMode.wrappedValue.dismiss()
+                        }
+                    }
                 )
-            }
-            
-            Spacer()
-            
-            // Replay Welcome Sequence Button
-            Button(action: {
-                HapticManager.shared.buttonTap()
-                startWelcomeSequence()
-            }) {
-                Image(systemName: "arrow.counterclockwise")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.white)
-                    .frame(width: 36, height: 36)
-                    .background(Color.white.opacity(0.15))
-                    .clipShape(Circle())
-                    .overlay(
-                        Circle()
-                            .stroke(Color.white.opacity(0.25), lineWidth: 1)
+                
+                Spacer()
+                
+                HStack(spacing: 10) {
+                    // Replay Welcome Sequence Button
+                    Button(action: {
+                        HapticManager.shared.buttonTap()
+                        startWelcomeSequence()
+                    }) {
+                        Image(systemName: "arrow.counterclockwise")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.white)
+                            .frame(width: 38, height: 38)
+                            .background(Color.white.opacity(0.15))
+                            .clipShape(Circle())
+                            .overlay(
+                                Circle()
+                                    .stroke(Color.white.opacity(0.25), lineWidth: 1)
+                            )
+                    }
+                    .accessibilityLabel("Replay Welcome Sequence")
+                    
+                    // Home Button
+                    HeaderIconButton(
+                        systemIconName: "house.fill",
+                        title: "Home",
+                        size: 38,
+                        action: {
+                            HapticManager.shared.buttonTap()
+                            autoTransitionTimer?.invalidate()
+                            insideTransitionTimer?.invalidate()
+                            mriAudioPlayer?.stop()
+                            avPlayer?.pause()
+                            avPlayer = nil
+                            if let onBackToHome = onBackToHome {
+                                onBackToHome()
+                            } else if let onDismiss = onDismiss {
+                                onDismiss()
+                            } else {
+                                presentationMode.wrappedValue.dismiss()
+                            }
+                        }
                     )
-            }
-            .accessibilityLabel("Replay Welcome Sequence")
-            
-            // Home Button
-            Button(action: {
-                HapticManager.shared.buttonTap()
-                autoTransitionTimer?.invalidate()
-                insideTransitionTimer?.invalidate()
-                mriAudioPlayer?.stop()
-                avPlayer?.pause()
-                avPlayer = nil
-                if let onBackToHome = onBackToHome {
-                    onBackToHome()
-                } else if let onDismiss = onDismiss {
-                    onDismiss()
-                } else {
-                    presentationMode.wrappedValue.dismiss()
                 }
-            }) {
-                Image("Home")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 22, height: 22)
-                    .frame(width: 36, height: 36)
-                    .background(Color.white.opacity(0.15))
-                    .clipShape(Circle())
-                    .overlay(
-                        Circle()
-                            .stroke(Color.white.opacity(0.25), lineWidth: 1)
-                    )
             }
-            .accessibilityLabel("Home")
+            .padding(.horizontal, 16)
         }
-        .padding(.horizontal, 16)
         .padding(.vertical, 8)
         .background(
             Color(red: 11.0 / 255.0, green: 23.0 / 255.0, blue: 28.0 / 255.0).opacity(0.85)

@@ -148,18 +148,53 @@ def build_distribution():
       padding-left: max(24px, env(safe-area-inset-left, 0px)) !important;
       padding-right: max(24px, env(safe-area-inset-right, 0px)) !important;
       padding-bottom: 0 !important;
+      width: 100% !important;
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      position: relative !important;
+      z-index: 30 !important;
+      box-sizing: border-box !important;
+      background: transparent !important;
+      flex-shrink: 0 !important;
+    }
+
+    .home-header-left, .home-header-right {
+      display: flex !important;
+      align-items: center !important;
+      z-index: 5 !important;
+      min-width: 56px !important;
+    }
+
+    .home-header-right {
+      justify-content: flex-end !important;
+      gap: 12px !important;
+    }
+
+    .home-header-center {
+      position: absolute !important;
+      left: 50% !important;
+      top: 50% !important;
+      transform: translate(-50%, -50%) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      pointer-events: none !important;
+      width: auto !important;
+      max-width: 65% !important;
+      height: 100% !important;
+      z-index: 2 !important;
     }
 
     .home-logo-banner {
-      height: 114px !important;
-      max-height: 140px !important;
-      max-width: 85vw !important;
+      height: 68px !important;
+      max-height: 88px !important;
+      max-width: 100% !important;
       object-fit: contain !important;
-      object-position: left center !important;
-      filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.12)) !important;
+      filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.10)) !important;
     }
 
-    .home-setting-btn {
+    .header-glass-btn {
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.74) 100%) !important;
       backdrop-filter: blur(24px) saturate(190%) !important;
       -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
@@ -173,26 +208,89 @@ def build_distribution():
       box-sizing: border-box !important;
       flex-shrink: 0 !important;
       cursor: pointer !important;
+      width: 52px !important;
+      height: 52px !important;
     }
 
-    .home-setting-btn:hover {
+    .header-glass-btn:hover {
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.82) 100%) !important;
-      transform: scale(1.08) rotate(12deg) !important;
+      transform: scale(1.08) !important;
       box-shadow: 0 8px 24px rgba(28, 14, 56, 0.24), 0 3px 8px rgba(0, 0, 0, 0.10), inset 0 1.5px 1px 0 #ffffff !important;
     }
 
-    .home-setting-btn:active {
+    .header-glass-btn.home-setting-btn:hover {
+      transform: scale(1.08) rotate(12deg) !important;
+    }
+
+    .header-glass-btn:active {
       transform: scale(0.94) !important;
       box-shadow: 0 3px 10px rgba(28, 14, 56, 0.15), inset 0 1px 1px 0 rgba(255, 255, 255, 0.8) !important;
     }
 
-    .home-setting-btn .setting-gear-icon {
+    .header-glass-btn svg {
       width: 52% !important;
       height: 52% !important;
       fill: #39373b !important;
       display: block !important;
       pointer-events: none !important;
       filter: drop-shadow(0 1px 1px rgba(255, 255, 255, 0.4)) !important;
+    }
+
+    /* Consistent Navigation Header Across All Screens */
+    .app-header, .about-header {
+      width: 100% !important;
+      height: 64px !important;
+      position: relative !important;
+      flex-shrink: 0 !important;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06) !important;
+      z-index: 30 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      background: rgba(255, 255, 255, 0.85) !important;
+      -webkit-backdrop-filter: blur(25px) saturate(180%) !important;
+      backdrop-filter: blur(25px) saturate(180%) !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.65) !important;
+      padding-top: env(safe-area-inset-top, 0px) !important;
+      padding-left: max(20px, env(safe-area-inset-left, 0px)) !important;
+      padding-right: max(20px, env(safe-area-inset-right, 0px)) !important;
+      box-sizing: border-box !important;
+    }
+
+    .app-header .header-left, .about-header .header-left,
+    .app-header .header-right, .about-header .header-right {
+      position: relative !important;
+      z-index: 5 !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 12px !important;
+      min-width: 52px !important;
+    }
+
+    .app-header .header-right, .about-header .header-right {
+      justify-content: flex-end !important;
+    }
+
+    .app-header .header-center, .about-header .header-center {
+      position: absolute !important;
+      left: 50% !important;
+      top: 50% !important;
+      transform: translate(-50%, -50%) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      height: 100% !important;
+      max-width: 65% !important;
+      pointer-events: none !important;
+      z-index: 3 !important;
+    }
+
+    .consistent-header-banner {
+      height: 80% !important;
+      max-height: 52px !important;
+      max-width: 100% !important;
+      object-fit: contain !important;
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08)) !important;
     }
 
     .pill-btn {

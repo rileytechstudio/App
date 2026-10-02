@@ -162,34 +162,22 @@ public struct PreparationsView: View {
     @ViewBuilder
     private func topHeaderBar(width: CGFloat, height: CGFloat, iconSize: CGFloat) -> some View {
         ZStack {
-            // Background fill with translucent glass tint
-            Color(red: 248.0 / 255.0, green: 168.0 / 255.0, blue: 98.0 / 255.0)
-                .opacity(0.85)
+            // Apple Glass background
+            Color.white.opacity(0.85)
+                .background(.ultraThinMaterial)
             
-            // Header Banner Background
+            // Header Banner in Center
             Image("HeaderBanner")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: width, height: height)
-                .opacity(0.94)
-            
-            // Apple Glass Specular Sheen Overlay
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    Color.white.opacity(0.30),
-                    Color.white.opacity(0.06),
-                    Color.black.opacity(0.04)
-                ]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .allowsHitTesting(false)
+                .frame(width: min(width * 0.70, 750), height: height * 0.82)
+                .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 2)
             
             // Header Action Buttons
             HStack {
                 // Back Button (Left)
                 HeaderIconButton(
-                    imageName: "IconBack",
+                    systemIconName: "arrowshape.turn.up.backward.fill",
                     title: "Back to Home",
                     size: iconSize,
                     action: {
@@ -205,19 +193,10 @@ public struct PreparationsView: View {
                 
                 Spacer()
                 
-                // Settings & Home Buttons (Right)
+                // Home & Settings Buttons (Right)
                 HStack(spacing: 12) {
                     HeaderIconButton(
-                        imageName: "IconSettings",
-                        title: "Settings",
-                        size: iconSize,
-                        action: {
-                            HapticManager.shared.buttonTap()
-                        }
-                    )
-                    
-                    HeaderIconButton(
-                        imageName: "IconHome",
+                        systemIconName: "house.fill",
                         title: "Home",
                         size: iconSize,
                         action: {
@@ -226,6 +205,18 @@ public struct PreparationsView: View {
                                 onBackToHome()
                             } else {
                                 presentationMode.wrappedValue.dismiss()
+                            }
+                        }
+                    )
+                    
+                    HeaderIconButton(
+                        systemIconName: "gearshape.fill",
+                        title: "Settings",
+                        size: iconSize,
+                        action: {
+                            HapticManager.shared.buttonTap()
+                            if let onSettingsTapped = onSettingsTapped {
+                                onSettingsTapped()
                             }
                         }
                     )

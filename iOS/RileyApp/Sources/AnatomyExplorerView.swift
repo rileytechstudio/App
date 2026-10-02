@@ -234,6 +234,8 @@ public struct AnatomyExplorerView: View {
     public var body: some View {
         GeometryReader { proxy in
             let isLandscape = proxy.size.width > proxy.size.height
+            let headerHeight: CGFloat = isLandscape ? min(max(proxy.size.height * 0.082, 54), 64) : min(max(proxy.size.height * 0.075, 50), 60)
+            let iconButtonSize: CGFloat = min(max(headerHeight * 0.72, 36), 44)
             let signWidth = min(proxy.size.width * (isLandscape ? 0.82 : 0.94), 860)
             let signHeight = signWidth * (1024.0 / 1366.0)
             
@@ -397,7 +399,7 @@ public struct AnatomyExplorerView: View {
                 
                 VStack(spacing: 0) {
                     // Top Apple Glass Navigation Bar
-                    headerBar(isLandscape: isLandscape)
+                    headerBar(width: proxy.size.width, height: headerHeight, iconSize: iconButtonSize)
                         .zIndex(10)
                     
                     // Main Theatrical Stage Area
@@ -447,98 +449,87 @@ public struct AnatomyExplorerView: View {
     
     // MARK: - Header Bar
     @ViewBuilder
-    private func headerBar(isLandscape: Bool) -> some View {
-        HStack(spacing: 14) {
-            Button(action: {
-                if activeStudioOrgan != nil {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-                        activeStudioOrgan = nil
-                    }
-                    HapticManager.shared.lightTap()
-                } else if isConfirmed {
-                    withAnimation(.spring(response: 0.38, dampingFraction: 0.75)) {
-                        isConfirmed = false
-                        selectedCharacter = nil
-                        magnifierOffset = .zero
-                        magnifierBaseOffset = .zero
-                        isMagnifierOverCharacter = false
-                        selectedSystemId = nil
-                        isSystemSelectionSecondary = false
-                        selectedOrganId = nil
-                        selectedBoneId = nil
-                    }
-                } else {
-                    onBackToHome()
-                }
-            }) {
-                Image(systemName: "chevron.left")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(.white)
-                    .frame(width: 42, height: 42)
-                    .background(Color(hex: "281442").opacity(0.85))
-                    .clipShape(Circle())
-                    .overlay(
-                        Circle()
-                            .stroke(Color.white.opacity(0.18), lineWidth: 1.5)
-                    )
-                    .shadow(color: Color.black.opacity(0.35), radius: 4, x: 0, y: 2)
-            }
+    private func headerBar(width: CGFloat, height: CGFloat, iconSize: CGFloat) -> some View {
+        ZStack {
+            // Apple Glass background
+            Color.white.opacity(0.85)
+                .background(.ultraThinMaterial)
             
-            VStack(alignment: .leading, spacing: 2) {
-                Text(isConfirmed ? "Back" : "Anatomy Explorer")
-                    .font(.system(size: 20, weight: .bold, design: .rounded))
-                    .foregroundColor(.white)
-                    .shadow(color: .black.opacity(0.6), radius: 6, y: 2)
-            }
+            // Header Banner in Center
+            Image("HeaderBanner")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: min(width * 0.70, 750), height: height * 0.82)
+                .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 2)
             
-            Spacer()
-            
-            HStack(spacing: 12) {
-                Button(action: onSettingsTapped) {
-                    if let uiImg = UIImage(named: "Settings") {
-                        Image(uiImage: uiImg)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 38, height: 38)
-                    } else {
-                        Image(systemName: "gearshape.fill")
-                            .font(.system(size: 20))
-                            .foregroundColor(.white)
-                            .frame(width: 38, height: 38)
-                            .background(Color(hex: "281442").opacity(0.85))
-                            .clipShape(Circle())
+            // Header Action Buttons
+            HStack {
+                // Back Button (Left)
+                HeaderIconButton(
+                    systemIconName: "arrowshape.turn.up.backward.fill",
+                    title: "Back",
+                    size: iconSize,
+                    action: {
+                        HapticManager.shared.lightTap()
+                        if activeStudioOrgan != nil {
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                activeStudioOrgan = nil
+                            }
+                        } else if isConfirmed {
+                            withAnimation(.spring(response: 0.38, dampingFraction: 0.75)) {
+                                isConfirmed = false
+                                selectedCharacter = nil
+                                magnifierOffset = .zero
+                                magnifierBaseOffset = .zero
+                                isMagnifierOverCharacter = false
+                                selectedSystemId = nil
+                                isSystemSelectionSecondary = false
+                                selectedOrganId = nil
+                                selectedBoneId = nil
+                            }
+                        } else {
+                            onBackToHome()
+                        }
                     }
-                }
+                )
+                .padding(.leading, 20)
                 
-                Button(action: onBackToHome) {
-                    if let uiImg = UIImage(named: "Home") {
-                        Image(uiImage: uiImg)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 38, height: 38)
-                    } else {
-                        Image(systemName: "house.fill")
-                            .font(.system(size: 20))
-                            .foregroundColor(.white)
-                            .frame(width: 38, height: 38)
-                            .background(Color(hex: "281442").opacity(0.85))
-                            .clipShape(Circle())
-                    }
+                Spacer()
+                
+                // Home & Settings Buttons (Right)
+                HStack(spacing: 12) {
+                    HeaderIconButton(
+                        systemIconName: "house.fill",
+                        title: "Home",
+                        size: iconSize,
+                        action: {
+                            HapticManager.shared.lightTap()
+                            onBackToHome()
+                        }
+                    )
+                    
+                    HeaderIconButton(
+                        systemIconName: "gearshape.fill",
+                        title: "Settings",
+                        size: iconSize,
+                        action: {
+                            HapticManager.shared.buttonTap()
+                            onSettingsTapped()
+                        }
+                    )
                 }
+                .padding(.trailing, 20)
             }
         }
-        .padding(.horizontal, 20)
-        .frame(height: isLandscape ? 58 : 54)
-        .background(
-            Color(hex: "1e0f37").opacity(0.78)
-                .background(.ultraThinMaterial)
-        )
+        .frame(width: width, height: height)
         .overlay(
-            Rectangle()
-                .fill(Color.white.opacity(0.12))
-                .frame(height: 1),
-            alignment: .bottom
+            VStack {
+                Spacer()
+                Divider()
+                    .background(Color.white.opacity(0.45))
+            }
         )
+        .shadow(color: Color.black.opacity(0.08), radius: 6, x: 0, y: 3)
     }
     
     // MARK: - Sign Assembly

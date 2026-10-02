@@ -114,15 +114,23 @@ public struct FooterPillButton: View {
     }
 }
 
-// MARK: - Header Icon Button
+// MARK: - Header Icon Button (Apple Liquid Glass)
 public struct HeaderIconButton: View {
     public let imageName: String
+    public let systemIconName: String?
     public let title: String
     public let size: CGFloat
     public let action: () -> Void
     
-    public init(imageName: String, title: String, size: CGFloat, action: @escaping () -> Void) {
+    public init(
+        imageName: String = "",
+        systemIconName: String? = nil,
+        title: String,
+        size: CGFloat,
+        action: @escaping () -> Void
+    ) {
         self.imageName = imageName
+        self.systemIconName = systemIconName
         self.title = title
         self.size = size
         self.action = action
@@ -133,14 +141,62 @@ public struct HeaderIconButton: View {
             HapticManager.shared.buttonTap()
             action()
         }) {
-            Image(imageName)
-                .resizable()
-                .aspectRatio(AppTheme.iconAspectRatio, contentMode: .fit)
-                .frame(width: size, height: size)
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(0.88),
+                                Color.white.opacity(0.74)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .background(.ultraThinMaterial, in: Circle())
+                
+                Circle()
+                    .stroke(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(0.85),
+                                Color.white.opacity(0.55)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1.5
+                    )
+                
+                Image(systemName: resolvedIconSymbol)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: size * 0.50, height: size * 0.50)
+                    .foregroundColor(Color(red: 0.22, green: 0.21, blue: 0.23))
+                    .shadow(color: Color.white.opacity(0.4), radius: 0, x: 0, y: 1)
+            }
+            .frame(width: size, height: size)
+            .shadow(color: Color(red: 28/255, green: 14/255, blue: 56/255).opacity(0.18), radius: 8, x: 0, y: 4)
+            .shadow(color: Color.black.opacity(0.08), radius: 3, x: 0, y: 1)
         }
-        .buttonStyle(BouncyButtonStyle(scaleAmount: 0.90))
+        .buttonStyle(BouncyButtonStyle(scaleAmount: 0.92))
         .accessibilityLabel(Text(title))
         .accessibilityHint(Text("Activates \(title)"))
+    }
+    
+    private var resolvedIconSymbol: String {
+        if let systemIconName = systemIconName, !systemIconName.isEmpty {
+            return systemIconName
+        }
+        let lower = (title + " " + imageName).lowercased()
+        if lower.contains("back") {
+            return "arrowshape.turn.up.backward.fill"
+        } else if lower.contains("home") {
+            return "house.fill"
+        } else if lower.contains("setting") {
+            return "gearshape.fill"
+        }
+        return "arrowshape.turn.up.backward.fill"
     }
 }
 

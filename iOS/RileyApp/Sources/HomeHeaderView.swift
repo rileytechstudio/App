@@ -5,21 +5,33 @@ public struct HomeHeaderView: View {
     public let availableWidth: CGFloat
     public let availableHeight: CGFloat
     public let safeAreaTop: CGFloat
-    public let onSettingsTapped: () -> Void
+    public let showBackButton: Bool
+    public let showHomeButton: Bool
+    public let showSettingsButton: Bool
+    public let onBackTapped: () -> Void
     public let onHomeTapped: () -> Void
+    public let onSettingsTapped: () -> Void
     
     public init(
         availableWidth: CGFloat,
         availableHeight: CGFloat,
         safeAreaTop: CGFloat = 0,
-        onSettingsTapped: @escaping () -> Void,
-        onHomeTapped: @escaping () -> Void = {}
+        showBackButton: Bool = true,
+        showHomeButton: Bool = false,
+        showSettingsButton: Bool = true,
+        onBackTapped: @escaping () -> Void = {},
+        onHomeTapped: @escaping () -> Void = {},
+        onSettingsTapped: @escaping () -> Void
     ) {
         self.availableWidth = availableWidth
         self.availableHeight = availableHeight
         self.safeAreaTop = safeAreaTop
-        self.onSettingsTapped = onSettingsTapped
+        self.showBackButton = showBackButton
+        self.showHomeButton = showHomeButton
+        self.showSettingsButton = showSettingsButton
+        self.onBackTapped = onBackTapped
         self.onHomeTapped = onHomeTapped
+        self.onSettingsTapped = onSettingsTapped
     }
     
     private var isLandscape: Bool {
@@ -29,86 +41,75 @@ public struct HomeHeaderView: View {
     /// Responsive header height based on screen dimensions, orientation, and safe area top inset
     private var headerHeight: CGFloat {
         let baseH = isLandscape 
-            ? min(max(availableHeight * 0.17, 96), 148)
-            : min(max(availableHeight * 0.13, 76), 118)
+            ? min(max(availableHeight * 0.12, 72), 96)
+            : min(max(availableHeight * 0.09, 56), 76)
         return baseH + safeAreaTop
     }
     
-    /// Height of the top-left banner logo
+    /// Height of the centered banner logo
     private var bannerHeight: CGFloat {
         if isLandscape {
-            return min(max(availableHeight * 0.155, 88), 136)
+            return min(max(availableHeight * 0.088, 52), 70)
         } else {
-            return min(max(availableHeight * 0.115, 68), 108)
+            return min(max(availableHeight * 0.068, 42), 56)
         }
     }
     
-    /// Size of the circular Settings button
-    private var settingButtonSize: CGFloat {
+    /// Size of the circular glass buttons
+    private var buttonSize: CGFloat {
         if isLandscape {
-            return min(max(bannerHeight * 0.65, 56), 80)
+            return min(max(bannerHeight * 0.88, 48), 64)
         } else {
-            return min(max(bannerHeight * 0.62, 46), 66)
+            return min(max(bannerHeight * 0.84, 40), 52)
         }
     }
     
     public var body: some View {
-        HStack(alignment: .center, spacing: 0) {
-            // Top-left Riley Children's Health logo banner
-            Image("TopLBannerLogo")
+        ZStack(alignment: .center) {
+            // Centered Header Banner
+            Image("HeaderBanner")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(height: bannerHeight)
                 .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4)
                 .accessibilityLabel(Text("Riley Children's Health Indiana University Health"))
             
-            Spacer(minLength: 16)
-            
-            // Top-right circular Settings button (Apple liquid glass effect)
-            Button(action: {
-                HapticManager.shared.buttonTap()
-                onSettingsTapped()
-            }) {
-                ZStack {
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    Color.white.opacity(0.88),
-                                    Color.white.opacity(0.74)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .background(.ultraThinMaterial, in: Circle())
-                    
-                    Circle()
-                        .stroke(
-                            LinearGradient(
-                                colors: [
-                                    Color.white.opacity(0.85),
-                                    Color.white.opacity(0.55)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 1.5
-                        )
-                    
-                    Image(systemName: "gearshape.fill")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: settingButtonSize * 0.52, height: settingButtonSize * 0.52)
-                        .foregroundColor(Color(red: 0.22, green: 0.21, blue: 0.23))
-                        .shadow(color: Color.white.opacity(0.4), radius: 0, x: 0, y: 1)
+            // Left & Right Action Buttons
+            HStack(alignment: .center, spacing: 0) {
+                // Left Back Button (curved return arrow matching screenshot)
+                if showBackButton {
+                    HeaderIconButton(
+                        systemIconName: "arrowshape.turn.up.backward.fill",
+                        title: "Back",
+                        size: buttonSize,
+                        action: onBackTapped
+                    )
+                } else {
+                    Spacer().frame(width: buttonSize, height: buttonSize)
                 }
-                .frame(width: settingButtonSize, height: settingButtonSize)
-                .shadow(color: Color(red: 28/255, green: 14/255, blue: 56/255).opacity(0.18), radius: 8, x: 0, y: 4)
-                .shadow(color: Color.black.opacity(0.08), radius: 3, x: 0, y: 1)
+                
+                Spacer()
+                
+                // Right Action Buttons
+                HStack(spacing: 12) {
+                    if showHomeButton {
+                        HeaderIconButton(
+                            systemIconName: "house.fill",
+                            title: "Home",
+                            size: buttonSize,
+                            action: onHomeTapped
+                        )
+                    }
+                    if showSettingsButton {
+                        HeaderIconButton(
+                            systemIconName: "gearshape.fill",
+                            title: "Settings",
+                            size: buttonSize,
+                            action: onSettingsTapped
+                        )
+                    }
+                }
             }
-            .buttonStyle(BouncyButtonStyle(scaleAmount: 0.92))
-            .accessibilityLabel(Text("Settings"))
         }
         .padding(.horizontal, isLandscape ? 24 : 16)
         .padding(.top, safeAreaTop > 0 ? safeAreaTop + 8 : (isLandscape ? 16 : 12))

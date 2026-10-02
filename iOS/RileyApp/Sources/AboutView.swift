@@ -14,84 +14,73 @@ public struct AboutView: View {
     public var body: some View {
         GeometryReader { proxy in
             let isLandscape = proxy.size.width > proxy.size.height
+            let headerHeight: CGFloat = isLandscape ? min(max(proxy.size.height * 0.082, 54), 64) : min(max(proxy.size.height * 0.075, 50), 60)
+            let iconButtonSize: CGFloat = min(max(headerHeight * 0.72, 36), 44)
             
             VStack(spacing: 0) {
-                // Top Header
-                HStack(spacing: 12) {
-                    Button(action: onBackToHome) {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundColor(Color(hex: "1e293b"))
-                            .frame(width: 42, height: 42)
-                            .background(Color.white)
-                            .clipShape(Circle())
-                            .overlay(
-                                Circle()
-                                    .stroke(Color(hex: "e2e8f0"), lineWidth: 1.5)
-                            )
-                            .shadow(color: Color.black.opacity(0.04), radius: 4, x: 0, y: 2)
-                    }
+                // Top Header Bar
+                ZStack {
+                    // Apple Glass background
+                    Color.white.opacity(0.85)
+                        .background(.ultraThinMaterial)
                     
-                    Spacer()
+                    // Header Banner in Center
+                    Image("HeaderBanner")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: min(proxy.size.width * 0.70, 750), height: headerHeight * 0.82)
+                        .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 2)
                     
-                    HStack(spacing: 12) {
-                        Button(action: onSettingsTapped) {
-                            if let uiImg = UIImage(named: "AboutSettingsButton") ?? UIImage(named: "IconSettings") {
-                                Image(uiImage: uiImg)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .frame(width: 42, height: 42)
-                            } else {
-                                Image(systemName: "gearshape.fill")
-                                    .font(.system(size: 20))
-                                    .foregroundColor(.white)
-                                    .frame(width: 42, height: 42)
-                                    .background(AppTheme.primaryPurple)
-                                    .clipShape(Circle())
+                    // Header Action Buttons
+                    HStack {
+                        // Back Button (Left)
+                        HeaderIconButton(
+                            systemIconName: "arrowshape.turn.up.backward.fill",
+                            title: "Back to Home",
+                            size: iconButtonSize,
+                            action: {
+                                HapticManager.shared.lightTap()
+                                onBackToHome()
                             }
-                        }
+                        )
+                        .padding(.leading, 20)
                         
-                        Button(action: onBackToHome) {
-                            if let uiImg = UIImage(named: "AboutHomeButton") ?? UIImage(named: "IconHome") {
-                                Image(uiImage: uiImg)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .frame(width: 42, height: 42)
-                            } else {
-                                Image(systemName: "house.fill")
-                                    .font(.system(size: 20))
-                                    .foregroundColor(.white)
-                                    .frame(width: 42, height: 42)
-                                    .background(AppTheme.primaryPurple)
-                                    .clipShape(Circle())
-                            }
+                        Spacer()
+                        
+                        // Home & Settings Buttons (Right)
+                        HStack(spacing: 12) {
+                            HeaderIconButton(
+                                systemIconName: "house.fill",
+                                title: "Home",
+                                size: iconButtonSize,
+                                action: {
+                                    HapticManager.shared.lightTap()
+                                    onBackToHome()
+                                }
+                            )
+                            
+                            HeaderIconButton(
+                                systemIconName: "gearshape.fill",
+                                title: "Settings",
+                                size: iconButtonSize,
+                                action: {
+                                    HapticManager.shared.buttonTap()
+                                    onSettingsTapped()
+                                }
+                            )
                         }
+                        .padding(.trailing, 20)
                     }
                 }
-                .padding(.horizontal, 20)
-                .frame(height: isLandscape ? 58 : 54)
-                .background(
-                    ZStack {
-                        Color.white.opacity(0.82)
-                        LinearGradient(
-                            gradient: Gradient(colors: [
-                                Color.white.opacity(0.35),
-                                Color.white.opacity(0.08),
-                                Color.black.opacity(0.02)
-                            ]),
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    }
-                )
+                .frame(width: proxy.size.width, height: headerHeight)
                 .overlay(
                     VStack {
                         Spacer()
                         Divider()
-                            .background(Color.white.opacity(0.65))
+                            .background(Color.white.opacity(0.45))
                     }
                 )
-                .shadow(color: Color.black.opacity(0.04), radius: 6, x: 0, y: 3)
+                .shadow(color: Color.black.opacity(0.08), radius: 6, x: 0, y: 3)
                 .zIndex(2)
                 
                 // Content Body

@@ -25,10 +25,12 @@ public struct SettingsView: View {
     public var body: some View {
         GeometryReader { proxy in
             let isLandscape = proxy.size.width > proxy.size.height
+            let headerHeight: CGFloat = isLandscape ? min(max(proxy.size.height * 0.082, 54), 64) : min(max(proxy.size.height * 0.075, 50), 60)
+            let iconButtonSize: CGFloat = min(max(headerHeight * 0.72, 36), 44)
             
             VStack(spacing: 0) {
-                // Top Apple Glass Navigation Bar (Matching About Header Style)
-                headerView(isLandscape: isLandscape)
+                // Top Apple Glass Navigation Bar
+                headerView(width: proxy.size.width, height: headerHeight, iconSize: iconButtonSize)
                 
                 // Settings Body with Animated Repeating Gear Background
                 ZStack {
@@ -92,74 +94,57 @@ public struct SettingsView: View {
     }
     
     // MARK: - Header
-    private func headerView(isLandscape: Bool) -> some View {
-        HStack(spacing: 12) {
-            // Left: Back button & Title
-            HStack(spacing: 12) {
-                Button(action: onBack) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(Color(hex: "1e293b"))
-                        .frame(width: 42, height: 42)
-                        .background(Color.white)
-                        .clipShape(Circle())
-                        .overlay(
-                            Circle()
-                                .stroke(Color(hex: "e2e8f0"), lineWidth: 1.5)
-                        )
-                        .shadow(color: Color.black.opacity(0.04), radius: 4, x: 0, y: 2)
-                }
-                
-                Text("Settings")
-                    .font(.system(size: 17, weight: .bold))
-                    .foregroundColor(Color(hex: "1e293b"))
-            }
+    private func headerView(width: CGFloat, height: CGFloat, iconSize: CGFloat) -> some View {
+        ZStack {
+            // Apple Glass background
+            Color.white.opacity(0.85)
+                .background(.ultraThinMaterial)
             
-            Spacer()
+            // Header Banner in Center
+            Image("HeaderBanner")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: min(width * 0.70, 750), height: height * 0.82)
+                .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 2)
             
-            // Right: Home button
-            HStack(spacing: 12) {
-                Button(action: onHomeTapped) {
-                    if let uiImg = UIImage(named: "AboutHomeButton") ?? UIImage(named: "IconHome") {
-                        Image(uiImage: uiImg)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 42, height: 42)
-                    } else {
-                        Image(systemName: "house.fill")
-                            .font(.system(size: 20))
-                            .foregroundColor(.white)
-                            .frame(width: 42, height: 42)
-                            .background(AppTheme.primaryPurple)
-                            .clipShape(Circle())
+            // Header Action Buttons
+            HStack {
+                // Left: Back button
+                HeaderIconButton(
+                    systemIconName: "arrowshape.turn.up.backward.fill",
+                    title: "Back",
+                    size: iconSize,
+                    action: {
+                        HapticManager.shared.lightTap()
+                        onBack()
                     }
-                }
+                )
+                .padding(.leading, 20)
+                
+                Spacer()
+                
+                // Right: Home button
+                HeaderIconButton(
+                    systemIconName: "house.fill",
+                    title: "Home",
+                    size: iconSize,
+                    action: {
+                        HapticManager.shared.lightTap()
+                        onHomeTapped()
+                    }
+                )
+                .padding(.trailing, 20)
             }
         }
-        .padding(.horizontal, 20)
-        .frame(height: isLandscape ? 58 : 54)
-        .background(
-            ZStack {
-                Color.white.opacity(0.82)
-                LinearGradient(
-                    gradient: Gradient(colors: [
-                        Color.white.opacity(0.35),
-                        Color.white.opacity(0.08),
-                        Color.black.opacity(0.02)
-                    ]),
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-            }
-        )
+        .frame(width: width, height: height)
         .overlay(
             VStack {
                 Spacer()
                 Divider()
-                    .background(Color.white.opacity(0.65))
+                    .background(Color.white.opacity(0.45))
             }
         )
-        .shadow(color: Color.black.opacity(0.04), radius: 6, x: 0, y: 3)
+        .shadow(color: Color.black.opacity(0.08), radius: 6, x: 0, y: 3)
         .zIndex(10)
     }
     
