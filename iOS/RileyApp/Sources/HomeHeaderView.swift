@@ -64,16 +64,50 @@ public struct HomeHeaderView: View {
             
             Spacer(minLength: 16)
             
-            // Top-right circular Settings button (Apple glass translucent effect)
-            Button(action: onSettingsTapped) {
-                Image("TopRSetting")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: settingButtonSize, height: settingButtonSize)
-                    .background(Circle().fill(.ultraThinMaterial))
-                    .contentShape(Circle())
+            // Top-right circular Settings button (Apple liquid glass effect)
+            Button(action: {
+                HapticManager.shared.buttonTap()
+                onSettingsTapped()
+            }) {
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.88),
+                                    Color.white.opacity(0.74)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .background(.ultraThinMaterial, in: Circle())
+                    
+                    Circle()
+                        .stroke(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.85),
+                                    Color.white.opacity(0.55)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1.5
+                        )
+                    
+                    Image(systemName: "gearshape.fill")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: settingButtonSize * 0.52, height: settingButtonSize * 0.52)
+                        .foregroundColor(Color(red: 0.22, green: 0.21, blue: 0.23))
+                        .shadow(color: Color.white.opacity(0.4), radius: 0, x: 0, y: 1)
+                }
+                .frame(width: settingButtonSize, height: settingButtonSize)
+                .shadow(color: Color(red: 28/255, green: 14/255, blue: 56/255).opacity(0.18), radius: 8, x: 0, y: 4)
+                .shadow(color: Color.black.opacity(0.08), radius: 3, x: 0, y: 1)
             }
-            .buttonStyle(PlainButtonStyle())
+            .buttonStyle(BouncyButtonStyle(scaleAmount: 0.92))
             .accessibilityLabel(Text("Settings"))
         }
         .padding(.horizontal, isLandscape ? 24 : 16)

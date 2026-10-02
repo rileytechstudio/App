@@ -53,7 +53,7 @@ public struct FooterPillButton: View {
     public let width: CGFloat
     public let action: () -> Void
     
-    public init(imageName: String, title: String, width: CGFloat, action: @escaping () -> Void) {
+    public init(imageName: String = "", title: String, width: CGFloat, action: @escaping () -> Void) {
         self.imageName = imageName
         self.title = title
         self.width = width
@@ -61,17 +61,54 @@ public struct FooterPillButton: View {
     }
     
     public var body: some View {
+        let pillHeight = width * 0.29
+        let fontSize = max(pillHeight * 0.36, 12)
+        
         Button(action: {
             HapticManager.shared.buttonTap()
             action()
         }) {
-            Image(imageName)
-                .resizable()
-                .aspectRatio(AppTheme.footerAspectRatio, contentMode: .fit)
-                .frame(width: width)
-                .background(Capsule().fill(.ultraThinMaterial))
+            ZStack {
+                // Glass Base Material
+                Capsule()
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(0.88),
+                                Color.white.opacity(0.74)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .background(.ultraThinMaterial, in: Capsule())
+                
+                // Specular Glass Border
+                Capsule()
+                    .stroke(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(0.85),
+                                Color.white.opacity(0.55)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1.5
+                    )
+                
+                // Bold Apple Liquid Glass Label
+                Text(title.uppercased())
+                    .font(.system(size: fontSize, weight: .black, design: .rounded))
+                    .foregroundColor(Color(red: 76/255, green: 51/255, blue: 170/255))
+                    .tracking(0.8)
+                    .shadow(color: Color.white.opacity(0.6), radius: 0, x: 0, y: 1)
+            }
+            .frame(width: width, height: pillHeight)
+            .shadow(color: Color(red: 28/255, green: 14/255, blue: 56/255).opacity(0.18), radius: 8, x: 0, y: 4)
+            .shadow(color: Color.black.opacity(0.08), radius: 3, x: 0, y: 1)
         }
-        .buttonStyle(BouncyButtonStyle(scaleAmount: 0.92))
+        .buttonStyle(BouncyButtonStyle(scaleAmount: 0.94))
         .accessibilityLabel(Text(title))
         .accessibilityHint(Text("Opens \(title) information"))
     }

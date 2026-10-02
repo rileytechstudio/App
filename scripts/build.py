@@ -160,35 +160,80 @@ def build_distribution():
     }
 
     .home-setting-btn {
-      background: rgba(255, 255, 255, 0.78) !important;
-      backdrop-filter: blur(20px) saturate(180%) !important;
-      -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-      border: 1.5px solid rgba(255, 255, 255, 0.60) !important;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.8) !important;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.74) 100%) !important;
+      backdrop-filter: blur(24px) saturate(190%) !important;
+      -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.75) !important;
+      box-shadow: 0 6px 18px rgba(28, 14, 56, 0.18), 0 2px 6px rgba(0, 0, 0, 0.08), inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.95), inset 0 -1px 2px 0 rgba(255, 255, 255, 0.35) !important;
       border-radius: 50% !important;
       display: inline-flex !important;
       align-items: center !important;
       justify-content: center !important;
+      transition: transform 0.20s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.18s ease, box-shadow 0.18s ease !important;
+      box-sizing: border-box !important;
+      flex-shrink: 0 !important;
+      cursor: pointer !important;
     }
 
-    .home-setting-btn img {
-      width: 76px !important;
-      height: 76px !important;
-      object-fit: contain !important;
+    .home-setting-btn:hover {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.82) 100%) !important;
+      transform: scale(1.08) rotate(12deg) !important;
+      box-shadow: 0 8px 24px rgba(28, 14, 56, 0.24), 0 3px 8px rgba(0, 0, 0, 0.10), inset 0 1.5px 1px 0 #ffffff !important;
+    }
+
+    .home-setting-btn:active {
+      transform: scale(0.94) !important;
+      box-shadow: 0 3px 10px rgba(28, 14, 56, 0.15), inset 0 1px 1px 0 rgba(255, 255, 255, 0.8) !important;
+    }
+
+    .home-setting-btn .setting-gear-icon {
+      width: 52% !important;
+      height: 52% !important;
+      fill: #39373b !important;
       display: block !important;
+      pointer-events: none !important;
+      filter: drop-shadow(0 1px 1px rgba(255, 255, 255, 0.4)) !important;
     }
 
     .pill-btn {
-      background: rgba(255, 255, 255, 0.82) !important;
-      backdrop-filter: blur(20px) saturate(180%) !important;
-      -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-      border: 1.5px solid rgba(255, 255, 255, 0.65) !important;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.85) !important;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.74) 100%) !important;
+      backdrop-filter: blur(24px) saturate(190%) !important;
+      -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.75) !important;
+      box-shadow: 0 6px 18px rgba(28, 14, 56, 0.18), 0 2px 6px rgba(0, 0, 0, 0.08), inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.95), inset 0 -1px 2px 0 rgba(255, 255, 255, 0.35) !important;
       border-radius: 9999px !important;
       overflow: hidden !important;
       display: inline-flex !important;
       align-items: center !important;
       justify-content: center !important;
+      box-sizing: border-box !important;
+      cursor: pointer !important;
+      outline: none !important;
+      text-decoration: none !important;
+      transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.18s ease, box-shadow 0.18s ease !important;
+    }
+
+    .pill-btn:hover {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.82) 100%) !important;
+      transform: translateY(-2px) scale(1.035) !important;
+      box-shadow: 0 8px 24px rgba(28, 14, 56, 0.24), 0 3px 8px rgba(0, 0, 0, 0.10), inset 0 1.5px 1px 0 #ffffff !important;
+    }
+
+    .pill-btn:active {
+      transform: translateY(1px) scale(0.96) !important;
+      box-shadow: 0 3px 10px rgba(28, 14, 56, 0.15), inset 0 1px 1px 0 rgba(255, 255, 255, 0.8) !important;
+    }
+
+    .pill-btn-text {
+      color: #4c33aa !important;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "Nunito", system-ui, sans-serif !important;
+      font-weight: 900 !important;
+      letter-spacing: 0.8px !important;
+      text-transform: uppercase !important;
+      pointer-events: none !important;
+      user-select: none !important;
+      line-height: 1 !important;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) !important;
     }
 
     #screenHome .screen-content {
