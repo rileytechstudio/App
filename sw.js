@@ -1,5 +1,5 @@
 // Riley PWA Service Worker
-const CACHE_NAME = 'riley-pwa-v119';
+const CACHE_NAME = 'riley-pwa-v120';
 const PRECACHE_ASSETS = [
   './',
   './index.html',
@@ -397,18 +397,32 @@ const PRECACHE_ASSETS = [
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return Promise.allSettled(
-        PRECACHE_ASSETS.map((asset) =>
-          fetch(asset, { cache: 'no-cache' }).then((res) => {
-            if (res.ok) {
-              return cache.put(asset, res);
-            }
-          }).catch((err) => {
-            console.warn('Skipping precache asset:', asset, err);
-          })
-        )
-      );
+    caches.open(CACHE_NAME).then(async (cache) => {
+      // Precache critical app core first
+      const coreAssets = [
+        './',
+        './index.html',
+        './manifest.webmanifest',
+        './manifest.json'
+      ];
+      await cache.addAll(coreAssets).catch((err) => console.warn('Core precache warning:', err));
+
+      // Precache all assets in batches to avoid network congestion and connection timeouts on mobile/tablets
+      const batchSize = 15;
+      for (let i = 0; i < PRECACHE_ASSETS.length; i += batchSize) {
+        const batch = PRECACHE_ASSETS.slice(i, i + batchSize);
+        await Promise.allSettled(
+          batch.map((asset) =>
+            fetch(asset, { cache: 'no-cache' }).then((res) => {
+              if (res.ok) {
+                return cache.put(asset, res);
+              }
+            }).catch((err) => {
+              console.warn('Skipping precache asset:', asset, err);
+            })
+          )
+        );
+      }
     })
   );
 });
@@ -428,19 +442,194 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+// RFC 7233 Range Request Parser for video/audio streaming in Service Workers (Safari / iOS / iPadOS / Android PWA)
+function parseRangeHeader(rangeHeader, totalSize) {
+  if (!rangeHeader || !rangeHeader.startsWith('bytes=')) return null;
+  const parts = rangeHeader.substring(6).split(',')[0].trim();
+  const dashIndex = parts.indexOf('-');
+  if (dashIndex === -1) return null;
+
+  const startStr = parts.substring(0, dashIndex).trim();
+  const endStr = parts.substring(dashIndex + 1).trim();
+
+  let start = 0;
+  let end = totalSize - 1;
+
+  if (startStr === '' && endStr !== '') {
+    // Suffix byte range: bytes=-500 (e.g. read last 500 bytes for MP4 moov atom)
+    const suffix = parseInt(endStr, 10);
+    if (isNaN(suffix)) return null;
+    start = Math.max(0, totalSize - suffix);
+    end = totalSize - 1;
+  } else if (startStr !== '' && endStr === '') {
+    // Open range: bytes=1024-
+    start = parseInt(startStr, 10);
+    if (isNaN(start)) return null;
+    end = totalSize - 1;
+  } else if (startStr !== '' && endStr !== '') {
+    // Explicit range: bytes=0-1
+    start = parseInt(startStr, 10);
+    end = parseInt(endStr, 10);
+    if (isNaN(start) || isNaN(end)) return null;
+  } else {
+    return null;
+  }
+
+  if (start > end || start >= totalSize || start < 0) {
+    return { unsatisfiable: true, totalSize };
+  }
+
+  end = Math.min(end, totalSize - 1);
+  return { start, end, totalSize };
+}
+
+// Find media response in cache across relative/absolute URLs and encoding variants
+async function findCachedMedia(request) {
+  const cache = await caches.open(CACHE_NAME);
+
+  // 1. Match with request object directly (ignoring Range header)
+  let res = await cache.match(request, { ignoreSearch: true });
+  if (res) return res;
+
+  // 2. Match with URL string directly
+  const cleanUrl = request.url.split('?')[0].split('#')[0];
+  res = await cache.match(cleanUrl, { ignoreSearch: true });
+  if (res) return res;
+
+  // 3. Match with decoded / encoded variants
+  try {
+    const decoded = decodeURI(cleanUrl);
+    res = await cache.match(decoded, { ignoreSearch: true });
+    if (res) return res;
+  } catch (_) {}
+
+  try {
+    const encoded = encodeURI(cleanUrl);
+    res = await cache.match(encoded, { ignoreSearch: true });
+    if (res) return res;
+  } catch (_) {}
+
+  // 4. Match by pathname or filename across all cached entries
+  try {
+    const targetUrl = new URL(request.url);
+    const targetPath = targetUrl.pathname;
+    const targetFilename = targetPath.substring(targetPath.lastIndexOf('/') + 1);
+
+    const keys = await cache.keys();
+    for (const key of keys) {
+      const keyUrl = new URL(key.url);
+      const keyPath = keyUrl.pathname;
+      const keyFilename = keyPath.substring(keyPath.lastIndexOf('/') + 1);
+
+      if (keyPath === targetPath || decodeURIComponent(keyPath) === decodeURIComponent(targetPath)) {
+        return await cache.match(key);
+      }
+      if (keyFilename && (keyFilename === targetFilename || decodeURIComponent(keyFilename) === decodeURIComponent(targetFilename))) {
+        return await cache.match(key);
+      }
+    }
+  } catch (_) {}
+
+  return null;
+}
+
+// Serve media with HTTP 206 Partial Content support for iPadOS / iOS / Android standalone PWAs
+async function handleMediaRangeRequest(request) {
+  const rangeHeader = request.headers.get('range');
+
+  // Attempt to locate media in cache
+  let cachedResponse = await findCachedMedia(request);
+
+  // If not cached, fetch once from network and cache full response for slicing
+  if (!cachedResponse) {
+    try {
+      const netRes = await fetch(request.url, { cache: 'no-cache' });
+      if (netRes && (netRes.status === 200 || netRes.status === 0)) {
+        const cache = await caches.open(CACHE_NAME);
+        cache.put(request.url, netRes.clone()).catch(() => {});
+        cachedResponse = netRes;
+      }
+    } catch (err) {
+      console.warn('Network fetch fallback failed for media in Service Worker:', request.url, err);
+    }
+  }
+
+  // If still unavailable, fallback to browser native fetch
+  if (!cachedResponse) {
+    return fetch(request);
+  }
+
+  // If no Range header requested, return cached response
+  if (!rangeHeader) {
+    return cachedResponse;
+  }
+
+  // Parse Range and extract slice from full Blob
+  const fullBlob = await cachedResponse.blob();
+  const totalSize = fullBlob.size;
+
+  const range = parseRangeHeader(rangeHeader, totalSize);
+  if (!range) {
+    return cachedResponse;
+  }
+
+  if (range.unsatisfiable) {
+    return new Response(null, {
+      status: 416,
+      statusText: 'Range Not Satisfiable',
+      headers: {
+        'Content-Range': `bytes */${totalSize}`
+      }
+    });
+  }
+
+  const { start, end } = range;
+  const chunk = fullBlob.slice(start, end + 1);
+  const chunkSize = chunk.size;
+
+  // Determine accurate Content-Type
+  let contentType = fullBlob.type || cachedResponse.headers.get('content-type');
+  if (!contentType || contentType === 'application/octet-stream') {
+    const urlLower = request.url.toLowerCase();
+    if (urlLower.endsWith('.mp4')) contentType = 'video/mp4';
+    else if (urlLower.endsWith('.webm')) contentType = 'video/webm';
+    else if (urlLower.endsWith('.mp3')) contentType = 'audio/mpeg';
+    else if (urlLower.endsWith('.m4a')) contentType = 'audio/mp4';
+    else contentType = 'video/mp4';
+  }
+
+  const responseHeaders = new Headers({
+    'Content-Type': contentType,
+    'Content-Range': `bytes ${start}-${end}/${totalSize}`,
+    'Content-Length': String(chunkSize),
+    'Accept-Ranges': 'bytes',
+    'Cache-Control': 'public, max-age=31536000',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Range',
+    'Access-Control-Expose-Headers': 'Content-Range, Content-Length, Accept-Ranges'
+  });
+
+  return new Response(chunk, {
+    status: 206,
+    statusText: 'Partial Content',
+    headers: responseHeaders
+  });
+}
+
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
-  // Bypass Service Worker for Range requests and media streaming (videos/audio) so native 206 Partial Content works
-  if (
-    event.request.headers.get('range') ||
+  const url = event.request.url;
+  const isMedia = (
     event.request.destination === 'video' ||
     event.request.destination === 'audio' ||
-    event.request.url.endsWith('.mp4') ||
-    event.request.url.includes('.mp4?') ||
-    event.request.url.endsWith('.m4a') ||
-    event.request.url.endsWith('.mp3')
-  ) {
+    Boolean(event.request.headers.get('range')) ||
+    /\.(mp4|m4a|mp3|webm|ogg)(\?.*)?$/i.test(url)
+  );
+
+  // Intercept Range requests and media streaming via RFC 7233 HTTP 206 partial content
+  if (isMedia) {
+    event.respondWith(handleMediaRangeRequest(event.request));
     return;
   }
 

@@ -1095,6 +1095,14 @@
       overflow: hidden;
       box-shadow: 0 0 12px rgba(0, 229, 255, 0.45);
       background: #000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .mri-video-layer.video-active {
+      opacity: 1;
+      pointer-events: auto;
     }
 
     /* Layer 4: MRI Bed Preparation & Slide Screen */
@@ -8036,7 +8044,11 @@
                   <img id="mriInsideScreen" class="mri-layer mri-inside-screen" src="assets/MRIInside.png" alt="MRI Inside View" />
                   
                   <!-- MRI Video Player Layer -->
-                  <video id="mriVideoPlayer" class="mri-video-layer" src="assets/MRIVideo.mp4" playsinline webkit-playsinline preload="auto" style="display: none;"></video>
+                  <video id="mriVideoPlayer" class="mri-video-layer" src="assets/MRIVideo.mp4" playsinline webkit-playsinline preload="metadata">
+                    <source src="assets/MRIVideo.mp4" type="video/mp4">
+                    <source src="assets/MRI%20Video%202.mp4" type="video/mp4">
+                    <source src="assets/MRIVideo2.mp4" type="video/mp4">
+                  </video>
 
                   <!-- Sound Waves Overlays (Left: Waves 1 to 4) -->
                   <div id="mriSoundLGroup" class="mri-layer mri-sound-wave-group">
@@ -9316,6 +9328,14 @@
           } catch (e) {}
         }
       }
+
+      // Prime video instances for mobile WebKit so hardware decoding pipelines are warmed up on user gesture
+      ['mriVideoPlayer', 'mriStillVideo', 'mriVideoWOContrast', 'mriVideoContrast'].forEach((id) => {
+        const vid = document.getElementById(id);
+        if (vid && vid.readyState === 0) {
+          try { vid.load(); } catch (_) {}
+        }
+      });
     }
 
     window.addEventListener('pointerdown', unlockGameAudioSystem, { once: true, passive: true });
@@ -16872,6 +16892,7 @@
         try {
           mriVideoReset.pause();
           mriVideoReset.currentTime = 0;
+          mriVideoReset.classList.remove('video-active');
           mriVideoReset.style.display = 'none';
         } catch (e) {}
       }
@@ -17411,6 +17432,7 @@
         if (mriVideo) {
           try {
             mriVideo.pause();
+            mriVideo.classList.remove('video-active');
             mriVideo.style.display = 'none';
           } catch (e) {}
         }
@@ -17452,18 +17474,25 @@
         }
         if (mriVideo) {
           mriVideo.style.display = 'block';
+          mriVideo.classList.add('video-active');
+          if (mriVideo.readyState === 0) {
+            try { mriVideo.load(); } catch (_) {}
+          }
           if (mriVideo.ended || (mriVideo.duration && mriVideo.currentTime >= mriVideo.duration - 0.2)) {
             mriVideo.currentTime = 0;
           }
           const playPromise = mriVideo.play();
           if (playPromise !== undefined) {
             playPromise.catch(err => {
-              console.warn('Video play was prevented:', err);
+              console.warn('Video play was prevented (trying muted fallback for tablet):', err);
+              mriVideo.muted = true;
+              mriVideo.play().catch(e => console.warn('Muted fallback failed:', e));
             });
           }
           mriVideo.onended = function() {
             mriVideoPlaying = false;
             mriVideo.currentTime = 0;
+            mriVideo.classList.remove('video-active');
             mriVideo.style.display = 'none';
             if (btnRemote) {
               btnRemote.classList.remove('video-playing', 'spot-removed');
@@ -17841,9 +17870,16 @@
 
       if (video) {
         video.muted = true;
+        video.defaultMuted = true;
         video.playsInline = true;
+        video.setAttribute('muted', '');
+        video.setAttribute('playsinline', '');
+        video.setAttribute('webkit-playsinline', '');
         if (!video.src || video.src === '') {
           video.src = 'assets/MRIDance.mp4';
+        }
+        if (video.readyState === 0) {
+          try { video.load(); } catch (_) {}
         }
         const playPromise = video.play();
         if (playPromise !== undefined) {
@@ -17851,11 +17887,26 @@
             console.warn("mriStillVideo play error, attaching retry listener:", err);
             const retryPlay = () => {
               video.removeEventListener('canplay', retryPlay);
+              video.removeEventListener('loadeddata', retryPlay);
               if (mriStillGameActive && mriStillGameState === 'MOVE') {
+                video.muted = true;
                 video.play().catch(() => {});
               }
             };
             video.addEventListener('canplay', retryPlay);
+            video.addEventListener('loadeddata', retryPlay);
+
+            // Also retry immediately on user touch/tap anywhere
+            const onUserTouch = () => {
+              window.removeEventListener('touchstart', onUserTouch, true);
+              window.removeEventListener('pointerdown', onUserTouch, true);
+              if (mriStillGameActive && mriStillGameState === 'MOVE') {
+                video.muted = true;
+                video.play().catch(() => {});
+              }
+            };
+            window.addEventListener('touchstart', onUserTouch, true);
+            window.addEventListener('pointerdown', onUserTouch, true);
           });
         }
       }
@@ -18422,14 +18473,28 @@
         const p = v.play();
         if (p !== undefined) {
           p.catch((err) => {
-            console.warn("Contrast video play error, waiting for canplay:", err);
+            console.warn("Contrast video play error, waiting for canplay/touch:", err);
             const onCanPlay = () => {
               v.removeEventListener('canplay', onCanPlay);
+              v.removeEventListener('loadeddata', onCanPlay);
               if (mriContrastActive) {
+                v.muted = true;
                 v.play().catch(() => {});
               }
             };
             v.addEventListener('canplay', onCanPlay);
+            v.addEventListener('loadeddata', onCanPlay);
+
+            const onTouch = () => {
+              window.removeEventListener('touchstart', onTouch, true);
+              window.removeEventListener('pointerdown', onTouch, true);
+              if (mriContrastActive) {
+                v.muted = true;
+                v.play().catch(() => {});
+              }
+            };
+            window.addEventListener('touchstart', onTouch, true);
+            window.addEventListener('pointerdown', onTouch, true);
           });
         }
       }
