@@ -218,7 +218,10 @@ public struct MRIProcedureView: View {
             Image("HeaderBanner")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: min(screenSize.width * 0.84, 864), height: 76)
+                .frame(
+                    maxWidth: max(screenSize.width - 240, 160),
+                    maxHeight: 68
+                )
                 .shadow(color: Color.black.opacity(0.15), radius: 6, x: 0, y: 2)
             
             HStack(spacing: 12) {

@@ -24,7 +24,10 @@ public struct AboutView: View {
                     Image("HeaderBanner")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(width: min(proxy.size.width * 0.92, 1100), height: min(max(headerHeight * 1.05, 72), 86))
+                        .frame(
+                            maxWidth: max(proxy.size.width - 260, 160),
+                            maxHeight: min(max(headerHeight * 0.92, 62), 76)
+                        )
                         .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 3)
                     
                     // Header Action Buttons

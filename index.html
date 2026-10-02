@@ -166,17 +166,17 @@
       justify-content: center;
       pointer-events: none;
       width: auto;
-      max-width: 85%;
+      max-width: calc(100% - 160px);
       height: auto;
       z-index: 2;
     }
 
     .home-logo-banner {
-      height: 96px;
-      max-height: 110px;
+      height: 76px;
+      max-height: 84px;
       max-width: 100%;
       object-fit: contain;
-      filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.10));
+      filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.09));
     }
 
     /* Universal Apple Liquid Glass Header Button */
@@ -280,14 +280,14 @@
       align-items: center;
       justify-content: center;
       height: auto;
-      max-width: 85%;
+      max-width: calc(100% - 260px);
       pointer-events: none;
       z-index: 3;
     }
 
     .consistent-header-banner {
-      height: 76px;
-      max-height: 86px;
+      height: 70px;
+      max-height: 78px;
       max-width: 100%;
       object-fit: contain;
       filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08));
@@ -7992,17 +7992,17 @@
       justify-content: center !important;
       pointer-events: none !important;
       width: auto !important;
-      max-width: 80% !important;
+      max-width: calc(100% - 160px) !important;
       height: auto !important;
       z-index: 2 !important;
     }
 
     .home-logo-banner {
-      height: 96px !important;
-      max-height: 110px !important;
+      height: 76px !important;
+      max-height: 84px !important;
       max-width: 100% !important;
       object-fit: contain !important;
-      filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.10)) !important;
+      filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.09)) !important;
     }
 
     .header-glass-btn {
@@ -8097,14 +8097,14 @@
       align-items: center !important;
       justify-content: center !important;
       height: auto !important;
-      max-width: 80% !important;
+      max-width: calc(100% - 260px) !important;
       pointer-events: none !important;
       z-index: 3 !important;
     }
 
     .consistent-header-banner {
-      height: 76px !important;
-      max-height: 86px !important;
+      height: 70px !important;
+      max-height: 78px !important;
       max-width: 100% !important;
       object-fit: contain !important;
       filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08)) !important;
@@ -16831,16 +16831,20 @@
         btn.style.height = '44px';
       });
 
-      // Header Banner Sizing - Prominent and readable Riley logo
-      const bannerH = isLandscape 
-        ? Math.min(Math.max(Math.round(headerH * 1.05), 72), 86)
-        : Math.min(Math.max(Math.round(headerH * 1.02), 68), 80);
+      // Header Banner Sizing - Prominent and readable Riley logo without overlapping back asset or right buttons
+      const maxBannerW = isCompact ? Math.max(w - 200, 140) : Math.max(w - 260, 180);
+      const targetBannerH = isLandscape 
+        ? Math.min(Math.max(Math.round(headerH * 0.94), 66), 78)
+        : (isCompact ? 54 : Math.min(Math.max(Math.round(headerH * 0.90), 60), 72));
       document.querySelectorAll('.consistent-header-banner').forEach(img => {
-        img.style.setProperty('height', bannerH + 'px', 'important');
+        img.style.setProperty('height', targetBannerH + 'px', 'important');
+        img.style.setProperty('max-width', maxBannerW + 'px', 'important');
       });
-      const homeBannerH = isLandscape ? 96 : 84;
+      const homeBannerH = isLandscape ? 78 : (isCompact ? 56 : 70);
+      const maxHomeBannerW = isCompact ? Math.max(w - 140, 150) : Math.max(w - 180, 220);
       document.querySelectorAll('.home-logo-banner').forEach(img => {
         img.style.setProperty('height', homeBannerH + 'px', 'important');
+        img.style.setProperty('max-width', maxHomeBannerW + 'px', 'important');
       });
 
       // Home Screen Layout

@@ -49,9 +49,9 @@ public struct HomeHeaderView: View {
     /// Height of the centered banner logo - prominent and readable
     private var bannerHeight: CGFloat {
         if isLandscape {
-            return min(max(availableHeight * 0.15, 88), 114)
+            return min(max(availableHeight * 0.12, 72), 86)
         } else {
-            return min(max(availableHeight * 0.12, 76), 96)
+            return min(max(availableHeight * 0.095, 60), 74)
         }
     }
     
@@ -60,11 +60,14 @@ public struct HomeHeaderView: View {
     
     public var body: some View {
         ZStack(alignment: .center) {
-            // Centered Header Banner
+            // Centered Header Banner with clearance to prevent overlapping back/settings buttons
             Image("HeaderBanner")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(height: bannerHeight)
+                .frame(
+                    maxWidth: max(availableWidth - (isLandscape ? 200 : 160), 120),
+                    maxHeight: bannerHeight
+                )
                 .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4)
                 .accessibilityLabel(Text("Riley Children's Health Indiana University Health"))
             

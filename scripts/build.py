@@ -181,17 +181,17 @@ def build_distribution():
       justify-content: center !important;
       pointer-events: none !important;
       width: auto !important;
-      max-width: 80% !important;
+      max-width: calc(100% - 160px) !important;
       height: auto !important;
       z-index: 2 !important;
     }
 
     .home-logo-banner {
-      height: 96px !important;
-      max-height: 110px !important;
+      height: 76px !important;
+      max-height: 84px !important;
       max-width: 100% !important;
       object-fit: contain !important;
-      filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.10)) !important;
+      filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.09)) !important;
     }
 
     .header-glass-btn {
@@ -286,14 +286,14 @@ def build_distribution():
       align-items: center !important;
       justify-content: center !important;
       height: auto !important;
-      max-width: 80% !important;
+      max-width: calc(100% - 260px) !important;
       pointer-events: none !important;
       z-index: 3 !important;
     }
 
     .consistent-header-banner {
-      height: 76px !important;
-      max-height: 86px !important;
+      height: 70px !important;
+      max-height: 78px !important;
       max-width: 100% !important;
       object-fit: contain !important;
       filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08)) !important;
