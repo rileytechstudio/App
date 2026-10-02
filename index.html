@@ -104,7 +104,11 @@
     }
 
     #screenHome {
-      background-color: #f4f2ee !important;
+      background-image: url('assets/HomeScreenBG.png') !important;
+      background-size: cover !important;
+      background-position: center bottom !important;
+      background-repeat: no-repeat !important;
+      background-color: transparent !important;
     }
 
     #screenHome .home-bg-layer {
@@ -114,7 +118,7 @@
       height: 100%;
       background-image: url('assets/HomeScreenBG.png');
       background-size: cover;
-      background-position: center top;
+      background-position: center bottom;
       background-repeat: no-repeat;
       z-index: 1;
     }
@@ -146,11 +150,12 @@
     }
 
     .home-logo-banner {
-      height: 64px;
+      height: 98px;
+      max-height: 124px;
       max-width: 80vw;
       object-fit: contain;
       object-position: left center;
-      filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.08));
+      filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.10));
     }
 
     .home-header-right {
@@ -179,8 +184,8 @@
     }
 
     .home-setting-btn img {
-      width: 52px;
-      height: 52px;
+      width: 72px;
+      height: 72px;
       object-fit: contain;
       display: block;
     }
@@ -7826,16 +7831,28 @@
       padding-top: env(safe-area-inset-top, 0px);
     }
 
-    /* Home Screen Neutral Backdrop & Safe Area Layout (No purple bleed on tablet) */
+    /* Home Screen Full-Bleed Backdrop & Safe Area Layout (Zero white or purple bleed on tablet) */
     #screenHome {
-      background-color: #f4f2ee !important;
+      background-image: url('assets/HomeScreenBG.png') !important;
+      background-size: cover !important;
+      background-position: center bottom !important;
+      background-repeat: no-repeat !important;
+      background-color: transparent !important;
     }
 
     body:has(#screenHome.active) {
-      background-color: #f4f2ee !important;
+      background-image: url('assets/HomeScreenBG.png') !important;
+      background-size: cover !important;
+      background-position: center bottom !important;
+      background-repeat: no-repeat !important;
+      background-color: transparent !important;
     }
     body:has(#screenHome.active) .device-screen {
-      background-color: #f4f2ee !important;
+      background-image: url('assets/HomeScreenBG.png') !important;
+      background-size: cover !important;
+      background-position: center bottom !important;
+      background-repeat: no-repeat !important;
+      background-color: transparent !important;
     }
 
     #screenHome .home-bg-layer {
@@ -7845,7 +7862,7 @@
       height: 100% !important;
       background-image: url('assets/HomeScreenBG.png') !important;
       background-size: cover !important;
-      background-position: center top !important;
+      background-position: center bottom !important;
       background-repeat: no-repeat !important;
       z-index: 1 !important;
     }
@@ -7860,6 +7877,22 @@
       padding-left: max(24px, env(safe-area-inset-left, 0px)) !important;
       padding-right: max(24px, env(safe-area-inset-right, 0px)) !important;
       padding-bottom: 0 !important;
+    }
+
+    .home-logo-banner {
+      height: 98px !important;
+      max-height: 124px !important;
+      max-width: 80vw !important;
+      object-fit: contain !important;
+      object-position: left center !important;
+      filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.10)) !important;
+    }
+
+    .home-setting-btn img {
+      width: 72px !important;
+      height: 72px !important;
+      object-fit: contain !important;
+      display: block !important;
     }
 
     #screenHome .screen-content {
@@ -9918,9 +9951,15 @@
         }
       }
       if (screenName === 'home') {
-        document.body.style.backgroundColor = '#f4f2ee';
+        document.body.style.backgroundImage = "url('assets/HomeScreenBG.png')";
+        document.body.style.backgroundSize = "cover";
+        document.body.style.backgroundPosition = "center bottom";
+        document.body.style.backgroundColor = "transparent";
       } else {
-        document.body.style.backgroundColor = '';
+        document.body.style.backgroundImage = "";
+        document.body.style.backgroundSize = "";
+        document.body.style.backgroundPosition = "";
+        document.body.style.backgroundColor = "";
       }
       setTimeout(updateResponsiveLayout, 50);
     }
@@ -16497,15 +16536,19 @@
         btn.style.height = iconSize + 'px';
       });
 
-      // Home Custom Header Sizing
+      // Home Custom Header Sizing - Prominent Logo Banner matching mockup
       const homeLogo = document.querySelector('.home-logo-banner');
       const homeSetting = document.querySelector('.home-setting-btn img');
       if (homeLogo) {
-        const logoH = isLandscape ? Math.min(Math.max(Math.round(h * 0.09), 48), 74) : Math.min(Math.max(Math.round(h * 0.075), 38), 54);
+        const logoH = isLandscape 
+          ? Math.min(Math.max(Math.round(h * 0.13), 74), 118) 
+          : Math.min(Math.max(Math.round(h * 0.10), 56), 94);
         homeLogo.style.height = logoH + 'px';
       }
       if (homeSetting) {
-        const settingS = isLandscape ? Math.min(Math.max(Math.round(h * 0.075), 44), 62) : Math.min(Math.max(Math.round(h * 0.065), 36), 48);
+        const settingS = isLandscape 
+          ? Math.min(Math.max(Math.round(h * 0.09), 56), 78) 
+          : Math.min(Math.max(Math.round(h * 0.07), 44), 64);
         homeSetting.style.width = settingS + 'px';
         homeSetting.style.height = settingS + 'px';
       }

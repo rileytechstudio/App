@@ -102,16 +102,28 @@ def build_distribution():
       padding-top: env(safe-area-inset-top, 0px);
     }
 
-    /* Home Screen Neutral Backdrop & Safe Area Layout (No purple bleed on tablet) */
+    /* Home Screen Full-Bleed Backdrop & Safe Area Layout (Zero white or purple bleed on tablet) */
     #screenHome {
-      background-color: #f4f2ee !important;
+      background-image: url('assets/HomeScreenBG.png') !important;
+      background-size: cover !important;
+      background-position: center bottom !important;
+      background-repeat: no-repeat !important;
+      background-color: transparent !important;
     }
 
     body:has(#screenHome.active) {
-      background-color: #f4f2ee !important;
+      background-image: url('assets/HomeScreenBG.png') !important;
+      background-size: cover !important;
+      background-position: center bottom !important;
+      background-repeat: no-repeat !important;
+      background-color: transparent !important;
     }
     body:has(#screenHome.active) .device-screen {
-      background-color: #f4f2ee !important;
+      background-image: url('assets/HomeScreenBG.png') !important;
+      background-size: cover !important;
+      background-position: center bottom !important;
+      background-repeat: no-repeat !important;
+      background-color: transparent !important;
     }
 
     #screenHome .home-bg-layer {
@@ -121,7 +133,7 @@ def build_distribution():
       height: 100% !important;
       background-image: url('assets/HomeScreenBG.png') !important;
       background-size: cover !important;
-      background-position: center top !important;
+      background-position: center bottom !important;
       background-repeat: no-repeat !important;
       z-index: 1 !important;
     }
@@ -136,6 +148,22 @@ def build_distribution():
       padding-left: max(24px, env(safe-area-inset-left, 0px)) !important;
       padding-right: max(24px, env(safe-area-inset-right, 0px)) !important;
       padding-bottom: 0 !important;
+    }
+
+    .home-logo-banner {
+      height: 98px !important;
+      max-height: 124px !important;
+      max-width: 80vw !important;
+      object-fit: contain !important;
+      object-position: left center !important;
+      filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.10)) !important;
+    }
+
+    .home-setting-btn img {
+      width: 72px !important;
+      height: 72px !important;
+      object-fit: contain !important;
+      display: block !important;
     }
 
     #screenHome .screen-content {

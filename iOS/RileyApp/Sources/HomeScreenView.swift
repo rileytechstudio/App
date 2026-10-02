@@ -22,21 +22,21 @@ public struct HomeScreenView: View {
     }
     
     public var body: some View {
-        GeometryReader { geometry in
-            let screenSize = geometry.size
-            let isLandscape = screenSize.width > screenSize.height
-            let isWideScreen = screenSize.width >= 620 || isLandscape
-            let shouldUseMockupGrid = (layoutMode == .forceMockupLayout) || isWideScreen
+        ZStack {
+            // Full-bleed background photo edge-to-edge across entire physical display (zero white border)
+            Image("HomeScreenBG")
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+                .ignoresSafeArea(.all)
             
-            ZStack(alignment: .top) {
-                // Neutral soft base tone behind hospital image (no purple fallback)
-                Color(red: 244/255, green: 242/255, blue: 238/255)
-                    .ignoresSafeArea(.all)
+            GeometryReader { geometry in
+                let screenSize = geometry.size
+                let isLandscape = screenSize.width > screenSize.height
+                let isWideScreen = screenSize.width >= 620 || isLandscape
+                let shouldUseMockupGrid = (layoutMode == .forceMockupLayout) || isWideScreen
                 
-                // MARK: Background Layer - Edge-to-edge covering all safe areas
-                backgroundLayer(screenSize: screenSize, safeAreaInsets: geometry.safeAreaInsets)
-                
-                // MARK: Main Content Structure
+                // Main Content Structure
                 VStack(spacing: 0) {
                     // Top Responsive Header respecting iOS status bar
                     HomeHeaderView(
@@ -59,63 +59,49 @@ public struct HomeScreenView: View {
                     }
                 }
             }
-            .fullScreenCover(item: $navState.activeDestination) { destination in
-                if destination == .preparations {
-                    PreparationsView(
-                        onBackToHome: {
-                            navState.resetToHome()
-                        },
-                        onOpenGames: {
-                            navState.navigate(to: .games)
-                        }
-                    )
-                } else if destination == .about {
-                    AboutView(
-                        onBackToHome: {
-                            navState.resetToHome()
-                        },
-                        onSettingsTapped: {
-                            navState.navigate(to: .settings)
-                        }
-                    )
-                } else if destination == .settings {
-                    SettingsView(
-                        onBack: {
-                            navState.resetToHome()
-                        },
-                        onHomeTapped: {
-                            navState.resetToHome()
-                        }
-                    )
-                } else if destination == .anatomyExplorer {
-                    AnatomyExplorerView(
-                        onBackToHome: {
-                            navState.resetToHome()
-                        },
-                        onSettingsTapped: {
-                            navState.navigate(to: .settings)
-                        }
-                    )
-                } else {
-                    DestinationDetailSheet(destination: destination)
-                }
+        }
+        .ignoresSafeArea(.all)
+        .fullScreenCover(item: $navState.activeDestination) { destination in
+            if destination == .preparations {
+                PreparationsView(
+                    onBackToHome: {
+                        navState.resetToHome()
+                    },
+                    onOpenGames: {
+                        navState.navigate(to: .games)
+                    }
+                )
+            } else if destination == .about {
+                AboutView(
+                    onBackToHome: {
+                        navState.resetToHome()
+                    },
+                    onSettingsTapped: {
+                        navState.navigate(to: .settings)
+                    }
+                )
+            } else if destination == .settings {
+                SettingsView(
+                    onBack: {
+                        navState.resetToHome()
+                    },
+                    onHomeTapped: {
+                        navState.resetToHome()
+                    }
+                )
+            } else if destination == .anatomyExplorer {
+                AnatomyExplorerView(
+                    onBackToHome: {
+                        navState.resetToHome()
+                    },
+                    onSettingsTapped: {
+                        navState.navigate(to: .settings)
+                    }
+                )
+            } else {
+                DestinationDetailSheet(destination: destination)
             }
         }
-    }
-    
-    // MARK: - Background Layer
-    @ViewBuilder
-    private func backgroundLayer(screenSize: CGSize, safeAreaInsets: EdgeInsets) -> some View {
-        // Simon Family Tower hospital building background edge-to-edge across entire physical display
-        Image("HomeScreenBG")
-            .resizable()
-            .aspectRatio(contentMode: .fill)
-            .frame(
-                width: screenSize.width + safeAreaInsets.leading + safeAreaInsets.trailing,
-                height: screenSize.height + safeAreaInsets.top + safeAreaInsets.bottom
-            )
-            .clipped()
-            .ignoresSafeArea(.all)
     }
     
     // MARK: - Landscape & Tablet Layout (Matches Mockup)
@@ -123,8 +109,8 @@ public struct HomeScreenView: View {
     private func landscapeMockupLayout(screenSize: CGSize) -> some View {
         let isLandscape = screenSize.width > screenSize.height
         
-        // Responsive Metrics Calculations
-        let headerApproxHeight: CGFloat = isLandscape ? min(max(screenSize.height * 0.12, 70), 110) : min(max(screenSize.height * 0.09, 56), 80)
+        // Responsive Metrics Calculations matching increased header banner
+        let headerApproxHeight: CGFloat = isLandscape ? min(max(screenSize.height * 0.15, 84), 132) : min(max(screenSize.height * 0.12, 68), 108)
         let availableHeight = max(screenSize.height - headerApproxHeight, 200)
         
         // Horizontal padding

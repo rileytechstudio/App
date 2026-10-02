@@ -29,26 +29,26 @@ public struct HomeHeaderView: View {
     /// Responsive header height based on screen dimensions, orientation, and safe area top inset
     private var headerHeight: CGFloat {
         let baseH = isLandscape 
-            ? min(max(availableHeight * 0.11, 64), 92)
-            : min(max(availableHeight * 0.085, 52), 70)
+            ? min(max(availableHeight * 0.15, 84), 132)
+            : min(max(availableHeight * 0.12, 68), 108)
         return baseH + safeAreaTop
     }
     
     /// Height of the top-left banner logo
     private var bannerHeight: CGFloat {
         if isLandscape {
-            return min(max(headerHeight * 0.88, 54), 80)
+            return min(max(availableHeight * 0.13, 76), 118)
         } else {
-            return min(max(headerHeight * 0.82, 44), 58)
+            return min(max(availableHeight * 0.10, 58), 94)
         }
     }
     
     /// Size of the circular Settings button
     private var settingButtonSize: CGFloat {
         if isLandscape {
-            return min(max(headerHeight * 0.82, 48), 68)
+            return min(max(bannerHeight * 0.70, 54), 78)
         } else {
-            return min(max(headerHeight * 0.72, 38), 50)
+            return min(max(bannerHeight * 0.68, 44), 64)
         }
     }
     
