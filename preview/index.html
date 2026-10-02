@@ -8128,10 +8128,8 @@
                   <img id="mriInsideScreen" class="mri-layer mri-inside-screen" src="assets/MRIInside.png" alt="MRI Inside View" />
                   
                   <!-- MRI Video Player Layer -->
-                  <video id="mriVideoPlayer" class="mri-video-layer" src="assets/MRIVideo.mp4" playsinline webkit-playsinline preload="metadata">
+                  <video id="mriVideoPlayer" class="mri-video-layer" src="assets/MRIVideo.mp4" crossorigin="anonymous" playsinline webkit-playsinline preload="metadata">
                     <source src="assets/MRIVideo.mp4" type="video/mp4">
-                    <source src="assets/MRI%20Video%202.mp4" type="video/mp4">
-                    <source src="assets/MRIVideo2.mp4" type="video/mp4">
                   </video>
 
                   <!-- Sound Waves Overlays (Left: Waves 1 to 4) -->
@@ -8246,10 +8244,8 @@
 
                   <!-- Center Stage: Dancing Skeleton Video (Plays in fluid loop, freezes during freeze intervals) -->
                   <div class="mri-still-skeleton-stage" id="mriStillSkeletonStage">
-                    <video id="mriStillVideo" class="mri-still-video" src="assets/MRIDance.mp4" loop playsinline webkit-playsinline muted preload="auto">
+                    <video id="mriStillVideo" class="mri-still-video" src="assets/MRIDance.mp4" crossorigin="anonymous" loop playsinline webkit-playsinline muted preload="auto">
                       <source src="assets/MRIDance.mp4" type="video/mp4">
-                      <source src="assets/MRI%20Dance%202.mp4" type="video/mp4">
-                      <source src="assets/MRI%20Dance.mp4" type="video/mp4">
                     </video>
                   </div>
 
@@ -8294,16 +8290,14 @@
                   <!-- Contrast Comparison Stage Container -->
                   <div class="mri-contrast-container" id="mriContrastContainer">
                     <!-- Base Video: Without Contrast (WO Contrast) -->
-                    <video id="mriVideoWOContrast" class="mri-contrast-video" src="assets/MRIWOContrast.mp4" autoplay loop playsinline webkit-playsinline muted preload="auto">
+                    <video id="mriVideoWOContrast" class="mri-contrast-video" src="assets/MRIWOContrast.mp4" crossorigin="anonymous" loop playsinline webkit-playsinline muted preload="auto">
                       <source src="assets/MRIWOContrast.mp4" type="video/mp4">
-                      <source src="assets/MRI%20WO%20Contrast.mp4" type="video/mp4">
                     </video>
 
                     <!-- Top Video Wrapper: With Contrast (Clipped via clip-path) -->
                     <div id="mriContrastClipWrapper" class="mri-contrast-clip-wrapper">
-                      <video id="mriVideoContrast" class="mri-contrast-video" src="assets/MRIContrast.mp4" autoplay loop playsinline webkit-playsinline muted preload="auto">
+                      <video id="mriVideoContrast" class="mri-contrast-video" src="assets/MRIContrast.mp4" crossorigin="anonymous" loop playsinline webkit-playsinline muted preload="auto">
                         <source src="assets/MRIContrast.mp4" type="video/mp4">
-                        <source src="assets/MRI%20Contrast.mp4" type="video/mp4">
                       </video>
                     </div>
 
@@ -9410,14 +9404,6 @@
           } catch (e) {}
         }
       }
-
-      // Prime video instances for mobile WebKit so hardware decoding pipelines are warmed up on user gesture
-      ['mriVideoPlayer', 'mriStillVideo', 'mriVideoWOContrast', 'mriVideoContrast'].forEach((id) => {
-        const vid = document.getElementById(id);
-        if (vid && vid.readyState === 0) {
-          try { vid.load(); } catch (_) {}
-        }
-      });
     }
 
     window.addEventListener('pointerdown', unlockGameAudioSystem, { once: true, passive: true });
@@ -16975,7 +16961,6 @@
           mriVideoReset.pause();
           mriVideoReset.currentTime = 0;
           mriVideoReset.classList.remove('video-active');
-          mriVideoReset.style.display = 'none';
         } catch (e) {}
       }
       if (stressBallImg) {
@@ -17515,7 +17500,6 @@
           try {
             mriVideo.pause();
             mriVideo.classList.remove('video-active');
-            mriVideo.style.display = 'none';
           } catch (e) {}
         }
         if (remoteLayer) {
@@ -17555,7 +17539,6 @@
           btnRemoteBody.title = "Stop Program with Remote";
         }
         if (mriVideo) {
-          mriVideo.style.display = 'block';
           mriVideo.classList.add('video-active');
           if (mriVideo.readyState === 0) {
             try { mriVideo.load(); } catch (_) {}
@@ -17575,7 +17558,6 @@
             mriVideoPlaying = false;
             mriVideo.currentTime = 0;
             mriVideo.classList.remove('video-active');
-            mriVideo.style.display = 'none';
             if (btnRemote) {
               btnRemote.classList.remove('video-playing', 'spot-removed');
               btnRemote.style.display = 'flex';
@@ -17930,7 +17912,9 @@
         try { video.currentTime = 0; } catch (_) {}
       }
 
-      enterStillGameMovePhase();
+      requestAnimationFrame(() => {
+        enterStillGameMovePhase();
+      });
     }
 
     function enterStillGameMovePhase() {
@@ -18594,8 +18578,10 @@
           try { vC.currentTime = 0; } catch (_) {}
         }
 
-        safePlayVideo(vWO);
-        safePlayVideo(vC);
+        requestAnimationFrame(() => {
+          safePlayVideo(vWO);
+          safePlayVideo(vC);
+        });
 
         // Keep videos synced when looping or on major drift (>0.35s)
         let lastTimeWO = 0;
@@ -19008,8 +18994,48 @@
       if (e.target.id === 'modalOverlay') closeSheet();
     }
 
+    // Video resilience for tablet PWA (iOS WebClip standalone and Android Chrome)
+    function setupVideoResilience() {
+      const videoConfigs = [
+        { id: 'mriVideoPlayer', src: 'assets/MRIVideo.mp4', muted: false },
+        { id: 'mriStillVideo', src: 'assets/MRIDance.mp4', muted: true },
+        { id: 'mriVideoWOContrast', src: 'assets/MRIWOContrast.mp4', muted: true },
+        { id: 'mriVideoContrast', src: 'assets/MRIContrast.mp4', muted: true }
+      ];
+
+      videoConfigs.forEach(({ id, src, muted }) => {
+        const vid = document.getElementById(id);
+        if (!vid) return;
+
+        vid.setAttribute('playsinline', '');
+        vid.setAttribute('webkit-playsinline', '');
+        vid.setAttribute('crossorigin', 'anonymous');
+        if (muted) {
+          vid.muted = true;
+          vid.defaultMuted = true;
+          vid.setAttribute('muted', '');
+        }
+
+        // Error recovery
+        vid.addEventListener('error', (e) => {
+          const err = vid.error;
+          console.warn(`[Video Resilience] Error on #${id}:`, err ? `Code ${err.code} (${err.message})` : e);
+          setTimeout(() => {
+            if (vid) {
+              try {
+                if (muted) vid.muted = true;
+                vid.src = src + (src.includes('?') ? '&' : '?') + 'r=' + Date.now();
+                vid.load();
+              } catch (_) {}
+            }
+          }, 400);
+        });
+      });
+    }
+
     // Initialize layout on load
     window.addEventListener('DOMContentLoaded', () => {
+      setupVideoResilience();
       initSettings();
       initSkinToneSlider();
       const urlParams = new URLSearchParams(window.location.search);

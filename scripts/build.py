@@ -156,8 +156,28 @@ def build_distribution():
           .then(reg => {
             console.log('Riley PWA ServiceWorker active with scope:', reg.scope);
             reg.update();
+            reg.addEventListener('updatefound', () => {
+              const newWorker = reg.installing;
+              if (newWorker) {
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    console.log('New Riley PWA version installed, reloading...');
+                    window.location.reload();
+                  }
+                });
+              }
+            });
           })
           .catch(err => console.warn('ServiceWorker registration error:', err));
+      });
+
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          console.log('ServiceWorker controller changed, refreshing to activate new assets...');
+          window.location.reload();
+        }
       });
     }
     """
