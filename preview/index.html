@@ -266,14 +266,14 @@
       justify-content: center;
       pointer-events: none;
       width: auto;
-      max-width: 72%;
+      max-width: 80%;
       height: 100%;
       z-index: 2;
     }
 
     .home-logo-banner {
-      height: 86px;
-      max-height: 115px;
+      height: 112px;
+      max-height: 145px;
       max-width: 100%;
       object-fit: contain;
       filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.10));
@@ -334,32 +334,27 @@
       overflow: hidden;
     }
 
-    /* Consistent Navigation Header Across All Screens */
+    /* Consistent Navigation Header Across All Screens - Transparent floating header matching Home */
     .app-header, .about-header {
       width: 100%;
       height: 64px;
       position: relative;
       flex-shrink: 0;
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+      box-shadow: none;
       z-index: 30;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: rgba(255, 255, 255, 0.85);
-      -webkit-backdrop-filter: blur(25px) saturate(180%);
-      backdrop-filter: blur(25px) saturate(180%);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.65);
+      background: transparent;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      border-bottom: none;
       padding: 0 20px;
       box-sizing: border-box;
     }
 
     .app-header::after, .about-header::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.08) 60%, rgba(0, 0, 0, 0.02) 100%);
-      pointer-events: none;
-      z-index: 2;
+      display: none;
     }
 
     .app-header .header-left, .about-header .header-left,
@@ -385,14 +380,14 @@
       align-items: center;
       justify-content: center;
       height: 100%;
-      max-width: 72%;
+      max-width: 80%;
       pointer-events: none;
       z-index: 3;
     }
 
     .consistent-header-banner {
-      height: 96%;
-      max-height: 63px;
+      height: 100%;
+      max-height: 85px;
       max-width: 100%;
       object-fit: contain;
       filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08));
@@ -8046,19 +8041,19 @@
               <div id="landscapeGrid" class="cards-container">
                 <div class="home-main-cards">
                   <div class="grid-row-top">
-                    <button class="card-btn" onclick="goToAnatomyExplorer()" style="width: 335px;">
+                    <button class="card-btn" onclick="goToAnatomyExplorer()" style="width: 318px;">
                       <img src="assets/Anatomy Explorer.png" alt="Anatomy Explorer" />
                     </button>
-                    <button class="card-btn" onclick="openSheet('Gallery')" style="width: 335px;">
+                    <button class="card-btn" onclick="openSheet('Gallery')" style="width: 318px;">
                       <img src="assets/Gallery.png" alt="Gallery" />
                     </button>
                   </div>
 
                   <div class="grid-row-mid">
-                    <button class="card-btn" onclick="goToGames()" style="width: 335px;">
+                    <button class="card-btn" onclick="goToGames()" style="width: 318px;">
                       <img src="assets/Games.png" alt="Games" />
                     </button>
-                    <button class="card-btn" onclick="goToPreparations()" style="width: 335px;">
+                    <button class="card-btn" onclick="goToPreparations()" style="width: 318px;">
                       <img src="assets/Preparations.png" alt="Preparations" />
                     </button>
                   </div>
@@ -8078,18 +8073,18 @@
               <div id="portraitGrid" class="portrait-grid">
                 <div class="portrait-grid-cards">
                   <div class="portrait-grid-row">
-                    <button class="card-btn" onclick="goToAnatomyExplorer()" style="width: 150px;">
+                    <button class="card-btn" onclick="goToAnatomyExplorer()" style="width: 142px;">
                       <img src="assets/Anatomy Explorer.png" alt="Anatomy Explorer" />
                     </button>
-                    <button class="card-btn" onclick="openSheet('Gallery')" style="width: 150px;">
+                    <button class="card-btn" onclick="openSheet('Gallery')" style="width: 142px;">
                       <img src="assets/Gallery.png" alt="Gallery" />
                     </button>
                   </div>
                   <div class="portrait-grid-row">
-                    <button class="card-btn" onclick="goToGames()" style="width: 150px;">
+                    <button class="card-btn" onclick="goToGames()" style="width: 142px;">
                       <img src="assets/Games.png" alt="Games" />
                     </button>
-                    <button class="card-btn" onclick="goToPreparations()" style="width: 150px;">
+                    <button class="card-btn" onclick="goToPreparations()" style="width: 142px;">
                       <img src="assets/Preparations.png" alt="Preparations" />
                     </button>
                   </div>
@@ -16634,20 +16629,20 @@
 
       // Header Sizing - Sleek Apple Glass Navigation Bar
       const headerH = isLandscape 
-        ? Math.min(Math.max(Math.round(h * 0.09), 58), 70) 
-        : Math.min(Math.max(Math.round(h * 0.08), 52), 64);
+        ? Math.min(Math.max(Math.round(h * 0.11), 68), 92) 
+        : Math.min(Math.max(Math.round(h * 0.095), 58), 78);
       document.querySelectorAll('.app-header, .about-header, .home-custom-header').forEach(hdr => {
         hdr.style.height = headerH + 'px';
       });
       
-      const iconSize = Math.min(Math.max(Math.round(headerH * 0.75), 38), 50);
+      const iconSize = Math.min(Math.max(Math.round(headerH * 0.68), 40), 52);
       document.querySelectorAll('.header-glass-btn, .header-icon-btn, .about-header-icon-btn, .about-back-btn, .home-setting-btn').forEach(btn => {
         btn.style.width = iconSize + 'px';
         btn.style.height = iconSize + 'px';
       });
 
-      // Header Banner Sizing (Increased by 20%)
-      const bannerH = Math.min(Math.max(Math.round(headerH * 0.98), 48), 65);
+      // Header Banner Sizing (Increased by 30%)
+      const bannerH = Math.min(Math.max(Math.round(headerH * 0.95), 62), 85);
       document.querySelectorAll('.home-logo-banner, .consistent-header-banner').forEach(img => {
         img.style.height = bannerH + 'px';
       });
@@ -16658,11 +16653,11 @@
       if (isCompact) {
         landscapeGrid.style.display = 'none';
         portraitGrid.style.display = 'flex';
-        const cardW = Math.min(Math.max((w - 56) / 2, 130), 160);
+        const cardW = Math.round(Math.min(Math.max((w - 56) / 2, 124), 152) * 0.95);
         document.querySelectorAll('#portraitGrid .card-btn').forEach(btn => {
           btn.style.width = cardW + 'px';
         });
-        const pillW = Math.min(Math.max(cardW * 0.78, 100), 125);
+        const pillW = Math.min(Math.max(cardW * 0.78, 95), 120);
         const pillH = Math.round(pillW * 0.29);
         document.querySelectorAll('#portraitGrid .pill-btn').forEach(btn => {
           btn.style.width = pillW + 'px';
@@ -16688,15 +16683,15 @@
         const maxCardByWidth = (w - (horizontalPadding * 2) - cardGap) / 2;
         const maxCardByHeight = (availH * 0.62) / (2 / 2.24 + 0.58 / 3.44);
         
-        // Tablet sizing: comfortably scale buttons up to 345px on tablet landscape and 325px on tablet portrait
-        const maxAllowedWidth = isLandscape ? 345 : 325;
-        const cardW = Math.round(Math.min(maxCardByWidth, maxCardByHeight, maxAllowedWidth));
+        // Tablet sizing: comfortably scale buttons up to 328px on tablet landscape and 308px on tablet portrait (decreased by 5%)
+        const maxAllowedWidth = isLandscape ? 328 : 308;
+        const cardW = Math.round(Math.min(maxCardByWidth, maxCardByHeight, maxAllowedWidth) * 0.95);
         
         document.querySelectorAll('#landscapeGrid .card-btn').forEach(btn => {
           btn.style.width = cardW + 'px';
         });
 
-        const pillW = Math.round(Math.min(cardW * 0.58, 195));
+        const pillW = Math.round(Math.min(cardW * 0.58, 185));
         const pillH = Math.round(pillW * 0.29);
         document.querySelectorAll('#landscapeGrid .pill-btn').forEach(btn => {
           btn.style.width = pillW + 'px';

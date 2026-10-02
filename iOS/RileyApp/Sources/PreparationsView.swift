@@ -96,9 +96,9 @@ public struct PreparationsView: View {
             let screenSize = geometry.size
             let isLandscape = screenSize.width > screenSize.height
             
-            // Scaled sizing metrics - sleek Apple glass navigation bar
-            let headerHeight: CGFloat = isLandscape ? min(max(screenSize.height * 0.082, 54), 64) : min(max(screenSize.height * 0.075, 50), 60)
-            let iconButtonSize: CGFloat = min(max(headerHeight * 0.72, 36), 44)
+            // Scaled sizing metrics - sleek floating navigation header
+            let headerHeight: CGFloat = isLandscape ? min(max(screenSize.height * 0.11, 68), 88) : min(max(screenSize.height * 0.095, 58), 76)
+            let iconButtonSize: CGFloat = min(max(headerHeight * 0.68, 38), 50)
             let cardWidth: CGFloat = min(max(screenSize.width * 0.72, 280), 840)
             let bottomBarHeight: CGFloat = min(max(screenSize.height * 0.09, 48), 85)
             
@@ -162,16 +162,12 @@ public struct PreparationsView: View {
     @ViewBuilder
     private func topHeaderBar(width: CGFloat, height: CGFloat, iconSize: CGFloat) -> some View {
         ZStack {
-            // Apple Glass background
-            Color.white.opacity(0.85)
-                .background(.ultraThinMaterial)
-            
-            // Header Banner in Center (increased by 20%)
+            // Header Banner in Center (increased by 30%)
             Image("HeaderBanner")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: min(width * 0.84, 900), height: height * 0.98)
-                .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 2)
+                .frame(width: min(width * 0.88, 920), height: height * 0.96)
+                .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 3)
             
             // Header Action Buttons
             HStack {
@@ -225,14 +221,7 @@ public struct PreparationsView: View {
             }
         }
         .frame(width: width, height: height)
-        .overlay(
-            VStack {
-                Spacer()
-                Divider()
-                    .background(Color.white.opacity(0.45))
-            }
-        )
-        .shadow(color: Color.black.opacity(0.08), radius: 6, x: 0, y: 3)
+        .background(Color.clear)
     }
     
     // MARK: - Search Bar View

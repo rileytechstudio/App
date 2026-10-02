@@ -121,10 +121,10 @@ public struct HomeScreenView: View {
         let widthForTwoCards = (screenSize.width - (hPadding * 2) - cardSpacing) / 2.0
         let maxCardWidthByHeight = (availableHeight * 0.62) / (2.0 / AppTheme.cardAspectRatio + 0.58 / AppTheme.footerAspectRatio)
         
-        // Balanced tablet button sizing: scales comfortably up to 345pt in landscape and 325pt in portrait
-        let maxAllowedWidth: CGFloat = isLandscape ? 345 : 325
-        let cardWidth: CGFloat = min(widthForTwoCards, maxCardWidthByHeight, maxAllowedWidth)
-        let footerWidth: CGFloat = min(cardWidth * 0.58, 195)
+        // Balanced tablet button sizing: decreased by 5% (was 345 : 325)
+        let maxAllowedWidth: CGFloat = (isLandscape ? 345 : 325) * 0.95
+        let cardWidth: CGFloat = min(widthForTwoCards, maxCardWidthByHeight, maxAllowedWidth) * 0.95
+        let footerWidth: CGFloat = min(cardWidth * 0.58, 185)
         
         // Dynamic vertical spacing between Row 1 and Row 2
         let vSpacing: CGFloat = min(max(availableHeight * 0.04, 18), 32)
@@ -208,9 +208,9 @@ public struct HomeScreenView: View {
         let hPadding: CGFloat = min(max(screenSize.width * 0.05, 16), 28)
         let spacing: CGFloat = min(max(screenSize.width * 0.035, 12), 20)
         
-        // 2-column card width matching previous sizing (~140pt - 160pt)
-        let cardWidth = min((screenSize.width - (hPadding * 2) - spacing) / 2.0, 160)
-        let footerWidth = min(cardWidth * 0.82, 125)
+        // 2-column card width decreased by 5% (was up to 160pt)
+        let cardWidth = min((screenSize.width - (hPadding * 2) - spacing) / 2.0, 152) * 0.95
+        let footerWidth = min(cardWidth * 0.82, 120)
         
         ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {

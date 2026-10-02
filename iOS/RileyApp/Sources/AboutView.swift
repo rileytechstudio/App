@@ -14,22 +14,18 @@ public struct AboutView: View {
     public var body: some View {
         GeometryReader { proxy in
             let isLandscape = proxy.size.width > proxy.size.height
-            let headerHeight: CGFloat = isLandscape ? min(max(proxy.size.height * 0.082, 54), 64) : min(max(proxy.size.height * 0.075, 50), 60)
-            let iconButtonSize: CGFloat = min(max(headerHeight * 0.72, 36), 44)
+            let headerHeight: CGFloat = isLandscape ? min(max(proxy.size.height * 0.11, 68), 88) : min(max(proxy.size.height * 0.095, 58), 76)
+            let iconButtonSize: CGFloat = min(max(headerHeight * 0.68, 38), 50)
             
             VStack(spacing: 0) {
                 // Top Header Bar
                 ZStack {
-                    // Apple Glass background
-                    Color.white.opacity(0.85)
-                        .background(.ultraThinMaterial)
-                    
-                    // Header Banner in Center (increased by 20%)
+                    // Header Banner in Center (increased by 30%)
                     Image("HeaderBanner")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(width: min(proxy.size.width * 0.84, 900), height: headerHeight * 0.98)
-                        .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 2)
+                        .frame(width: min(proxy.size.width * 0.88, 920), height: headerHeight * 0.96)
+                        .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 3)
                     
                     // Header Action Buttons
                     HStack {
@@ -73,14 +69,7 @@ public struct AboutView: View {
                     }
                 }
                 .frame(width: proxy.size.width, height: headerHeight)
-                .overlay(
-                    VStack {
-                        Spacer()
-                        Divider()
-                            .background(Color.white.opacity(0.45))
-                    }
-                )
-                .shadow(color: Color.black.opacity(0.08), radius: 6, x: 0, y: 3)
+                .background(Color.clear)
                 .zIndex(2)
                 
                 // Content Body

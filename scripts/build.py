@@ -181,14 +181,14 @@ def build_distribution():
       justify-content: center !important;
       pointer-events: none !important;
       width: auto !important;
-      max-width: 72% !important;
+      max-width: 80% !important;
       height: 100% !important;
       z-index: 2 !important;
     }
 
     .home-logo-banner {
-      height: 82px !important;
-      max-height: 106px !important;
+      height: 112px !important;
+      max-height: 145px !important;
       max-width: 100% !important;
       object-fit: contain !important;
       filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.10)) !important;
@@ -236,25 +236,29 @@ def build_distribution():
       filter: drop-shadow(0 1px 1px rgba(255, 255, 255, 0.4)) !important;
     }
 
-    /* Consistent Navigation Header Across All Screens */
+    /* Consistent Navigation Header Across All Screens - Transparent floating header matching Home */
     .app-header, .about-header {
       width: 100% !important;
       height: 64px !important;
       position: relative !important;
       flex-shrink: 0 !important;
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06) !important;
+      box-shadow: none !important;
       z-index: 30 !important;
       display: flex !important;
       align-items: center !important;
       justify-content: space-between !important;
-      background: rgba(255, 255, 255, 0.85) !important;
-      -webkit-backdrop-filter: blur(25px) saturate(180%) !important;
-      backdrop-filter: blur(25px) saturate(180%) !important;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.65) !important;
+      background: transparent !important;
+      -webkit-backdrop-filter: none !important;
+      backdrop-filter: none !important;
+      border-bottom: none !important;
       padding-top: env(safe-area-inset-top, 0px) !important;
       padding-left: max(20px, env(safe-area-inset-left, 0px)) !important;
       padding-right: max(20px, env(safe-area-inset-right, 0px)) !important;
       box-sizing: border-box !important;
+    }
+
+    .app-header::after, .about-header::after {
+      display: none !important;
     }
 
     .app-header .header-left, .about-header .header-left,
@@ -280,14 +284,14 @@ def build_distribution():
       align-items: center !important;
       justify-content: center !important;
       height: 100% !important;
-      max-width: 72% !important;
+      max-width: 80% !important;
       pointer-events: none !important;
       z-index: 3 !important;
     }
 
     .consistent-header-banner {
-      height: 96% !important;
-      max-height: 63px !important;
+      height: 100% !important;
+      max-height: 85px !important;
       max-width: 100% !important;
       object-fit: contain !important;
       filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08)) !important;

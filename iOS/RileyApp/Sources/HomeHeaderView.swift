@@ -41,26 +41,26 @@ public struct HomeHeaderView: View {
     /// Responsive header height based on screen dimensions, orientation, and safe area top inset
     private var headerHeight: CGFloat {
         let baseH = isLandscape 
-            ? min(max(availableHeight * 0.12, 72), 96)
-            : min(max(availableHeight * 0.09, 56), 76)
+            ? min(max(availableHeight * 0.15, 86), 118)
+            : min(max(availableHeight * 0.115, 70), 96)
         return baseH + safeAreaTop
     }
     
-    /// Height of the centered banner logo (increased by 20%)
+    /// Height of the centered banner logo (increased by 30%)
     private var bannerHeight: CGFloat {
         if isLandscape {
-            return min(max(availableHeight * 0.106, 62), 84)
+            return min(max(availableHeight * 0.138, 80), 108)
         } else {
-            return min(max(availableHeight * 0.082, 50), 67)
+            return min(max(availableHeight * 0.106, 65), 88)
         }
     }
     
     /// Size of the circular glass buttons
     private var buttonSize: CGFloat {
         if isLandscape {
-            return min(max(bannerHeight * 0.74, 48), 60)
+            return min(max(bannerHeight * 0.58, 48), 58)
         } else {
-            return min(max(bannerHeight * 0.72, 40), 50)
+            return min(max(bannerHeight * 0.56, 40), 50)
         }
     }
     
