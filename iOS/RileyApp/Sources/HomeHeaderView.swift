@@ -46,12 +46,12 @@ public struct HomeHeaderView: View {
         return baseH + safeAreaTop
     }
     
-    /// Height of the centered banner logo (increased by 30%)
+    /// Height of the centered banner logo (increased by 20% again)
     private var bannerHeight: CGFloat {
         if isLandscape {
-            return min(max(availableHeight * 0.138, 80), 108)
+            return min(max(availableHeight * 0.166, 96), 130)
         } else {
-            return min(max(availableHeight * 0.106, 65), 88)
+            return min(max(availableHeight * 0.127, 78), 106)
         }
     }
     

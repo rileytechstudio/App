@@ -451,11 +451,11 @@ public struct AnatomyExplorerView: View {
     @ViewBuilder
     private func headerBar(width: CGFloat, height: CGFloat, iconSize: CGFloat) -> some View {
         ZStack {
-            // Header Banner in Center (increased by 30%)
+            // Header Banner in Center (increased by 20% again)
             Image("HeaderBanner")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: min(width * 0.88, 920), height: height * 0.96)
+                .frame(width: min(width * 0.92, 1100), height: height * 1.152)
                 .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 3)
             
             // Header Action Buttons
