@@ -46,23 +46,17 @@ public struct HomeHeaderView: View {
         return baseH + safeAreaTop
     }
     
-    /// Height of the centered banner logo (increased by 20% again)
+    /// Height of the centered banner logo - prominent and readable
     private var bannerHeight: CGFloat {
         if isLandscape {
-            return min(max(availableHeight * 0.166, 96), 130)
+            return min(max(availableHeight * 0.15, 88), 114)
         } else {
-            return min(max(availableHeight * 0.127, 78), 106)
+            return min(max(availableHeight * 0.12, 76), 96)
         }
     }
     
-    /// Size of the circular glass buttons
-    private var buttonSize: CGFloat {
-        if isLandscape {
-            return min(max(bannerHeight * 0.58, 48), 58)
-        } else {
-            return min(max(bannerHeight * 0.56, 40), 50)
-        }
-    }
+    /// Size of the circular glass buttons (Standard Apple HIG 44x44pt)
+    private let buttonSize: CGFloat = 44
     
     public var body: some View {
         ZStack(alignment: .center) {

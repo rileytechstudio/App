@@ -182,13 +182,13 @@ def build_distribution():
       pointer-events: none !important;
       width: auto !important;
       max-width: 80% !important;
-      height: 100% !important;
+      height: auto !important;
       z-index: 2 !important;
     }
 
     .home-logo-banner {
-      height: 112px !important;
-      max-height: 145px !important;
+      height: 96px !important;
+      max-height: 110px !important;
       max-width: 100% !important;
       object-fit: contain !important;
       filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.10)) !important;
@@ -208,8 +208,10 @@ def build_distribution():
       box-sizing: border-box !important;
       flex-shrink: 0 !important;
       cursor: pointer !important;
-      width: 52px !important;
-      height: 52px !important;
+      width: 44px !important;
+      height: 44px !important;
+      min-width: 44px !important;
+      min-height: 44px !important;
     }
 
     .header-glass-btn:hover {
@@ -268,7 +270,7 @@ def build_distribution():
       display: flex !important;
       align-items: center !important;
       gap: 12px !important;
-      min-width: 52px !important;
+      min-width: 44px !important;
     }
 
     .app-header .header-right, .about-header .header-right {
@@ -283,15 +285,15 @@ def build_distribution():
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
-      height: 100% !important;
+      height: auto !important;
       max-width: 80% !important;
       pointer-events: none !important;
       z-index: 3 !important;
     }
 
     .consistent-header-banner {
-      height: 100% !important;
-      max-height: 85px !important;
+      height: 76px !important;
+      max-height: 86px !important;
       max-width: 100% !important;
       object-fit: contain !important;
       filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08)) !important;

@@ -235,7 +235,7 @@ public struct AnatomyExplorerView: View {
         GeometryReader { proxy in
             let isLandscape = proxy.size.width > proxy.size.height
             let headerHeight: CGFloat = isLandscape ? min(max(proxy.size.height * 0.11, 68), 88) : min(max(proxy.size.height * 0.095, 58), 76)
-            let iconButtonSize: CGFloat = min(max(headerHeight * 0.68, 38), 50)
+            let iconButtonSize: CGFloat = 44
             let signWidth = min(proxy.size.width * (isLandscape ? 0.82 : 0.94), 860)
             let signHeight = signWidth * (1024.0 / 1366.0)
             
@@ -451,11 +451,11 @@ public struct AnatomyExplorerView: View {
     @ViewBuilder
     private func headerBar(width: CGFloat, height: CGFloat, iconSize: CGFloat) -> some View {
         ZStack {
-            // Header Banner in Center (increased by 20% again)
+            // Header Banner in Center - prominent and readable
             Image("HeaderBanner")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: min(width * 0.92, 1100), height: height * 1.152)
+                .frame(width: min(width * 0.92, 1100), height: min(max(height * 1.05, 72), 86))
                 .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 3)
             
             // Header Action Buttons

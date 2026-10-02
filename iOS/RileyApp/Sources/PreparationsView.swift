@@ -98,7 +98,7 @@ public struct PreparationsView: View {
             
             // Scaled sizing metrics - sleek floating navigation header
             let headerHeight: CGFloat = isLandscape ? min(max(screenSize.height * 0.11, 68), 88) : min(max(screenSize.height * 0.095, 58), 76)
-            let iconButtonSize: CGFloat = min(max(headerHeight * 0.68, 38), 50)
+            let iconButtonSize: CGFloat = 44
             let cardWidth: CGFloat = min(max(screenSize.width * 0.72, 280), 840)
             let bottomBarHeight: CGFloat = min(max(screenSize.height * 0.09, 48), 85)
             
@@ -162,11 +162,11 @@ public struct PreparationsView: View {
     @ViewBuilder
     private func topHeaderBar(width: CGFloat, height: CGFloat, iconSize: CGFloat) -> some View {
         ZStack {
-            // Header Banner in Center (increased by 20% again)
+            // Header Banner in Center - prominent and readable
             Image("HeaderBanner")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: min(width * 0.92, 1100), height: height * 1.152)
+                .frame(width: min(width * 0.92, 1100), height: min(max(height * 1.05, 72), 86))
                 .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 3)
             
             // Header Action Buttons

@@ -167,13 +167,13 @@
       pointer-events: none;
       width: auto;
       max-width: 85%;
-      height: 100%;
+      height: auto;
       z-index: 2;
     }
 
     .home-logo-banner {
-      height: 134px;
-      max-height: 174px;
+      height: 96px;
+      max-height: 110px;
       max-width: 100%;
       object-fit: contain;
       filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.10));
@@ -196,8 +196,8 @@
       transition: transform 0.20s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.18s ease, box-shadow 0.18s ease !important;
       box-sizing: border-box !important;
       flex-shrink: 0 !important;
-      width: 52px;
-      height: 52px;
+      width: 44px;
+      height: 44px;
     }
 
     .header-glass-btn:hover {
@@ -264,7 +264,7 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      min-width: 52px;
+      min-width: 44px;
     }
 
     .app-header .header-right, .about-header .header-right {
@@ -279,15 +279,15 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100%;
+      height: auto;
       max-width: 85%;
       pointer-events: none;
       z-index: 3;
     }
 
     .consistent-header-banner {
-      height: 100%;
-      max-height: 102px;
+      height: 76px;
+      max-height: 86px;
       max-width: 100%;
       object-fit: contain;
       filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08));
@@ -303,8 +303,8 @@
       align-items: center;
       justify-content: center;
       padding: 0;
-      width: 42px;
-      height: 42px;
+      width: 44px;
+      height: 44px;
       flex-shrink: 0;
       filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.14));
       transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.15s ease;
@@ -7993,13 +7993,13 @@
       pointer-events: none !important;
       width: auto !important;
       max-width: 80% !important;
-      height: 100% !important;
+      height: auto !important;
       z-index: 2 !important;
     }
 
     .home-logo-banner {
-      height: 112px !important;
-      max-height: 145px !important;
+      height: 96px !important;
+      max-height: 110px !important;
       max-width: 100% !important;
       object-fit: contain !important;
       filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.10)) !important;
@@ -8019,8 +8019,10 @@
       box-sizing: border-box !important;
       flex-shrink: 0 !important;
       cursor: pointer !important;
-      width: 52px !important;
-      height: 52px !important;
+      width: 44px !important;
+      height: 44px !important;
+      min-width: 44px !important;
+      min-height: 44px !important;
     }
 
     .header-glass-btn:hover {
@@ -8079,7 +8081,7 @@
       display: flex !important;
       align-items: center !important;
       gap: 12px !important;
-      min-width: 52px !important;
+      min-width: 44px !important;
     }
 
     .app-header .header-right, .about-header .header-right {
@@ -8094,15 +8096,15 @@
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
-      height: 100% !important;
+      height: auto !important;
       max-width: 80% !important;
       pointer-events: none !important;
       z-index: 3 !important;
     }
 
     .consistent-header-banner {
-      height: 100% !important;
-      max-height: 85px !important;
+      height: 76px !important;
+      max-height: 86px !important;
       max-width: 100% !important;
       object-fit: contain !important;
       filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08)) !important;
@@ -16823,16 +16825,22 @@
         hdr.style.height = headerH + 'px';
       });
       
-      const iconSize = Math.min(Math.max(Math.round(headerH * 0.68), 40), 52);
+      const iconSize = 44;
       document.querySelectorAll('.header-glass-btn, .header-icon-btn, .about-header-icon-btn, .about-back-btn, .home-setting-btn').forEach(btn => {
-        btn.style.width = iconSize + 'px';
-        btn.style.height = iconSize + 'px';
+        btn.style.width = '44px';
+        btn.style.height = '44px';
       });
 
-      // Header Banner Sizing (Increased by 20% again)
-      const bannerH = Math.min(Math.max(Math.round(headerH * 1.14), 74), 102);
-      document.querySelectorAll('.home-logo-banner, .consistent-header-banner').forEach(img => {
-        img.style.height = bannerH + 'px';
+      // Header Banner Sizing - Prominent and readable Riley logo
+      const bannerH = isLandscape 
+        ? Math.min(Math.max(Math.round(headerH * 1.05), 72), 86)
+        : Math.min(Math.max(Math.round(headerH * 1.02), 68), 80);
+      document.querySelectorAll('.consistent-header-banner').forEach(img => {
+        img.style.setProperty('height', bannerH + 'px', 'important');
+      });
+      const homeBannerH = isLandscape ? 96 : 84;
+      document.querySelectorAll('.home-logo-banner').forEach(img => {
+        img.style.setProperty('height', homeBannerH + 'px', 'important');
       });
 
       // Home Screen Layout

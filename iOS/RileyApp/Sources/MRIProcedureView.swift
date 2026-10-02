@@ -214,11 +214,11 @@ public struct MRIProcedureView: View {
     @ViewBuilder
     private func topBarView(screenSize: CGSize) -> some View {
         ZStack {
-            // Header Banner in Center (increased by 20% again)
+            // Header Banner in Center - prominent and readable
             Image("HeaderBanner")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: min(screenSize.width * 0.84, 864), height: 72)
+                .frame(width: min(screenSize.width * 0.84, 864), height: 76)
                 .shadow(color: Color.black.opacity(0.15), radius: 6, x: 0, y: 2)
             
             HStack(spacing: 12) {
@@ -226,7 +226,7 @@ public struct MRIProcedureView: View {
                 HeaderIconButton(
                     systemIconName: "arrowshape.turn.up.backward.fill",
                     title: "Back to Procedures",
-                    size: 38,
+                    size: 44,
                     action: {
                         HapticManager.shared.buttonTap()
                         autoTransitionTimer?.invalidate()
@@ -254,7 +254,7 @@ public struct MRIProcedureView: View {
                         Image(systemName: "arrow.counterclockwise")
                             .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(.white)
-                            .frame(width: 38, height: 38)
+                            .frame(width: 44, height: 44)
                             .background(Color.white.opacity(0.15))
                             .clipShape(Circle())
                             .overlay(
@@ -268,7 +268,7 @@ public struct MRIProcedureView: View {
                     HeaderIconButton(
                         systemIconName: "house.fill",
                         title: "Home",
-                        size: 38,
+                        size: 44,
                         action: {
                             HapticManager.shared.buttonTap()
                             autoTransitionTimer?.invalidate()
