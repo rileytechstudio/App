@@ -138,12 +138,10 @@ public struct PreparationsView: View {
                         }
                     )
                     
-                    // MARK: - Search Bar
+                    // MARK: - Search Bar (Scooted down to fill space following ribbon removal)
                     searchBarView(availableWidth: screenSize.width)
-                        .padding(.vertical, isLandscape ? 10 : 8)
-                    
-                    // MARK: - Procedures / Education Ribbon
-                    ribbonBarView(availableWidth: screenSize.width)
+                        .padding(.top, isLandscape ? 16 : 14)
+                        .padding(.bottom, isLandscape ? 14 : 12)
                     
                     // MARK: - Scrollable Procedure Cards with Arrows
                     ZStack(alignment: .trailing) {
@@ -216,41 +214,6 @@ public struct PreparationsView: View {
         .background(Color.white.opacity(0.92))
         .cornerRadius(20)
         .shadow(color: Color.black.opacity(0.12), radius: 3, x: 0, y: 1)
-    }
-    
-    // MARK: - Procedures / Education Ribbon
-    @ViewBuilder
-    private func ribbonBarView(availableWidth: CGFloat) -> some View {
-        let ribbonImageName = (selectedTab == .procedures) ? "RibbonProceduresSelected" : "RibbonEducationSelected"
-        
-        ZStack {
-            Image(ribbonImageName)
-                .resizable()
-                .aspectRatio(AppTheme.ribbonAspectRatio, contentMode: .fit)
-                .frame(width: availableWidth)
-            
-            // Invisible tap hit areas for the two tabs
-            HStack(spacing: 0) {
-                Button(action: {
-                    selectedTab = .procedures
-                    HapticManager.shared.lightTap()
-                }) {
-                    Color.clear
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .accessibilityLabel("Procedures Tab")
-                
-                Button(action: {
-                    selectedTab = .education
-                    HapticManager.shared.lightTap()
-                }) {
-                    Color.clear
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .accessibilityLabel("Education Tab")
-            }
-        }
-        .frame(width: availableWidth)
     }
     
     // MARK: - Scrollable Cards List

@@ -346,6 +346,14 @@ def build_distribution():
       box-sizing: border-box;
     }
 
+    .prep-search-wrapper {
+      padding: 22px 0 16px 0 !important;
+    }
+
+    .prep-ribbon-wrapper {
+      display: none !important;
+    }
+
     /* Bottom Bar Anchored Directly to Screen Bottom with Zero Padding Distortion */
     .prep-bottom-bar, .game-bottom-bar {
       position: absolute !important;

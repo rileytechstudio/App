@@ -606,7 +606,7 @@
     /* PREPARATIONS SCREEN STYLES                                */
     /* ========================================================= */
     .prep-search-wrapper {
-      padding: 10px 0;
+      padding: 22px 0 16px 0;
       display: flex;
       justify-content: center;
       width: 100%;
@@ -642,11 +642,7 @@
     }
 
     .prep-ribbon-wrapper {
-      width: 100%;
-      position: relative;
-      cursor: pointer;
-      flex-shrink: 0;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+      display: none !important;
     }
 
     .prep-ribbon-wrapper img {
@@ -8040,15 +8036,6 @@
                   <line x1="12" y1="19" x2="12" y2="23"></line>
                   <line x1="8" y1="23" x2="16" y2="23"></line>
                 </svg>
-              </div>
-            </div>
-
-            <!-- Procedures / Education Ribbon -->
-            <div class="prep-ribbon-wrapper">
-              <img id="ribbonImg" src="assets/RibbonProceduresSelected.png" alt="Procedures / Education Ribbon" />
-              <div class="ribbon-hit-areas">
-                <button class="ribbon-hit-tab" onclick="setRibbonTab('procedures')" title="Procedures Tab"></button>
-                <button class="ribbon-hit-tab" onclick="setRibbonTab('education')" title="Education Tab"></button>
               </div>
             </div>
 
