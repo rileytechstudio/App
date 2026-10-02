@@ -1298,7 +1298,7 @@
     .mri-draggable-bed.slid-in {
       cursor: default;
       transition: transform 0.85s cubic-bezier(0.25, 1, 0.5, 1);
-      transform: translateY(0%) !important;
+      transform: translateY(0%);
     }
 
     .mri-bed-cutout {
@@ -1338,11 +1338,22 @@
       flex-direction: column;
       align-items: center;
       gap: 10px;
-      pointer-events: auto;
+      pointer-events: none;
       z-index: 18;
-      cursor: pointer;
-      transition: opacity 0.4s ease;
-      will-change: opacity;
+      cursor: grab;
+      transition: opacity 0.35s ease, transform 0.25s ease;
+      will-change: opacity, transform;
+    }
+
+    .mri-slide-guide.pulse-hint .mri-slide-arrow-bounce {
+      animation: mriSlidePulseHint 0.55s ease-out;
+    }
+
+    @keyframes mriSlidePulseHint {
+      0% { transform: scale(1); }
+      35% { transform: scale(1.22); }
+      70% { transform: scale(0.95); }
+      100% { transform: scale(1); }
     }
 
     .mri-slide-arrow-bounce {
@@ -8200,25 +8211,25 @@
                   <img id="mriGlowTopImg" class="mri-layer mri-glow-top" src="assets/MRIGlowTop.png" alt="MRI Scanner Opening" onerror="if(this.src.indexOf('MRI%20Glow%20Top.png')===-1&&this.src.indexOf('MRI Glow Top.png')===-1)this.src='assets/MRI Glow Top.png';" style="opacity: 0; pointer-events: none; z-index: 16; transition: opacity 0.8s ease; will-change: opacity;" />
 
                   <!-- Upward slide guide indicator (placed on top of everything at z-index: 18) -->
-                  <div id="mriSlideGuide" class="mri-slide-guide" onclick="onMRISlideGuideTap(event)" title="Slide into the machine" style="opacity: 0; pointer-events: none;">
+                  <div id="mriSlideGuide" class="mri-slide-guide" title="Drag up into the machine" style="opacity: 0; pointer-events: none;">
                     <div class="mri-slide-arrow-bounce">
                       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="12" y1="19" x2="12" y2="5"></line>
                         <polyline points="5 12 12 5 19 12"></polyline>
                       </svg>
                     </div>
-                    <span class="mri-slide-label">Slide into the machine!</span>
+                    <span class="mri-slide-label">Drag up into the machine!</span>
                   </div>
 
                   <!-- Downward slide out guide indicator -->
-                  <div id="mriSlideOutGuide" class="mri-slide-guide mri-slide-out-guide" onclick="onMRISlideOutGuideTap(event)" title="Slide out of the machine" style="opacity: 0; pointer-events: none; display: none;">
+                  <div id="mriSlideOutGuide" class="mri-slide-guide mri-slide-out-guide" title="Drag down out of the machine" style="opacity: 0; pointer-events: none; display: none;">
                     <div class="mri-slide-arrow-bounce mri-slide-arrow-down">
                       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="12" y1="5" x2="12" y2="19"></line>
                         <polyline points="19 12 12 19 5 12"></polyline>
                       </svg>
                     </div>
-                    <span class="mri-slide-label">Slide out of the machine!</span>
+                    <span class="mri-slide-label">Drag down out of the machine!</span>
                   </div>
 
                   <!-- Hotspot on the bed to get ready -->
@@ -17807,12 +17818,39 @@
       } else if (!mriStillGameDone) {
         startMRIStillGame(event);
       } else if (!mriBedSlidIn) {
-        const draggableBed = document.getElementById('mriDraggableBed');
-        if (draggableBed && draggableBed._dragAttached) {
-          completeMRISlideIn();
+        // User tapped instead of dragging up: pulse guide arrow & prompt
+        const slideGuide = document.getElementById('mriSlideGuide');
+        if (slideGuide) {
+          slideGuide.classList.remove('pulse-hint');
+          void slideGuide.offsetWidth;
+          slideGuide.classList.add('pulse-hint');
         }
+        const promptText = document.getElementById('mriPromptText');
+        if (promptText) promptText.textContent = "Drag the bed up into the machine!";
+        const promptBar = document.getElementById('mriBottomPromptBar');
+        if (promptBar) {
+          promptBar.classList.remove('prompt-pulse');
+          void promptBar.offsetWidth;
+          promptBar.classList.add('prompt-pulse');
+        }
+        triggerHapticFeedback(false);
       } else if (mriBedCanSlideOut && !mriBedSlidOut) {
-        completeMRISlideOut();
+        // User tapped instead of dragging down: pulse guide arrow & prompt
+        const slideOutGuide = document.getElementById('mriSlideOutGuide');
+        if (slideOutGuide) {
+          slideOutGuide.classList.remove('pulse-hint');
+          void slideOutGuide.offsetWidth;
+          slideOutGuide.classList.add('pulse-hint');
+        }
+        const promptText = document.getElementById('mriPromptText');
+        if (promptText) promptText.textContent = "Drag the bed down out of the machine!";
+        const promptBar = document.getElementById('mriBottomPromptBar');
+        if (promptBar) {
+          promptBar.classList.remove('prompt-pulse');
+          void promptBar.offsetWidth;
+          promptBar.classList.add('prompt-pulse');
+        }
+        triggerHapticFeedback(false);
       } else if (mriBedSlidOut) {
         showMRISuccessCelebration();
       }
@@ -18161,7 +18199,7 @@
         mriStillGameDone = true;
         // Seamlessly illuminate the scanner and activate draggable bed
         transitionToMRIGlowAndDraggableBed();
-        setMRIStillPrompt(null, "Great job! You're ready for your MRI! Slide the bed into the machine!");
+        setMRIStillPrompt(null, "Great job! You're ready for your MRI! Drag the bed up into the machine!");
       } else {
         showMRIHoldingStillPrompt();
       }
@@ -18292,14 +18330,14 @@
 
       if (slideGuide) {
         slideGuide.style.opacity = '1';
-        slideGuide.style.pointerEvents = 'auto';
+        slideGuide.style.pointerEvents = 'none';
       }
 
       const promptText = document.getElementById('mriPromptText');
       const promptDot = document.getElementById('mriPromptDot');
       const promptBar = document.getElementById('mriBottomPromptBar');
       if (promptText) {
-        promptText.textContent = "Slide the bed into the machine!";
+        promptText.textContent = "Drag the bed up into the machine!";
       }
       if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
       if (promptBar) {
@@ -18317,9 +18355,14 @@
       const stageEl = document.getElementById('mriStage') || bedEl.parentElement;
 
       function onPointerDown(e) {
-        if (mriBedSlidIn && (!mriBedCanSlideOut || mriBedSlidOut)) return;
+        const canDragIn = mriBedActive && mriBedFull && mriStillGameDone && !mriBedSlidIn;
+        const canDragOut = mriBedActive && mriBedCanSlideOut && !mriBedSlidOut;
+        if (!canDragIn && !canDragOut) return;
+
         mriBedDragActive = true;
         mriBedDragStartY = e.clientY;
+        mriBedDragStartX = e.clientX;
+        mriBedDragStartTime = Date.now();
         mriBedDragCurrentY = 0;
         bedEl.classList.add('dragging');
         try { bedEl.setPointerCapture(e.pointerId); } catch (_) {}
@@ -18328,32 +18371,42 @@
       function onPointerMove(e) {
         if (!mriBedDragActive) return;
         const stageH = stageEl ? stageEl.offsetHeight : 600;
-        const maxSlidePx = stageH * 0.22;
+        const maxSlidePx = Math.max(100, stageH * 0.22);
         const deltaY = e.clientY - mriBedDragStartY;
 
         if (!mriBedSlidIn) {
-          // Upward drag is negative deltaY (from 22% to 0%)
-          const upwardPx = Math.max(0, -deltaY);
-          const progress = Math.min(1.0, upwardPx / maxSlidePx);
+          // Upward drag is negative deltaY (from 22% down to 0%)
+          let upwardPx = -deltaY;
+          if (upwardPx < 0) {
+            upwardPx = upwardPx * 0.2;
+          }
+          const progress = Math.max(-0.08, Math.min(1.0, upwardPx / maxSlidePx));
           mriBedDragCurrentY = progress;
-          const currentPercent = 22 * (1.0 - progress);
+          const currentPercent = 22 * (1.0 - Math.max(0, progress)) + (progress < 0 ? Math.abs(progress) * 8 : 0);
           bedEl.style.transform = `translateY(${currentPercent}%)`;
 
           const slideGuide = document.getElementById('mriSlideGuide');
           if (slideGuide) {
-            slideGuide.style.opacity = Math.max(0, 1 - progress * 2.2).toString();
+            const guideOpacity = Math.max(0, 1 - Math.max(0, progress) * 1.8);
+            slideGuide.style.opacity = guideOpacity.toString();
+            slideGuide.style.transform = `translate(-50%, calc(-50% - ${Math.max(0, progress) * 36}px))`;
           }
         } else if (mriBedCanSlideOut && !mriBedSlidOut) {
-          // Downward drag is positive deltaY (from 0% to 22%)
-          const downwardPx = Math.max(0, deltaY);
-          const progress = Math.min(1.0, downwardPx / maxSlidePx);
+          // Downward drag is positive deltaY (from 0% up to 22%)
+          let downwardPx = deltaY;
+          if (downwardPx < 0) {
+            downwardPx = downwardPx * 0.2;
+          }
+          const progress = Math.max(-0.08, Math.min(1.0, downwardPx / maxSlidePx));
           mriBedDragCurrentY = progress;
-          const currentPercent = 22 * progress;
+          const currentPercent = 22 * Math.max(0, progress) + (progress < 0 ? progress * 8 : 0);
           bedEl.style.transform = `translateY(${currentPercent}%)`;
 
           const slideOutGuide = document.getElementById('mriSlideOutGuide');
           if (slideOutGuide) {
-            slideOutGuide.style.opacity = Math.max(0, 1 - progress * 2.2).toString();
+            const guideOpacity = Math.max(0, 1 - Math.max(0, progress) * 1.8);
+            slideOutGuide.style.opacity = guideOpacity.toString();
+            slideOutGuide.style.transform = `translate(-50%, calc(-50% + ${Math.max(0, progress) * 36}px))`;
           }
         }
       }
@@ -18364,21 +18417,72 @@
         try { bedEl.releasePointerCapture(e.pointerId); } catch (_) {}
         bedEl.classList.remove('dragging');
 
+        const dt = Math.max(1, Date.now() - mriBedDragStartTime);
+        const deltaY = e.clientY - mriBedDragStartY;
+        const totalDistance = Math.hypot(e.clientX - mriBedDragStartX, deltaY);
+
         if (!mriBedSlidIn) {
-          if (mriBedDragCurrentY >= 0.35 || Math.abs(e.clientY - mriBedDragStartY) < 10) {
+          const upwardPx = -deltaY;
+          const velocity = upwardPx / dt;
+          const slideGuide = document.getElementById('mriSlideGuide');
+
+          if (mriBedDragCurrentY >= 0.28 || (upwardPx > 28 && velocity > 0.32)) {
+            // Dragged successfully into machine!
+            bedEl.classList.add('slid-in');
+            bedEl.style.transform = 'translateY(0%)';
             completeMRISlideIn();
           } else {
+            // Snap back to 22%
             bedEl.style.transform = 'translateY(22%)';
-            const slideGuide = document.getElementById('mriSlideGuide');
-            if (slideGuide) slideGuide.style.opacity = '1';
+            if (slideGuide) {
+              slideGuide.style.opacity = '1';
+              slideGuide.style.transform = 'translate(-50%, -50%)';
+              if (totalDistance < 16) {
+                slideGuide.classList.remove('pulse-hint');
+                void slideGuide.offsetWidth;
+                slideGuide.classList.add('pulse-hint');
+                const promptText = document.getElementById('mriPromptText');
+                if (promptText) promptText.textContent = "Drag the bed up into the machine!";
+                const promptBar = document.getElementById('mriBottomPromptBar');
+                if (promptBar) {
+                  promptBar.classList.remove('prompt-pulse');
+                  void promptBar.offsetWidth;
+                  promptBar.classList.add('prompt-pulse');
+                }
+                triggerHapticFeedback(false);
+              }
+            }
           }
         } else if (mriBedCanSlideOut && !mriBedSlidOut) {
-          if (mriBedDragCurrentY >= 0.35 || Math.abs(e.clientY - mriBedDragStartY) < 10) {
+          const downwardPx = deltaY;
+          const velocity = downwardPx / dt;
+          const slideOutGuide = document.getElementById('mriSlideOutGuide');
+
+          if (mriBedDragCurrentY >= 0.28 || (downwardPx > 28 && velocity > 0.32)) {
+            // Dragged successfully out of machine!
+            bedEl.style.transform = 'translateY(22%)';
             completeMRISlideOut();
           } else {
+            // Snap back to 0%
             bedEl.style.transform = 'translateY(0%)';
-            const slideOutGuide = document.getElementById('mriSlideOutGuide');
-            if (slideOutGuide) slideOutGuide.style.opacity = '1';
+            if (slideOutGuide) {
+              slideOutGuide.style.opacity = '1';
+              slideOutGuide.style.transform = 'translate(-50%, -50%)';
+              if (totalDistance < 16) {
+                slideOutGuide.classList.remove('pulse-hint');
+                void slideOutGuide.offsetWidth;
+                slideOutGuide.classList.add('pulse-hint');
+                const promptText = document.getElementById('mriPromptText');
+                if (promptText) promptText.textContent = "Drag the bed down out of the machine!";
+                const promptBar = document.getElementById('mriBottomPromptBar');
+                if (promptBar) {
+                  promptBar.classList.remove('prompt-pulse');
+                  void promptBar.offsetWidth;
+                  promptBar.classList.add('prompt-pulse');
+                }
+                triggerHapticFeedback(false);
+              }
+            }
           }
         }
       }
@@ -18390,13 +18494,41 @@
     }
 
     function onMRISlideGuideTap(event) {
-      if (event) event.stopPropagation();
-      completeMRISlideIn();
+      if (event && event.stopPropagation) event.stopPropagation();
+      const slideGuide = document.getElementById('mriSlideGuide');
+      if (slideGuide) {
+        slideGuide.classList.remove('pulse-hint');
+        void slideGuide.offsetWidth;
+        slideGuide.classList.add('pulse-hint');
+      }
+      const promptText = document.getElementById('mriPromptText');
+      if (promptText) promptText.textContent = "Drag the bed up into the machine!";
+      const promptBar = document.getElementById('mriBottomPromptBar');
+      if (promptBar) {
+        promptBar.classList.remove('prompt-pulse');
+        void promptBar.offsetWidth;
+        promptBar.classList.add('prompt-pulse');
+      }
+      triggerHapticFeedback(false);
     }
 
     function onMRISlideOutGuideTap(event) {
-      if (event) event.stopPropagation();
-      completeMRISlideOut();
+      if (event && event.stopPropagation) event.stopPropagation();
+      const slideOutGuide = document.getElementById('mriSlideOutGuide');
+      if (slideOutGuide) {
+        slideOutGuide.classList.remove('pulse-hint');
+        void slideOutGuide.offsetWidth;
+        slideOutGuide.classList.add('pulse-hint');
+      }
+      const promptText = document.getElementById('mriPromptText');
+      if (promptText) promptText.textContent = "Drag the bed down out of the machine!";
+      const promptBar = document.getElementById('mriBottomPromptBar');
+      if (promptBar) {
+        promptBar.classList.remove('prompt-pulse');
+        void promptBar.offsetWidth;
+        promptBar.classList.add('prompt-pulse');
+      }
+      triggerHapticFeedback(false);
     }
 
     function completeMRISlideIn() {
@@ -18419,6 +18551,7 @@
         draggableBed.classList.remove('dragging');
         draggableBed.classList.add('slid-in');
         draggableBed.style.transform = 'translateY(0%)';
+        draggableBed.style.cursor = 'default';
       }
 
       const promptText = document.getElementById('mriPromptText');
@@ -18445,7 +18578,7 @@
         const promptText = document.getElementById('mriPromptText');
         const promptBar = document.getElementById('mriBottomPromptBar');
         if (promptText) {
-          promptText.textContent = "Your scan is complete! Slide the bed back out!";
+          promptText.textContent = "Your scan is complete! Drag the bed down out of the machine!";
         }
         if (promptBar) {
           promptBar.classList.remove('prompt-pulse');
@@ -18455,10 +18588,18 @@
         const slideOutGuide = document.getElementById('mriSlideOutGuide');
         if (slideOutGuide) {
           slideOutGuide.style.display = 'flex';
-          slideOutGuide.style.pointerEvents = 'auto';
+          slideOutGuide.style.pointerEvents = 'none';
+          slideOutGuide.style.transform = 'translate(-50%, -50%)';
           requestAnimationFrame(() => {
             slideOutGuide.style.opacity = '1';
           });
+        }
+
+        if (draggableBed) {
+          draggableBed.classList.remove('slid-in');
+          draggableBed.style.transform = 'translateY(0%)';
+          draggableBed.style.pointerEvents = 'auto';
+          draggableBed.style.cursor = 'grab';
         }
       }, 4000);
     }
@@ -18480,6 +18621,8 @@
       if (draggableBed) {
         draggableBed.classList.remove('slid-in', 'dragging');
         draggableBed.style.transform = 'translateY(22%)';
+        draggableBed.style.cursor = 'default';
+        draggableBed.style.pointerEvents = 'none';
       }
 
       const promptText = document.getElementById('mriPromptText');
@@ -18888,9 +19031,9 @@
       } else if (mriBedActive && mriBedFull && !mriStillGameDone) {
         startMRIStillGame(event);
       } else if (mriBedActive && mriBedFull && !mriBedSlidIn) {
-        completeMRISlideIn();
+        onMRISlideGuideTap(event);
       } else if (mriBedActive && mriBedCanSlideOut && !mriBedSlidOut) {
-        completeMRISlideOut();
+        onMRISlideOutGuideTap(event);
       } else if (mriBedActive && mriBedSlidOut) {
         showMRISuccessCelebration();
       } else if (!mriHasTransitioned) {
@@ -18914,9 +19057,9 @@
       } else if (mriBedActive && mriBedFull && !mriStillGameDone) {
         startMRIStillGame();
       } else if (mriBedActive && mriBedFull && !mriBedSlidIn) {
-        completeMRISlideIn();
+        onMRISlideGuideTap();
       } else if (mriBedActive && mriBedCanSlideOut && !mriBedSlidOut) {
-        completeMRISlideOut();
+        onMRISlideOutGuideTap();
       } else if (mriBedActive && mriBedSlidOut) {
         showMRISuccessCelebration();
       } else if (!mriHasTransitioned) {
