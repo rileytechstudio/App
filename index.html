@@ -150,12 +150,12 @@
     }
 
     .home-logo-banner {
-      height: 98px;
-      max-height: 124px;
-      max-width: 80vw;
+      height: 114px;
+      max-height: 140px;
+      max-width: 85vw;
       object-fit: contain;
       object-position: left center;
-      filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.10));
+      filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.12));
     }
 
     .home-header-right {
@@ -164,19 +164,25 @@
     }
 
     .home-setting-btn {
-      background: transparent;
-      border: none;
+      background: rgba(255, 255, 255, 0.78);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1.5px solid rgba(255, 255, 255, 0.60);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
       cursor: pointer;
       padding: 0;
       margin: 0;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.18s ease;
+      transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.18s ease, box-shadow 0.18s ease;
     }
 
     .home-setting-btn:hover {
+      background: rgba(255, 255, 255, 0.90);
       transform: scale(1.08) rotate(12deg);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
     }
 
     .home-setting-btn:active {
@@ -184,8 +190,8 @@
     }
 
     .home-setting-btn img {
-      width: 72px;
-      height: 72px;
+      width: 76px;
+      height: 76px;
       object-fit: contain;
       display: block;
     }
@@ -349,16 +355,36 @@
     .pill-btn {
       max-width: 200px;
       width: 100%;
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1.5px solid rgba(255, 255, 255, 0.65);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.85);
+      border-radius: 9999px;
+      overflow: hidden;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .card-btn:hover, .pill-btn:hover {
+    .card-btn:hover {
       transform: scale(1.035);
       filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.35));
     }
 
-    .card-btn:active, .pill-btn:active {
+    .pill-btn:hover {
+      background: rgba(255, 255, 255, 0.92);
+      transform: translateY(-2px) scale(1.035);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.16);
+    }
+
+    .card-btn:active {
       transform: scale(0.94);
       filter: brightness(0.94);
+    }
+
+    .pill-btn:active {
+      transform: translateY(1px) scale(0.96);
     }
 
     .card-btn img, .pill-btn img {
@@ -7880,19 +7906,44 @@
     }
 
     .home-logo-banner {
-      height: 98px !important;
-      max-height: 124px !important;
-      max-width: 80vw !important;
+      height: 114px !important;
+      max-height: 140px !important;
+      max-width: 85vw !important;
       object-fit: contain !important;
       object-position: left center !important;
-      filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.10)) !important;
+      filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.12)) !important;
+    }
+
+    .home-setting-btn {
+      background: rgba(255, 255, 255, 0.78) !important;
+      backdrop-filter: blur(20px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.60) !important;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.8) !important;
+      border-radius: 50% !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
     }
 
     .home-setting-btn img {
-      width: 72px !important;
-      height: 72px !important;
+      width: 76px !important;
+      height: 76px !important;
       object-fit: contain !important;
       display: block !important;
+    }
+
+    .pill-btn {
+      background: rgba(255, 255, 255, 0.82) !important;
+      backdrop-filter: blur(20px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.65) !important;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.85) !important;
+      border-radius: 9999px !important;
+      overflow: hidden !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
     }
 
     #screenHome .screen-content {
@@ -7944,20 +7995,20 @@
               <div id="landscapeGrid" class="cards-container">
                 <div class="home-main-cards">
                   <div class="grid-row-top">
-                    <button class="card-btn" onclick="goToPreparations()" style="width: 335px;">
-                      <img src="assets/Preparations.png" alt="Preparations" />
-                    </button>
                     <button class="card-btn" onclick="goToAnatomyExplorer()" style="width: 335px;">
                       <img src="assets/Anatomy Explorer.png" alt="Anatomy Explorer" />
+                    </button>
+                    <button class="card-btn" onclick="openSheet('Gallery')" style="width: 335px;">
+                      <img src="assets/Gallery.png" alt="Gallery" />
                     </button>
                   </div>
 
                   <div class="grid-row-mid">
-                    <button class="card-btn" onclick="openSheet('Gallery')" style="width: 335px;">
-                      <img src="assets/Gallery.png" alt="Gallery" />
-                    </button>
                     <button class="card-btn" onclick="goToGames()" style="width: 335px;">
                       <img src="assets/Games.png" alt="Games" />
+                    </button>
+                    <button class="card-btn" onclick="goToPreparations()" style="width: 335px;">
+                      <img src="assets/Preparations.png" alt="Preparations" />
                     </button>
                   </div>
                 </div>
@@ -7976,19 +8027,19 @@
               <div id="portraitGrid" class="portrait-grid">
                 <div class="portrait-grid-cards">
                   <div class="portrait-grid-row">
-                    <button class="card-btn" onclick="goToPreparations()" style="width: 150px;">
-                      <img src="assets/Preparations.png" alt="Preparations" />
-                    </button>
                     <button class="card-btn" onclick="goToAnatomyExplorer()" style="width: 150px;">
                       <img src="assets/Anatomy Explorer.png" alt="Anatomy Explorer" />
                     </button>
-                  </div>
-                  <div class="portrait-grid-row">
                     <button class="card-btn" onclick="openSheet('Gallery')" style="width: 150px;">
                       <img src="assets/Gallery.png" alt="Gallery" />
                     </button>
+                  </div>
+                  <div class="portrait-grid-row">
                     <button class="card-btn" onclick="goToGames()" style="width: 150px;">
                       <img src="assets/Games.png" alt="Games" />
+                    </button>
+                    <button class="card-btn" onclick="goToPreparations()" style="width: 150px;">
+                      <img src="assets/Preparations.png" alt="Preparations" />
                     </button>
                   </div>
                 </div>
@@ -16538,19 +16589,24 @@
 
       // Home Custom Header Sizing - Prominent Logo Banner matching mockup
       const homeLogo = document.querySelector('.home-logo-banner');
-      const homeSetting = document.querySelector('.home-setting-btn img');
+      const homeSetting = document.querySelector('.home-setting-btn');
+      const homeSettingImg = document.querySelector('.home-setting-btn img');
       if (homeLogo) {
         const logoH = isLandscape 
-          ? Math.min(Math.max(Math.round(h * 0.13), 74), 118) 
-          : Math.min(Math.max(Math.round(h * 0.10), 56), 94);
+          ? Math.min(Math.max(Math.round(h * 0.16), 88), 136) 
+          : Math.min(Math.max(Math.round(h * 0.12), 68), 108);
         homeLogo.style.height = logoH + 'px';
       }
       if (homeSetting) {
         const settingS = isLandscape 
-          ? Math.min(Math.max(Math.round(h * 0.09), 56), 78) 
-          : Math.min(Math.max(Math.round(h * 0.07), 44), 64);
+          ? Math.min(Math.max(Math.round(h * 0.095), 58), 82) 
+          : Math.min(Math.max(Math.round(h * 0.075), 46), 66);
         homeSetting.style.width = settingS + 'px';
         homeSetting.style.height = settingS + 'px';
+        if (homeSettingImg) {
+          homeSettingImg.style.width = '100%';
+          homeSettingImg.style.height = '100%';
+        }
       }
 
       // Home Screen Layout

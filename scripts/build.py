@@ -151,19 +151,44 @@ def build_distribution():
     }
 
     .home-logo-banner {
-      height: 98px !important;
-      max-height: 124px !important;
-      max-width: 80vw !important;
+      height: 114px !important;
+      max-height: 140px !important;
+      max-width: 85vw !important;
       object-fit: contain !important;
       object-position: left center !important;
-      filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.10)) !important;
+      filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.12)) !important;
+    }
+
+    .home-setting-btn {
+      background: rgba(255, 255, 255, 0.78) !important;
+      backdrop-filter: blur(20px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.60) !important;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.8) !important;
+      border-radius: 50% !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
     }
 
     .home-setting-btn img {
-      width: 72px !important;
-      height: 72px !important;
+      width: 76px !important;
+      height: 76px !important;
       object-fit: contain !important;
       display: block !important;
+    }
+
+    .pill-btn {
+      background: rgba(255, 255, 255, 0.82) !important;
+      backdrop-filter: blur(20px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.65) !important;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.85) !important;
+      border-radius: 9999px !important;
+      overflow: hidden !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
     }
 
     #screenHome .screen-content {

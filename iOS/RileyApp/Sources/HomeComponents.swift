@@ -69,6 +69,7 @@ public struct FooterPillButton: View {
                 .resizable()
                 .aspectRatio(AppTheme.footerAspectRatio, contentMode: .fit)
                 .frame(width: width)
+                .background(Capsule().fill(.ultraThinMaterial))
         }
         .buttonStyle(BouncyButtonStyle(scaleAmount: 0.92))
         .accessibilityLabel(Text(title))

@@ -110,7 +110,7 @@ public struct HomeScreenView: View {
         let isLandscape = screenSize.width > screenSize.height
         
         // Responsive Metrics Calculations matching increased header banner
-        let headerApproxHeight: CGFloat = isLandscape ? min(max(screenSize.height * 0.15, 84), 132) : min(max(screenSize.height * 0.12, 68), 108)
+        let headerApproxHeight: CGFloat = isLandscape ? min(max(screenSize.height * 0.17, 96), 148) : min(max(screenSize.height * 0.13, 76), 118)
         let availableHeight = max(screenSize.height - headerApproxHeight, 200)
         
         // Horizontal padding
@@ -134,40 +134,40 @@ public struct HomeScreenView: View {
                 // Top flexible spacer allowing main buttons to sit lower and centered on the device
                 Spacer(minLength: min(max(availableHeight * 0.08, 20), 100))
                 
-                // Row 1: Preparations, Anatomy Explorer
+                // Row 1: Anatomy Explorer, Gallery (Matching Mockup Screenshot)
                 HStack(spacing: cardSpacing) {
-                    CategoryCardButton(
-                        imageName: "ButtonPreparations",
-                        title: "Preparations",
-                        width: cardWidth,
-                        action: { navState.navigate(to: .preparations) }
-                    )
-                    
                     CategoryCardButton(
                         imageName: "ButtonAnatomyExplorer",
                         title: "Anatomy Explorer",
                         width: cardWidth,
                         action: { navState.navigate(to: .anatomyExplorer) }
                     )
-                }
-                .frame(maxWidth: .infinity)
-                
-                Spacer().frame(height: vSpacing)
-                
-                // Row 2: Gallery, Games (Centered horizontally)
-                HStack(spacing: cardSpacing) {
+                    
                     CategoryCardButton(
                         imageName: "ButtonGallery",
                         title: "Gallery",
                         width: cardWidth,
                         action: { navState.navigate(to: .gallery) }
                     )
-                    
+                }
+                .frame(maxWidth: .infinity)
+                
+                Spacer().frame(height: vSpacing)
+                
+                // Row 2: Games, Preparations (Matching Mockup Screenshot)
+                HStack(spacing: cardSpacing) {
                     CategoryCardButton(
                         imageName: "ButtonGames",
                         title: "Games",
                         width: cardWidth,
                         action: { navState.navigate(to: .games) }
+                    )
+                    
+                    CategoryCardButton(
+                        imageName: "ButtonPreparations",
+                        title: "Preparations",
+                        width: cardWidth,
+                        action: { navState.navigate(to: .preparations) }
                     )
                 }
                 .frame(maxWidth: .infinity)
@@ -217,39 +217,39 @@ public struct HomeScreenView: View {
                 // Top flexible spacer allowing main buttons to sit lower and centered on mobile
                 Spacer(minLength: min(max(availableHeight * 0.07, 20), 60))
                 
-                // Row 1: Preparations, Anatomy Explorer
+                // Row 1: Anatomy Explorer, Gallery (Matching Mockup Screenshot)
                 HStack(spacing: spacing) {
-                    CategoryCardButton(
-                        imageName: "ButtonPreparations",
-                        title: "Preparations",
-                        width: cardWidth,
-                        action: { navState.navigate(to: .preparations) }
-                    )
-                    
                     CategoryCardButton(
                         imageName: "ButtonAnatomyExplorer",
                         title: "Anatomy Explorer",
                         width: cardWidth,
                         action: { navState.navigate(to: .anatomyExplorer) }
                     )
-                }
-                
-                Spacer().frame(height: spacing * 1.2)
-                
-                // Row 2: Gallery, Games
-                HStack(spacing: spacing) {
+                    
                     CategoryCardButton(
                         imageName: "ButtonGallery",
                         title: "Gallery",
                         width: cardWidth,
                         action: { navState.navigate(to: .gallery) }
                     )
-                    
+                }
+                
+                Spacer().frame(height: spacing * 1.2)
+                
+                // Row 2: Games, Preparations (Matching Mockup Screenshot)
+                HStack(spacing: spacing) {
                     CategoryCardButton(
                         imageName: "ButtonGames",
                         title: "Games",
                         width: cardWidth,
                         action: { navState.navigate(to: .games) }
+                    )
+                    
+                    CategoryCardButton(
+                        imageName: "ButtonPreparations",
+                        title: "Preparations",
+                        width: cardWidth,
+                        action: { navState.navigate(to: .preparations) }
                     )
                 }
                 
