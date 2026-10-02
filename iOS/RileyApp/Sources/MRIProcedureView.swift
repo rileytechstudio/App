@@ -214,11 +214,11 @@ public struct MRIProcedureView: View {
     @ViewBuilder
     private func topBarView(screenSize: CGSize) -> some View {
         ZStack {
-            // Header Banner in Center
+            // Header Banner in Center (increased by 20%)
             Image("HeaderBanner")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: min(screenSize.width * 0.50, 480), height: 38)
+                .frame(width: min(screenSize.width * 0.60, 576), height: 46)
                 .shadow(color: Color.black.opacity(0.15), radius: 6, x: 0, y: 2)
             
             HStack(spacing: 12) {

@@ -166,14 +166,14 @@
       justify-content: center;
       pointer-events: none;
       width: auto;
-      max-width: 65%;
+      max-width: 72%;
       height: 100%;
       z-index: 2;
     }
 
     .home-logo-banner {
-      height: 72px;
-      max-height: 96px;
+      height: 86px;
+      max-height: 115px;
       max-width: 100%;
       object-fit: contain;
       filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.10));
@@ -285,14 +285,14 @@
       align-items: center;
       justify-content: center;
       height: 100%;
-      max-width: 65%;
+      max-width: 72%;
       pointer-events: none;
       z-index: 3;
     }
 
     .consistent-header-banner {
-      height: 80%;
-      max-height: 52px;
+      height: 96%;
+      max-height: 63px;
       max-width: 100%;
       object-fit: contain;
       filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08));
@@ -7988,14 +7988,14 @@
       justify-content: center !important;
       pointer-events: none !important;
       width: auto !important;
-      max-width: 65% !important;
+      max-width: 72% !important;
       height: 100% !important;
       z-index: 2 !important;
     }
 
     .home-logo-banner {
-      height: 68px !important;
-      max-height: 88px !important;
+      height: 82px !important;
+      max-height: 106px !important;
       max-width: 100% !important;
       object-fit: contain !important;
       filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.10)) !important;
@@ -8087,14 +8087,14 @@
       align-items: center !important;
       justify-content: center !important;
       height: 100% !important;
-      max-width: 65% !important;
+      max-width: 72% !important;
       pointer-events: none !important;
       z-index: 3 !important;
     }
 
     .consistent-header-banner {
-      height: 80% !important;
-      max-height: 52px !important;
+      height: 96% !important;
+      max-height: 63px !important;
       max-width: 100% !important;
       object-fit: contain !important;
       filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08)) !important;
@@ -16821,8 +16821,8 @@
         btn.style.height = iconSize + 'px';
       });
 
-      // Header Banner Sizing
-      const bannerH = Math.min(Math.max(Math.round(headerH * 0.82), 40), 54);
+      // Header Banner Sizing (Increased by 20%)
+      const bannerH = Math.min(Math.max(Math.round(headerH * 0.98), 48), 65);
       document.querySelectorAll('.home-logo-banner, .consistent-header-banner').forEach(img => {
         img.style.height = bannerH + 'px';
       });

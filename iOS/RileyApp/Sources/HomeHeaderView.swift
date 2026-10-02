@@ -46,21 +46,21 @@ public struct HomeHeaderView: View {
         return baseH + safeAreaTop
     }
     
-    /// Height of the centered banner logo
+    /// Height of the centered banner logo (increased by 20%)
     private var bannerHeight: CGFloat {
         if isLandscape {
-            return min(max(availableHeight * 0.088, 52), 70)
+            return min(max(availableHeight * 0.106, 62), 84)
         } else {
-            return min(max(availableHeight * 0.068, 42), 56)
+            return min(max(availableHeight * 0.082, 50), 67)
         }
     }
     
     /// Size of the circular glass buttons
     private var buttonSize: CGFloat {
         if isLandscape {
-            return min(max(bannerHeight * 0.88, 48), 64)
+            return min(max(bannerHeight * 0.74, 48), 60)
         } else {
-            return min(max(bannerHeight * 0.84, 40), 52)
+            return min(max(bannerHeight * 0.72, 40), 50)
         }
     }
     

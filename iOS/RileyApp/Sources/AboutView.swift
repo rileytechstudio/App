@@ -24,11 +24,11 @@ public struct AboutView: View {
                     Color.white.opacity(0.85)
                         .background(.ultraThinMaterial)
                     
-                    // Header Banner in Center
+                    // Header Banner in Center (increased by 20%)
                     Image("HeaderBanner")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(width: min(proxy.size.width * 0.70, 750), height: headerHeight * 0.82)
+                        .frame(width: min(proxy.size.width * 0.84, 900), height: headerHeight * 0.98)
                         .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 2)
                     
                     // Header Action Buttons

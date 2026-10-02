@@ -166,11 +166,11 @@ public struct PreparationsView: View {
             Color.white.opacity(0.85)
                 .background(.ultraThinMaterial)
             
-            // Header Banner in Center
+            // Header Banner in Center (increased by 20%)
             Image("HeaderBanner")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: min(width * 0.70, 750), height: height * 0.82)
+                .frame(width: min(width * 0.84, 900), height: height * 0.98)
                 .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 2)
             
             // Header Action Buttons
