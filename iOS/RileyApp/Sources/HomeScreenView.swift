@@ -119,23 +119,20 @@ public struct HomeScreenView: View {
         let headerApproxHeight: CGFloat = isLandscape ? min(max(screenSize.height * 0.12, 70), 110) : min(max(screenSize.height * 0.09, 56), 80)
         let availableHeight = max(screenSize.height - headerApproxHeight, 200)
         
-        // Horizontal padding: 4% - 6% of width
-        let hPadding: CGFloat = min(max(screenSize.width * 0.05, 24), 72)
-        // Spacing between cards: 3% - 4.5% of width
-        let cardSpacing: CGFloat = min(max(screenSize.width * 0.035, 24), 56)
+        // Horizontal padding
+        let hPadding: CGFloat = min(max(screenSize.width * 0.06, 24), 90)
+        let cardSpacing: CGFloat = min(max(screenSize.width * 0.035, 24), 48)
         
-        // Width calculation for 2 cards across
+        // Width calculation matching previous card size (~250pt - 275pt)
         let widthForTwoCards = (screenSize.width - (hPadding * 2) - cardSpacing) / 2.0
+        let maxCardWidthByHeight = (availableHeight * 0.65) / (2.0 / AppTheme.cardAspectRatio + 0.65 / AppTheme.footerAspectRatio)
         
-        // Height constraint: ensure 2 rows of cards + footer + spacings fit vertically
-        let maxCardWidthByHeight = (availableHeight * 0.72) / (2.0 / AppTheme.cardAspectRatio + 0.65 / AppTheme.footerAspectRatio)
-        
-        // Allow cards to scale up to 440pt on iPad
-        let cardWidth: CGFloat = min(widthForTwoCards, maxCardWidthByHeight, 440)
-        let footerWidth: CGFloat = min(cardWidth * 0.65, 230)
+        // Reduced to previous sizing (capped at 275pt instead of 440pt)
+        let cardWidth: CGFloat = min(widthForTwoCards, maxCardWidthByHeight, 275)
+        let footerWidth: CGFloat = min(cardWidth * 0.62, 165)
         
         // Dynamic vertical spacing between Row 1 and Row 2
-        let vSpacing: CGFloat = min(max(availableHeight * 0.045, 18), 38)
+        let vSpacing: CGFloat = min(max(availableHeight * 0.04, 18), 32)
         
         ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
@@ -216,9 +213,9 @@ public struct HomeScreenView: View {
         let hPadding: CGFloat = min(max(screenSize.width * 0.05, 16), 28)
         let spacing: CGFloat = min(max(screenSize.width * 0.035, 12), 20)
         
-        // 2-column card width
-        let cardWidth = (screenSize.width - (hPadding * 2) - spacing) / 2.0
-        let footerWidth = min(cardWidth * 0.85, 140)
+        // 2-column card width matching previous sizing (~140pt - 160pt)
+        let cardWidth = min((screenSize.width - (hPadding * 2) - spacing) / 2.0, 160)
+        let footerWidth = min(cardWidth * 0.82, 125)
         
         ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {

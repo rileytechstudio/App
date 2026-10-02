@@ -7854,29 +7854,29 @@
               <div id="landscapeGrid" class="cards-container">
                 <div class="home-main-cards">
                   <div class="grid-row-top">
-                    <button class="card-btn" onclick="goToPreparations()" style="width: 320px;">
+                    <button class="card-btn" onclick="goToPreparations()" style="width: 250px;">
                       <img src="assets/Preparations.png" alt="Preparations" />
                     </button>
-                    <button class="card-btn" onclick="goToAnatomyExplorer()" style="width: 320px;">
+                    <button class="card-btn" onclick="goToAnatomyExplorer()" style="width: 250px;">
                       <img src="assets/Anatomy Explorer.png" alt="Anatomy Explorer" />
                     </button>
                   </div>
 
                   <div class="grid-row-mid">
-                    <button class="card-btn" onclick="openSheet('Gallery')" style="width: 320px;">
+                    <button class="card-btn" onclick="openSheet('Gallery')" style="width: 250px;">
                       <img src="assets/Gallery.png" alt="Gallery" />
                     </button>
-                    <button class="card-btn" onclick="goToGames()" style="width: 320px;">
+                    <button class="card-btn" onclick="goToGames()" style="width: 250px;">
                       <img src="assets/Games.png" alt="Games" />
                     </button>
                   </div>
                 </div>
 
                 <div class="grid-row-bottom">
-                  <button class="pill-btn" onclick="goToAbout()" style="width: 175px;">
+                  <button class="pill-btn" onclick="goToAbout()" style="width: 155px;">
                     <img src="assets/About.png" alt="About" />
                   </button>
-                  <button class="pill-btn" onclick="openSheet('Legal')" style="width: 175px;">
+                  <button class="pill-btn" onclick="openSheet('Legal')" style="width: 155px;">
                     <img src="assets/Legal.png" alt="Legal" />
                   </button>
                 </div>
@@ -7886,27 +7886,27 @@
               <div id="portraitGrid" class="portrait-grid">
                 <div class="portrait-grid-cards">
                   <div class="portrait-grid-row">
-                    <button class="card-btn" onclick="goToPreparations()" style="width: 155px;">
+                    <button class="card-btn" onclick="goToPreparations()" style="width: 150px;">
                       <img src="assets/Preparations.png" alt="Preparations" />
                     </button>
-                    <button class="card-btn" onclick="goToAnatomyExplorer()" style="width: 155px;">
+                    <button class="card-btn" onclick="goToAnatomyExplorer()" style="width: 150px;">
                       <img src="assets/Anatomy Explorer.png" alt="Anatomy Explorer" />
                     </button>
                   </div>
                   <div class="portrait-grid-row">
-                    <button class="card-btn" onclick="openSheet('Gallery')" style="width: 155px;">
+                    <button class="card-btn" onclick="openSheet('Gallery')" style="width: 150px;">
                       <img src="assets/Gallery.png" alt="Gallery" />
                     </button>
-                    <button class="card-btn" onclick="goToGames()" style="width: 155px;">
+                    <button class="card-btn" onclick="goToGames()" style="width: 150px;">
                       <img src="assets/Games.png" alt="Games" />
                     </button>
                   </div>
                 </div>
                 <div class="portrait-grid-row portrait-grid-bottom">
-                  <button class="pill-btn" onclick="goToAbout()" style="width: 125px;">
+                  <button class="pill-btn" onclick="goToAbout()" style="width: 120px;">
                     <img src="assets/About.png" alt="About" />
                   </button>
-                  <button class="pill-btn" onclick="openSheet('Legal')" style="width: 125px;">
+                  <button class="pill-btn" onclick="openSheet('Legal')" style="width: 120px;">
                     <img src="assets/Legal.png" alt="Legal" />
                   </button>
                 </div>
@@ -16454,11 +16454,11 @@
       if (isCompact) {
         landscapeGrid.style.display = 'none';
         portraitGrid.style.display = 'flex';
-        const cardW = Math.min(Math.max((w - 56) / 2, 140), 195);
+        const cardW = Math.min(Math.max((w - 56) / 2, 130), 160);
         document.querySelectorAll('#portraitGrid .card-btn').forEach(btn => {
           btn.style.width = cardW + 'px';
         });
-        const pillW = Math.min(Math.max(cardW * 0.75, 110), 140);
+        const pillW = Math.min(Math.max(cardW * 0.78, 100), 125);
         document.querySelectorAll('#portraitGrid .pill-btn').forEach(btn => {
           btn.style.width = pillW + 'px';
         });
@@ -16469,19 +16469,19 @@
         const homeH = homeHeaderEl ? homeHeaderEl.offsetHeight : headerH;
         const availH = h - homeH;
         
-        // Responsive card spacing and width for 2-column balanced grid:
+        // Responsive card spacing and width matching previous sizing (~250px - 265px):
         const horizontalPadding = Math.min(Math.max(w * 0.05, 24), 72);
-        const cardGap = Math.min(Math.max(w * 0.035, 24), 56);
+        const cardGap = Math.min(Math.max(w * 0.035, 24), 48);
         const maxCardByWidth = (w - (horizontalPadding * 2) - cardGap) / 2;
-        // Allow cards to scale comfortably with height and width up to 440px
-        const maxCardByHeight = (availH * 0.72) / (2 / 2.24 + 0.65 / 3.44);
-        const cardW = Math.round(Math.min(maxCardByWidth, maxCardByHeight, 440));
+        const maxCardByHeight = (availH * 0.65) / (2 / 2.24 + 0.65 / 3.44);
+        // Reduced size matching previous card sizing (~250px - 265px)
+        const cardW = Math.round(Math.min(maxCardByWidth, maxCardByHeight, 265));
         
         document.querySelectorAll('#landscapeGrid .card-btn').forEach(btn => {
           btn.style.width = cardW + 'px';
         });
 
-        const pillW = Math.round(Math.min(cardW * 0.65, 230));
+        const pillW = Math.round(Math.min(cardW * 0.62, 160));
         document.querySelectorAll('#landscapeGrid .pill-btn').forEach(btn => {
           btn.style.width = pillW + 'px';
         });
@@ -16493,7 +16493,7 @@
 
         const mainCards = document.querySelector('.home-main-cards');
         if (mainCards) {
-          const vRowGap = Math.min(Math.max(availH * 0.045, 18), 38);
+          const vRowGap = Math.min(Math.max(availH * 0.04, 18), 32);
           mainCards.style.gap = vRowGap + 'px';
         }
 
