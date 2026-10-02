@@ -306,6 +306,14 @@ public struct AnatomyExplorerView: View {
                             .allowsHitTesting(false)
                     }
                     
+                    // Theatrical Proscenium Valance Curtain (Curtain 2.png)
+                    Image("AnatomyCurtain2")
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: proxy.size.width, height: proxy.size.height)
+                        .clipped()
+                        .allowsHitTesting(false)
+                    
                     // Hitboxes for Interactive Selection
                     if areCharactersInteractive {
                         characterHitboxes(proxy: proxy)

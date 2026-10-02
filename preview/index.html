@@ -6199,30 +6199,39 @@
     }
 
     .anatomy-screen-container {
-      display: flex;
-      flex-direction: column;
+      position: relative;
       width: 100%;
       height: 100%;
-      position: relative;
       overflow: hidden;
       background-color: #1a0b2e;
     }
 
-    /* Glass Header (Matching About & Settings style) */
+    /* Glass Header (Floating transparently over curtain valance) */
     .anatomy-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
       width: 100%;
       height: 58px;
-      background: rgba(30, 15, 55, 0.75);
-      -webkit-backdrop-filter: blur(28px) saturate(180%);
-      backdrop-filter: blur(28px) saturate(180%);
+      background: transparent;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
       display: flex;
       align-items: center;
       justify-content: space-between;
       flex-shrink: 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+      border-bottom: none;
+      box-shadow: none;
       z-index: 35;
-      position: relative;
+      pointer-events: none;
+    }
+
+    .anatomy-header .header-left,
+    .anatomy-header .header-center,
+    .anatomy-header .header-right,
+    .anatomy-header button {
+      pointer-events: auto;
     }
 
     .anatomy-header .about-nav-title {
@@ -6236,10 +6245,10 @@
 
     /* Theatrical Viewport */
     .anatomy-theatrical-viewport {
-      flex: 1;
+      position: absolute;
+      inset: 0;
       width: 100%;
-      height: calc(100% - 58px);
-      position: relative;
+      height: 100%;
       overflow: hidden;
       display: flex;
       align-items: center;
@@ -6405,6 +6414,18 @@
       width: 4000px;
       height: 100%;
       pointer-events: none;
+    }
+
+    /* Theatrical Top Curtain Valance (Curtain 2.png) */
+    .anatomy-stage-valance {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center bottom;
+      pointer-events: none;
+      z-index: 6;
     }
 
     /* Character Interactive Hitboxes */
@@ -9191,6 +9212,9 @@
                       </svg>
                     </div>
                   </div>
+
+                  <!-- Theatrical Proscenium Valance Curtain (Curtain 2.png) -->
+                  <img class="anatomy-stage-valance" id="anatomyStageValance" src="assets/Curtain 2.png" alt="" />
 
                   <!-- Hitbox Buttons for Character Selection -->
                   <div class="anatomy-hitbox-container" id="anatomyHitboxContainer">
