@@ -43,6 +43,7 @@ public struct HomeScreenView: View {
                         availableWidth: screenSize.width,
                         availableHeight: screenSize.height,
                         safeAreaTop: geometry.safeAreaInsets.top,
+                        showBackButton: false,
                         onSettingsTapped: {
                             navState.navigate(to: .settings)
                         },
