@@ -203,30 +203,36 @@
       z-index: 1;
     }
 
+    #screenHome {
+      background-color: #f4f2ee !important;
+    }
+
     #screenHome .home-bg-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
       background-image: url('assets/HomeScreenBG.png');
       background-size: cover;
       background-position: center top;
-    }
-
-    .home-bg-overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(89, 49, 186, 0.35) 0%, rgba(65, 30, 140, 0.7) 60%, rgba(89, 49, 186, 0.9) 100%);
-      z-index: 2;
+      background-repeat: no-repeat;
+      z-index: 1;
     }
 
     #screenHome .home-bg-overlay {
-      display: none;
+      display: none !important;
     }
 
-    /* Home Custom Transparent Header */
+    /* Home Custom Transparent Header - Respects iOS Tablet Safe Area */
     .home-custom-header {
       width: 100%;
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      padding: 18px 24px 0 24px;
+      padding-top: calc(env(safe-area-inset-top, 0px) + 16px);
+      padding-left: max(24px, env(safe-area-inset-left, 0px));
+      padding-right: max(24px, env(safe-area-inset-right, 0px));
+      padding-bottom: 0;
       position: relative;
       z-index: 30;
       box-sizing: border-box;
@@ -431,11 +437,13 @@
     }
 
     .card-btn {
-      max-width: 250px;
+      max-width: 350px;
+      width: 100%;
     }
 
     .pill-btn {
-      max-width: 155px;
+      max-width: 200px;
+      width: 100%;
     }
 
     .card-btn:hover, .pill-btn:hover {
@@ -7946,29 +7954,29 @@
               <div id="landscapeGrid" class="cards-container">
                 <div class="home-main-cards">
                   <div class="grid-row-top">
-                    <button class="card-btn" onclick="goToPreparations()" style="width: 250px;">
+                    <button class="card-btn" onclick="goToPreparations()" style="width: 335px;">
                       <img src="assets/Preparations.png" alt="Preparations" />
                     </button>
-                    <button class="card-btn" onclick="goToAnatomyExplorer()" style="width: 250px;">
+                    <button class="card-btn" onclick="goToAnatomyExplorer()" style="width: 335px;">
                       <img src="assets/Anatomy Explorer.png" alt="Anatomy Explorer" />
                     </button>
                   </div>
 
                   <div class="grid-row-mid">
-                    <button class="card-btn" onclick="openSheet('Gallery')" style="width: 250px;">
+                    <button class="card-btn" onclick="openSheet('Gallery')" style="width: 335px;">
                       <img src="assets/Gallery.png" alt="Gallery" />
                     </button>
-                    <button class="card-btn" onclick="goToGames()" style="width: 250px;">
+                    <button class="card-btn" onclick="goToGames()" style="width: 335px;">
                       <img src="assets/Games.png" alt="Games" />
                     </button>
                   </div>
                 </div>
 
                 <div class="grid-row-bottom">
-                  <button class="pill-btn" onclick="goToAbout()" style="width: 155px;">
+                  <button class="pill-btn" onclick="goToAbout()" style="width: 190px;">
                     <img src="assets/About.png" alt="About" />
                   </button>
-                  <button class="pill-btn" onclick="openSheet('Legal')" style="width: 155px;">
+                  <button class="pill-btn" onclick="openSheet('Legal')" style="width: 190px;">
                     <img src="assets/Legal.png" alt="Legal" />
                   </button>
                 </div>
@@ -9929,6 +9937,11 @@
           if (select) select.value = 'home';
           if (statusSpan) statusSpan.textContent = 'Home Screen Active • Responsive Grid View';
         }
+      }
+      if (screenName === 'home') {
+        document.body.style.backgroundColor = '#f4f2ee';
+      } else {
+        document.body.style.backgroundColor = '';
       }
       setTimeout(updateResponsiveLayout, 50);
     }
@@ -16539,19 +16552,25 @@
         const homeH = homeHeaderEl ? homeHeaderEl.offsetHeight : headerH;
         const availH = h - homeH;
         
-        // Responsive card spacing and width matching previous sizing (~250px - 265px):
-        const horizontalPadding = Math.min(Math.max(w * 0.05, 24), 72);
-        const cardGap = Math.min(Math.max(w * 0.035, 24), 48);
+        // Responsive card spacing and width for tablet and desktop:
+        const horizontalPadding = isLandscape 
+          ? Math.min(Math.max(w * 0.05, 24), 72)
+          : Math.min(Math.max(w * 0.04, 20), 48);
+        const cardGap = isLandscape
+          ? Math.min(Math.max(w * 0.035, 24), 48)
+          : Math.min(Math.max(w * 0.03, 18), 36);
         const maxCardByWidth = (w - (horizontalPadding * 2) - cardGap) / 2;
-        const maxCardByHeight = (availH * 0.65) / (2 / 2.24 + 0.65 / 3.44);
-        // Reduced size matching previous card sizing (~250px - 265px)
-        const cardW = Math.round(Math.min(maxCardByWidth, maxCardByHeight, 265));
+        const maxCardByHeight = (availH * 0.62) / (2 / 2.24 + 0.58 / 3.44);
+        
+        // Tablet sizing: comfortably scale buttons up to 345px on tablet landscape and 325px on tablet portrait
+        const maxAllowedWidth = isLandscape ? 345 : 325;
+        const cardW = Math.round(Math.min(maxCardByWidth, maxCardByHeight, maxAllowedWidth));
         
         document.querySelectorAll('#landscapeGrid .card-btn').forEach(btn => {
           btn.style.width = cardW + 'px';
         });
 
-        const pillW = Math.round(Math.min(cardW * 0.62, 160));
+        const pillW = Math.round(Math.min(cardW * 0.58, 195));
         document.querySelectorAll('#landscapeGrid .pill-btn').forEach(btn => {
           btn.style.width = pillW + 'px';
         });

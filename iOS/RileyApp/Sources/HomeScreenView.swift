@@ -29,16 +29,20 @@ public struct HomeScreenView: View {
             let shouldUseMockupGrid = (layoutMode == .forceMockupLayout) || isWideScreen
             
             ZStack(alignment: .top) {
-                // MARK: Background Layer
-                backgroundLayer(screenSize: screenSize)
-                    .ignoresSafeArea()
+                // Neutral soft base tone behind hospital image (no purple fallback)
+                Color(red: 244/255, green: 242/255, blue: 238/255)
+                    .ignoresSafeArea(.all)
+                
+                // MARK: Background Layer - Edge-to-edge covering all safe areas
+                backgroundLayer(screenSize: screenSize, safeAreaInsets: geometry.safeAreaInsets)
                 
                 // MARK: Main Content Structure
                 VStack(spacing: 0) {
-                    // Top Responsive Header
+                    // Top Responsive Header respecting iOS status bar
                     HomeHeaderView(
                         availableWidth: screenSize.width,
                         availableHeight: screenSize.height,
+                        safeAreaTop: geometry.safeAreaInsets.top,
                         onSettingsTapped: {
                             navState.navigate(to: .settings)
                         },
@@ -101,13 +105,17 @@ public struct HomeScreenView: View {
     
     // MARK: - Background Layer
     @ViewBuilder
-    private func backgroundLayer(screenSize: CGSize) -> some View {
-        // Simon Family Tower hospital building background
+    private func backgroundLayer(screenSize: CGSize, safeAreaInsets: EdgeInsets) -> some View {
+        // Simon Family Tower hospital building background edge-to-edge across entire physical display
         Image("HomeScreenBG")
             .resizable()
             .aspectRatio(contentMode: .fill)
-            .frame(width: screenSize.width, height: screenSize.height)
+            .frame(
+                width: screenSize.width + safeAreaInsets.leading + safeAreaInsets.trailing,
+                height: screenSize.height + safeAreaInsets.top + safeAreaInsets.bottom
+            )
             .clipped()
+            .ignoresSafeArea(.all)
     }
     
     // MARK: - Landscape & Tablet Layout (Matches Mockup)
@@ -120,16 +128,17 @@ public struct HomeScreenView: View {
         let availableHeight = max(screenSize.height - headerApproxHeight, 200)
         
         // Horizontal padding
-        let hPadding: CGFloat = min(max(screenSize.width * 0.06, 24), 90)
+        let hPadding: CGFloat = min(max(screenSize.width * 0.05, 24), 80)
         let cardSpacing: CGFloat = min(max(screenSize.width * 0.035, 24), 48)
         
-        // Width calculation matching previous card size (~250pt - 275pt)
+        // Width calculation for balanced tablet sizing (target ~320pt - 345pt)
         let widthForTwoCards = (screenSize.width - (hPadding * 2) - cardSpacing) / 2.0
-        let maxCardWidthByHeight = (availableHeight * 0.65) / (2.0 / AppTheme.cardAspectRatio + 0.65 / AppTheme.footerAspectRatio)
+        let maxCardWidthByHeight = (availableHeight * 0.62) / (2.0 / AppTheme.cardAspectRatio + 0.58 / AppTheme.footerAspectRatio)
         
-        // Reduced to previous sizing (capped at 275pt instead of 440pt)
-        let cardWidth: CGFloat = min(widthForTwoCards, maxCardWidthByHeight, 275)
-        let footerWidth: CGFloat = min(cardWidth * 0.62, 165)
+        // Balanced tablet button sizing: scales comfortably up to 345pt in landscape and 325pt in portrait
+        let maxAllowedWidth: CGFloat = isLandscape ? 345 : 325
+        let cardWidth: CGFloat = min(widthForTwoCards, maxCardWidthByHeight, maxAllowedWidth)
+        let footerWidth: CGFloat = min(cardWidth * 0.58, 195)
         
         // Dynamic vertical spacing between Row 1 and Row 2
         let vSpacing: CGFloat = min(max(availableHeight * 0.04, 18), 32)

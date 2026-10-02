@@ -4,17 +4,20 @@ import SwiftUI
 public struct HomeHeaderView: View {
     public let availableWidth: CGFloat
     public let availableHeight: CGFloat
+    public let safeAreaTop: CGFloat
     public let onSettingsTapped: () -> Void
     public let onHomeTapped: () -> Void
     
     public init(
         availableWidth: CGFloat,
         availableHeight: CGFloat,
+        safeAreaTop: CGFloat = 0,
         onSettingsTapped: @escaping () -> Void,
         onHomeTapped: @escaping () -> Void = {}
     ) {
         self.availableWidth = availableWidth
         self.availableHeight = availableHeight
+        self.safeAreaTop = safeAreaTop
         self.onSettingsTapped = onSettingsTapped
         self.onHomeTapped = onHomeTapped
     }
@@ -23,13 +26,12 @@ public struct HomeHeaderView: View {
         availableWidth > availableHeight
     }
     
-    /// Responsive header height based on screen dimensions and orientation
+    /// Responsive header height based on screen dimensions, orientation, and safe area top inset
     private var headerHeight: CGFloat {
-        if isLandscape {
-            return min(max(availableHeight * 0.11, 64), 92)
-        } else {
-            return min(max(availableHeight * 0.085, 52), 70)
-        }
+        let baseH = isLandscape 
+            ? min(max(availableHeight * 0.11, 64), 92)
+            : min(max(availableHeight * 0.085, 52), 70)
+        return baseH + safeAreaTop
     }
     
     /// Height of the top-left banner logo
@@ -74,7 +76,7 @@ public struct HomeHeaderView: View {
             .accessibilityLabel(Text("Settings"))
         }
         .padding(.horizontal, isLandscape ? 24 : 16)
-        .padding(.top, isLandscape ? 12 : 8)
+        .padding(.top, safeAreaTop > 0 ? safeAreaTop + 8 : (isLandscape ? 16 : 12))
         .frame(width: availableWidth, height: headerHeight, alignment: .top)
     }
 }

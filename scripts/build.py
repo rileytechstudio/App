@@ -102,6 +102,47 @@ def build_distribution():
       padding-top: env(safe-area-inset-top, 0px);
     }
 
+    /* Home Screen Neutral Backdrop & Safe Area Layout (No purple bleed on tablet) */
+    #screenHome {
+      background-color: #f4f2ee !important;
+    }
+
+    body:has(#screenHome.active) {
+      background-color: #f4f2ee !important;
+    }
+    body:has(#screenHome.active) .device-screen {
+      background-color: #f4f2ee !important;
+    }
+
+    #screenHome .home-bg-layer {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      background-image: url('assets/HomeScreenBG.png') !important;
+      background-size: cover !important;
+      background-position: center top !important;
+      background-repeat: no-repeat !important;
+      z-index: 1 !important;
+    }
+
+    #screenHome .home-bg-overlay {
+      display: none !important;
+    }
+
+    /* Home Custom Header: Always respect iOS Tablet Status Bar (Time and Battery) */
+    .home-custom-header {
+      padding-top: calc(env(safe-area-inset-top, 0px) + 16px) !important;
+      padding-left: max(24px, env(safe-area-inset-left, 0px)) !important;
+      padding-right: max(24px, env(safe-area-inset-right, 0px)) !important;
+      padding-bottom: 0 !important;
+    }
+
+    #screenHome .screen-content {
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      box-sizing: border-box;
+    }
+
     /* Bottom Bar Anchored Directly to Screen Bottom with Zero Padding Distortion */
     .prep-bottom-bar, .game-bottom-bar {
       position: absolute !important;
