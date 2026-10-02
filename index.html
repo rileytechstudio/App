@@ -103,11 +103,80 @@
       z-index: 1;
     }
 
+    #screenHome .home-bg-layer {
+      background-image: url('assets/HomeScreenBG.png');
+      background-size: cover;
+      background-position: center top;
+    }
+
     .home-bg-overlay {
       position: absolute;
       inset: 0;
       background: linear-gradient(135deg, rgba(89, 49, 186, 0.35) 0%, rgba(65, 30, 140, 0.7) 60%, rgba(89, 49, 186, 0.9) 100%);
       z-index: 2;
+    }
+
+    #screenHome .home-bg-overlay {
+      display: none;
+    }
+
+    /* Home Custom Transparent Header */
+    .home-custom-header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 18px 24px 0 24px;
+      position: relative;
+      z-index: 30;
+      box-sizing: border-box;
+      background: transparent;
+      flex-shrink: 0;
+    }
+
+    .home-header-left {
+      display: flex;
+      align-items: center;
+    }
+
+    .home-logo-banner {
+      height: 64px;
+      max-width: 80vw;
+      object-fit: contain;
+      object-position: left center;
+      filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.08));
+    }
+
+    .home-header-right {
+      display: flex;
+      align-items: center;
+    }
+
+    .home-setting-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      margin: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.18s ease;
+    }
+
+    .home-setting-btn:hover {
+      transform: scale(1.08) rotate(12deg);
+    }
+
+    .home-setting-btn:active {
+      transform: scale(0.94);
+    }
+
+    .home-setting-btn img {
+      width: 52px;
+      height: 52px;
+      object-fit: contain;
+      display: block;
     }
 
     .screen-content {
@@ -7770,15 +7839,13 @@
           <div class="home-bg-overlay"></div>
 
           <div class="screen-content">
-            <header id="homeHeader" class="app-header">
-              <img class="banner-bg" src="assets/HeaderBanner.jpg" alt="Riley Header Banner" />
-              <div class="header-left"></div>
-              <div class="header-right">
-                <button class="header-icon-btn" onclick="goToSettings()" title="Settings" aria-label="Settings">
-                  <img src="assets/Settings.png" alt="Settings" />
-                </button>
-                <button class="header-icon-btn" onclick="goToHome()" title="Home" aria-label="Home">
-                  <img src="assets/Home.png" alt="Home" />
+            <header id="homeHeader" class="home-custom-header">
+              <div class="home-header-left">
+                <img src="assets/TopLBannerLogo.png" alt="Riley Children's Health" class="home-logo-banner" />
+              </div>
+              <div class="home-header-right">
+                <button class="home-setting-btn" onclick="goToSettings()" title="Settings" aria-label="Settings">
+                  <img src="assets/TopRSetting.png" alt="Settings" />
                 </button>
               </div>
             </header>
@@ -7787,32 +7854,29 @@
               <div id="landscapeGrid" class="cards-container">
                 <div class="home-main-cards">
                   <div class="grid-row-top">
-                    <button class="card-btn" onclick="goToPreparations()" style="width: 250px;">
+                    <button class="card-btn" onclick="goToPreparations()" style="width: 320px;">
                       <img src="assets/Preparations.png" alt="Preparations" />
                     </button>
-                    <button class="card-btn" onclick="openSheet('Glossary')" style="width: 250px;">
-                      <img src="assets/Glossary.png" alt="Glossary" />
-                    </button>
-                    <button class="card-btn" onclick="goToAnatomyExplorer()" style="width: 250px;">
+                    <button class="card-btn" onclick="goToAnatomyExplorer()" style="width: 320px;">
                       <img src="assets/Anatomy Explorer.png" alt="Anatomy Explorer" />
                     </button>
                   </div>
 
                   <div class="grid-row-mid">
-                    <button class="card-btn" onclick="openSheet('Gallery')" style="width: 250px;">
+                    <button class="card-btn" onclick="openSheet('Gallery')" style="width: 320px;">
                       <img src="assets/Gallery.png" alt="Gallery" />
                     </button>
-                    <button class="card-btn" onclick="goToGames()" style="width: 250px;">
+                    <button class="card-btn" onclick="goToGames()" style="width: 320px;">
                       <img src="assets/Games.png" alt="Games" />
                     </button>
                   </div>
                 </div>
 
                 <div class="grid-row-bottom">
-                  <button class="pill-btn" onclick="goToAbout()" style="width: 155px;">
+                  <button class="pill-btn" onclick="goToAbout()" style="width: 175px;">
                     <img src="assets/About.png" alt="About" />
                   </button>
-                  <button class="pill-btn" onclick="openSheet('Legal')" style="width: 155px;">
+                  <button class="pill-btn" onclick="openSheet('Legal')" style="width: 175px;">
                     <img src="assets/Legal.png" alt="Legal" />
                   </button>
                 </div>
@@ -7822,32 +7886,27 @@
               <div id="portraitGrid" class="portrait-grid">
                 <div class="portrait-grid-cards">
                   <div class="portrait-grid-row">
-                    <button class="card-btn" onclick="goToPreparations()" style="width: 150px;">
+                    <button class="card-btn" onclick="goToPreparations()" style="width: 155px;">
                       <img src="assets/Preparations.png" alt="Preparations" />
                     </button>
-                    <button class="card-btn" onclick="openSheet('Glossary')" style="width: 150px;">
-                      <img src="assets/Glossary.png" alt="Glossary" />
-                    </button>
-                  </div>
-                  <div class="portrait-grid-row">
-                    <button class="card-btn" onclick="goToAnatomyExplorer()" style="width: 150px;">
+                    <button class="card-btn" onclick="goToAnatomyExplorer()" style="width: 155px;">
                       <img src="assets/Anatomy Explorer.png" alt="Anatomy Explorer" />
                     </button>
-                    <button class="card-btn" onclick="openSheet('Gallery')" style="width: 150px;">
-                      <img src="assets/Gallery.png" alt="Gallery" />
-                    </button>
                   </div>
                   <div class="portrait-grid-row">
-                    <button class="card-btn" onclick="goToGames()" style="width: 190px;">
+                    <button class="card-btn" onclick="openSheet('Gallery')" style="width: 155px;">
+                      <img src="assets/Gallery.png" alt="Gallery" />
+                    </button>
+                    <button class="card-btn" onclick="goToGames()" style="width: 155px;">
                       <img src="assets/Games.png" alt="Games" />
                     </button>
                   </div>
                 </div>
                 <div class="portrait-grid-row portrait-grid-bottom">
-                  <button class="pill-btn" onclick="goToAbout()" style="width: 120px;">
+                  <button class="pill-btn" onclick="goToAbout()" style="width: 125px;">
                     <img src="assets/About.png" alt="About" />
                   </button>
-                  <button class="pill-btn" onclick="openSheet('Legal')" style="width: 120px;">
+                  <button class="pill-btn" onclick="openSheet('Legal')" style="width: 125px;">
                     <img src="assets/Legal.png" alt="Legal" />
                   </button>
                 </div>
@@ -16376,6 +16435,19 @@
         btn.style.height = iconSize + 'px';
       });
 
+      // Home Custom Header Sizing
+      const homeLogo = document.querySelector('.home-logo-banner');
+      const homeSetting = document.querySelector('.home-setting-btn img');
+      if (homeLogo) {
+        const logoH = isLandscape ? Math.min(Math.max(Math.round(h * 0.09), 48), 74) : Math.min(Math.max(Math.round(h * 0.075), 38), 54);
+        homeLogo.style.height = logoH + 'px';
+      }
+      if (homeSetting) {
+        const settingS = isLandscape ? Math.min(Math.max(Math.round(h * 0.075), 44), 62) : Math.min(Math.max(Math.round(h * 0.065), 36), 48);
+        homeSetting.style.width = settingS + 'px';
+        homeSetting.style.height = settingS + 'px';
+      }
+
       // Home Screen Layout
       const landscapeGrid = document.getElementById('landscapeGrid');
       const portraitGrid = document.getElementById('portraitGrid');
@@ -16383,8 +16455,8 @@
         landscapeGrid.style.display = 'none';
         portraitGrid.style.display = 'flex';
         const cardW = Math.min(Math.max((w - 56) / 2, 140), 195);
-        document.querySelectorAll('#portraitGrid .card-btn').forEach((btn, idx) => {
-          btn.style.width = (idx === 4 ? Math.min(cardW * 1.18, w - 48) : cardW) + 'px';
+        document.querySelectorAll('#portraitGrid .card-btn').forEach(btn => {
+          btn.style.width = cardW + 'px';
         });
         const pillW = Math.min(Math.max(cardW * 0.75, 110), 140);
         document.querySelectorAll('#portraitGrid .pill-btn').forEach(btn => {
@@ -16393,21 +16465,23 @@
       } else {
         portraitGrid.style.display = 'none';
         landscapeGrid.style.display = 'flex';
-        const availH = h - headerH;
+        const homeHeaderEl = document.getElementById('homeHeader');
+        const homeH = homeHeaderEl ? homeHeaderEl.offsetHeight : headerH;
+        const availH = h - homeH;
         
-        // Responsive card spacing and width:
-        const horizontalPadding = Math.min(Math.max(w * 0.04, 24), 64);
-        const cardGap = Math.min(Math.max(w * 0.03, 20), 46);
-        const maxCardByWidth = (w - (horizontalPadding * 2) - (cardGap * 2)) / 3;
-        // Allow cards to scale comfortably with height and width up to 380px (removes old 300px restriction)
-        const maxCardByHeight = (availH * 0.76) / (2 / 2.24 + 0.65 / 3.44);
-        const cardW = Math.round(Math.min(maxCardByWidth, maxCardByHeight, 380));
+        // Responsive card spacing and width for 2-column balanced grid:
+        const horizontalPadding = Math.min(Math.max(w * 0.05, 24), 72);
+        const cardGap = Math.min(Math.max(w * 0.035, 24), 56);
+        const maxCardByWidth = (w - (horizontalPadding * 2) - cardGap) / 2;
+        // Allow cards to scale comfortably with height and width up to 440px
+        const maxCardByHeight = (availH * 0.72) / (2 / 2.24 + 0.65 / 3.44);
+        const cardW = Math.round(Math.min(maxCardByWidth, maxCardByHeight, 440));
         
         document.querySelectorAll('#landscapeGrid .card-btn').forEach(btn => {
           btn.style.width = cardW + 'px';
         });
 
-        const pillW = Math.round(Math.min(cardW * 0.65, 215));
+        const pillW = Math.round(Math.min(cardW * 0.65, 230));
         document.querySelectorAll('#landscapeGrid .pill-btn').forEach(btn => {
           btn.style.width = pillW + 'px';
         });

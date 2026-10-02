@@ -11,7 +11,7 @@ public struct HomeHeaderView: View {
         availableWidth: CGFloat,
         availableHeight: CGFloat,
         onSettingsTapped: @escaping () -> Void,
-        onHomeTapped: @escaping () -> Void
+        onHomeTapped: @escaping () -> Void = {}
     ) {
         self.availableWidth = availableWidth
         self.availableHeight = availableHeight
@@ -19,85 +19,62 @@ public struct HomeHeaderView: View {
         self.onHomeTapped = onHomeTapped
     }
     
+    private var isLandscape: Bool {
+        availableWidth > availableHeight
+    }
+    
     /// Responsive header height based on screen dimensions and orientation
     private var headerHeight: CGFloat {
-        let isLandscape = availableWidth > availableHeight
         if isLandscape {
-            // Sleek Apple glass header height
-            return min(max(availableHeight * 0.082, 54), 64)
+            return min(max(availableHeight * 0.11, 64), 92)
         } else {
-            // Compact portrait header
-            return min(max(availableHeight * 0.075, 50), 60)
+            return min(max(availableHeight * 0.085, 52), 70)
         }
     }
     
-    /// Size of the circular Settings & Home buttons
-    private var iconButtonSize: CGFloat {
-        return min(max(headerHeight * 0.72, 36), 44)
+    /// Height of the top-left banner logo
+    private var bannerHeight: CGFloat {
+        if isLandscape {
+            return min(max(headerHeight * 0.88, 54), 80)
+        } else {
+            return min(max(headerHeight * 0.82, 44), 58)
+        }
     }
     
-    /// Horizontal padding for icons
-    private var iconTrailingPadding: CGFloat {
-        return 20
-    }
-    
-    /// Spacing between Settings and Home button
-    private var iconSpacing: CGFloat {
-        return 12
+    /// Size of the circular Settings button
+    private var settingButtonSize: CGFloat {
+        if isLandscape {
+            return min(max(headerHeight * 0.82, 48), 68)
+        } else {
+            return min(max(headerHeight * 0.72, 38), 50)
+        }
     }
     
     public var body: some View {
-        ZStack(alignment: .trailing) {
-            // Background fill with translucent glass tint
-            Color(red: 248.0 / 255.0, green: 168.0 / 255.0, blue: 98.0 / 255.0)
-                .opacity(0.85)
-            
-            // Header Banner Background Image
-            Image("HeaderBanner")
+        HStack(alignment: .center, spacing: 0) {
+            // Top-left Riley Children's Health logo banner
+            Image("TopLBannerLogo")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: availableWidth, height: headerHeight)
-                .opacity(0.94)
-                .accessibilityLabel(Text("Riley Hospital for Children Header Banner"))
+                .frame(height: bannerHeight)
+                .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4)
+                .accessibilityLabel(Text("Riley Children's Health Indiana University Health"))
             
-            // Apple Glass Specular Sheen Overlay
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    Color.white.opacity(0.30),
-                    Color.white.opacity(0.06),
-                    Color.black.opacity(0.04)
-                ]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .allowsHitTesting(false)
+            Spacer(minLength: 16)
             
-            // Top-right Action Buttons (Settings & Home)
-            HStack(spacing: iconSpacing) {
-                HeaderIconButton(
-                    imageName: "IconSettings",
-                    title: "Settings",
-                    size: iconButtonSize,
-                    action: onSettingsTapped
-                )
-                
-                HeaderIconButton(
-                    imageName: "IconHome",
-                    title: "Home",
-                    size: iconButtonSize,
-                    action: onHomeTapped
-                )
+            // Top-right circular Settings button
+            Button(action: onSettingsTapped) {
+                Image("TopRSetting")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: settingButtonSize, height: settingButtonSize)
+                    .contentShape(Circle())
             }
-            .padding(.trailing, iconTrailingPadding)
+            .buttonStyle(PlainButtonStyle())
+            .accessibilityLabel(Text("Settings"))
         }
-        .frame(width: availableWidth, height: headerHeight)
-        .overlay(
-            VStack {
-                Spacer()
-                Divider()
-                    .background(Color.white.opacity(0.45))
-            }
-        )
-        .shadow(color: Color.black.opacity(0.08), radius: 6, x: 0, y: 3)
+        .padding(.horizontal, isLandscape ? 24 : 16)
+        .padding(.top, isLandscape ? 12 : 8)
+        .frame(width: availableWidth, height: headerHeight, alignment: .top)
     }
 }
