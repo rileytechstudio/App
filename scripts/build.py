@@ -151,7 +151,7 @@ def build_distribution():
       width: 100% !important;
       display: flex !important;
       justify-content: space-between !important;
-      align-items: center !important;
+      align-items: flex-start !important;
       position: relative !important;
       z-index: 30 !important;
       box-sizing: border-box !important;
@@ -247,7 +247,7 @@ def build_distribution():
       width: 100% !important;
       display: flex !important;
       justify-content: space-between !important;
-      align-items: center !important;
+      align-items: flex-start !important;
       position: relative !important;
       z-index: 30 !important;
       box-sizing: border-box !important;

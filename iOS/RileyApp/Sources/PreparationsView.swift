@@ -179,6 +179,7 @@ public struct PreparationsView: View {
                 })
             }
         }
+        .ignoresSafeArea(.all)
     }
     
 

@@ -6126,42 +6126,7 @@
       background-color: #1a0b2e;
     }
 
-    /* Glass Header (Floating transparently over curtain valance) */
-    .anatomy-header {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      width: 100%;
-      height: 58px;
-      background: transparent;
-      -webkit-backdrop-filter: none;
-      backdrop-filter: none;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-shrink: 0;
-      border-bottom: none;
-      box-shadow: none;
-      z-index: 35;
-      pointer-events: none;
-    }
 
-    .anatomy-header .header-left,
-    .anatomy-header .header-center,
-    .anatomy-header .header-right,
-    .anatomy-header button {
-      pointer-events: auto;
-    }
-
-    .anatomy-header .about-nav-title {
-      color: #ffffff;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-    }
-
-    .anatomy-header .about-back-btn svg {
-      stroke: #ffffff;
-    }
 
     /* Theatrical Viewport */
     .anatomy-theatrical-viewport {
@@ -8040,8 +8005,8 @@
 
           <div class="screen-content">
             <!-- Header with Back button, Banner, Settings, Home -->
-            <header id="prepHeader" class="app-header">
-              <div class="header-left">
+            <header id="prepHeader" class="home-custom-header app-header">
+              <div class="home-header-left header-left">
                 <button class="header-glass-btn header-back-btn" onclick="goToHome()" title="Back to Home" aria-label="Back to Home">
                   <svg class="header-back-icon" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"/>
@@ -8049,11 +8014,11 @@
                 </button>
               </div>
 
-              <div class="header-center">
-                <img src="assets/Header2_Banner.png" alt="Riley Children's Health" class="consistent-header-banner" />
+              <div class="home-header-center header-center">
+                <img src="assets/Header2_Banner.png" alt="Riley Children's Health" class="home-logo-banner consistent-header-banner" />
               </div>
 
-              <div class="header-right">
+              <div class="home-header-right header-right">
                 <button class="header-glass-btn header-home-btn" onclick="goToHome()" title="Home" aria-label="Home">
                   <svg class="header-home-icon" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
@@ -8894,8 +8859,8 @@
           <div class="about-screen-container">
             
             <!-- Top Navigation Bar -->
-            <header class="about-header" id="aboutHeader">
-              <div class="header-left">
+            <header class="home-custom-header about-header" id="aboutHeader">
+              <div class="home-header-left header-left">
                 <button class="header-glass-btn header-back-btn" onclick="goToHome()" title="Back to Home" aria-label="Back to Home">
                   <svg class="header-back-icon" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"/>
@@ -8903,11 +8868,11 @@
                 </button>
               </div>
 
-              <div class="header-center">
-                <img src="assets/Header2_Banner.png" alt="Riley Children's Health" class="consistent-header-banner" />
+              <div class="home-header-center header-center">
+                <img src="assets/Header2_Banner.png" alt="Riley Children's Health" class="home-logo-banner consistent-header-banner" />
               </div>
 
-              <div class="header-right">
+              <div class="home-header-right header-right">
                 <button class="header-glass-btn header-home-btn" onclick="goToHome()" title="Home" aria-label="Home">
                   <svg class="header-home-icon" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
@@ -8965,8 +8930,8 @@
           <div class="settings-screen-container">
             
             <!-- Top Apple Glass Navigation Bar (Matches About Header Style) -->
-            <header class="about-header settings-header" id="settingsHeader">
-              <div class="header-left">
+            <header class="home-custom-header about-header settings-header" id="settingsHeader">
+              <div class="home-header-left header-left">
                 <button class="header-glass-btn header-back-btn" onclick="goBackFromSettings()" title="Back" aria-label="Back">
                   <svg class="header-back-icon" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"/>
@@ -8974,11 +8939,11 @@
                 </button>
               </div>
 
-              <div class="header-center">
-                <img src="assets/Header2_Banner.png" alt="Riley Children's Health" class="consistent-header-banner" />
+              <div class="home-header-center header-center">
+                <img src="assets/Header2_Banner.png" alt="Riley Children's Health" class="home-logo-banner consistent-header-banner" />
               </div>
 
-              <div class="header-right">
+              <div class="home-header-right header-right">
                 <button class="header-glass-btn header-home-btn" onclick="goToHome()" title="Home" aria-label="Home">
                   <svg class="header-home-icon" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
@@ -9053,8 +9018,8 @@
           <div class="anatomy-screen-container">
             
             <!-- Top Apple Glass Navigation Bar -->
-            <header class="about-header anatomy-header" id="anatomyHeader">
-              <div class="header-left">
+            <header class="home-custom-header app-header" id="anatomyHeader">
+              <div class="home-header-left header-left">
                 <button class="header-glass-btn header-back-btn" onclick="handleAnatomyBack()" title="Back" aria-label="Back">
                   <svg class="header-back-icon" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"/>
@@ -9062,11 +9027,11 @@
                 </button>
               </div>
 
-              <div class="header-center">
-                <img src="assets/Header2_Banner.png" alt="Riley Children's Health" class="consistent-header-banner" />
+              <div class="home-header-center header-center">
+                <img src="assets/Header2_Banner.png" alt="Riley Children's Health" class="home-logo-banner consistent-header-banner" />
               </div>
 
-              <div class="header-right">
+              <div class="home-header-right header-right">
                 <button class="header-glass-btn header-home-btn" onclick="goToHome()" title="Home" aria-label="Home">
                   <svg class="header-home-icon" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>

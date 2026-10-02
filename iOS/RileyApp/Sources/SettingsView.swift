@@ -99,7 +99,7 @@ public struct SettingsView: View {
                     }
                 }
             }
-            .edgesIgnoringSafeArea(.bottom)
+            .ignoresSafeArea(.all)
             .onAppear {
                 startSlowBackgroundScroll()
             }

@@ -464,6 +464,7 @@ public struct AnatomyExplorerView: View {
                 }
             }
         }
+        .ignoresSafeArea(.all)
         .onAppear {
             startAnimationSequence()
         }

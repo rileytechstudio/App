@@ -94,7 +94,7 @@ public struct AboutView: View {
                 }
             }
             .background(Color.white)
-            .edgesIgnoringSafeArea(.bottom)
+            .ignoresSafeArea(.all)
         }
         .sheet(item: Binding<PartnerModalItem?>(
             get: { activePartnerSheet.map { PartnerModalItem(name: $0) } },
