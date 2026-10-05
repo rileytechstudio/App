@@ -716,9 +716,10 @@
       max-width: 1366px;
       margin: 0 auto;
       align-items: center;
-      justify-content: space-between;
-      gap: 4px;
-      padding: 0 4px;
+      justify-content: space-evenly;
+      gap: clamp(8px, 1.5vw, 20px);
+      padding: 0 clamp(8px, 2vw, 24px);
+      box-sizing: border-box;
     }
 
     .bottom-tab-btn {
@@ -8062,6 +8063,19 @@
       align-items: center !important;
       justify-content: center !important;
     }
+
+    .bottom-bar-tabs {
+      display: flex !important;
+      width: 100% !important;
+      height: 100% !important;
+      max-width: 1366px !important;
+      margin: 0 auto !important;
+      align-items: center !important;
+      justify-content: space-evenly !important;
+      gap: clamp(8px, 1.5vw, 20px) !important;
+      padding: 0 clamp(8px, 2vw, 24px) !important;
+      box-sizing: border-box !important;
+    }
   </style>
 </head>
 <body>
@@ -8257,14 +8271,11 @@
 
           </div>
 
-          <!-- Fixed Bottom 5-Tab Navigation Bar (Anchored Directly to Bottom of Screen) -->
+          <!-- Fixed Bottom 4-Tab Navigation Bar (Anchored Directly to Bottom of Screen) -->
           <div class="prep-bottom-bar">
             <div class="bottom-bar-tabs">
               <button class="bottom-tab-btn active" onclick="goToPreparations()" title="Preparations">
                 <img src="assets/Isolated_Preparations_Selected.png" alt="Preparations" />
-              </button>
-              <button class="bottom-tab-btn" onclick="openSheet('Glossary')" title="Glossary">
-                <img src="assets/Isolated_Glossary_Not_Selected.png" alt="Glossary" />
               </button>
               <button class="bottom-tab-btn" onclick="goToAnatomyExplorer()" title="Anatomy Explorer">
                 <img src="assets/Isolated_Anat_Explorer_Not_Selected.png" alt="Anatomy Explorer" />

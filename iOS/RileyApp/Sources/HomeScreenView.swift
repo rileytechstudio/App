@@ -70,6 +70,12 @@ public struct HomeScreenView: View {
                     },
                     onOpenGames: {
                         navState.navigate(to: .games)
+                    },
+                    onOpenAnatomy: {
+                        navState.navigate(to: .anatomyExplorer)
+                    },
+                    onOpenGallery: {
+                        navState.navigate(to: .gallery)
                     }
                 )
             } else if destination == .about {

@@ -2203,9 +2203,12 @@ public struct IVGameView: View {
         }
     }
     
-    // MARK: - Bottom Navigation Bar (5 Tabs)
+    // MARK: - Bottom Navigation Bar (4 Tabs)
     @ViewBuilder
     private func bottomBarView(availableWidth: CGFloat, height: CGFloat) -> some View {
+        let horizontalPadding: CGFloat = min(max(availableWidth * 0.02, 8), 24)
+        let tabSpacing: CGFloat = min(max(availableWidth * 0.015, 8), 20)
+        
         ZStack {
             Image("Bottom_Toolbar_Background")
                 .resizable()
@@ -2213,7 +2216,7 @@ public struct IVGameView: View {
                 .frame(width: availableWidth, height: height)
                 .clipped()
             
-            HStack(spacing: 4) {
+            HStack(spacing: tabSpacing) {
                 // Preparations Tab
                 Button(action: {
                     HapticManager.shared.buttonTap()
@@ -2230,17 +2233,6 @@ public struct IVGameView: View {
                         .frame(maxWidth: .infinity, maxHeight: height)
                 }
                 .accessibilityLabel("Preparations tab")
-                
-                // Glossary Tab
-                Button(action: {
-                    HapticManager.shared.buttonTap()
-                }) {
-                    Image("Isolated_Glossary_Not_Selected")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(maxWidth: .infinity, maxHeight: height)
-                }
-                .accessibilityLabel("Glossary tab")
                 
                 // Anatomy Explorer Tab
                 Button(action: {
@@ -2276,7 +2268,7 @@ public struct IVGameView: View {
                 }
                 .accessibilityLabel("Games tab, currently active. Tap to reset game.")
             }
-            .padding(.horizontal, 4)
+            .padding(.horizontal, horizontalPadding)
             .frame(maxWidth: 1366)
         }
         .frame(width: availableWidth, height: height)

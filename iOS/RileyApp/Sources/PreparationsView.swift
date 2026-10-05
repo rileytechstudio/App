@@ -22,6 +22,8 @@ public struct PreparationsView: View {
     @Environment(\.presentationMode) var presentationMode
     public var onBackToHome: (() -> Void)?
     public var onOpenGames: (() -> Void)?
+    public var onOpenAnatomy: (() -> Void)?
+    public var onOpenGallery: (() -> Void)?
     
     @State private var searchText: String = ""
     @State private var selectedTab: RibbonTab = .procedures
@@ -86,9 +88,16 @@ public struct PreparationsView: View {
         }
     }
     
-    public init(onBackToHome: (() -> Void)? = nil, onOpenGames: (() -> Void)? = nil) {
+    public init(
+        onBackToHome: (() -> Void)? = nil,
+        onOpenGames: (() -> Void)? = nil,
+        onOpenAnatomy: (() -> Void)? = nil,
+        onOpenGallery: (() -> Void)? = nil
+    ) {
         self.onBackToHome = onBackToHome
         self.onOpenGames = onOpenGames
+        self.onOpenAnatomy = onOpenAnatomy
+        self.onOpenGallery = onOpenGallery
     }
     
     public var body: some View {
@@ -340,9 +349,12 @@ public struct PreparationsView: View {
         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: currentScrollIndex)
     }
     
-    // MARK: - Bottom Navigation Bar (5 Tabs)
+    // MARK: - Bottom Navigation Bar (4 Tabs)
     @ViewBuilder
     private func bottomBarView(availableWidth: CGFloat, height: CGFloat) -> some View {
+        let horizontalPadding: CGFloat = min(max(availableWidth * 0.02, 8), 24)
+        let tabSpacing: CGFloat = min(max(availableWidth * 0.015, 8), 20)
+        
         ZStack {
             Image("Bottom_Toolbar_Background")
                 .resizable()
@@ -350,7 +362,7 @@ public struct PreparationsView: View {
                 .frame(width: availableWidth, height: height)
                 .clipped()
             
-            HStack(spacing: 4) {
+            HStack(spacing: tabSpacing) {
                 // Preparations Tab (Current)
                 Image("Isolated_Preparations_Selected")
                     .resizable()
@@ -358,20 +370,12 @@ public struct PreparationsView: View {
                     .frame(maxWidth: .infinity, maxHeight: height)
                     .accessibilityLabel("Preparations tab, currently active")
                 
-                // Glossary Tab
-                Button(action: {
-                    HapticManager.shared.buttonTap()
-                }) {
-                    Image("Isolated_Glossary_Not_Selected")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(maxWidth: .infinity, maxHeight: height)
-                }
-                .accessibilityLabel("Glossary tab")
-                
                 // Anatomy Explorer Tab
                 Button(action: {
                     HapticManager.shared.buttonTap()
+                    if let onOpenAnatomy = onOpenAnatomy {
+                        onOpenAnatomy()
+                    }
                 }) {
                     Image("Isolated_Anat_Explorer_Not_Selected")
                         .resizable()
@@ -383,6 +387,9 @@ public struct PreparationsView: View {
                 // Gallery Tab
                 Button(action: {
                     HapticManager.shared.buttonTap()
+                    if let onOpenGallery = onOpenGallery {
+                        onOpenGallery()
+                    }
                 }) {
                     Image("Isolated_Gallery_Not_Selected")
                         .resizable()
@@ -405,7 +412,7 @@ public struct PreparationsView: View {
                 }
                 .accessibilityLabel("Games tab")
             }
-            .padding(.horizontal, 4)
+            .padding(.horizontal, horizontalPadding)
             .frame(maxWidth: 1366)
         }
         .frame(width: availableWidth, height: height)

@@ -370,6 +370,19 @@ def build_distribution():
       align-items: center !important;
       justify-content: center !important;
     }
+
+    .bottom-bar-tabs {
+      display: flex !important;
+      width: 100% !important;
+      height: 100% !important;
+      max-width: 1366px !important;
+      margin: 0 auto !important;
+      align-items: center !important;
+      justify-content: space-evenly !important;
+      gap: clamp(8px, 1.5vw, 20px) !important;
+      padding: 0 clamp(8px, 2vw, 24px) !important;
+      box-sizing: border-box !important;
+    }
     """
     css += dist_css_overrides
 
