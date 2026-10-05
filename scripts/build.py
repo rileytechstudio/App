@@ -354,7 +354,7 @@ def build_distribution():
       display: none !important;
     }
 
-    /* Bottom Bar Anchored Directly to Screen Bottom with Zero Padding Distortion */
+    /* Bottom Bar - Liquid Glass Frosted Toolbar matching Top Header */
     .prep-bottom-bar, .game-bottom-bar {
       position: absolute !important;
       bottom: 0 !important;
@@ -363,9 +363,12 @@ def build_distribution():
       width: 100% !important;
       margin: 0 !important;
       padding: 0 !important;
-      background: url('assets/Bottom_Toolbar_Background.png') center bottom / 100% 100% no-repeat, rgba(28, 14, 56, 0.45) !important;
-      backdrop-filter: blur(12px) !important;
-      -webkit-backdrop-filter: blur(12px) !important;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0.08) 100%),
+                  url('assets/Bottom_Toolbar_Background.png') center bottom / 100% 100% no-repeat !important;
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      border-top: 1px solid rgba(255, 255, 255, 0.35) !important;
+      box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.08) !important;
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
@@ -378,10 +381,30 @@ def build_distribution():
       max-width: 1366px !important;
       margin: 0 auto !important;
       align-items: center !important;
-      justify-content: space-evenly !important;
-      gap: clamp(8px, 1.5vw, 20px) !important;
-      padding: 0 clamp(8px, 2vw, 24px) !important;
+      justify-content: space-between !important;
+      gap: 4px !important;
+      padding: 0 4px !important;
       box-sizing: border-box !important;
+    }
+
+    .bottom-tab-btn {
+      flex: 1 !important;
+      height: 100% !important;
+      max-height: 92px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      background: transparent !important;
+      border: none !important;
+      padding: 2px 0 !important;
+      cursor: pointer !important;
+    }
+
+    .bottom-tab-btn img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: fill !important;
+      display: block !important;
     }
     """
     css += dist_css_overrides

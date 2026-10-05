@@ -352,22 +352,36 @@ public struct PreparationsView: View {
     // MARK: - Bottom Navigation Bar (4 Tabs)
     @ViewBuilder
     private func bottomBarView(availableWidth: CGFloat, height: CGFloat) -> some View {
-        let horizontalPadding: CGFloat = min(max(availableWidth * 0.02, 8), 24)
-        let tabSpacing: CGFloat = min(max(availableWidth * 0.015, 8), 20)
+        let horizontalPadding: CGFloat = min(max(availableWidth * 0.005, 3), 6)
+        let tabSpacing: CGFloat = min(max(availableWidth * 0.005, 3), 6)
         
         ZStack {
+            // Ultra-thin liquid glass frosted background matching top header aesthetic
+            Rectangle()
+                .fill(Color.white.opacity(0.12))
+                .background(.ultraThinMaterial)
+            
             Image("Bottom_Toolbar_Background")
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(width: availableWidth, height: height)
                 .clipped()
+                .opacity(0.35)
+            
+            // Specular glass top rim border matching Apple liquid glass
+            VStack {
+                Rectangle()
+                    .fill(Color.white.opacity(0.35))
+                    .frame(height: 1)
+                Spacer()
+            }
             
             HStack(spacing: tabSpacing) {
                 // Preparations Tab (Current)
                 Image("Isolated_Preparations_Selected")
                     .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: .infinity, maxHeight: height)
+                    .frame(maxWidth: .infinity, maxHeight: height - 4)
+                    .padding(.vertical, 2)
                     .accessibilityLabel("Preparations tab, currently active")
                 
                 // Anatomy Explorer Tab
@@ -379,8 +393,8 @@ public struct PreparationsView: View {
                 }) {
                     Image("Isolated_Anat_Explorer_Not_Selected")
                         .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(maxWidth: .infinity, maxHeight: height)
+                        .frame(maxWidth: .infinity, maxHeight: height - 4)
+                        .padding(.vertical, 2)
                 }
                 .accessibilityLabel("Anatomy Explorer tab")
                 
@@ -393,8 +407,8 @@ public struct PreparationsView: View {
                 }) {
                     Image("Isolated_Gallery_Not_Selected")
                         .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(maxWidth: .infinity, maxHeight: height)
+                        .frame(maxWidth: .infinity, maxHeight: height - 4)
+                        .padding(.vertical, 2)
                 }
                 .accessibilityLabel("Gallery tab")
                 
@@ -407,8 +421,8 @@ public struct PreparationsView: View {
                 }) {
                     Image("Isolated_Games_Not_Selected")
                         .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(maxWidth: .infinity, maxHeight: height)
+                        .frame(maxWidth: .infinity, maxHeight: height - 4)
+                        .padding(.vertical, 2)
                 }
                 .accessibilityLabel("Games tab")
             }
@@ -416,7 +430,7 @@ public struct PreparationsView: View {
             .frame(maxWidth: 1366)
         }
         .frame(width: availableWidth, height: height)
-        .shadow(color: Color.black.opacity(0.12), radius: 4, x: 0, y: -2)
+        .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: -2)
     }
     
     // MARK: - Procedure Detail Sheet

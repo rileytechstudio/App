@@ -790,7 +790,7 @@
       z-index: 20; /* ON TOP of procedure buttons (1), UNDER scroll down arrow (30) */
     }
 
-    /* Fixed Bottom 5-Tab Bar (Permanently Anchored to Bottom of Screen) */
+    /* Fixed Bottom 4-Tab Bar (Liquid Glass Frosted Toolbar matching Top Header) */
     .prep-bottom-bar,
     .game-bottom-bar {
       width: 100%;
@@ -799,10 +799,12 @@
       left: 0;
       right: 0;
       z-index: 35;
-      background: url('assets/Bottom_Toolbar_Background.png') center bottom / 100% 100% no-repeat, rgba(28, 14, 56, 0.45);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.25);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0.08) 100%),
+                  url('assets/Bottom_Toolbar_Background.png') center bottom / 100% 100% no-repeat;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.35);
+      box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.08);
       flex-shrink: 0;
       display: flex;
       align-items: center;
@@ -816,9 +818,9 @@
       max-width: 1366px;
       margin: 0 auto;
       align-items: center;
-      justify-content: space-evenly;
-      gap: clamp(8px, 1.5vw, 20px);
-      padding: 0 clamp(8px, 2vw, 24px);
+      justify-content: space-between;
+      gap: 4px;
+      padding: 0 4px;
       box-sizing: border-box;
     }
 
@@ -831,14 +833,14 @@
       justify-content: center;
       background: transparent;
       border: none;
-      padding: 0;
+      padding: 2px 0;
       cursor: pointer;
     }
 
     .bottom-tab-btn img {
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      object-fit: fill;
       display: block;
     }
 
