@@ -208,7 +208,9 @@ public struct CLZPuzzleView: View {
         GeometryReader { stageGeo in
             let stageSize = stageGeo.size
             let isLandscape = stageSize.width >= stageSize.height * 1.05
-            let boardWidth = isLandscape ? min(stageSize.width * 0.54, 560) : min(stageSize.width * 0.78, 440)
+            let maxBoardH = isLandscape ? stageSize.height * 0.56 : stageSize.height * 0.46
+            let maxBoardW = isLandscape ? min(stageSize.width * 0.50, 520) : min(stageSize.width * 0.70, 390)
+            let boardWidth = min(maxBoardW, maxBoardH * (1366.0 / 1024.0))
             let boardHeight = boardWidth * (1024.0 / 1366.0)
             let boardX0 = (stageSize.width - boardWidth) / 2
             let boardY0 = (stageSize.height - boardHeight) / 2
@@ -217,7 +219,7 @@ public struct CLZPuzzleView: View {
             let unplaced = pieces.filter { !placedPieces.contains($0.id) }
             let total = difficulty.totalPieces
             
-            let pieceTargetW = isLandscape ? (difficulty == .hard ? 66 : (difficulty == .medium ? 78 : 96)) : (difficulty == .hard ? 56 : (difficulty == .medium ? 66 : 82))
+            let pieceTargetW = isLandscape ? (difficulty == .hard ? 58 : (difficulty == .medium ? 68 : 84)) : (difficulty == .hard ? 50 : (difficulty == .medium ? 58 : 72))
             let pieceTargetH = pieceTargetW * (1024.0 / 1366.0)
             
             ZStack {
@@ -225,9 +227,14 @@ public struct CLZPuzzleView: View {
                 boardView(width: boardWidth, height: boardHeight)
                     .position(x: stageSize.width / 2, y: stageSize.height / 2)
                 
+                let scramble6 = [2, 5, 0, 4, 1, 3]
+                let scramble12 = [7, 2, 11, 4, 9, 0, 6, 1, 8, 3, 10, 5]
+                let scramble20 = [13, 4, 18, 1, 9, 15, 6, 11, 2, 17, 8, 14, 0, 19, 5, 12, 3, 16, 7, 10]
+                
                 // Border Scattered Pieces Layer
                 ForEach(Array(unplaced.enumerated()), id: \.element.id) { index, p in
-                    let slot = computeScatterSlot(index: p.id, total: total, stageSize: stageSize, boardRect: boardRect)
+                    let slotIdx = total <= 6 ? scramble6[p.id % scramble6.count] : (total <= 12 ? scramble12[p.id % scramble12.count] : scramble20[p.id % scramble20.count])
+                    let slot = computeScatterSlot(index: slotIdx, total: total, stageSize: stageSize, boardRect: boardRect)
                     let isSelected = selectedPieceId == p.id
                     
                     Button(action: {
@@ -287,15 +294,13 @@ public struct CLZPuzzleView: View {
                         ForEach(0..<cols, id: \.self) { c in
                             let pieceId = r * cols + c
                             let isPlaced = placedPieces.contains(pieceId)
-                            let isSelected = selectedPieceId == pieceId
-                            
                             ZStack {
                                 Rectangle()
                                     .strokeBorder(
-                                        isSelected ? Color(red: 1.0, green: 0.84, blue: 0.31) : Color.white.opacity(0.28),
-                                        style: StrokeStyle(lineWidth: isSelected ? 3.5 : 1.5, dash: [4, 4])
+                                        Color.white.opacity(0.28),
+                                        style: StrokeStyle(lineWidth: 1.5, dash: [4, 4])
                                     )
-                                    .background(isSelected ? Color.yellow.opacity(0.22) : Color.clear)
+                                    .background(Color.clear)
                                 
                                 if isPlaced {
                                     pieceSliceView(col: c, row: r, cols: cols, rows: rows, targetW: cellW, targetH: cellH)
@@ -340,8 +345,7 @@ public struct CLZPuzzleView: View {
     // MARK: - Scatter Positioning Algorithm
     private func computeScatterSlot(index: Int, total: Int, stageSize: CGSize, boardRect: CGRect) -> (x: CGFloat, y: CGFloat, angle: Double) {
         let isLandscape = stageSize.width >= stageSize.height * 1.05
-        let tilts: [Double] = [-5, 4, -3, 6, -4, 5, -6, 3, 5, -4, 4, -5, 3, -6, 5, -3, 6, -5, 4, -4]
-        let rot = tilts[index % tilts.count]
+        let tilts: [Double] = [-6, 5, -4, 7, -5, 6, -7, 4, 6, -5, 5, -6, 4, -7, 6, -4, 7, -6, 5, -5]
         
         let boardX0 = boardRect.minX
         let boardX1 = boardRect.maxX
@@ -350,128 +354,128 @@ public struct CLZPuzzleView: View {
         let boardW = boardRect.width
         let boardH = boardRect.height
         
+        let cols: CGFloat = total <= 6 ? 3 : (total <= 12 ? 4 : 5)
+        let rows: CGFloat = total <= 6 ? 2 : (total <= 12 ? 3 : 4)
+        let scale: CGFloat = total <= 6 ? 0.46 : (total <= 12 ? 0.54 : 0.60)
+        let cellW = (boardW / cols) * scale
+        let cellH = (boardH / rows) * scale
+        let pieceHalfW: CGFloat = max(44, cellW * 0.72)
+        let pieceHalfH: CGFloat = max(40, cellH * 0.72)
+        
+        let padX: CGFloat = 16
+        let padY: CGFloat = 14
+        let minSafeX = pieceHalfW + padX
+        let maxSafeX = max(minSafeX + 10, stageSize.width - pieceHalfW - padX)
+        let minSafeY = pieceHalfH + padY
+        let maxSafeY = max(minSafeY + 10, stageSize.height - pieceHalfH - padY)
+        
+        var slots: [(x: CGFloat, y: CGFloat, angle: Double)] = []
+        
+        func addSlot(_ rawX: CGFloat, _ rawY: CGFloat, _ rot: Double) {
+            let x = max(minSafeX, min(maxSafeX, rawX))
+            let y = max(minSafeY, min(maxSafeY, rawY))
+            slots.append((round(x), round(y), rot))
+        }
+        
         if isLandscape {
             if total <= 6 {
-                if index < 3 {
-                    let y = boardY0 + (CGFloat(index) + 0.5) * (boardH / 3)
-                    let x = max(48, boardX0 * 0.48 + (index % 2 == 0 ? -8 : 8))
-                    return (x, y, rot)
-                } else {
-                    let i = index - 3
-                    let y = boardY0 + (CGFloat(i) + 0.5) * (boardH / 3)
-                    let x = min(stageSize.width - 48, boardX1 + (stageSize.width - boardX1) * 0.52 + (i % 2 == 0 ? 8 : -8))
-                    return (x, y, rot)
-                }
+                addSlot(minSafeX + (boardX0 - minSafeX) * 0.40, minSafeY + (boardY0 - minSafeY) * 0.40, tilts[0])
+                addSlot(minSafeX + (boardX0 - minSafeX) * 0.50, boardY0 + boardH * 0.50, tilts[1])
+                addSlot(minSafeX + (boardX0 - minSafeX) * 0.40, maxSafeY - (maxSafeY - boardY1) * 0.40, tilts[2])
+                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.40, minSafeY + (boardY0 - minSafeY) * 0.40, tilts[3])
+                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.50, boardY0 + boardH * 0.50, tilts[4])
+                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.40, maxSafeY - (maxSafeY - boardY1) * 0.40, tilts[5])
             } else if total <= 12 {
-                if index < 4 {
-                    let y = boardY0 + (CGFloat(index) + 0.5) * (boardH / 4)
-                    let x = max(44, boardX0 * 0.48 + (index % 2 == 0 ? -12 : 12))
-                    return (x, y, rot)
-                } else if index < 8 {
-                    let i = index - 4
-                    let y = boardY0 + (CGFloat(i) + 0.5) * (boardH / 4)
-                    let x = min(stageSize.width - 44, boardX1 + (stageSize.width - boardX1) * 0.52 + (i % 2 == 0 ? 12 : -12))
-                    return (x, y, rot)
-                } else if index < 10 {
-                    let i = index - 8
-                    let x = boardX0 + CGFloat(i + 1) * (boardW / 3)
-                    let y = max(38, boardY0 * 0.48)
-                    return (x, y, rot)
-                } else {
-                    let i = index - 10
-                    let x = boardX0 + CGFloat(i + 1) * (boardW / 3)
-                    let y = min(stageSize.height - 38, boardY1 + (stageSize.height - boardY1) * 0.52)
-                    return (x, y, rot)
-                }
+                addSlot(minSafeX + (boardX0 - minSafeX) * 0.38, minSafeY + (boardY0 - minSafeY) * 0.38, tilts[0])
+                addSlot(boardX0 + boardW * 0.32, minSafeY + (boardY0 - minSafeY) * 0.65, tilts[1])
+                addSlot(boardX0 + boardW * 0.68, minSafeY + (boardY0 - minSafeY) * 0.35, tilts[2])
+                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.38, minSafeY + (boardY0 - minSafeY) * 0.38, tilts[3])
+                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.65, boardY0 + boardH * 0.33, tilts[4])
+                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.35, boardY0 + boardH * 0.67, tilts[5])
+                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.38, maxSafeY - (maxSafeY - boardY1) * 0.38, tilts[6])
+                addSlot(boardX0 + boardW * 0.68, maxSafeY - (maxSafeY - boardY1) * 0.35, tilts[7])
+                addSlot(boardX0 + boardW * 0.32, maxSafeY - (maxSafeY - boardY1) * 0.65, tilts[8])
+                addSlot(minSafeX + (boardX0 - minSafeX) * 0.38, maxSafeY - (maxSafeY - boardY1) * 0.38, tilts[9])
+                addSlot(minSafeX + (boardX0 - minSafeX) * 0.65, boardY0 + boardH * 0.67, tilts[10])
+                addSlot(minSafeX + (boardX0 - minSafeX) * 0.35, boardY0 + boardH * 0.33, tilts[11])
             } else {
-                if index < 6 {
-                    let col = index % 2
-                    let row = index / 2
-                    let x = max(40, col == 0 ? boardX0 * 0.30 : boardX0 * 0.72)
-                    let y = boardY0 + (CGFloat(row) + 0.5) * (boardH / 3) + CGFloat(col * 16 - 8)
-                    return (x, y, rot)
-                } else if index < 12 {
-                    let i = index - 6
-                    let col = i % 2
-                    let row = i / 2
-                    let margin = stageSize.width - boardX1
-                    let x = min(stageSize.width - 40, boardX1 + (col == 0 ? margin * 0.28 : margin * 0.70))
-                    let y = boardY0 + (CGFloat(row) + 0.5) * (boardH / 3) + CGFloat(col * 16 - 8)
-                    return (x, y, rot)
-                } else if index < 16 {
-                    let i = index - 12
-                    let x = boardX0 + (CGFloat(i) + 0.5) * (boardW / 4)
-                    let y = max(36, boardY0 * 0.48 + (i % 2 == 0 ? -6 : 6))
-                    return (x, y, rot)
-                } else {
-                    let i = index - 16
-                    let x = boardX0 + (CGFloat(i) + 0.5) * (boardW / 4)
-                    let y = min(stageSize.height - 36, boardY1 + (stageSize.height - boardY1) * 0.52 + (i % 2 == 0 ? 6 : -6))
-                    return (x, y, rot)
+                addSlot(minSafeX + (boardX0 - minSafeX) * 0.25, minSafeY + (boardY0 - minSafeY) * 0.25, tilts[0])
+                addSlot(minSafeX + (boardX0 - minSafeX) * 0.75, minSafeY + (boardY0 - minSafeY) * 0.75, tilts[1])
+                for i in 0..<3 {
+                    let x = boardX0 + (CGFloat(i) + 0.5) * (boardW / 3)
+                    let y = minSafeY + (boardY0 - minSafeY) * (i % 2 == 0 ? 0.35 : 0.65)
+                    addSlot(x, y, tilts[(2 + i) % tilts.count])
+                }
+                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.75, minSafeY + (boardY0 - minSafeY) * 0.75, tilts[5])
+                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.25, minSafeY + (boardY0 - minSafeY) * 0.25, tilts[6])
+                for i in 0..<3 {
+                    let y = boardY0 + (CGFloat(i) + 0.5) * (boardH / 3)
+                    let x = maxSafeX - (maxSafeX - boardX1) * (i % 2 == 0 ? 0.35 : 0.65)
+                    addSlot(x, y, tilts[(7 + i) % tilts.count])
+                }
+                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.75, maxSafeY - (maxSafeY - boardY1) * 0.75, tilts[10])
+                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.25, maxSafeY - (maxSafeY - boardY1) * 0.25, tilts[11])
+                for i in 0..<3 {
+                    let x = boardX0 + (CGFloat(i) + 0.5) * (boardW / 3)
+                    let y = maxSafeY - (maxSafeY - boardY1) * (i % 2 == 0 ? 0.65 : 0.35)
+                    addSlot(x, y, tilts[(12 + i) % tilts.count])
+                }
+                addSlot(minSafeX + (boardX0 - minSafeX) * 0.75, maxSafeY - (maxSafeY - boardY1) * 0.75, tilts[15])
+                addSlot(minSafeX + (boardX0 - minSafeX) * 0.25, maxSafeY - (maxSafeY - boardY1) * 0.25, tilts[16])
+                for i in 0..<3 {
+                    let y = boardY0 + (CGFloat(i) + 0.5) * (boardH / 3)
+                    let x = minSafeX + (boardX0 - minSafeX) * (i % 2 == 0 ? 0.65 : 0.35)
+                    addSlot(x, y, tilts[(17 + i) % tilts.count])
                 }
             }
         } else {
-            // Portrait
+            // Portrait mode
             if total <= 6 {
-                if index < 3 {
-                    let x = boardX0 + (CGFloat(index) + 0.5) * (boardW / 3)
-                    let y = max(40, boardY0 * 0.50 + (index % 2 == 0 ? -6 : 6))
-                    return (x, y, rot)
-                } else {
-                    let i = index - 3
-                    let x = boardX0 + (CGFloat(i) + 0.5) * (boardW / 3)
-                    let y = min(stageSize.height - 40, boardY1 + (stageSize.height - boardY1) * 0.50 + (i % 2 == 0 ? 6 : -6))
-                    return (x, y, rot)
-                }
+                addSlot(minSafeX + (boardX0 - minSafeX) * 0.40, minSafeY + (boardY0 - minSafeY) * 0.40, tilts[0])
+                addSlot(boardX0 + boardW * 0.50, minSafeY + (boardY0 - minSafeY) * 0.75, tilts[1])
+                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.40, minSafeY + (boardY0 - minSafeY) * 0.40, tilts[2])
+                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.40, maxSafeY - (maxSafeY - boardY1) * 0.40, tilts[3])
+                addSlot(boardX0 + boardW * 0.50, maxSafeY - (maxSafeY - boardY1) * 0.75, tilts[4])
+                addSlot(minSafeX + (boardX0 - minSafeX) * 0.40, maxSafeY - (maxSafeY - boardY1) * 0.40, tilts[5])
             } else if total <= 12 {
-                if index < 4 {
-                    let x = boardX0 + (CGFloat(index) + 0.5) * (boardW / 4)
-                    let y = max(38, boardY0 * 0.42 + (index % 2 == 0 ? -8 : 8))
-                    return (x, y, rot)
-                } else if index < 8 {
-                    let i = index - 4
-                    let x = boardX0 + (CGFloat(i) + 0.5) * (boardW / 4)
-                    let y = min(stageSize.height - 38, boardY1 + (stageSize.height - boardY1) * 0.58 + (i % 2 == 0 ? 8 : -8))
-                    return (x, y, rot)
-                } else if index < 10 {
-                    let i = index - 8
-                    let x = max(36, boardX0 * 0.45)
-                    let y = boardY0 + CGFloat(i + 1) * (boardH / 3)
-                    return (x, y, rot)
-                } else {
-                    let i = index - 10
-                    let x = min(stageSize.width - 36, boardX1 + (stageSize.width - boardX1) * 0.55)
-                    let y = boardY0 + CGFloat(i + 1) * (boardH / 3)
-                    return (x, y, rot)
-                }
+                addSlot(minSafeX + (boardX0 - minSafeX) * 0.35, minSafeY + (boardY0 - minSafeY) * 0.35, tilts[0])
+                addSlot(boardX0 + boardW * 0.30, minSafeY + (boardY0 - minSafeY) * 0.70, tilts[1])
+                addSlot(boardX0 + boardW * 0.70, minSafeY + (boardY0 - minSafeY) * 0.70, tilts[2])
+                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.35, minSafeY + (boardY0 - minSafeY) * 0.35, tilts[3])
+                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.45, boardY0 + boardH * 0.33, tilts[4])
+                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.45, boardY0 + boardH * 0.67, tilts[5])
+                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.35, maxSafeY - (maxSafeY - boardY1) * 0.35, tilts[6])
+                addSlot(boardX0 + boardW * 0.70, maxSafeY - (maxSafeY - boardY1) * 0.70, tilts[7])
+                addSlot(boardX0 + boardW * 0.30, maxSafeY - (maxSafeY - boardY1) * 0.70, tilts[8])
+                addSlot(minSafeX + (boardX0 - minSafeX) * 0.35, maxSafeY - (maxSafeY - boardY1) * 0.35, tilts[9])
+                addSlot(minSafeX + (boardX0 - minSafeX) * 0.45, boardY0 + boardH * 0.67, tilts[10])
+                addSlot(minSafeX + (boardX0 - minSafeX) * 0.45, boardY0 + boardH * 0.33, tilts[11])
             } else {
-                if index < 8 {
-                    let row = index / 4
-                    let col = index % 4
-                    let x = boardX0 + (CGFloat(col) + 0.5) * (boardW / 4)
-                    let y = max(34, row == 0 ? boardY0 * 0.32 : boardY0 * 0.72)
-                    return (x, y, rot)
-                } else if index < 16 {
-                    let i = index - 8
-                    let row = i / 4
-                    let col = i % 4
-                    let margin = stageSize.height - boardY1
-                    let x = boardX0 + (CGFloat(col) + 0.5) * (boardW / 4)
-                    let y = min(stageSize.height - 34, boardY1 + (row == 0 ? margin * 0.30 : margin * 0.70))
-                    return (x, y, rot)
-                } else if index < 18 {
-                    let i = index - 16
-                    let x = max(36, boardX0 * 0.45)
-                    let y = boardY0 + CGFloat(i + 1) * (boardH / 3)
-                    return (x, y, rot)
-                } else {
-                    let i = index - 18
-                    let x = min(stageSize.width - 36, boardX1 + (stageSize.width - boardX1) * 0.55)
-                    let y = boardY0 + CGFloat(i + 1) * (boardH / 3)
-                    return (x, y, rot)
+                addSlot(minSafeX + (boardX0 - minSafeX) * 0.25, minSafeY + (boardY0 - minSafeY) * 0.25, tilts[0])
+                addSlot(minSafeX + (boardX0 - minSafeX) * 0.75, minSafeY + (boardY0 - minSafeY) * 0.65, tilts[1])
+                for i in 0..<3 {
+                    addSlot(boardX0 + (CGFloat(i) + 0.5) * (boardW / 3), minSafeY + (boardY0 - minSafeY) * (i % 2 == 0 ? 0.80 : 0.40), tilts[(2 + i) % tilts.count])
+                }
+                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.75, minSafeY + (boardY0 - minSafeY) * 0.65, tilts[5])
+                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.25, minSafeY + (boardY0 - minSafeY) * 0.25, tilts[6])
+                for i in 0..<3 {
+                    addSlot(maxSafeX - (maxSafeX - boardX1) * 0.45, boardY0 + (CGFloat(i) + 0.5) * (boardH / 3), tilts[(7 + i) % tilts.count])
+                }
+                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.75, maxSafeY - (maxSafeY - boardY1) * 0.65, tilts[10])
+                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.25, maxSafeY - (maxSafeY - boardY1) * 0.25, tilts[11])
+                for i in 0..<3 {
+                    addSlot(boardX0 + (CGFloat(i) + 0.5) * (boardW / 3), maxSafeY - (maxSafeY - boardY1) * (i % 2 == 0 ? 0.25 : 0.65), tilts[(12 + i) % tilts.count])
+                }
+                addSlot(minSafeX + (boardX0 - minSafeX) * 0.75, maxSafeY - (maxSafeY - boardY1) * 0.65, tilts[15])
+                addSlot(minSafeX + (boardX0 - minSafeX) * 0.25, maxSafeY - (maxSafeY - boardY1) * 0.25, tilts[16])
+                for i in 0..<3 {
+                    addSlot(minSafeX + (boardX0 - minSafeX) * 0.45, boardY0 + (CGFloat(i) + 0.5) * (boardH / 3), tilts[(17 + i) % tilts.count])
                 }
             }
         }
+        
+        let safeIndex = max(0, min(index, slots.count - 1))
+        return slots[safeIndex]
     }
     
     // MARK: - Actions

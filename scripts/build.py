@@ -374,8 +374,15 @@ def build_distribution():
       justify-content: center !important;
     }
 
+    /* Inactive screens must never intercept pointer events or display */
+    .app-screen:not(.active),
+    .app-screen:not(.active) * {
+      pointer-events: none !important;
+    }
+
     /* Games Screen: Edge-to-edge animated scrolling canvas with header pinned strictly to top */
     #screenGames {
+      display: none;
       background-color: var(--riley-purple, #5931ba) !important;
       color: #ffffff !important;
       overflow: hidden !important;
@@ -385,7 +392,18 @@ def build_distribution():
       height: 100% !important;
     }
 
-    #screenGames .screen-content {
+    #screenGames.active {
+      display: block !important;
+    }
+
+    #screenGames:not(.active),
+    #screenGames:not(.active) * {
+      display: none !important;
+      pointer-events: none !important;
+      visibility: hidden !important;
+    }
+
+    #screenGames.active .screen-content {
       position: absolute !important;
       top: 0 !important;
       left: 0 !important;
@@ -401,39 +419,52 @@ def build_distribution():
       z-index: 25 !important;
     }
 
-    #screenGames #gamesHeader {
+    #screenGames.active #gamesHeader {
       pointer-events: auto !important;
       flex-shrink: 0 !important;
       width: 100% !important;
     }
 
-    .games-scroll-container {
+    #screenGames.active .games-scroll-container {
       pointer-events: auto !important;
     }
 
-    .games-scroll-viewport {
+    #screenGames.active .games-scroll-viewport {
       pointer-events: auto !important;
     }
 
     /* Child Life Zone Jigsaw Puzzle Overrides */
     #screenCLZPuzzle {
+      display: none;
       position: absolute !important;
       inset: 0 !important;
       width: 100% !important;
       height: 100% !important;
     }
 
-    #screenCLZPuzzle #puzzleHeader {
+    #screenCLZPuzzle.active {
+      display: flex !important;
+    }
+
+    #screenCLZPuzzle:not(.active),
+    #screenCLZPuzzle:not(.active) * {
+      display: none !important;
+      pointer-events: none !important;
+      visibility: hidden !important;
+    }
+
+    #screenCLZPuzzle.active #puzzleHeader,
+    #screenCLZPuzzle.active #puzzleTopBar {
       pointer-events: auto !important;
       flex-shrink: 0 !important;
       width: 100% !important;
     }
 
-    .puzzle-controls-container,
-    .puzzle-main-stage,
-    .puzzle-diff-btn,
-    .puzzle-tool-btn,
-    .puzzle-tray-card {
+    #screenCLZPuzzle.active .puzzle-controls-container,
+    #screenCLZPuzzle.active .puzzle-main-stage,
+    #screenCLZPuzzle.active .puzzle-diff-btn,
+    #screenCLZPuzzle.active .puzzle-tool-btn,
+    #screenCLZPuzzle.active .puzzle-tray-card {
       pointer-events: auto !important;
     }
 

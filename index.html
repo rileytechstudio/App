@@ -87,6 +87,11 @@
       transition: opacity 0.28s ease;
     }
 
+    .app-screen:not(.active),
+    .app-screen:not(.active) * {
+      pointer-events: none !important;
+    }
+
     .app-screen.active {
       opacity: 1;
       pointer-events: auto;
@@ -6016,6 +6021,7 @@
     /* SCREEN 8: GAMES SCREEN                                    */
     /* ========================================================= */
     #screenGames {
+      display: none;
       background-color: var(--riley-purple, #5931ba) !important;
       color: #ffffff;
       overflow: hidden !important;
@@ -6023,6 +6029,17 @@
       inset: 0 !important;
       width: 100% !important;
       height: 100% !important;
+    }
+
+    #screenGames.active {
+      display: block !important;
+    }
+
+    #screenGames:not(.active),
+    #screenGames:not(.active) * {
+      display: none !important;
+      pointer-events: none !important;
+      visibility: hidden !important;
     }
 
     #screenGames .screen-content {
@@ -6320,7 +6337,7 @@
     .puzzle-board-wrapper {
       position: relative;
       flex: 0 0 auto;
-      width: min(54vw, 560px);
+      width: min(50vw, calc(56vh * 1.334), 520px);
       aspect-ratio: 1366 / 1024;
       background: rgba(18, 6, 32, 0.75);
       border: 3px solid rgba(255, 255, 255, 0.32);
@@ -6334,7 +6351,7 @@
 
     @media (max-width: 860px), (max-aspect-ratio: 1.15/1) {
       .puzzle-board-wrapper {
-        width: min(78vw, 440px);
+        width: min(70vw, calc(46vh * 1.334), 390px);
       }
     }
 
@@ -6373,14 +6390,6 @@
       pointer-events: auto;
     }
 
-    .puzzle-board-grid-svg path.slot-target-glow {
-      stroke: #FFD54F !important;
-      stroke-width: 4 !important;
-      stroke-dasharray: 8, 4 !important;
-      fill: rgba(255, 213, 79, 0.28) !important;
-      filter: drop-shadow(0 0 10px rgba(255, 213, 79, 0.8));
-      animation: slotGlowPulse 1.2s infinite ease-in-out;
-    }
 
     .puzzle-placed-layer {
       position: absolute;
@@ -8662,8 +8671,15 @@
       justify-content: center !important;
     }
 
+    /* Inactive screens must never intercept pointer events or display */
+    .app-screen:not(.active),
+    .app-screen:not(.active) * {
+      pointer-events: none !important;
+    }
+
     /* Games Screen: Edge-to-edge animated scrolling canvas with header pinned strictly to top */
     #screenGames {
+      display: none;
       background-color: var(--riley-purple, #5931ba) !important;
       color: #ffffff !important;
       overflow: hidden !important;
@@ -8673,7 +8689,18 @@
       height: 100% !important;
     }
 
-    #screenGames .screen-content {
+    #screenGames.active {
+      display: block !important;
+    }
+
+    #screenGames:not(.active),
+    #screenGames:not(.active) * {
+      display: none !important;
+      pointer-events: none !important;
+      visibility: hidden !important;
+    }
+
+    #screenGames.active .screen-content {
       position: absolute !important;
       top: 0 !important;
       left: 0 !important;
@@ -8689,39 +8716,52 @@
       z-index: 25 !important;
     }
 
-    #screenGames #gamesHeader {
+    #screenGames.active #gamesHeader {
       pointer-events: auto !important;
       flex-shrink: 0 !important;
       width: 100% !important;
     }
 
-    .games-scroll-container {
+    #screenGames.active .games-scroll-container {
       pointer-events: auto !important;
     }
 
-    .games-scroll-viewport {
+    #screenGames.active .games-scroll-viewport {
       pointer-events: auto !important;
     }
 
     /* Child Life Zone Jigsaw Puzzle Overrides */
     #screenCLZPuzzle {
+      display: none;
       position: absolute !important;
       inset: 0 !important;
       width: 100% !important;
       height: 100% !important;
     }
 
-    #screenCLZPuzzle #puzzleHeader {
+    #screenCLZPuzzle.active {
+      display: flex !important;
+    }
+
+    #screenCLZPuzzle:not(.active),
+    #screenCLZPuzzle:not(.active) * {
+      display: none !important;
+      pointer-events: none !important;
+      visibility: hidden !important;
+    }
+
+    #screenCLZPuzzle.active #puzzleHeader,
+    #screenCLZPuzzle.active #puzzleTopBar {
       pointer-events: auto !important;
       flex-shrink: 0 !important;
       width: 100% !important;
     }
 
-    .puzzle-controls-container,
-    .puzzle-main-stage,
-    .puzzle-diff-btn,
-    .puzzle-tool-btn,
-    .puzzle-tray-card {
+    #screenCLZPuzzle.active .puzzle-controls-container,
+    #screenCLZPuzzle.active .puzzle-main-stage,
+    #screenCLZPuzzle.active .puzzle-diff-btn,
+    #screenCLZPuzzle.active .puzzle-tool-btn,
+    #screenCLZPuzzle.active .puzzle-tray-card {
       pointer-events: auto !important;
     }
 
@@ -13195,130 +13235,132 @@
       const boardY1 = boardY0 + boardH;
       const isLandscape = stageW >= stageH * 1.05;
       const slots = [];
-      const tilts = [-5, 4, -3, 6, -4, 5, -6, 3, 5, -4, 4, -5, 3, -6, 5, -3, 6, -5, 4, -4];
+      const tilts = [-6, 5, -4, 7, -5, 6, -7, 4, 6, -5, 5, -6, 4, -7, 6, -4, 7, -6, 5, -5];
+
+      const cols = totalPieces === 6 ? 3 : (totalPieces === 12 ? 4 : 5);
+      const rows = totalPieces === 6 ? 2 : (totalPieces === 12 ? 3 : 4);
+      const borderPieceScale = totalPieces === 20 ? 0.60 : (totalPieces === 12 ? 0.54 : 0.46);
+      const boardPieceScale = boardW / 1366;
+      const cellW = (1366 / cols) * boardPieceScale * borderPieceScale;
+      const cellH = (1024 / rows) * boardPieceScale * borderPieceScale;
+      // Generous half-extent accounting for tabs, 12% selection scale, rotation, and drop shadow
+      const pieceHalfW = Math.max(44, Math.round(cellW * 0.72));
+      const pieceHalfH = Math.max(40, Math.round(cellH * 0.72));
+
+      // Padding from screen borders ensures no piece or its shadow is ever clipped
+      const padX = 16;
+      const padY = 14;
+      const minSafeX = pieceHalfW + padX;
+      const maxSafeX = Math.max(minSafeX + 10, stageW - pieceHalfW - padX);
+      const minSafeY = pieceHalfH + padY;
+      const maxSafeY = Math.max(minSafeY + 10, stageH - pieceHalfH - padY);
+
+      function addSlot(rawX, rawY, rot) {
+        const x = Math.max(minSafeX, Math.min(maxSafeX, rawX));
+        const y = Math.max(minSafeY, Math.min(maxSafeY, rawY));
+        slots.push({ x: Math.round(x), y: Math.round(y), rot });
+      }
 
       if (isLandscape) {
         if (totalPieces === 6) {
-          // 3 on left border, 3 on right border
-          for (let i = 0; i < 3; i++) {
-            const y = boardY0 + (i + 0.5) * (boardH / 3);
-            const x = Math.max(48, boardX0 * 0.48 + ((i % 2 === 0 ? -1 : 1) * 8));
-            slots.push({ x, y, rot: tilts[i % tilts.length] });
-          }
-          for (let i = 0; i < 3; i++) {
-            const y = boardY0 + (i + 0.5) * (boardH / 3);
-            const x = Math.min(stageW - 48, boardX1 + (stageW - boardX1) * 0.52 + ((i % 2 === 0 ? 1 : -1) * 8));
-            slots.push({ x, y, rot: tilts[(i + 3) % tilts.length] });
-          }
+          // Easy (6 pieces): 4 corners + 2 lateral sides
+          addSlot(minSafeX + (boardX0 - minSafeX) * 0.40, minSafeY + (boardY0 - minSafeY) * 0.40, tilts[0]);
+          addSlot(minSafeX + (boardX0 - minSafeX) * 0.50, boardY0 + boardH * 0.50, tilts[1]);
+          addSlot(minSafeX + (boardX0 - minSafeX) * 0.40, maxSafeY - (maxSafeY - boardY1) * 0.40, tilts[2]);
+          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.40, minSafeY + (boardY0 - minSafeY) * 0.40, tilts[3]);
+          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.50, boardY0 + boardH * 0.50, tilts[4]);
+          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.40, maxSafeY - (maxSafeY - boardY1) * 0.40, tilts[5]);
+
         } else if (totalPieces === 12) {
-          // 4 on left, 4 on right, 2 on top, 2 on bottom
-          for (let i = 0; i < 4; i++) {
-            const y = boardY0 + (i + 0.5) * (boardH / 4);
-            const x = Math.max(44, boardX0 * 0.48 + ((i % 2 === 0 ? -1 : 1) * 12));
-            slots.push({ x, y, rot: tilts[i % tilts.length] });
-          }
-          for (let i = 0; i < 4; i++) {
-            const y = boardY0 + (i + 0.5) * (boardH / 4);
-            const x = Math.min(stageW - 44, boardX1 + (stageW - boardX1) * 0.52 + ((i % 2 === 0 ? 1 : -1) * 12));
-            slots.push({ x, y, rot: tilts[(i + 4) % tilts.length] });
-          }
-          for (let i = 0; i < 2; i++) {
-            const x = boardX0 + (i + 1) * (boardW / 3);
-            const y = Math.max(38, boardY0 * 0.48);
-            slots.push({ x, y, rot: tilts[(i + 8) % tilts.length] });
-          }
-          for (let i = 0; i < 2; i++) {
-            const x = boardX0 + (i + 1) * (boardW / 3);
-            const y = Math.min(stageH - 38, boardY1 + (stageH - boardY1) * 0.52);
-            slots.push({ x, y, rot: tilts[(i + 10) % tilts.length] });
-          }
+          // Medium (12 pieces): 4 corners + 2 top + 2 bottom + 2 left + 2 right
+          addSlot(minSafeX + (boardX0 - minSafeX) * 0.38, minSafeY + (boardY0 - minSafeY) * 0.38, tilts[0]);
+          addSlot(boardX0 + boardW * 0.32, minSafeY + (boardY0 - minSafeY) * 0.65, tilts[1]);
+          addSlot(boardX0 + boardW * 0.68, minSafeY + (boardY0 - minSafeY) * 0.35, tilts[2]);
+          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.38, minSafeY + (boardY0 - minSafeY) * 0.38, tilts[3]);
+          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.65, boardY0 + boardH * 0.33, tilts[4]);
+          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.35, boardY0 + boardH * 0.67, tilts[5]);
+          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.38, maxSafeY - (maxSafeY - boardY1) * 0.38, tilts[6]);
+          addSlot(boardX0 + boardW * 0.68, maxSafeY - (maxSafeY - boardY1) * 0.35, tilts[7]);
+          addSlot(boardX0 + boardW * 0.32, maxSafeY - (maxSafeY - boardY1) * 0.65, tilts[8]);
+          addSlot(minSafeX + (boardX0 - minSafeX) * 0.38, maxSafeY - (maxSafeY - boardY1) * 0.38, tilts[9]);
+          addSlot(minSafeX + (boardX0 - minSafeX) * 0.65, boardY0 + boardH * 0.67, tilts[10]);
+          addSlot(minSafeX + (boardX0 - minSafeX) * 0.35, boardY0 + boardH * 0.33, tilts[11]);
+
         } else {
-          // 20 pieces: 6 on left, 6 on right, 4 on top, 4 on bottom
-          for (let i = 0; i < 6; i++) {
-            const col = i % 2;
-            const row = Math.floor(i / 2);
-            const x = Math.max(40, (col === 0 ? boardX0 * 0.30 : boardX0 * 0.72));
-            const y = boardY0 + (row + 0.5) * (boardH / 3) + (col * 16 - 8);
-            slots.push({ x, y, rot: tilts[i % tilts.length] });
+          // Hard (20 pieces): 8 in corners (2 per corner) + 3 top + 3 bottom + 3 left + 3 right
+          addSlot(minSafeX + (boardX0 - minSafeX) * 0.25, minSafeY + (boardY0 - minSafeY) * 0.25, tilts[0]);
+          addSlot(minSafeX + (boardX0 - minSafeX) * 0.75, minSafeY + (boardY0 - minSafeY) * 0.75, tilts[1]);
+          for (let i = 0; i < 3; i++) {
+            const x = boardX0 + (i + 0.5) * (boardW / 3);
+            const y = minSafeY + (boardY0 - minSafeY) * (i % 2 === 0 ? 0.35 : 0.65);
+            addSlot(x, y, tilts[(2 + i) % tilts.length]);
           }
-          for (let i = 0; i < 6; i++) {
-            const col = i % 2;
-            const row = Math.floor(i / 2);
-            const margin = stageW - boardX1;
-            const x = Math.min(stageW - 40, boardX1 + (col === 0 ? margin * 0.28 : margin * 0.70));
-            const y = boardY0 + (row + 0.5) * (boardH / 3) + (col * 16 - 8);
-            slots.push({ x, y, rot: tilts[(i + 6) % tilts.length] });
+          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.75, minSafeY + (boardY0 - minSafeY) * 0.75, tilts[5]);
+          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.25, minSafeY + (boardY0 - minSafeY) * 0.25, tilts[6]);
+          for (let i = 0; i < 3; i++) {
+            const y = boardY0 + (i + 0.5) * (boardH / 3);
+            const x = maxSafeX - (maxSafeX - boardX1) * (i % 2 === 0 ? 0.35 : 0.65);
+            addSlot(x, y, tilts[(7 + i) % tilts.length]);
           }
-          for (let i = 0; i < 4; i++) {
-            const x = boardX0 + (i + 0.5) * (boardW / 4);
-            const y = Math.max(36, boardY0 * 0.48 + ((i % 2 === 0 ? -1 : 1) * 6));
-            slots.push({ x, y, rot: tilts[(i + 12) % tilts.length] });
+          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.75, maxSafeY - (maxSafeY - boardY1) * 0.75, tilts[10]);
+          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.25, maxSafeY - (maxSafeY - boardY1) * 0.25, tilts[11]);
+          for (let i = 0; i < 3; i++) {
+            const x = boardX0 + (i + 0.5) * (boardW / 3);
+            const y = maxSafeY - (maxSafeY - boardY1) * (i % 2 === 0 ? 0.65 : 0.35);
+            addSlot(x, y, tilts[(12 + i) % tilts.length]);
           }
-          for (let i = 0; i < 4; i++) {
-            const x = boardX0 + (i + 0.5) * (boardW / 4);
-            const y = Math.min(stageH - 36, boardY1 + (stageH - boardY1) * 0.52 + ((i % 2 === 0 ? 1 : -1) * 6));
-            slots.push({ x, y, rot: tilts[(i + 16) % tilts.length] });
+          addSlot(minSafeX + (boardX0 - minSafeX) * 0.75, maxSafeY - (maxSafeY - boardY1) * 0.75, tilts[15]);
+          addSlot(minSafeX + (boardX0 - minSafeX) * 0.25, maxSafeY - (maxSafeY - boardY1) * 0.25, tilts[16]);
+          for (let i = 0; i < 3; i++) {
+            const y = boardY0 + (i + 0.5) * (boardH / 3);
+            const x = minSafeX + (boardX0 - minSafeX) * (i % 2 === 0 ? 0.65 : 0.35);
+            addSlot(x, y, tilts[(17 + i) % tilts.length]);
           }
         }
       } else {
         // Portrait mode
         if (totalPieces === 6) {
-          for (let i = 0; i < 3; i++) {
-            const x = boardX0 + (i + 0.5) * (boardW / 3);
-            const y = Math.max(40, boardY0 * 0.50 + ((i % 2 === 0 ? -1 : 1) * 6));
-            slots.push({ x, y, rot: tilts[i % tilts.length] });
-          }
-          for (let i = 0; i < 3; i++) {
-            const x = boardX0 + (i + 0.5) * (boardW / 3);
-            const y = Math.min(stageH - 40, boardY1 + (stageH - boardY1) * 0.50 + ((i % 2 === 0 ? 1 : -1) * 6));
-            slots.push({ x, y, rot: tilts[(i + 3) % tilts.length] });
-          }
+          addSlot(minSafeX + (boardX0 - minSafeX) * 0.40, minSafeY + (boardY0 - minSafeY) * 0.40, tilts[0]);
+          addSlot(boardX0 + boardW * 0.50, minSafeY + (boardY0 - minSafeY) * 0.75, tilts[1]);
+          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.40, minSafeY + (boardY0 - minSafeY) * 0.40, tilts[2]);
+          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.40, maxSafeY - (maxSafeY - boardY1) * 0.40, tilts[3]);
+          addSlot(boardX0 + boardW * 0.50, maxSafeY - (maxSafeY - boardY1) * 0.75, tilts[4]);
+          addSlot(minSafeX + (boardX0 - minSafeX) * 0.40, maxSafeY - (maxSafeY - boardY1) * 0.40, tilts[5]);
+
         } else if (totalPieces === 12) {
-          for (let i = 0; i < 4; i++) {
-            const x = boardX0 + (i + 0.5) * (boardW / 4);
-            const y = Math.max(38, boardY0 * 0.42 + ((i % 2 === 0 ? -1 : 1) * 8));
-            slots.push({ x, y, rot: tilts[i % tilts.length] });
-          }
-          for (let i = 0; i < 4; i++) {
-            const x = boardX0 + (i + 0.5) * (boardW / 4);
-            const y = Math.min(stageH - 38, boardY1 + (stageH - boardY1) * 0.58 + ((i % 2 === 0 ? 1 : -1) * 8));
-            slots.push({ x, y, rot: tilts[(i + 4) % tilts.length] });
-          }
-          for (let i = 0; i < 2; i++) {
-            const x = Math.max(36, boardX0 * 0.45);
-            const y = boardY0 + (i + 1) * (boardH / 3);
-            slots.push({ x, y, rot: tilts[(i + 8) % tilts.length] });
-          }
-          for (let i = 0; i < 2; i++) {
-            const x = Math.min(stageW - 36, boardX1 + (stageW - boardX1) * 0.55);
-            const y = boardY0 + (i + 1) * (boardH / 3);
-            slots.push({ x, y, rot: tilts[(i + 10) % tilts.length] });
-          }
+          addSlot(minSafeX + (boardX0 - minSafeX) * 0.35, minSafeY + (boardY0 - minSafeY) * 0.35, tilts[0]);
+          addSlot(boardX0 + boardW * 0.30, minSafeY + (boardY0 - minSafeY) * 0.70, tilts[1]);
+          addSlot(boardX0 + boardW * 0.70, minSafeY + (boardY0 - minSafeY) * 0.70, tilts[2]);
+          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.35, minSafeY + (boardY0 - minSafeY) * 0.35, tilts[3]);
+          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.45, boardY0 + boardH * 0.33, tilts[4]);
+          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.45, boardY0 + boardH * 0.67, tilts[5]);
+          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.35, maxSafeY - (maxSafeY - boardY1) * 0.35, tilts[6]);
+          addSlot(boardX0 + boardW * 0.70, maxSafeY - (maxSafeY - boardY1) * 0.70, tilts[7]);
+          addSlot(boardX0 + boardW * 0.30, maxSafeY - (maxSafeY - boardY1) * 0.70, tilts[8]);
+          addSlot(minSafeX + (boardX0 - minSafeX) * 0.35, maxSafeY - (maxSafeY - boardY1) * 0.35, tilts[9]);
+          addSlot(minSafeX + (boardX0 - minSafeX) * 0.45, boardY0 + boardH * 0.67, tilts[10]);
+          addSlot(minSafeX + (boardX0 - minSafeX) * 0.45, boardY0 + boardH * 0.33, tilts[11]);
+
         } else {
-          for (let i = 0; i < 8; i++) {
-            const row = Math.floor(i / 4);
-            const col = i % 4;
-            const x = boardX0 + (col + 0.5) * (boardW / 4);
-            const y = Math.max(34, row === 0 ? boardY0 * 0.32 : boardY0 * 0.72);
-            slots.push({ x, y, rot: tilts[i % tilts.length] });
+          addSlot(minSafeX + (boardX0 - minSafeX) * 0.25, minSafeY + (boardY0 - minSafeY) * 0.25, tilts[0]);
+          addSlot(minSafeX + (boardX0 - minSafeX) * 0.75, minSafeY + (boardY0 - minSafeY) * 0.65, tilts[1]);
+          for (let i = 0; i < 3; i++) {
+            addSlot(boardX0 + (i + 0.5) * (boardW / 3), minSafeY + (boardY0 - minSafeY) * (i % 2 === 0 ? 0.80 : 0.40), tilts[(2 + i) % tilts.length]);
           }
-          for (let i = 0; i < 8; i++) {
-            const row = Math.floor(i / 4);
-            const col = i % 4;
-            const margin = stageH - boardY1;
-            const x = boardX0 + (col + 0.5) * (boardW / 4);
-            const y = Math.min(stageH - 34, boardY1 + (row === 0 ? margin * 0.30 : margin * 0.70));
-            slots.push({ x, y, rot: tilts[(i + 8) % tilts.length] });
+          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.75, minSafeY + (boardY0 - minSafeY) * 0.65, tilts[5]);
+          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.25, minSafeY + (boardY0 - minSafeY) * 0.25, tilts[6]);
+          for (let i = 0; i < 3; i++) {
+            addSlot(maxSafeX - (maxSafeX - boardX1) * 0.45, boardY0 + (i + 0.5) * (boardH / 3), tilts[(7 + i) % tilts.length]);
           }
-          for (let i = 0; i < 2; i++) {
-            const x = Math.max(36, boardX0 * 0.45);
-            const y = boardY0 + (i + 1) * (boardH / 3);
-            slots.push({ x, y, rot: tilts[(i + 16) % tilts.length] });
+          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.75, maxSafeY - (maxSafeY - boardY1) * 0.65, tilts[10]);
+          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.25, maxSafeY - (maxSafeY - boardY1) * 0.25, tilts[11]);
+          for (let i = 0; i < 3; i++) {
+            addSlot(boardX0 + (i + 0.5) * (boardW / 3), maxSafeY - (maxSafeY - boardY1) * (i % 2 === 0 ? 0.25 : 0.65), tilts[(12 + i) % tilts.length]);
           }
-          for (let i = 0; i < 2; i++) {
-            const x = Math.min(stageW - 36, boardX1 + (stageW - boardX1) * 0.55);
-            const y = boardY0 + (i + 1) * (boardH / 3);
-            slots.push({ x, y, rot: tilts[(i + 18) % tilts.length] });
+          addSlot(minSafeX + (boardX0 - minSafeX) * 0.75, maxSafeY - (maxSafeY - boardY1) * 0.65, tilts[15]);
+          addSlot(minSafeX + (boardX0 - minSafeX) * 0.25, maxSafeY - (maxSafeY - boardY1) * 0.25, tilts[16]);
+          for (let i = 0; i < 3; i++) {
+            addSlot(minSafeX + (boardX0 - minSafeX) * 0.45, boardY0 + (i + 0.5) * (boardH / 3), tilts[(17 + i) % tilts.length]);
           }
         }
       }
@@ -13354,9 +13396,10 @@
       const slots = computeScatterSlots(puzzlePieces.length, stageW, stageH, boardX0, boardY0, boardW, boardH);
 
       const boardPieceScale = boardW / 1366;
-      const borderPieceScale = currentPuzzleDifficulty === 'hard' ? 0.70 : (currentPuzzleDifficulty === 'medium' ? 0.62 : 0.52);
+      const borderPieceScale = currentPuzzleDifficulty === 'hard' ? 0.60 : (currentPuzzleDifficulty === 'medium' ? 0.54 : 0.46);
 
       shuffled.forEach((p, idx) => {
+        p.scatterSlotIdx = idx;
         const slot = slots[idx] || { x: stageW / 2, y: stageH / 2, rot: 0 };
         p.scatterX = slot.x;
         p.scatterY = slot.y;
@@ -13413,24 +13456,23 @@
       const slots = computeScatterSlots(puzzlePieces.length, stageW, stageH, boardX0, boardY0, boardW, boardH);
 
       const boardPieceScale = boardW / 1366;
-      const borderPieceScale = currentPuzzleDifficulty === 'hard' ? 0.70 : (currentPuzzleDifficulty === 'medium' ? 0.62 : 0.52);
+      const borderPieceScale = currentPuzzleDifficulty === 'hard' ? 0.60 : (currentPuzzleDifficulty === 'medium' ? 0.54 : 0.46);
 
-      unplaced.forEach((p, idx) => {
+      unplaced.forEach((p) => {
         const card = document.getElementById(`scatterPiece_${p.id}`);
         if (!card) return;
-        const slot = slots[idx];
-        if (slot) {
-          p.scatterX = slot.x;
-          p.scatterY = slot.y;
-          p.scatterRot = slot.rot;
-          card.style.left = `${slot.x}px`;
-          card.style.top = `${slot.y}px`;
-          card.style.transform = `translate(-50%, -50%) rotate(${slot.rot}deg)`;
-          const dispW = Math.round(p.pw * boardPieceScale * borderPieceScale);
-          const dispH = Math.round(p.ph * boardPieceScale * borderPieceScale);
-          card.style.width = `${dispW}px`;
-          card.style.height = `${dispH}px`;
-        }
+        const slotIdx = (p.scatterSlotIdx !== undefined && p.scatterSlotIdx < slots.length) ? p.scatterSlotIdx : (p.id % slots.length);
+        const slot = slots[slotIdx] || { x: stageW / 2, y: stageH / 2, rot: 0 };
+        p.scatterX = slot.x;
+        p.scatterY = slot.y;
+        p.scatterRot = slot.rot;
+        card.style.left = `${slot.x}px`;
+        card.style.top = `${slot.y}px`;
+        card.style.transform = `translate(-50%, -50%) rotate(${slot.rot}deg)`;
+        const dispW = Math.round(p.pw * boardPieceScale * borderPieceScale);
+        const dispH = Math.round(p.ph * boardPieceScale * borderPieceScale);
+        card.style.width = `${dispW}px`;
+        card.style.height = `${dispH}px`;
       });
     }
 
@@ -13540,22 +13582,6 @@
         proxy.style.left = `${e.clientX}px`;
         proxy.style.top = `${e.clientY}px`;
       }
-
-      const board = document.getElementById('puzzleBoardWrapper');
-      if (!board) return;
-      const boardRect = board.getBoundingClientRect();
-
-      const targetX = boardRect.left + (piece.x0 / 1366) * boardRect.width + ((piece.cw / 1366) * boardRect.width) / 2;
-      const targetY = boardRect.top + (piece.y0 / 1024) * boardRect.height + ((piece.ch / 1024) * boardRect.height) / 2;
-
-      const dist = Math.hypot(e.clientX - targetX, e.clientY - targetY);
-      const slotPath = document.getElementById(`boardSlotPath_${piece.id}`);
-
-      if (dist < 65) {
-        if (slotPath) slotPath.classList.add('slot-target-glow');
-      } else {
-        if (slotPath) slotPath.classList.remove('slot-target-glow');
-      }
     }
 
     function finishDraggingPiece(e, piece) {
@@ -13567,9 +13593,6 @@
 
       const card = document.getElementById(`scatterPiece_${piece.id}`);
       if (card) card.classList.remove('dragging');
-
-      const slotPath = document.getElementById(`boardSlotPath_${piece.id}`);
-      if (slotPath) slotPath.classList.remove('slot-target-glow');
 
       const board = document.getElementById('puzzleBoardWrapper');
       if (!board) return;
@@ -13628,7 +13651,6 @@
       const slotPath = document.getElementById(`boardSlotPath_${piece.id}`);
       if (slotPath) {
         slotPath.style.opacity = '0.08';
-        slotPath.classList.remove('slot-target-glow');
       }
 
       if (puzzlePlacedSet.size >= puzzlePieces.length) {
@@ -13645,19 +13667,13 @@
       if (selectedPieceId === piece.id) {
         selectedPieceId = null;
         if (card) card.classList.remove('selected');
-        const slotPath = document.getElementById(`boardSlotPath_${piece.id}`);
-        if (slotPath) slotPath.classList.remove('slot-target-glow');
       } else {
         if (selectedPieceId) {
           const prevCard = document.getElementById(`scatterPiece_${selectedPieceId}`);
           if (prevCard) prevCard.classList.remove('selected');
-          const prevSlot = document.getElementById(`boardSlotPath_${selectedPieceId}`);
-          if (prevSlot) prevSlot.classList.remove('slot-target-glow');
         }
         selectedPieceId = piece.id;
         if (card) card.classList.add('selected');
-        const slotPath = document.getElementById(`boardSlotPath_${piece.id}`);
-        if (slotPath) slotPath.classList.add('slot-target-glow');
         triggerHapticFeedback(false);
       }
     }
@@ -13665,7 +13681,7 @@
     function handleBoardSlotClick(pieceId) {
       if (selectedPieceId) {
         const piece = puzzlePieces.find(p => p.id === selectedPieceId);
-        if (piece) {
+        if (piece && piece.id === pieceId) {
           placePieceOnBoard(piece);
         }
       }
