@@ -692,7 +692,8 @@
 
     /* Fixed Bottom 4-Tab Bar (Liquid Glass Frosted Toolbar matching Top Header) */
     .prep-bottom-bar,
-    .game-bottom-bar {
+    .game-bottom-bar,
+    .games-bottom-bar {
       width: 100%;
       position: absolute;
       bottom: 0;
@@ -5793,8 +5794,11 @@
     #screenSettings {
       background-color: var(--riley-purple, #5931ba) !important;
       color: #1e293b;
-      overflow: hidden;
-      position: relative;
+      overflow: hidden !important;
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
     }
 
     .settings-screen-container {
@@ -6006,6 +6010,595 @@
       .ios-switch.checked .ios-switch-thumb {
         transform: translateX(25px);
       }
+    }
+
+    /* ========================================================= */
+    /* SCREEN 8: GAMES SCREEN                                    */
+    /* ========================================================= */
+    #screenGames {
+      background-color: var(--riley-purple, #5931ba) !important;
+      color: #ffffff;
+      overflow: hidden !important;
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    #screenGames .screen-content {
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: flex-start !important;
+      align-items: stretch !important;
+      pointer-events: none !important;
+      z-index: 25 !important;
+    }
+
+    #screenGames #gamesHeader {
+      pointer-events: auto !important;
+      flex-shrink: 0 !important;
+      width: 100% !important;
+    }
+
+    #screenGames .games-bottom-bar {
+      position: absolute !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      width: 100% !important;
+      z-index: 35 !important;
+    }
+
+    .games-scroll-container {
+      flex: 1;
+      min-height: 0;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      pointer-events: auto !important;
+      z-index: 20;
+    }
+
+    .games-scroll-viewport {
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+      padding: 24px 20px calc(88px + env(safe-area-inset-bottom, 20px));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 28px;
+      scrollbar-width: none;
+      pointer-events: auto !important;
+      box-sizing: border-box;
+    }
+
+    .games-scroll-viewport::-webkit-scrollbar {
+      display: none;
+    }
+
+    .games-scroll-viewport::before,
+    .games-scroll-viewport::after {
+      content: "";
+      margin: auto;
+    }
+
+    .game-card {
+      width: 680px;
+      max-width: 84%;
+      background: transparent;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.15s ease;
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+      padding: 0;
+    }
+
+    .game-card:hover {
+      transform: scale(1.025);
+      filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.35));
+    }
+
+    .game-card:active {
+      transform: scale(0.96);
+      filter: brightness(0.93);
+    }
+
+    .game-card img {
+      width: 100%;
+      height: auto;
+      display: block;
+      pointer-events: none;
+    }
+
+    /* Animated Scrolling Game Controllers Background Pattern - 100% Seamless Infinite Loop */
+    .games-bg-pattern-layer {
+      position: absolute;
+      inset: 0;
+      background-image: url('assets/GamesBackgroundPattern.png');
+      background-repeat: repeat;
+      background-size: 1366px 1024px;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.95;
+      animation: scrollGamesBg 74s linear infinite;
+      will-change: background-position;
+    }
+
+    #screenGames:not(.active) .games-bg-pattern-layer {
+      animation-play-state: paused;
+    }
+
+    @keyframes scrollGamesBg {
+      0% {
+        background-position: 0 0;
+      }
+      100% {
+        background-position: -1366px 1024px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .games-bg-pattern-layer {
+        animation-duration: 160s;
+      }
+    }
+
+    /* ========================================================= */
+    /* SCREEN 9: CHILD LIFE ZONE JIGSAW PUZZLE                   */
+    /* ========================================================= */
+    #screenCLZPuzzle {
+      background-color: #5931bb !important;
+      background-image: url('assets/PurpleBG.png') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+      color: #ffffff;
+      overflow: hidden !important;
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      display: none;
+      flex-direction: column !important;
+      align-items: stretch !important;
+      justify-content: flex-start !important;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+      z-index: 25;
+    }
+
+    #screenCLZPuzzle.active {
+      display: flex !important;
+    }
+
+    #screenCLZPuzzle #puzzleTopBar {
+      pointer-events: auto !important;
+      flex-shrink: 0 !important;
+      width: 100% !important;
+    }
+
+    .puzzle-table-texture {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('assets/TableTexture.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .puzzle-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 24px 6px;
+      width: 100%;
+      box-sizing: border-box;
+      z-index: 20;
+      flex-shrink: 0;
+      pointer-events: auto;
+    }
+
+    .puzzle-controls-group {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .puzzle-difficulty-selector {
+      display: inline-flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      border-radius: 999px;
+      padding: 4px;
+      gap: 4px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .puzzle-diff-btn {
+      border: none;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.85);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "Nunito", system-ui, sans-serif;
+      font-size: 13.5px;
+      font-weight: 700;
+      padding: 6px 15px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .puzzle-diff-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .puzzle-diff-btn.active {
+      background: #ffffff !important;
+      color: #5931ba !important;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+      transform: scale(1.03);
+    }
+
+    .puzzle-tool-btn {
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      background: rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "Nunito", system-ui, sans-serif;
+      font-size: 13.5px;
+      font-weight: 700;
+      padding: 6.5px 16px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .puzzle-tool-btn:hover {
+      background: rgba(255, 255, 255, 0.24);
+      transform: translateY(-1px);
+    }
+
+    .puzzle-tool-btn:active {
+      transform: scale(0.96);
+    }
+
+    .puzzle-tool-btn.active {
+      background: #fbc02d;
+      color: #2d1800;
+      border-color: #ffd54f;
+      box-shadow: 0 0 14px rgba(251, 192, 45, 0.65);
+    }
+
+    .puzzle-main-stage {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+      overflow: hidden;
+      z-index: 10;
+      pointer-events: auto;
+    }
+
+    .puzzle-board-wrapper {
+      position: relative;
+      flex: 0 0 auto;
+      width: min(54vw, 560px);
+      aspect-ratio: 1366 / 1024;
+      background: rgba(18, 6, 32, 0.75);
+      border: 3px solid rgba(255, 255, 255, 0.32);
+      border-radius: 18px;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45), inset 0 2px 10px rgba(0, 0, 0, 0.6);
+      overflow: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+      z-index: 12;
+    }
+
+    @media (max-width: 860px), (max-aspect-ratio: 1.15/1) {
+      .puzzle-board-wrapper {
+        width: min(78vw, 440px);
+      }
+    }
+
+    .puzzle-ghost-image {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      filter: saturate(0.85) contrast(0.92);
+      z-index: 2;
+    }
+
+    .puzzle-ghost-image.visible {
+      opacity: 0.20;
+    }
+
+    .puzzle-board-grid-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: auto;
+      z-index: 5;
+    }
+
+    .puzzle-board-grid-svg path.board-seam {
+      stroke: rgba(255, 255, 255, 0.32);
+      stroke-dasharray: 4, 4;
+      stroke-width: 1.5;
+      fill: transparent;
+      cursor: pointer;
+      pointer-events: auto;
+    }
+
+    .puzzle-board-grid-svg path.slot-target-glow {
+      stroke: #FFD54F !important;
+      stroke-width: 4 !important;
+      stroke-dasharray: 8, 4 !important;
+      fill: rgba(255, 213, 79, 0.28) !important;
+      filter: drop-shadow(0 0 10px rgba(255, 213, 79, 0.8));
+      animation: slotGlowPulse 1.2s infinite ease-in-out;
+    }
+
+    .puzzle-placed-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .puzzle-placed-piece {
+      position: absolute;
+      pointer-events: none;
+      animation: pieceSnapIn 0.36s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .puzzle-scatter-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 16;
+      overflow: hidden;
+    }
+
+    .puzzle-scatter-piece {
+      position: absolute;
+      pointer-events: auto;
+      cursor: grab;
+      background: transparent;
+      border: none;
+      padding: 0;
+      margin: 0;
+      outline: none;
+      -webkit-tap-highlight-color: transparent;
+      transform-origin: center center;
+      transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease, opacity 0.2s ease;
+      filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.55));
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 18;
+    }
+
+    .puzzle-scatter-piece:hover {
+      filter: drop-shadow(0 8px 22px rgba(255, 213, 79, 0.7)) drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6));
+      transform: translate(-50%, -50%) scale(1.08) !important;
+      z-index: 30;
+    }
+
+    .puzzle-scatter-piece:active {
+      cursor: grabbing;
+    }
+
+    .puzzle-scatter-piece.selected {
+      filter: drop-shadow(0 0 18px rgba(251, 192, 45, 0.95)) drop-shadow(0 8px 22px rgba(0, 0, 0, 0.6));
+      transform: translate(-50%, -50%) scale(1.12) !important;
+      z-index: 35;
+    }
+
+    .puzzle-scatter-piece.dragging {
+      opacity: 0.15;
+      pointer-events: none;
+    }
+
+    .puzzle-drag-proxy {
+      position: fixed;
+      pointer-events: none;
+      z-index: 10000;
+      transform: translate(-50%, -50%);
+      filter: drop-shadow(0 16px 36px rgba(0, 0, 0, 0.65));
+      transition: none;
+      display: none;
+    }
+
+    .puzzle-drag-proxy.active {
+      display: block;
+    }
+
+    @keyframes pieceSnapIn {
+      0% { transform: scale(1.08); filter: drop-shadow(0 6px 14px rgba(123, 63, 228, 0.7)); }
+      50% { transform: scale(0.97); }
+      100% { transform: scale(1.0); filter: none; }
+    }
+
+    @keyframes slotGlowPulse {
+      0%, 100% { opacity: 0.75; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.015); }
+    }
+
+    .puzzle-success-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 600;
+      background: rgba(18, 5, 36, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    .puzzle-success-overlay.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .puzzle-confetti-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .puzzle-success-card {
+      position: relative;
+      z-index: 2;
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 28px;
+      padding: 32px 36px 30px;
+      width: 90%;
+      max-width: 440px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      animation: puzzlePopIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes puzzlePopIn {
+      0% { transform: scale(0.7) translateY(40px); opacity: 0; }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    .puzzle-you-did-it-img {
+      width: 100%;
+      max-width: 290px;
+      height: auto;
+      margin-bottom: 2px;
+      pointer-events: none;
+    }
+
+    .puzzle-success-title {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "Nunito", system-ui, sans-serif;
+      font-size: 26px;
+      font-weight: 900;
+      color: #5931ba;
+      margin: 0;
+    }
+
+    .puzzle-success-desc {
+      font-size: 15px;
+      color: #555566;
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    .puzzle-success-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    .puzzle-btn-primary {
+      background: linear-gradient(135deg, #7B3FE4 0%, #5931ba 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 999px;
+      padding: 13px 24px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
+      box-shadow: 0 4px 14px rgba(123, 63, 228, 0.4);
+    }
+
+    .puzzle-btn-primary:active {
+      transform: scale(0.96);
+    }
+
+    .puzzle-btn-secondary {
+      background: #f1ecfc;
+      color: #5931ba;
+      border: 2px solid #7B3FE4;
+      border-radius: 999px;
+      padding: 11px 24px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .puzzle-btn-secondary:active {
+      transform: scale(0.96);
+    }
+
+    .puzzle-btn-outline {
+      background: transparent;
+      color: #777788;
+      border: none;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: underline;
     }
 
     /* ========================================================= */
@@ -8050,7 +8643,7 @@
     }
 
     /* Bottom Bar - Liquid Glass Frosted Toolbar matching Top Header */
-    .prep-bottom-bar, .game-bottom-bar {
+    .prep-bottom-bar, .game-bottom-bar, .games-bottom-bar {
       position: absolute !important;
       bottom: 0 !important;
       left: 0 !important;
@@ -8067,6 +8660,69 @@
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
+    }
+
+    /* Games Screen: Edge-to-edge animated scrolling canvas with header pinned strictly to top */
+    #screenGames {
+      background-color: var(--riley-purple, #5931ba) !important;
+      color: #ffffff !important;
+      overflow: hidden !important;
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    #screenGames .screen-content {
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: flex-start !important;
+      align-items: stretch !important;
+      pointer-events: none !important;
+      z-index: 25 !important;
+    }
+
+    #screenGames #gamesHeader {
+      pointer-events: auto !important;
+      flex-shrink: 0 !important;
+      width: 100% !important;
+    }
+
+    .games-scroll-container {
+      pointer-events: auto !important;
+    }
+
+    .games-scroll-viewport {
+      pointer-events: auto !important;
+    }
+
+    /* Child Life Zone Jigsaw Puzzle Overrides */
+    #screenCLZPuzzle {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    #screenCLZPuzzle #puzzleHeader {
+      pointer-events: auto !important;
+      flex-shrink: 0 !important;
+      width: 100% !important;
+    }
+
+    .puzzle-controls-container,
+    .puzzle-main-stage,
+    .puzzle-diff-btn,
+    .puzzle-tool-btn,
+    .puzzle-tray-card {
+      pointer-events: auto !important;
     }
 
     .bottom-bar-tabs {
@@ -8793,9 +9449,9 @@
           <div class="mask-game-content">
             <!-- Top Navigation Header -->
             <div class="game-top-bar">
-              <button class="game-top-btn" onclick="goToHome()">
+              <button class="game-top-btn" onclick="handleMaskGameBack()">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                <span>Home</span>
+                <span id="maskGameBackLabel">Back</span>
               </button>
 
               <div class="game-top-actions">
@@ -9520,8 +10176,174 @@
         </div>
 
         <!-- ========================================================= -->
-        <!-- MODAL NAVIGATION / DETAIL SHEET (iOS Native Style)        -->
+        <!-- SCREEN 8: GAMES SCREEN                                    -->
         <!-- ========================================================= -->
+        <div id="screenGames" class="app-screen">
+          <!-- Animated Scrolling Background Pattern Layer (Blank Page) -->
+          <div class="games-bg-pattern-layer" aria-hidden="true"></div>
+
+          <!-- Screen Content (matches Preparations Screen) -->
+          <div class="screen-content">
+            <!-- Top Apple Glass Navigation Bar -->
+            <header class="home-custom-header app-header" id="gamesHeader">
+              <div class="home-header-left header-left">
+                <button class="header-glass-btn header-back-btn" onclick="handleGamesBack()" title="Back" aria-label="Back">
+                  <svg class="header-back-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"/>
+                  </svg>
+                </button>
+              </div>
+
+              <div class="home-header-center header-center">
+                <img src="assets/Header2_Banner.png" alt="Riley Children's Health" class="home-logo-banner consistent-header-banner" />
+              </div>
+
+              <div class="home-header-right header-right">
+                <button class="header-glass-btn header-home-btn" onclick="goToHome()" title="Home" aria-label="Home">
+                  <svg class="header-home-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                  </svg>
+                </button>
+                <button class="header-glass-btn home-setting-btn" onclick="goToSettings()" title="Settings" aria-label="Settings">
+                  <svg class="setting-gear-icon" viewBox="0 0 24 24">
+                    <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                  </svg>
+                </button>
+              </div>
+            </header>
+
+            <!-- Scrollable Games Cards Viewport -->
+            <div class="games-scroll-container">
+              <div id="gamesViewport" class="games-scroll-viewport">
+                <!-- Card 1: Mask Decoration Game -->
+                <button class="procedure-card game-card" id="card-mask-decoration" onclick="goToMaskGame()" aria-label="Mask Decoration Game">
+                  <img src="assets/ButtonMaskDecoration.png" alt="Mask Decoration" />
+                </button>
+
+                <!-- Card 2: Child Life Zone Puzzle -->
+                <button class="procedure-card game-card" id="card-clz-puzzle" onclick="openCLZPuzzle()" aria-label="Child Life Zone Puzzle">
+                  <img src="assets/ButtonCLZPuzzle.png" alt="Child Life Zone Puzzle" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Fixed Bottom 4-Tab Navigation Bar -->
+          <div class="prep-bottom-bar games-bottom-bar">
+            <div class="bottom-bar-tabs">
+              <button class="bottom-tab-btn" onclick="goToPreparations()" title="Preparations">
+                <img src="assets/Isolated_Preparations_Not_Selected.png" alt="Preparations" />
+              </button>
+              <button class="bottom-tab-btn" onclick="goToAnatomyExplorer()" title="Anatomy Explorer">
+                <img src="assets/Isolated_Anat_Explorer_Not_Selected.png" alt="Anatomy Explorer" />
+              </button>
+              <button class="bottom-tab-btn" onclick="openSheet('Gallery')" title="Gallery">
+                <img src="assets/Isolated_Gallery_Not_Selected.png" alt="Gallery" />
+              </button>
+              <button class="bottom-tab-btn active" onclick="goToGames()" title="Games">
+                <img src="assets/Isolated_Games_Selected.png" alt="Games" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- SCREEN 9: CHILD LIFE ZONE JIGSAW PUZZLE                   -->
+        <!-- ========================================================= -->
+        <div id="screenCLZPuzzle" class="app-screen">
+          <!-- Table Texture Layer -->
+          <div class="puzzle-table-texture" aria-hidden="true"></div>
+
+          <!-- Top Navigation Header (Matching Mask Decoration Game Header Style) -->
+          <div class="game-top-bar puzzle-top-bar" id="puzzleTopBar">
+            <button class="game-top-btn" onclick="handlePuzzleBack()" title="Back to Games" aria-label="Back to Games">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              <span>Back</span>
+            </button>
+
+            <!-- Middle of Screen: Easy/Medium/Hard Toggle + Guide Toggle Next to It -->
+            <div class="puzzle-controls-group">
+              <!-- Difficulty Selector -->
+              <div class="puzzle-difficulty-selector" role="radiogroup" aria-label="Puzzle Difficulty">
+                <button class="puzzle-diff-btn active" id="diffBtnEasy" data-diff="easy" onclick="setPuzzleDifficulty('easy')">
+                  Easy
+                </button>
+                <button class="puzzle-diff-btn" id="diffBtnMedium" data-diff="medium" onclick="setPuzzleDifficulty('medium')">
+                  Medium
+                </button>
+                <button class="puzzle-diff-btn" id="diffBtnHard" data-diff="hard" onclick="setPuzzleDifficulty('hard')">
+                  Hard
+                </button>
+              </div>
+
+              <!-- Guide Toggle Next to Difficulty Selector -->
+              <button class="puzzle-tool-btn" id="puzzleHintBtn" onclick="togglePuzzleHint()" title="Show Guide Picture" aria-label="Show Guide Picture">
+                <span class="tool-label" id="puzzleHintLabel">Guide: Off</span>
+              </button>
+            </div>
+
+            <!-- Top Actions -->
+            <div class="game-top-actions">
+              <button class="game-top-btn-icon sound-toggle-btn" onclick="toggleSound()" title="Mute/Unmute Sound" aria-label="Toggle Sound">
+                <svg class="sound-icon-on" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                </svg>
+                <svg class="sound-icon-off" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                  <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+              </button>
+              <button class="game-top-btn-icon" onclick="goToHome()" title="Home" aria-label="Home">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Main Interactive Stage (Centered Board + Scattered Border Pieces) -->
+          <div class="puzzle-main-stage" id="puzzleMainStage">
+            <!-- Perimeter Scatter Layer for unplaced pieces -->
+            <div class="puzzle-scatter-layer" id="puzzleScatterLayer"></div>
+
+            <!-- Central: Puzzle Assembly Board -->
+            <div class="puzzle-board-wrapper" id="puzzleBoardWrapper">
+              <!-- Ghost Guide Image (Visible when Guide is ON) -->
+              <img src="assets/CLZPuzzleImage.png" alt="Child Life Zone Guide" class="puzzle-ghost-image" id="puzzleGhostImage" draggable="false" />
+              
+              <!-- Board Slot Outlines SVG (Dashed Lines & Glow Target) -->
+              <svg class="puzzle-board-grid-svg" id="puzzleBoardGridSvg" viewBox="0 0 1366 1024" preserveAspectRatio="none"></svg>
+
+              <!-- Layer for Placed Pieces (Locked in) -->
+              <div class="puzzle-placed-layer" id="puzzlePlacedLayer"></div>
+            </div>
+          </div>
+
+          <!-- Drag Proxy Floating Element -->
+          <div class="puzzle-drag-proxy" id="puzzleDragProxy" aria-hidden="true"></div>
+
+          <!-- Completion Celebration Overlay -->
+          <div id="puzzleSuccessOverlay" class="puzzle-success-overlay" aria-hidden="true">
+            <canvas id="puzzleConfettiCanvas" class="puzzle-confetti-canvas"></canvas>
+            <div class="puzzle-success-card" onclick="event.stopPropagation()">
+              <img class="puzzle-you-did-it-img" src="assets/YouDidIt2Cropped.png" alt="You Did It!" draggable="false" />
+              <h3 class="puzzle-success-title">Puzzle Complete!</h3>
+              <p class="puzzle-success-desc" id="puzzleSuccessDesc">Awesome job! You solved the Child Life Zone puzzle!</p>
+              <div class="puzzle-success-actions">
+                <button class="puzzle-btn-primary" onclick="playPuzzleAgain()">
+                  <span>Play Again</span>
+                </button>
+                <button class="puzzle-btn-secondary" id="puzzleNextLevelBtn" onclick="tryNextDifficulty()">
+                  <span>Try Next Level</span>
+                </button>
+                <button class="puzzle-btn-outline" onclick="goToGames()">
+                  <span>Back to Games</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
         <div id="modalOverlay" class="ios-modal-overlay" onclick="closeSheetOnBackdrop(event)">
           <div class="ios-sheet">
             <div class="sheet-handle"></div>
@@ -10016,6 +10838,8 @@
       const screenSettings = document.getElementById('screenSettings');
       const screenAnatomy = document.getElementById('screenAnatomyExplorer');
       const screenMRI = document.getElementById('screenMRI');
+      const screenGames = document.getElementById('screenGames');
+      const screenCLZPuzzle = document.getElementById('screenCLZPuzzle');
       const select = document.getElementById('screenSelect');
       const statusSpan = document.querySelector('.sim-status div:last-child span');
 
@@ -10027,6 +10851,8 @@
         else if (screenAbout && screenAbout.classList.contains('active')) previousScreen = 'about';
         else if (screenAnatomy && screenAnatomy.classList.contains('active')) previousScreen = 'anatomy-explorer';
         else if (screenMRI && screenMRI.classList.contains('active')) previousScreen = 'mri';
+        else if (screenGames && screenGames.classList.contains('active')) previousScreen = 'games';
+        else if (screenCLZPuzzle && screenCLZPuzzle.classList.contains('active')) previousScreen = 'clz-puzzle';
         else previousScreen = 'home';
       }
 
@@ -10039,12 +10865,49 @@
       if (screenSettings) screenSettings.classList.remove('active');
       if (screenAnatomy) screenAnatomy.classList.remove('active');
       if (screenMRI) screenMRI.classList.remove('active');
+      if (screenGames) screenGames.classList.remove('active');
+      if (screenCLZPuzzle) screenCLZPuzzle.classList.remove('active');
+      if (typeof stopPuzzleCelebration === 'function') stopPuzzleCelebration();
 
-      if (screenName === 'mask-game' || screenName === 'games') {
+      if (screenName === 'games') {
+        clearAnatomyTimers();
+        clearIVIntroTimers();
+        stopIVBackgroundMusic();
+        stopMaskBackgroundMusic();
+        resetMaskScene();
+        stopClothWipeSound(true);
+        stopClothWetWipeSound(true);
+        stopYouDidItSound(true);
+        if (typeof stopYouDidItChimeSound === 'function') stopYouDidItChimeSound(true);
+        if (typeof stopMaskConfetti === 'function') stopMaskConfetti();
+        if (screenGames) screenGames.classList.add('active');
+        if (select) select.value = 'games';
+        if (statusSpan) statusSpan.textContent = 'Games Screen Active • Fun & calming activities for patients';
+      } else if (screenName === 'clz-puzzle') {
+        clearAnatomyTimers();
+        clearIVIntroTimers();
+        stopIVBackgroundMusic();
+        stopMaskBackgroundMusic();
+        resetMaskScene();
+        stopClothWipeSound(true);
+        stopClothWetWipeSound(true);
+        stopYouDidItSound(true);
+        if (typeof stopYouDidItChimeSound === 'function') stopYouDidItChimeSound(true);
+        if (typeof stopMaskConfetti === 'function') stopMaskConfetti();
+        if (typeof stopPuzzleCelebration === 'function') stopPuzzleCelebration();
+        if (screenCLZPuzzle) screenCLZPuzzle.classList.add('active');
+        if (select) select.value = 'clz-puzzle';
+        if (statusSpan) statusSpan.textContent = 'Child Life Zone Jigsaw Puzzle Active • Fun interactive puzzle for kids';
+        initPuzzleGame(currentPuzzleDifficulty || 'easy');
+      } else if (screenName === 'mask-game') {
         clearAnatomyTimers();
         if (screenMask) screenMask.classList.add('active');
         if (select) select.value = 'mask-game';
         if (statusSpan) statusSpan.textContent = 'Mask Decoration Game Active • Decorate your pediatric anesthesia mask';
+        const maskBackLabel = document.getElementById('maskGameBackLabel');
+        if (maskBackLabel) {
+          maskBackLabel.textContent = previousScreen === 'games' ? 'Games' : (previousScreen === 'preparations' ? 'Procedures' : 'Home');
+        }
         clearIVIntroTimers();
         stopIVBackgroundMusic();
         stopClothWipeSound(true);
@@ -12139,11 +13002,853 @@
     }
 
     function goToGames() {
-      switchScreen('mask-game');
+      switchScreen('games');
+    }
+
+    function handleGamesBack() {
+      if (previousScreen && previousScreen !== 'games') {
+        switchScreen(previousScreen);
+      } else {
+        goToHome();
+      }
     }
 
     function goToMaskGame() {
+      triggerHapticFeedback(true);
       switchScreen('mask-game');
+    }
+
+    function openCLZPuzzle() {
+      goToCLZPuzzle();
+    }
+
+    function goToCLZPuzzle() {
+      triggerHapticFeedback(true);
+      switchScreen('clz-puzzle');
+      requestAnimationFrame(() => {
+        initPuzzleGame(currentPuzzleDifficulty);
+      });
+    }
+
+    // =========================================================
+    // CHILD LIFE ZONE JIGSAW PUZZLE CONTROLLER
+    // Features:
+    // - Dynamic Jigsaw Generation: authentic interlocking tabs & sockets
+    // - Difficulty Modes: Easy (3x2), Medium (4x3), Hard (5x4)
+    // - Centered board with unplaced pieces scattered around border
+    // - Dual Control: Drag & Drop with 65px snap radius + Tap-to-place
+    // - Picture Guide / Hint overlay
+    // - Ascending musical marimba chime per placed piece
+    // - Victory celebration with confetti & fanfare
+    // =========================================================
+    let currentPuzzleDifficulty = 'easy'; // 'easy' (3x2), 'medium' (4x3), 'hard' (5x4)
+    let puzzlePieces = [];
+    let puzzlePlacedSet = new Set();
+    let isPuzzleHintOn = false;
+    let selectedPieceId = null;
+    let draggingPieceData = null;
+    let dragPointerId = null;
+    let puzzleConfettiAnimationId = null;
+
+    const PUZZLE_CONFIGS = {
+      'easy': { cols: 3, rows: 2, label: 'Easy', next: 'medium' },
+      'medium': { cols: 4, rows: 3, label: 'Medium', next: 'hard' },
+      'hard': { cols: 5, rows: 4, label: 'Hard', next: 'easy' }
+    };
+
+    function buildJigsawPieces(cols, rows, width, height) {
+      const cw = width / cols;
+      const ch = height / rows;
+
+      // Seed random tabs for interior edges
+      const tab_h = [];
+      for (let r = 0; r < rows - 1; r++) {
+        tab_h[r] = [];
+        for (let c = 0; c < cols; c++) {
+          tab_h[r][c] = Math.random() < 0.5 ? -1 : 1;
+        }
+      }
+
+      const tab_v = [];
+      for (let r = 0; r < rows; r++) {
+        tab_v[r] = [];
+        for (let c = 0; c < cols - 1; c++) {
+          tab_v[r][c] = Math.random() < 0.5 ? -1 : 1;
+        }
+      }
+
+      function edgePath(p1, p2, tabDir) {
+        if (tabDir === 0) {
+          return `L ${p2[0].toFixed(2)} ${p2[1].toFixed(2)}`;
+        }
+        const dx = p2[0] - p1[0];
+        const dy = p2[1] - p1[1];
+        const nx = -dy * tabDir;
+        const ny = dx * tabDir;
+
+        function pt(u, v) {
+          return `${(p1[0] + u * dx + v * nx).toFixed(2)} ${(p1[1] + u * dy + v * ny).toFixed(2)}`;
+        }
+
+        const pStart = pt(0.36, 0.0);
+        const c1 = `C ${pt(0.38, -0.04)} ${pt(0.36, 0.08)} ${pt(0.38, 0.12)}`;
+        const c2 = `C ${pt(0.40, 0.22)} ${pt(0.45, 0.23)} ${pt(0.50, 0.23)}`;
+        const c3 = `C ${pt(0.55, 0.23)} ${pt(0.60, 0.22)} ${pt(0.62, 0.12)}`;
+        const c4 = `C ${pt(0.64, 0.08)} ${pt(0.62, -0.04)} ${pt(0.64, 0.0)}`;
+        return `L ${pStart} ${c1} ${c2} ${c3} ${c4} L ${p2[0].toFixed(2)} ${p2[1].toFixed(2)}`;
+      }
+
+      const pieces = [];
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const x0 = c * cw;
+          const x1 = (c + 1) * cw;
+          const y0 = r * ch;
+          const y1 = (r + 1) * ch;
+
+          const topTab = r === 0 ? 0 : -tab_h[r - 1][c];
+          const rightTab = c === cols - 1 ? 0 : tab_v[r][c];
+          const bottomTab = r === rows - 1 ? 0 : tab_h[r][c];
+          const leftTab = c === 0 ? 0 : -tab_v[r][c - 1];
+
+          const pTop = edgePath([x0, y0], [x1, y0], topTab);
+          const pRight = edgePath([x1, y0], [x1, y1], rightTab);
+          const pBottom = edgePath([x1, y1], [x0, y1], bottomTab);
+          const pLeft = edgePath([x0, y1], [x0, y0], leftTab);
+
+          const d = `M ${x0.toFixed(2)} ${y0.toFixed(2)} ${pTop} ${pRight} ${pBottom} ${pLeft} Z`;
+
+          const pad = 0.25 * Math.max(cw, ch);
+          const minX = Math.max(0, x0 - (leftTab === 1 ? pad : 0));
+          const maxX = Math.min(width, x1 + (rightTab === 1 ? pad : 0));
+          const minY = Math.max(0, y0 - (topTab === 1 ? pad : 0));
+          const maxY = Math.min(height, y1 + (bottomTab === 1 ? pad : 0));
+
+          pieces.push({
+            id: `piece_${c}_${r}`,
+            col: c,
+            row: r,
+            index: r * cols + c,
+            d: d,
+            x0: x0,
+            y0: y0,
+            cw: cw,
+            ch: ch,
+            minX: minX,
+            minY: minY,
+            pw: maxX - minX,
+            ph: maxY - minY,
+            topTab: topTab,
+            rightTab: rightTab,
+            bottomTab: bottomTab,
+            leftTab: leftTab
+          });
+        }
+      }
+      return pieces;
+    }
+
+    function initPuzzleGame(difficulty) {
+      if (difficulty) currentPuzzleDifficulty = difficulty;
+      const config = PUZZLE_CONFIGS[currentPuzzleDifficulty] || PUZZLE_CONFIGS['easy'];
+
+      document.querySelectorAll('.puzzle-diff-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.diff === currentPuzzleDifficulty);
+      });
+
+      stopPuzzleCelebration();
+      puzzlePlacedSet.clear();
+      selectedPieceId = null;
+      draggingPieceData = null;
+
+      puzzlePieces = buildJigsawPieces(config.cols, config.rows, 1366, 1024);
+
+      renderBoardGrid();
+
+      const placedLayer = document.getElementById('puzzlePlacedLayer');
+      if (placedLayer) placedLayer.innerHTML = '';
+
+      populateScatteredPieces();
+
+      const hintBtn = document.getElementById('puzzleHintBtn');
+      const hintLabel = document.getElementById('puzzleHintLabel');
+      const ghostImg = document.getElementById('puzzleGhostImage');
+      if (hintBtn && hintLabel && ghostImg) {
+        hintBtn.classList.toggle('active', isPuzzleHintOn);
+        hintLabel.textContent = isPuzzleHintOn ? 'Guide: On' : 'Guide: Off';
+        ghostImg.classList.toggle('visible', isPuzzleHintOn);
+      }
+    }
+
+    function renderBoardGrid() {
+      const gridSvg = document.getElementById('puzzleBoardGridSvg');
+      if (!gridSvg) return;
+      let svgHtml = '';
+      puzzlePieces.forEach(p => {
+        svgHtml += `<path id="boardSlotPath_${p.id}" class="board-seam" d="${p.d}" data-piece-id="${p.id}" onclick="handleBoardSlotClick('${p.id}')" />`;
+      });
+      gridSvg.innerHTML = svgHtml;
+    }
+
+    function computeScatterSlots(totalPieces, stageW, stageH, boardX0, boardY0, boardW, boardH) {
+      const boardX1 = boardX0 + boardW;
+      const boardY1 = boardY0 + boardH;
+      const isLandscape = stageW >= stageH * 1.05;
+      const slots = [];
+      const tilts = [-5, 4, -3, 6, -4, 5, -6, 3, 5, -4, 4, -5, 3, -6, 5, -3, 6, -5, 4, -4];
+
+      if (isLandscape) {
+        if (totalPieces === 6) {
+          // 3 on left border, 3 on right border
+          for (let i = 0; i < 3; i++) {
+            const y = boardY0 + (i + 0.5) * (boardH / 3);
+            const x = Math.max(48, boardX0 * 0.48 + ((i % 2 === 0 ? -1 : 1) * 8));
+            slots.push({ x, y, rot: tilts[i % tilts.length] });
+          }
+          for (let i = 0; i < 3; i++) {
+            const y = boardY0 + (i + 0.5) * (boardH / 3);
+            const x = Math.min(stageW - 48, boardX1 + (stageW - boardX1) * 0.52 + ((i % 2 === 0 ? 1 : -1) * 8));
+            slots.push({ x, y, rot: tilts[(i + 3) % tilts.length] });
+          }
+        } else if (totalPieces === 12) {
+          // 4 on left, 4 on right, 2 on top, 2 on bottom
+          for (let i = 0; i < 4; i++) {
+            const y = boardY0 + (i + 0.5) * (boardH / 4);
+            const x = Math.max(44, boardX0 * 0.48 + ((i % 2 === 0 ? -1 : 1) * 12));
+            slots.push({ x, y, rot: tilts[i % tilts.length] });
+          }
+          for (let i = 0; i < 4; i++) {
+            const y = boardY0 + (i + 0.5) * (boardH / 4);
+            const x = Math.min(stageW - 44, boardX1 + (stageW - boardX1) * 0.52 + ((i % 2 === 0 ? 1 : -1) * 12));
+            slots.push({ x, y, rot: tilts[(i + 4) % tilts.length] });
+          }
+          for (let i = 0; i < 2; i++) {
+            const x = boardX0 + (i + 1) * (boardW / 3);
+            const y = Math.max(38, boardY0 * 0.48);
+            slots.push({ x, y, rot: tilts[(i + 8) % tilts.length] });
+          }
+          for (let i = 0; i < 2; i++) {
+            const x = boardX0 + (i + 1) * (boardW / 3);
+            const y = Math.min(stageH - 38, boardY1 + (stageH - boardY1) * 0.52);
+            slots.push({ x, y, rot: tilts[(i + 10) % tilts.length] });
+          }
+        } else {
+          // 20 pieces: 6 on left, 6 on right, 4 on top, 4 on bottom
+          for (let i = 0; i < 6; i++) {
+            const col = i % 2;
+            const row = Math.floor(i / 2);
+            const x = Math.max(40, (col === 0 ? boardX0 * 0.30 : boardX0 * 0.72));
+            const y = boardY0 + (row + 0.5) * (boardH / 3) + (col * 16 - 8);
+            slots.push({ x, y, rot: tilts[i % tilts.length] });
+          }
+          for (let i = 0; i < 6; i++) {
+            const col = i % 2;
+            const row = Math.floor(i / 2);
+            const margin = stageW - boardX1;
+            const x = Math.min(stageW - 40, boardX1 + (col === 0 ? margin * 0.28 : margin * 0.70));
+            const y = boardY0 + (row + 0.5) * (boardH / 3) + (col * 16 - 8);
+            slots.push({ x, y, rot: tilts[(i + 6) % tilts.length] });
+          }
+          for (let i = 0; i < 4; i++) {
+            const x = boardX0 + (i + 0.5) * (boardW / 4);
+            const y = Math.max(36, boardY0 * 0.48 + ((i % 2 === 0 ? -1 : 1) * 6));
+            slots.push({ x, y, rot: tilts[(i + 12) % tilts.length] });
+          }
+          for (let i = 0; i < 4; i++) {
+            const x = boardX0 + (i + 0.5) * (boardW / 4);
+            const y = Math.min(stageH - 36, boardY1 + (stageH - boardY1) * 0.52 + ((i % 2 === 0 ? 1 : -1) * 6));
+            slots.push({ x, y, rot: tilts[(i + 16) % tilts.length] });
+          }
+        }
+      } else {
+        // Portrait mode
+        if (totalPieces === 6) {
+          for (let i = 0; i < 3; i++) {
+            const x = boardX0 + (i + 0.5) * (boardW / 3);
+            const y = Math.max(40, boardY0 * 0.50 + ((i % 2 === 0 ? -1 : 1) * 6));
+            slots.push({ x, y, rot: tilts[i % tilts.length] });
+          }
+          for (let i = 0; i < 3; i++) {
+            const x = boardX0 + (i + 0.5) * (boardW / 3);
+            const y = Math.min(stageH - 40, boardY1 + (stageH - boardY1) * 0.50 + ((i % 2 === 0 ? 1 : -1) * 6));
+            slots.push({ x, y, rot: tilts[(i + 3) % tilts.length] });
+          }
+        } else if (totalPieces === 12) {
+          for (let i = 0; i < 4; i++) {
+            const x = boardX0 + (i + 0.5) * (boardW / 4);
+            const y = Math.max(38, boardY0 * 0.42 + ((i % 2 === 0 ? -1 : 1) * 8));
+            slots.push({ x, y, rot: tilts[i % tilts.length] });
+          }
+          for (let i = 0; i < 4; i++) {
+            const x = boardX0 + (i + 0.5) * (boardW / 4);
+            const y = Math.min(stageH - 38, boardY1 + (stageH - boardY1) * 0.58 + ((i % 2 === 0 ? 1 : -1) * 8));
+            slots.push({ x, y, rot: tilts[(i + 4) % tilts.length] });
+          }
+          for (let i = 0; i < 2; i++) {
+            const x = Math.max(36, boardX0 * 0.45);
+            const y = boardY0 + (i + 1) * (boardH / 3);
+            slots.push({ x, y, rot: tilts[(i + 8) % tilts.length] });
+          }
+          for (let i = 0; i < 2; i++) {
+            const x = Math.min(stageW - 36, boardX1 + (stageW - boardX1) * 0.55);
+            const y = boardY0 + (i + 1) * (boardH / 3);
+            slots.push({ x, y, rot: tilts[(i + 10) % tilts.length] });
+          }
+        } else {
+          for (let i = 0; i < 8; i++) {
+            const row = Math.floor(i / 4);
+            const col = i % 4;
+            const x = boardX0 + (col + 0.5) * (boardW / 4);
+            const y = Math.max(34, row === 0 ? boardY0 * 0.32 : boardY0 * 0.72);
+            slots.push({ x, y, rot: tilts[i % tilts.length] });
+          }
+          for (let i = 0; i < 8; i++) {
+            const row = Math.floor(i / 4);
+            const col = i % 4;
+            const margin = stageH - boardY1;
+            const x = boardX0 + (col + 0.5) * (boardW / 4);
+            const y = Math.min(stageH - 34, boardY1 + (row === 0 ? margin * 0.30 : margin * 0.70));
+            slots.push({ x, y, rot: tilts[(i + 8) % tilts.length] });
+          }
+          for (let i = 0; i < 2; i++) {
+            const x = Math.max(36, boardX0 * 0.45);
+            const y = boardY0 + (i + 1) * (boardH / 3);
+            slots.push({ x, y, rot: tilts[(i + 16) % tilts.length] });
+          }
+          for (let i = 0; i < 2; i++) {
+            const x = Math.min(stageW - 36, boardX1 + (stageW - boardX1) * 0.55);
+            const y = boardY0 + (i + 1) * (boardH / 3);
+            slots.push({ x, y, rot: tilts[(i + 18) % tilts.length] });
+          }
+        }
+      }
+      return slots;
+    }
+
+    function populateScatteredPieces() {
+      const scatterLayer = document.getElementById('puzzleScatterLayer');
+      const stage = document.getElementById('puzzleMainStage');
+      const board = document.getElementById('puzzleBoardWrapper');
+      if (!scatterLayer || !stage || !board) return;
+
+      scatterLayer.innerHTML = '';
+
+      const stageRect = stage.getBoundingClientRect();
+      const boardRect = board.getBoundingClientRect();
+
+      if (stageRect.width === 0 || boardRect.width === 0) {
+        requestAnimationFrame(populateScatteredPieces);
+        return;
+      }
+
+      const boardX0 = boardRect.left - stageRect.left;
+      const boardY0 = boardRect.top - stageRect.top;
+      const boardW = boardRect.width;
+      const boardH = boardRect.height;
+      const stageW = stageRect.width;
+      const stageH = stageRect.height;
+
+      const unplaced = puzzlePieces.filter(p => !puzzlePlacedSet.has(p.id));
+      const shuffled = [...unplaced].sort(() => Math.random() - 0.5);
+
+      const slots = computeScatterSlots(puzzlePieces.length, stageW, stageH, boardX0, boardY0, boardW, boardH);
+
+      const boardPieceScale = boardW / 1366;
+      const borderPieceScale = currentPuzzleDifficulty === 'hard' ? 0.70 : (currentPuzzleDifficulty === 'medium' ? 0.62 : 0.52);
+
+      shuffled.forEach((p, idx) => {
+        const slot = slots[idx] || { x: stageW / 2, y: stageH / 2, rot: 0 };
+        p.scatterX = slot.x;
+        p.scatterY = slot.y;
+        p.scatterRot = slot.rot;
+
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'puzzle-scatter-piece';
+        card.id = `scatterPiece_${p.id}`;
+        card.dataset.pieceId = p.id;
+        card.setAttribute('aria-label', `Piece row ${p.row + 1}, column ${p.col + 1}`);
+
+        const dispW = Math.round(p.pw * boardPieceScale * borderPieceScale);
+        const dispH = Math.round(p.ph * boardPieceScale * borderPieceScale);
+        card.style.width = `${dispW}px`;
+        card.style.height = `${dispH}px`;
+        card.style.left = `${slot.x}px`;
+        card.style.top = `${slot.y}px`;
+        card.style.transform = `translate(-50%, -50%) rotate(${slot.rot}deg)`;
+
+        card.innerHTML = `
+          <svg viewBox="${p.minX} ${p.minY} ${p.pw} ${p.ph}" width="100%" height="100%" style="overflow: visible; display: block; pointer-events: none;">
+            <defs>
+              <clipPath id="clip_scatter_${p.id}">
+                <path d="${p.d}" />
+              </clipPath>
+            </defs>
+            <image href="assets/CLZPuzzleImage.png" width="1366" height="1024" clip-path="url(#clip_scatter_${p.id})" preserveAspectRatio="none" />
+            <path d="${p.d}" fill="none" stroke="rgba(255,255,255,0.78)" stroke-width="2.2" />
+          </svg>
+        `;
+
+        card.addEventListener('pointerdown', (e) => handlePiecePointerDown(e, p));
+        scatterLayer.appendChild(card);
+      });
+    }
+
+    function repositionScatteredPieces() {
+      const stage = document.getElementById('puzzleMainStage');
+      const board = document.getElementById('puzzleBoardWrapper');
+      if (!stage || !board) return;
+      const stageRect = stage.getBoundingClientRect();
+      const boardRect = board.getBoundingClientRect();
+      if (stageRect.width === 0 || boardRect.width === 0) return;
+
+      const boardX0 = boardRect.left - stageRect.left;
+      const boardY0 = boardRect.top - stageRect.top;
+      const boardW = boardRect.width;
+      const boardH = boardRect.height;
+      const stageW = stageRect.width;
+      const stageH = stageRect.height;
+
+      const unplaced = puzzlePieces.filter(p => !puzzlePlacedSet.has(p.id));
+      const slots = computeScatterSlots(puzzlePieces.length, stageW, stageH, boardX0, boardY0, boardW, boardH);
+
+      const boardPieceScale = boardW / 1366;
+      const borderPieceScale = currentPuzzleDifficulty === 'hard' ? 0.70 : (currentPuzzleDifficulty === 'medium' ? 0.62 : 0.52);
+
+      unplaced.forEach((p, idx) => {
+        const card = document.getElementById(`scatterPiece_${p.id}`);
+        if (!card) return;
+        const slot = slots[idx];
+        if (slot) {
+          p.scatterX = slot.x;
+          p.scatterY = slot.y;
+          p.scatterRot = slot.rot;
+          card.style.left = `${slot.x}px`;
+          card.style.top = `${slot.y}px`;
+          card.style.transform = `translate(-50%, -50%) rotate(${slot.rot}deg)`;
+          const dispW = Math.round(p.pw * boardPieceScale * borderPieceScale);
+          const dispH = Math.round(p.ph * boardPieceScale * borderPieceScale);
+          card.style.width = `${dispW}px`;
+          card.style.height = `${dispH}px`;
+        }
+      });
+    }
+
+    window.addEventListener('resize', () => {
+      if (document.getElementById('screenCLZPuzzle')?.classList.contains('active')) {
+        repositionScatteredPieces();
+      }
+    });
+
+    let pStartX = 0;
+    let pStartY = 0;
+    let hasMovedSig = false;
+
+    function handlePiecePointerDown(e, piece) {
+      if (e.button !== 0 && e.pointerType === 'mouse') return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      pStartX = e.clientX;
+      pStartY = e.clientY;
+      hasMovedSig = false;
+      dragPointerId = e.pointerId;
+
+      const card = document.getElementById(`scatterPiece_${piece.id}`);
+      if (card) {
+        card.setPointerCapture(e.pointerId);
+      }
+
+      draggingPieceData = piece;
+
+      const onPointerMove = (moveEvt) => {
+        if (!draggingPieceData || moveEvt.pointerId !== dragPointerId) return;
+        const dx = moveEvt.clientX - pStartX;
+        const dy = moveEvt.clientY - pStartY;
+        if (!hasMovedSig && Math.hypot(dx, dy) > 8) {
+          hasMovedSig = true;
+          startDraggingPiece(moveEvt, draggingPieceData);
+        }
+        if (hasMovedSig) {
+          updateDraggingPiece(moveEvt, draggingPieceData);
+        }
+      };
+
+      const onPointerUp = (upEvt) => {
+        if (upEvt.pointerId !== dragPointerId) return;
+        window.removeEventListener('pointermove', onPointerMove);
+        window.removeEventListener('pointerup', onPointerUp);
+        window.removeEventListener('pointercancel', onPointerUp);
+
+        if (card && card.hasPointerCapture(upEvt.pointerId)) {
+          card.releasePointerCapture(upEvt.pointerId);
+        }
+
+        if (hasMovedSig) {
+          finishDraggingPiece(upEvt, draggingPieceData);
+        } else {
+          handlePieceTap(draggingPieceData);
+        }
+        draggingPieceData = null;
+        dragPointerId = null;
+      };
+
+      window.addEventListener('pointermove', onPointerMove);
+      window.addEventListener('pointerup', onPointerUp);
+      window.addEventListener('pointercancel', onPointerUp);
+    }
+
+    function startDraggingPiece(e, piece) {
+      triggerHapticFeedback(true);
+      playMarimbaChime(piece.index, puzzlePieces.length, 0.15);
+
+      const card = document.getElementById(`scatterPiece_${piece.id}`);
+      if (card) card.classList.add('dragging');
+
+      const proxy = document.getElementById('puzzleDragProxy');
+      if (!proxy) return;
+
+      const board = document.getElementById('puzzleBoardWrapper');
+      if (!board) return;
+      const boardRect = board.getBoundingClientRect();
+      const scaleW = boardRect.width / 1366;
+      const scaleH = boardRect.height / 1024;
+      const pieceW = piece.pw * scaleW;
+      const pieceH = piece.ph * scaleH;
+
+      proxy.style.width = `${pieceW}px`;
+      proxy.style.height = `${pieceH}px`;
+      proxy.innerHTML = `
+        <svg viewBox="${piece.minX} ${piece.minY} ${piece.pw} ${piece.ph}" width="100%" height="100%" style="overflow: visible; display: block;">
+          <defs>
+            <clipPath id="clip_proxy_${piece.id}">
+              <path d="${piece.d}" />
+            </clipPath>
+          </defs>
+          <image href="assets/CLZPuzzleImage.png" width="1366" height="1024" clip-path="url(#clip_proxy_${piece.id})" preserveAspectRatio="none" />
+          <path d="${piece.d}" fill="none" stroke="#FFD54F" stroke-width="3.5" />
+        </svg>
+      `;
+      proxy.classList.add('active');
+      proxy.style.left = `${e.clientX}px`;
+      proxy.style.top = `${e.clientY}px`;
+    }
+
+    function updateDraggingPiece(e, piece) {
+      const proxy = document.getElementById('puzzleDragProxy');
+      if (proxy) {
+        proxy.style.left = `${e.clientX}px`;
+        proxy.style.top = `${e.clientY}px`;
+      }
+
+      const board = document.getElementById('puzzleBoardWrapper');
+      if (!board) return;
+      const boardRect = board.getBoundingClientRect();
+
+      const targetX = boardRect.left + (piece.x0 / 1366) * boardRect.width + ((piece.cw / 1366) * boardRect.width) / 2;
+      const targetY = boardRect.top + (piece.y0 / 1024) * boardRect.height + ((piece.ch / 1024) * boardRect.height) / 2;
+
+      const dist = Math.hypot(e.clientX - targetX, e.clientY - targetY);
+      const slotPath = document.getElementById(`boardSlotPath_${piece.id}`);
+
+      if (dist < 65) {
+        if (slotPath) slotPath.classList.add('slot-target-glow');
+      } else {
+        if (slotPath) slotPath.classList.remove('slot-target-glow');
+      }
+    }
+
+    function finishDraggingPiece(e, piece) {
+      const proxy = document.getElementById('puzzleDragProxy');
+      if (proxy) {
+        proxy.classList.remove('active');
+        proxy.innerHTML = '';
+      }
+
+      const card = document.getElementById(`scatterPiece_${piece.id}`);
+      if (card) card.classList.remove('dragging');
+
+      const slotPath = document.getElementById(`boardSlotPath_${piece.id}`);
+      if (slotPath) slotPath.classList.remove('slot-target-glow');
+
+      const board = document.getElementById('puzzleBoardWrapper');
+      if (!board) return;
+      const boardRect = board.getBoundingClientRect();
+
+      const targetX = boardRect.left + (piece.x0 / 1366) * boardRect.width + ((piece.cw / 1366) * boardRect.width) / 2;
+      const targetY = boardRect.top + (piece.y0 / 1024) * boardRect.height + ((piece.ch / 1024) * boardRect.height) / 2;
+
+      const dist = Math.hypot(e.clientX - targetX, e.clientY - targetY);
+
+      if (dist < 65) {
+        placePieceOnBoard(piece);
+      } else {
+        triggerHapticFeedback(false);
+      }
+    }
+
+    function placePieceOnBoard(piece) {
+      if (puzzlePlacedSet.has(piece.id)) return;
+      puzzlePlacedSet.add(piece.id);
+
+      triggerHapticFeedback(true);
+      playMarimbaChime(puzzlePlacedSet.size, puzzlePieces.length, 0.4);
+
+      const card = document.getElementById(`scatterPiece_${piece.id}`);
+      if (card) card.remove();
+
+      if (selectedPieceId === piece.id) {
+        selectedPieceId = null;
+      }
+
+      const placedLayer = document.getElementById('puzzlePlacedLayer');
+      if (placedLayer) {
+        const placedDiv = document.createElement('div');
+        placedDiv.className = 'puzzle-placed-piece';
+        placedDiv.id = `placedPiece_${piece.id}`;
+        placedDiv.style.left = `${(piece.minX / 1366) * 100}%`;
+        placedDiv.style.top = `${(piece.minY / 1024) * 100}%`;
+        placedDiv.style.width = `${(piece.pw / 1366) * 100}%`;
+        placedDiv.style.height = `${(piece.ph / 1024) * 100}%`;
+
+        placedDiv.innerHTML = `
+          <svg viewBox="${piece.minX} ${piece.minY} ${piece.pw} ${piece.ph}" width="100%" height="100%" style="overflow: visible; display: block;">
+            <defs>
+              <clipPath id="clip_placed_${piece.id}">
+                <path d="${piece.d}" />
+              </clipPath>
+            </defs>
+            <image href="assets/CLZPuzzleImage.png" width="1366" height="1024" clip-path="url(#clip_placed_${piece.id})" preserveAspectRatio="none" />
+            <path d="${piece.d}" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.2" />
+          </svg>
+        `;
+        placedLayer.appendChild(placedDiv);
+      }
+
+      const slotPath = document.getElementById(`boardSlotPath_${piece.id}`);
+      if (slotPath) {
+        slotPath.style.opacity = '0.08';
+        slotPath.classList.remove('slot-target-glow');
+      }
+
+      if (puzzlePlacedSet.size >= puzzlePieces.length) {
+        setTimeout(() => {
+          showPuzzleSuccessCelebration();
+        }, 350);
+      }
+    }
+
+    function handlePieceTap(piece) {
+      if (puzzlePlacedSet.has(piece.id)) return;
+
+      const card = document.getElementById(`scatterPiece_${piece.id}`);
+      if (selectedPieceId === piece.id) {
+        selectedPieceId = null;
+        if (card) card.classList.remove('selected');
+        const slotPath = document.getElementById(`boardSlotPath_${piece.id}`);
+        if (slotPath) slotPath.classList.remove('slot-target-glow');
+      } else {
+        if (selectedPieceId) {
+          const prevCard = document.getElementById(`scatterPiece_${selectedPieceId}`);
+          if (prevCard) prevCard.classList.remove('selected');
+          const prevSlot = document.getElementById(`boardSlotPath_${selectedPieceId}`);
+          if (prevSlot) prevSlot.classList.remove('slot-target-glow');
+        }
+        selectedPieceId = piece.id;
+        if (card) card.classList.add('selected');
+        const slotPath = document.getElementById(`boardSlotPath_${piece.id}`);
+        if (slotPath) slotPath.classList.add('slot-target-glow');
+        triggerHapticFeedback(false);
+      }
+    }
+
+    function handleBoardSlotClick(pieceId) {
+      if (selectedPieceId) {
+        const piece = puzzlePieces.find(p => p.id === selectedPieceId);
+        if (piece) {
+          placePieceOnBoard(piece);
+        }
+      }
+    }
+
+    function playMarimbaChime(stepIndex, totalSteps, volume = 0.35) {
+      if (isSoundMuted) return;
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!window._sharedAudioCtx && AudioCtx) window._sharedAudioCtx = new AudioCtx();
+        if (!window._sharedAudioCtx) return;
+        if (window._sharedAudioCtx.state === 'suspended') {
+          window._sharedAudioCtx.resume().catch(() => {});
+        }
+        const ctx = window._sharedAudioCtx;
+        const now = ctx.currentTime;
+
+        const scale = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25, 783.99, 880.00, 1046.50];
+        const freq = scale[stepIndex % scale.length];
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now);
+
+        gain.gain.setValueAtTime(volume, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.40);
+      } catch (err) {
+        console.warn('Marimba audio err:', err);
+      }
+    }
+
+    function showPuzzleSuccessCelebration() {
+      triggerHapticFeedback(true);
+      playYouDidItChimeSound();
+
+      const overlay = document.getElementById('puzzleSuccessOverlay');
+      if (overlay) {
+        overlay.classList.add('visible');
+        overlay.setAttribute('aria-hidden', 'false');
+      }
+
+      const desc = document.getElementById('puzzleSuccessDesc');
+      if (desc) {
+        const diffName = currentPuzzleDifficulty.charAt(0).toUpperCase() + currentPuzzleDifficulty.slice(1);
+        desc.textContent = `Awesome job! You solved the Child Life Zone puzzle on ${diffName} mode!`;
+      }
+
+      const nextBtn = document.getElementById('puzzleNextLevelBtn');
+      if (nextBtn) {
+        if (currentPuzzleDifficulty === 'easy') {
+          nextBtn.innerHTML = '<span>Try Medium</span>';
+        } else if (currentPuzzleDifficulty === 'medium') {
+          nextBtn.innerHTML = '<span>Try Hard</span>';
+        } else {
+          nextBtn.innerHTML = '<span>Try Easy</span>';
+        }
+      }
+
+      startPuzzleConfetti();
+    }
+
+    function stopPuzzleCelebration() {
+      const overlay = document.getElementById('puzzleSuccessOverlay');
+      if (overlay) {
+        overlay.classList.remove('visible');
+        overlay.setAttribute('aria-hidden', 'true');
+      }
+      stopPuzzleConfetti();
+    }
+
+    function playPuzzleAgain() {
+      stopPuzzleCelebration();
+      initPuzzleGame(currentPuzzleDifficulty);
+    }
+
+    function tryNextDifficulty() {
+      const config = PUZZLE_CONFIGS[currentPuzzleDifficulty];
+      const nextDiff = config ? config.next : 'easy';
+      stopPuzzleCelebration();
+      setPuzzleDifficulty(nextDiff);
+    }
+
+    function setPuzzleDifficulty(diff) {
+      if (diff === currentPuzzleDifficulty && puzzlePlacedSet.size === 0) return;
+      currentPuzzleDifficulty = diff;
+      initPuzzleGame(diff);
+    }
+
+    function togglePuzzleHint() {
+      isPuzzleHintOn = !isPuzzleHintOn;
+      const hintBtn = document.getElementById('puzzleHintBtn');
+      const hintLabel = document.getElementById('puzzleHintLabel');
+      const ghostImg = document.getElementById('puzzleGhostImage');
+      if (hintBtn) hintBtn.classList.toggle('active', isPuzzleHintOn);
+      if (hintLabel) hintLabel.textContent = isPuzzleHintOn ? 'Guide: On' : 'Guide: Off';
+      if (ghostImg) ghostImg.classList.toggle('visible', isPuzzleHintOn);
+      triggerHapticFeedback(false);
+    }
+
+    function handlePuzzleBack() {
+      triggerHapticFeedback(false);
+      stopPuzzleCelebration();
+      switchScreen('games');
+    }
+
+    function startPuzzleConfetti() {
+      const canvas = document.getElementById('puzzleConfettiCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const w = canvas.width = canvas.parentElement.clientWidth || 800;
+      const h = canvas.height = canvas.parentElement.clientHeight || 600;
+
+      const colors = ['#7B3FE4', '#5931ba', '#FFD54F', '#FF4081', '#00E676', '#00B0FF', '#FF9100'];
+      const particles = [];
+      for (let i = 0; i < 90; i++) {
+        particles.push({
+          x: Math.random() * w,
+          y: Math.random() * -h,
+          w: Math.random() * 12 + 6,
+          h: Math.random() * 8 + 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          vy: Math.random() * 3 + 2.5,
+          vx: (Math.random() - 0.5) * 2,
+          rot: Math.random() * 360,
+          rotSpeed: (Math.random() - 0.5) * 8
+        });
+      }
+
+      function render() {
+        ctx.clearRect(0, 0, w, h);
+        particles.forEach(p => {
+          p.y += p.vy;
+          p.x += p.vx;
+          p.rot += p.rotSpeed;
+          if (p.y > h + 20) {
+            p.y = -20;
+            p.x = Math.random() * w;
+          }
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rot * Math.PI) / 180);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          ctx.restore();
+        });
+        puzzleConfettiAnimationId = requestAnimationFrame(render);
+      }
+
+      if (puzzleConfettiAnimationId) cancelAnimationFrame(puzzleConfettiAnimationId);
+      puzzleConfettiAnimationId = requestAnimationFrame(render);
+    }
+
+    function stopPuzzleConfetti() {
+      if (puzzleConfettiAnimationId) {
+        cancelAnimationFrame(puzzleConfettiAnimationId);
+        puzzleConfettiAnimationId = null;
+      }
+      const canvas = document.getElementById('puzzleConfettiCanvas');
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    function handleMaskGameBack() {
+      triggerHapticFeedback(false);
+      if (previousScreen === 'games') {
+        switchScreen('games');
+      } else if (previousScreen && previousScreen !== 'mask-game') {
+        switchScreen(previousScreen);
+      } else {
+        goToHome();
+      }
     }
 
     // =========================================================
@@ -16831,7 +18536,7 @@
       });
 
       // Bottom Bar scaling (maintains authentic 1366:92 aspect ratio without distortion)
-      const bottomBars = document.querySelectorAll('.prep-bottom-bar, .game-bottom-bar');
+      const bottomBars = document.querySelectorAll('.prep-bottom-bar, .game-bottom-bar, .games-bottom-bar');
       const naturalBarH = Math.round(w * (92 / 1366));
       let barH = isLandscape ? Math.min(Math.max(naturalBarH, 48), 96) : Math.min(Math.max(naturalBarH, 44), 92);
       bottomBars.forEach(bar => {
@@ -16934,6 +18639,25 @@
       'Anatomy Explorer': { title: 'Anatomy Explorer', content: '<p>Explore how the human body works with kid-friendly interactive models.</p>' },
       'Gallery': { title: 'Patient Gallery', content: '<p>Inspiring art and stories from patients and families at Riley.</p>' },
       'Games': { title: 'Games & Activities', content: '<p>Play fun, calming games during your hospital stay.</p>' },
+      'Child Life Zone Puzzle': {
+        title: 'Child Life Zone Puzzle',
+        content: `
+          <div style="text-align: center; margin-bottom: 16px;">
+            <img src="assets/ButtonCLZPuzzle.png" alt="Child Life Zone Puzzle" style="width: 100%; max-width: 480px; border-radius: 16px;" />
+          </div>
+          <p>Get ready for a fun, calming jigsaw puzzle featuring the colorful Riley Child Life Zone! Piece together games, art, and relaxing activities designed just for kids and families.</p>
+          <p style="margin-top: 14px; font-weight: 600; color: #7B3FE4;">🧩 Interactive puzzle game coming soon!</p>
+        `
+      },
+      'Mask Decoration': {
+        title: 'Mask Decoration Game',
+        content: `
+          <div style="text-align: center; margin-bottom: 16px;">
+            <img src="assets/ButtonMaskDecoration.png" alt="Mask Decoration" style="width: 100%; max-width: 480px; border-radius: 16px;" />
+          </div>
+          <p>Decorate your anesthesia mask with colorful scents and fun stickers before your surgery or procedure!</p>
+        `
+      },
       'About': { title: 'About Riley Hospital', content: '<p>Riley Hospital for Children at Indiana University Health is Indiana\'s only comprehensive pediatric research hospital.</p>' },
       "Child's Play": {
         title: "Child's Play Charity",

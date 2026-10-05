@@ -105,6 +105,24 @@ public struct HomeScreenView: View {
                         navState.navigate(to: .settings)
                     }
                 )
+            } else if destination == .games {
+                GamesView(
+                    onBackToHome: {
+                        navState.resetToHome()
+                    },
+                    onSettingsTapped: {
+                        navState.navigate(to: .settings)
+                    },
+                    onOpenPreparations: {
+                        navState.navigate(to: .preparations)
+                    },
+                    onOpenAnatomy: {
+                        navState.navigate(to: .anatomyExplorer)
+                    },
+                    onOpenGallery: {
+                        navState.navigate(to: .gallery)
+                    }
+                )
             } else {
                 DestinationDetailSheet(destination: destination)
             }

@@ -355,7 +355,7 @@ def build_distribution():
     }
 
     /* Bottom Bar - Liquid Glass Frosted Toolbar matching Top Header */
-    .prep-bottom-bar, .game-bottom-bar {
+    .prep-bottom-bar, .game-bottom-bar, .games-bottom-bar {
       position: absolute !important;
       bottom: 0 !important;
       left: 0 !important;
@@ -372,6 +372,69 @@ def build_distribution():
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
+    }
+
+    /* Games Screen: Edge-to-edge animated scrolling canvas with header pinned strictly to top */
+    #screenGames {
+      background-color: var(--riley-purple, #5931ba) !important;
+      color: #ffffff !important;
+      overflow: hidden !important;
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    #screenGames .screen-content {
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: flex-start !important;
+      align-items: stretch !important;
+      pointer-events: none !important;
+      z-index: 25 !important;
+    }
+
+    #screenGames #gamesHeader {
+      pointer-events: auto !important;
+      flex-shrink: 0 !important;
+      width: 100% !important;
+    }
+
+    .games-scroll-container {
+      pointer-events: auto !important;
+    }
+
+    .games-scroll-viewport {
+      pointer-events: auto !important;
+    }
+
+    /* Child Life Zone Jigsaw Puzzle Overrides */
+    #screenCLZPuzzle {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    #screenCLZPuzzle #puzzleHeader {
+      pointer-events: auto !important;
+      flex-shrink: 0 !important;
+      width: 100% !important;
+    }
+
+    .puzzle-controls-container,
+    .puzzle-main-stage,
+    .puzzle-diff-btn,
+    .puzzle-tool-btn,
+    .puzzle-tray-card {
+      pointer-events: auto !important;
     }
 
     .bottom-bar-tabs {
