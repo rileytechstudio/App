@@ -218,9 +218,11 @@ public struct CLZPuzzleView: View {
             
             let unplaced = pieces.filter { !placedPieces.contains($0.id) }
             let total = difficulty.totalPieces
+            let (cols, rows) = difficulty.grid
             
-            let pieceTargetW = isLandscape ? (difficulty == .hard ? 58 : (difficulty == .medium ? 68 : 84)) : (difficulty == .hard ? 50 : (difficulty == .medium ? 58 : 72))
-            let pieceTargetH = pieceTargetW * (1024.0 / 1366.0)
+            let responsiveScale = computeResponsivePieceScale(total: total, stageSize: stageSize, boardSize: CGSize(width: boardWidth, height: boardHeight))
+            let pieceTargetW = (boardWidth / CGFloat(cols)) * responsiveScale
+            let pieceTargetH = (boardHeight / CGFloat(rows)) * responsiveScale
             
             ZStack {
                 // Centered Puzzle Assembly Board
@@ -342,6 +344,19 @@ public struct CLZPuzzleView: View {
         .clipped()
     }
     
+    // MARK: - Responsive Piece Sizing
+    private func computeResponsivePieceScale(total: Int, stageSize: CGSize, boardSize: CGSize) -> CGFloat {
+        // Sized responsively to maximize size and visual ease of use:
+        // Easy (6 pieces): 0.70, Medium (12 pieces): 0.64, Hard (20 pieces): 0.56
+        let targetScale: CGFloat = total >= 20 ? 0.56 : (total >= 12 ? 0.64 : 0.70)
+        
+        let minStageDim = min(stageSize.width, stageSize.height)
+        if minStageDim < 450 {
+            return max(0.44, targetScale * (minStageDim / 450.0))
+        }
+        return targetScale
+    }
+    
     // MARK: - Scatter Positioning Algorithm
     private func computeScatterSlot(index: Int, total: Int, stageSize: CGSize, boardRect: CGRect) -> (x: CGFloat, y: CGFloat, angle: Double) {
         let isLandscape = stageSize.width >= stageSize.height * 1.05
@@ -356,11 +371,11 @@ public struct CLZPuzzleView: View {
         
         let cols: CGFloat = total <= 6 ? 3 : (total <= 12 ? 4 : 5)
         let rows: CGFloat = total <= 6 ? 2 : (total <= 12 ? 3 : 4)
-        let scale: CGFloat = total <= 6 ? 0.46 : (total <= 12 ? 0.54 : 0.60)
+        let scale = computeResponsivePieceScale(total: total, stageSize: stageSize, boardSize: boardRect.size)
         let cellW = (boardW / cols) * scale
         let cellH = (boardH / rows) * scale
-        let pieceHalfW: CGFloat = max(44, cellW * 0.72)
-        let pieceHalfH: CGFloat = max(40, cellH * 0.72)
+        let pieceHalfW: CGFloat = max(30, cellW * 0.65)
+        let pieceHalfH: CGFloat = max(28, cellH * 0.65)
         
         let padX: CGFloat = 16
         let padY: CGFloat = 14
@@ -377,99 +392,96 @@ public struct CLZPuzzleView: View {
             slots.append((round(x), round(y), rot))
         }
         
+        let leftX = minSafeX + (boardX0 - minSafeX) * 0.45
+        let rightX = maxSafeX - (maxSafeX - boardX1) * 0.45
+        let topY = minSafeY + (boardY0 - minSafeY) * 0.50
+        let bottomY = maxSafeY - (maxSafeY - boardY1) * 0.50
+        
         if isLandscape {
             if total <= 6 {
-                addSlot(minSafeX + (boardX0 - minSafeX) * 0.40, minSafeY + (boardY0 - minSafeY) * 0.40, tilts[0])
-                addSlot(minSafeX + (boardX0 - minSafeX) * 0.50, boardY0 + boardH * 0.50, tilts[1])
-                addSlot(minSafeX + (boardX0 - minSafeX) * 0.40, maxSafeY - (maxSafeY - boardY1) * 0.40, tilts[2])
-                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.40, minSafeY + (boardY0 - minSafeY) * 0.40, tilts[3])
-                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.50, boardY0 + boardH * 0.50, tilts[4])
-                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.40, maxSafeY - (maxSafeY - boardY1) * 0.40, tilts[5])
+                addSlot(leftX, topY, tilts[0])
+                addSlot(max(minSafeX, leftX - 10), boardY0 + boardH * 0.50, tilts[1])
+                addSlot(leftX, bottomY, tilts[2])
+                addSlot(rightX, topY, tilts[3])
+                addSlot(min(maxSafeX, rightX + 10), boardY0 + boardH * 0.50, tilts[4])
+                addSlot(rightX, bottomY, tilts[5])
             } else if total <= 12 {
-                addSlot(minSafeX + (boardX0 - minSafeX) * 0.38, minSafeY + (boardY0 - minSafeY) * 0.38, tilts[0])
-                addSlot(boardX0 + boardW * 0.32, minSafeY + (boardY0 - minSafeY) * 0.65, tilts[1])
-                addSlot(boardX0 + boardW * 0.68, minSafeY + (boardY0 - minSafeY) * 0.35, tilts[2])
-                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.38, minSafeY + (boardY0 - minSafeY) * 0.38, tilts[3])
-                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.65, boardY0 + boardH * 0.33, tilts[4])
-                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.35, boardY0 + boardH * 0.67, tilts[5])
-                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.38, maxSafeY - (maxSafeY - boardY1) * 0.38, tilts[6])
-                addSlot(boardX0 + boardW * 0.68, maxSafeY - (maxSafeY - boardY1) * 0.35, tilts[7])
-                addSlot(boardX0 + boardW * 0.32, maxSafeY - (maxSafeY - boardY1) * 0.65, tilts[8])
-                addSlot(minSafeX + (boardX0 - minSafeX) * 0.38, maxSafeY - (maxSafeY - boardY1) * 0.38, tilts[9])
-                addSlot(minSafeX + (boardX0 - minSafeX) * 0.65, boardY0 + boardH * 0.67, tilts[10])
-                addSlot(minSafeX + (boardX0 - minSafeX) * 0.35, boardY0 + boardH * 0.33, tilts[11])
+                addSlot(leftX, topY, tilts[0])
+                addSlot(boardX0 + boardW * 0.32, topY, tilts[1])
+                addSlot(boardX0 + boardW * 0.68, topY, tilts[2])
+                addSlot(rightX, topY, tilts[3])
+                addSlot(rightX, boardY0 + boardH * 0.33, tilts[4])
+                addSlot(rightX, boardY0 + boardH * 0.67, tilts[5])
+                addSlot(rightX, bottomY, tilts[6])
+                addSlot(boardX0 + boardW * 0.68, bottomY, tilts[7])
+                addSlot(boardX0 + boardW * 0.32, bottomY, tilts[8])
+                addSlot(leftX, bottomY, tilts[9])
+                addSlot(leftX, boardY0 + boardH * 0.67, tilts[10])
+                addSlot(leftX, boardY0 + boardH * 0.33, tilts[11])
             } else {
                 addSlot(minSafeX + (boardX0 - minSafeX) * 0.25, minSafeY + (boardY0 - minSafeY) * 0.25, tilts[0])
-                addSlot(minSafeX + (boardX0 - minSafeX) * 0.75, minSafeY + (boardY0 - minSafeY) * 0.75, tilts[1])
+                addSlot(minSafeX + (boardX0 - minSafeX) * 0.70, topY, tilts[1])
                 for i in 0..<3 {
-                    let x = boardX0 + (CGFloat(i) + 0.5) * (boardW / 3)
-                    let y = minSafeY + (boardY0 - minSafeY) * (i % 2 == 0 ? 0.35 : 0.65)
-                    addSlot(x, y, tilts[(2 + i) % tilts.count])
+                    addSlot(boardX0 + (CGFloat(i) + 0.5) * (boardW / 3), topY, tilts[(2 + i) % tilts.count])
                 }
-                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.75, minSafeY + (boardY0 - minSafeY) * 0.75, tilts[5])
+                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.70, topY, tilts[5])
                 addSlot(maxSafeX - (maxSafeX - boardX1) * 0.25, minSafeY + (boardY0 - minSafeY) * 0.25, tilts[6])
                 for i in 0..<3 {
-                    let y = boardY0 + (CGFloat(i) + 0.5) * (boardH / 3)
-                    let x = maxSafeX - (maxSafeX - boardX1) * (i % 2 == 0 ? 0.35 : 0.65)
-                    addSlot(x, y, tilts[(7 + i) % tilts.count])
+                    addSlot(rightX, boardY0 + (CGFloat(i) + 0.5) * (boardH / 3), tilts[(7 + i) % tilts.count])
                 }
-                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.75, maxSafeY - (maxSafeY - boardY1) * 0.75, tilts[10])
-                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.25, maxSafeY - (maxSafeY - boardY1) * 0.25, tilts[11])
+                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.25, maxSafeY - (maxSafeY - boardY1) * 0.25, tilts[10])
+                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.70, bottomY, tilts[11])
                 for i in 0..<3 {
-                    let x = boardX0 + (CGFloat(i) + 0.5) * (boardW / 3)
-                    let y = maxSafeY - (maxSafeY - boardY1) * (i % 2 == 0 ? 0.65 : 0.35)
-                    addSlot(x, y, tilts[(12 + i) % tilts.count])
+                    addSlot(boardX0 + (CGFloat(i) + 0.5) * (boardW / 3), bottomY, tilts[(12 + i) % tilts.count])
                 }
-                addSlot(minSafeX + (boardX0 - minSafeX) * 0.75, maxSafeY - (maxSafeY - boardY1) * 0.75, tilts[15])
+                addSlot(minSafeX + (boardX0 - minSafeX) * 0.70, bottomY, tilts[15])
                 addSlot(minSafeX + (boardX0 - minSafeX) * 0.25, maxSafeY - (maxSafeY - boardY1) * 0.25, tilts[16])
                 for i in 0..<3 {
-                    let y = boardY0 + (CGFloat(i) + 0.5) * (boardH / 3)
-                    let x = minSafeX + (boardX0 - minSafeX) * (i % 2 == 0 ? 0.65 : 0.35)
-                    addSlot(x, y, tilts[(17 + i) % tilts.count])
+                    addSlot(leftX, boardY0 + (CGFloat(i) + 0.5) * (boardH / 3), tilts[(17 + i) % tilts.count])
                 }
             }
         } else {
             // Portrait mode
             if total <= 6 {
-                addSlot(minSafeX + (boardX0 - minSafeX) * 0.40, minSafeY + (boardY0 - minSafeY) * 0.40, tilts[0])
-                addSlot(boardX0 + boardW * 0.50, minSafeY + (boardY0 - minSafeY) * 0.75, tilts[1])
-                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.40, minSafeY + (boardY0 - minSafeY) * 0.40, tilts[2])
-                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.40, maxSafeY - (maxSafeY - boardY1) * 0.40, tilts[3])
-                addSlot(boardX0 + boardW * 0.50, maxSafeY - (maxSafeY - boardY1) * 0.75, tilts[4])
-                addSlot(minSafeX + (boardX0 - minSafeX) * 0.40, maxSafeY - (maxSafeY - boardY1) * 0.40, tilts[5])
+                addSlot(leftX, topY, tilts[0])
+                addSlot(stageSize.width * 0.50, topY, tilts[1])
+                addSlot(rightX, topY, tilts[2])
+                addSlot(rightX, bottomY, tilts[3])
+                addSlot(stageSize.width * 0.50, bottomY, tilts[4])
+                addSlot(leftX, bottomY, tilts[5])
             } else if total <= 12 {
-                addSlot(minSafeX + (boardX0 - minSafeX) * 0.35, minSafeY + (boardY0 - minSafeY) * 0.35, tilts[0])
-                addSlot(boardX0 + boardW * 0.30, minSafeY + (boardY0 - minSafeY) * 0.70, tilts[1])
-                addSlot(boardX0 + boardW * 0.70, minSafeY + (boardY0 - minSafeY) * 0.70, tilts[2])
-                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.35, minSafeY + (boardY0 - minSafeY) * 0.35, tilts[3])
-                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.45, boardY0 + boardH * 0.33, tilts[4])
-                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.45, boardY0 + boardH * 0.67, tilts[5])
-                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.35, maxSafeY - (maxSafeY - boardY1) * 0.35, tilts[6])
-                addSlot(boardX0 + boardW * 0.70, maxSafeY - (maxSafeY - boardY1) * 0.70, tilts[7])
-                addSlot(boardX0 + boardW * 0.30, maxSafeY - (maxSafeY - boardY1) * 0.70, tilts[8])
-                addSlot(minSafeX + (boardX0 - minSafeX) * 0.35, maxSafeY - (maxSafeY - boardY1) * 0.35, tilts[9])
-                addSlot(minSafeX + (boardX0 - minSafeX) * 0.45, boardY0 + boardH * 0.67, tilts[10])
-                addSlot(minSafeX + (boardX0 - minSafeX) * 0.45, boardY0 + boardH * 0.33, tilts[11])
+                addSlot(leftX, topY, tilts[0])
+                addSlot(boardX0 + boardW * 0.32, topY, tilts[1])
+                addSlot(boardX0 + boardW * 0.68, topY, tilts[2])
+                addSlot(rightX, topY, tilts[3])
+                addSlot(rightX, boardY0 + boardH * 0.33, tilts[4])
+                addSlot(rightX, boardY0 + boardH * 0.67, tilts[5])
+                addSlot(rightX, bottomY, tilts[6])
+                addSlot(boardX0 + boardW * 0.68, bottomY, tilts[7])
+                addSlot(boardX0 + boardW * 0.32, bottomY, tilts[8])
+                addSlot(leftX, bottomY, tilts[9])
+                addSlot(leftX, boardY0 + boardH * 0.67, tilts[10])
+                addSlot(leftX, boardY0 + boardH * 0.33, tilts[11])
             } else {
                 addSlot(minSafeX + (boardX0 - minSafeX) * 0.25, minSafeY + (boardY0 - minSafeY) * 0.25, tilts[0])
-                addSlot(minSafeX + (boardX0 - minSafeX) * 0.75, minSafeY + (boardY0 - minSafeY) * 0.65, tilts[1])
+                addSlot(minSafeX + (boardX0 - minSafeX) * 0.70, topY, tilts[1])
                 for i in 0..<3 {
-                    addSlot(boardX0 + (CGFloat(i) + 0.5) * (boardW / 3), minSafeY + (boardY0 - minSafeY) * (i % 2 == 0 ? 0.80 : 0.40), tilts[(2 + i) % tilts.count])
+                    addSlot(boardX0 + (CGFloat(i) + 0.5) * (boardW / 3), topY, tilts[(2 + i) % tilts.count])
                 }
-                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.75, minSafeY + (boardY0 - minSafeY) * 0.65, tilts[5])
+                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.70, topY, tilts[5])
                 addSlot(maxSafeX - (maxSafeX - boardX1) * 0.25, minSafeY + (boardY0 - minSafeY) * 0.25, tilts[6])
                 for i in 0..<3 {
-                    addSlot(maxSafeX - (maxSafeX - boardX1) * 0.45, boardY0 + (CGFloat(i) + 0.5) * (boardH / 3), tilts[(7 + i) % tilts.count])
+                    addSlot(rightX, boardY0 + (CGFloat(i) + 0.5) * (boardH / 3), tilts[(7 + i) % tilts.count])
                 }
-                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.75, maxSafeY - (maxSafeY - boardY1) * 0.65, tilts[10])
-                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.25, maxSafeY - (maxSafeY - boardY1) * 0.25, tilts[11])
+                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.25, maxSafeY - (maxSafeY - boardY1) * 0.25, tilts[10])
+                addSlot(maxSafeX - (maxSafeX - boardX1) * 0.70, bottomY, tilts[11])
                 for i in 0..<3 {
-                    addSlot(boardX0 + (CGFloat(i) + 0.5) * (boardW / 3), maxSafeY - (maxSafeY - boardY1) * (i % 2 == 0 ? 0.25 : 0.65), tilts[(12 + i) % tilts.count])
+                    addSlot(boardX0 + (CGFloat(i) + 0.5) * (boardW / 3), bottomY, tilts[(12 + i) % tilts.count])
                 }
-                addSlot(minSafeX + (boardX0 - minSafeX) * 0.75, maxSafeY - (maxSafeY - boardY1) * 0.65, tilts[15])
+                addSlot(minSafeX + (boardX0 - minSafeX) * 0.70, bottomY, tilts[15])
                 addSlot(minSafeX + (boardX0 - minSafeX) * 0.25, maxSafeY - (maxSafeY - boardY1) * 0.25, tilts[16])
                 for i in 0..<3 {
-                    addSlot(minSafeX + (boardX0 - minSafeX) * 0.45, boardY0 + (CGFloat(i) + 0.5) * (boardH / 3), tilts[(17 + i) % tilts.count])
+                    addSlot(leftX, boardY0 + (CGFloat(i) + 0.5) * (boardH / 3), tilts[(17 + i) % tilts.count])
                 }
             }
         }

@@ -14053,6 +14053,19 @@
       gridSvg.innerHTML = svgHtml;
     }
 
+    function computeResponsivePieceScale(totalPieces, stageW, stageH, boardW, boardH) {
+      // Sized responsively to maximize size and visual ease of use:
+      // Easy (6 pieces): 0.70, Medium (12 pieces): 0.64, Hard (20 pieces): 0.56
+      const targetScale = totalPieces === 20 ? 0.56 : (totalPieces === 12 ? 0.64 : 0.70);
+
+      // On very compact mobile viewports in landscape, scale down gently
+      const minStageDim = Math.min(stageW, stageH);
+      if (minStageDim < 450) {
+        return Math.max(0.44, targetScale * (minStageDim / 450));
+      }
+      return targetScale;
+    }
+
     function computeScatterSlots(totalPieces, stageW, stageH, boardX0, boardY0, boardW, boardH) {
       const boardX1 = boardX0 + boardW;
       const boardY1 = boardY0 + boardH;
@@ -14062,15 +14075,14 @@
 
       const cols = totalPieces === 6 ? 3 : (totalPieces === 12 ? 4 : 5);
       const rows = totalPieces === 6 ? 2 : (totalPieces === 12 ? 3 : 4);
-      const borderPieceScale = totalPieces === 20 ? 0.60 : (totalPieces === 12 ? 0.54 : 0.46);
+      const borderPieceScale = computeResponsivePieceScale(totalPieces, stageW, stageH, boardW, boardH);
       const boardPieceScale = boardW / 1366;
       const cellW = (1366 / cols) * boardPieceScale * borderPieceScale;
       const cellH = (1024 / rows) * boardPieceScale * borderPieceScale;
-      // Generous half-extent accounting for tabs, 12% selection scale, rotation, and drop shadow
-      const pieceHalfW = Math.max(44, Math.round(cellW * 0.72));
-      const pieceHalfH = Math.max(40, Math.round(cellH * 0.72));
+      const pieceHalfW = Math.max(30, Math.round(cellW * 0.65));
+      const pieceHalfH = Math.max(28, Math.round(cellH * 0.65));
 
-      // Padding from screen borders ensures no piece or its shadow is ever clipped
+      // Padding from screen borders ensures no piece is clipped
       const padX = 16;
       const padY = 14;
       const minSafeX = pieceHalfW + padX;
@@ -14084,106 +14096,103 @@
         slots.push({ x: Math.round(x), y: Math.round(y), rot });
       }
 
+      const leftX = minSafeX + (boardX0 - minSafeX) * 0.45;
+      const rightX = maxSafeX - (maxSafeX - boardX1) * 0.45;
+      const topY = minSafeY + (boardY0 - minSafeY) * 0.50;
+      const bottomY = maxSafeY - (maxSafeY - boardY1) * 0.50;
+
       if (isLandscape) {
         if (totalPieces === 6) {
-          // Easy (6 pieces): 4 corners + 2 lateral sides
-          addSlot(minSafeX + (boardX0 - minSafeX) * 0.40, minSafeY + (boardY0 - minSafeY) * 0.40, tilts[0]);
-          addSlot(minSafeX + (boardX0 - minSafeX) * 0.50, boardY0 + boardH * 0.50, tilts[1]);
-          addSlot(minSafeX + (boardX0 - minSafeX) * 0.40, maxSafeY - (maxSafeY - boardY1) * 0.40, tilts[2]);
-          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.40, minSafeY + (boardY0 - minSafeY) * 0.40, tilts[3]);
-          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.50, boardY0 + boardH * 0.50, tilts[4]);
-          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.40, maxSafeY - (maxSafeY - boardY1) * 0.40, tilts[5]);
+          // Easy (6 pieces): 3 on left lateral side, 3 on right lateral side
+          addSlot(leftX, topY, tilts[0]);
+          addSlot(Math.max(minSafeX, leftX - 10), boardY0 + boardH * 0.50, tilts[1]);
+          addSlot(leftX, bottomY, tilts[2]);
+          addSlot(rightX, topY, tilts[3]);
+          addSlot(Math.min(maxSafeX, rightX + 10), boardY0 + boardH * 0.50, tilts[4]);
+          addSlot(rightX, bottomY, tilts[5]);
 
         } else if (totalPieces === 12) {
-          // Medium (12 pieces): 4 corners + 2 top + 2 bottom + 2 left + 2 right
-          addSlot(minSafeX + (boardX0 - minSafeX) * 0.38, minSafeY + (boardY0 - minSafeY) * 0.38, tilts[0]);
-          addSlot(boardX0 + boardW * 0.32, minSafeY + (boardY0 - minSafeY) * 0.65, tilts[1]);
-          addSlot(boardX0 + boardW * 0.68, minSafeY + (boardY0 - minSafeY) * 0.35, tilts[2]);
-          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.38, minSafeY + (boardY0 - minSafeY) * 0.38, tilts[3]);
-          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.65, boardY0 + boardH * 0.33, tilts[4]);
-          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.35, boardY0 + boardH * 0.67, tilts[5]);
-          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.38, maxSafeY - (maxSafeY - boardY1) * 0.38, tilts[6]);
-          addSlot(boardX0 + boardW * 0.68, maxSafeY - (maxSafeY - boardY1) * 0.35, tilts[7]);
-          addSlot(boardX0 + boardW * 0.32, maxSafeY - (maxSafeY - boardY1) * 0.65, tilts[8]);
-          addSlot(minSafeX + (boardX0 - minSafeX) * 0.38, maxSafeY - (maxSafeY - boardY1) * 0.38, tilts[9]);
-          addSlot(minSafeX + (boardX0 - minSafeX) * 0.65, boardY0 + boardH * 0.67, tilts[10]);
-          addSlot(minSafeX + (boardX0 - minSafeX) * 0.35, boardY0 + boardH * 0.33, tilts[11]);
+          // Medium (12 pieces): utilizing top and bottom space + lateral sides + 4 corners
+          addSlot(leftX, topY, tilts[0]);                              // TL Corner
+          addSlot(boardX0 + boardW * 0.32, topY, tilts[1]);            // Top 1
+          addSlot(boardX0 + boardW * 0.68, topY, tilts[2]);            // Top 2
+          addSlot(rightX, topY, tilts[3]);                              // TR Corner
+          addSlot(rightX, boardY0 + boardH * 0.33, tilts[4]);           // Right 1
+          addSlot(rightX, boardY0 + boardH * 0.67, tilts[5]);           // Right 2
+          addSlot(rightX, bottomY, tilts[6]);                           // BR Corner
+          addSlot(boardX0 + boardW * 0.68, bottomY, tilts[7]);         // Bottom 1
+          addSlot(boardX0 + boardW * 0.32, bottomY, tilts[8]);         // Bottom 2
+          addSlot(leftX, bottomY, tilts[9]);                            // BL Corner
+          addSlot(leftX, boardY0 + boardH * 0.67, tilts[10]);          // Left 1
+          addSlot(leftX, boardY0 + boardH * 0.33, tilts[11]);          // Left 2
 
         } else {
-          // Hard (20 pieces): 8 in corners (2 per corner) + 3 top + 3 bottom + 3 left + 3 right
+          // Hard (20 pieces): 8 in corners + 3 top + 3 bottom + 3 left + 3 right
           addSlot(minSafeX + (boardX0 - minSafeX) * 0.25, minSafeY + (boardY0 - minSafeY) * 0.25, tilts[0]);
-          addSlot(minSafeX + (boardX0 - minSafeX) * 0.75, minSafeY + (boardY0 - minSafeY) * 0.75, tilts[1]);
+          addSlot(minSafeX + (boardX0 - minSafeX) * 0.70, topY, tilts[1]);
           for (let i = 0; i < 3; i++) {
-            const x = boardX0 + (i + 0.5) * (boardW / 3);
-            const y = minSafeY + (boardY0 - minSafeY) * (i % 2 === 0 ? 0.35 : 0.65);
-            addSlot(x, y, tilts[(2 + i) % tilts.length]);
+            addSlot(boardX0 + (i + 0.5) * (boardW / 3), topY, tilts[(2 + i) % tilts.length]);
           }
-          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.75, minSafeY + (boardY0 - minSafeY) * 0.75, tilts[5]);
+          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.70, topY, tilts[5]);
           addSlot(maxSafeX - (maxSafeX - boardX1) * 0.25, minSafeY + (boardY0 - minSafeY) * 0.25, tilts[6]);
           for (let i = 0; i < 3; i++) {
-            const y = boardY0 + (i + 0.5) * (boardH / 3);
-            const x = maxSafeX - (maxSafeX - boardX1) * (i % 2 === 0 ? 0.35 : 0.65);
-            addSlot(x, y, tilts[(7 + i) % tilts.length]);
+            addSlot(rightX, boardY0 + (i + 0.5) * (boardH / 3), tilts[(7 + i) % tilts.length]);
           }
-          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.75, maxSafeY - (maxSafeY - boardY1) * 0.75, tilts[10]);
-          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.25, maxSafeY - (maxSafeY - boardY1) * 0.25, tilts[11]);
+          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.25, maxSafeY - (maxSafeY - boardY1) * 0.25, tilts[10]);
+          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.70, bottomY, tilts[11]);
           for (let i = 0; i < 3; i++) {
-            const x = boardX0 + (i + 0.5) * (boardW / 3);
-            const y = maxSafeY - (maxSafeY - boardY1) * (i % 2 === 0 ? 0.65 : 0.35);
-            addSlot(x, y, tilts[(12 + i) % tilts.length]);
+            addSlot(boardX0 + (i + 0.5) * (boardW / 3), bottomY, tilts[(12 + i) % tilts.length]);
           }
-          addSlot(minSafeX + (boardX0 - minSafeX) * 0.75, maxSafeY - (maxSafeY - boardY1) * 0.75, tilts[15]);
+          addSlot(minSafeX + (boardX0 - minSafeX) * 0.70, bottomY, tilts[15]);
           addSlot(minSafeX + (boardX0 - minSafeX) * 0.25, maxSafeY - (maxSafeY - boardY1) * 0.25, tilts[16]);
           for (let i = 0; i < 3; i++) {
-            const y = boardY0 + (i + 0.5) * (boardH / 3);
-            const x = minSafeX + (boardX0 - minSafeX) * (i % 2 === 0 ? 0.65 : 0.35);
-            addSlot(x, y, tilts[(17 + i) % tilts.length]);
+            addSlot(leftX, boardY0 + (i + 0.5) * (boardH / 3), tilts[(17 + i) % tilts.length]);
           }
         }
       } else {
         // Portrait mode
         if (totalPieces === 6) {
-          addSlot(minSafeX + (boardX0 - minSafeX) * 0.40, minSafeY + (boardY0 - minSafeY) * 0.40, tilts[0]);
-          addSlot(boardX0 + boardW * 0.50, minSafeY + (boardY0 - minSafeY) * 0.75, tilts[1]);
-          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.40, minSafeY + (boardY0 - minSafeY) * 0.40, tilts[2]);
-          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.40, maxSafeY - (maxSafeY - boardY1) * 0.40, tilts[3]);
-          addSlot(boardX0 + boardW * 0.50, maxSafeY - (maxSafeY - boardY1) * 0.75, tilts[4]);
-          addSlot(minSafeX + (boardX0 - minSafeX) * 0.40, maxSafeY - (maxSafeY - boardY1) * 0.40, tilts[5]);
+          addSlot(leftX, topY, tilts[0]);
+          addSlot(stageW * 0.50, topY, tilts[1]);
+          addSlot(rightX, topY, tilts[2]);
+          addSlot(rightX, bottomY, tilts[3]);
+          addSlot(stageW * 0.50, bottomY, tilts[4]);
+          addSlot(leftX, bottomY, tilts[5]);
 
         } else if (totalPieces === 12) {
-          addSlot(minSafeX + (boardX0 - minSafeX) * 0.35, minSafeY + (boardY0 - minSafeY) * 0.35, tilts[0]);
-          addSlot(boardX0 + boardW * 0.30, minSafeY + (boardY0 - minSafeY) * 0.70, tilts[1]);
-          addSlot(boardX0 + boardW * 0.70, minSafeY + (boardY0 - minSafeY) * 0.70, tilts[2]);
-          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.35, minSafeY + (boardY0 - minSafeY) * 0.35, tilts[3]);
-          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.45, boardY0 + boardH * 0.33, tilts[4]);
-          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.45, boardY0 + boardH * 0.67, tilts[5]);
-          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.35, maxSafeY - (maxSafeY - boardY1) * 0.35, tilts[6]);
-          addSlot(boardX0 + boardW * 0.70, maxSafeY - (maxSafeY - boardY1) * 0.70, tilts[7]);
-          addSlot(boardX0 + boardW * 0.30, maxSafeY - (maxSafeY - boardY1) * 0.70, tilts[8]);
-          addSlot(minSafeX + (boardX0 - minSafeX) * 0.35, maxSafeY - (maxSafeY - boardY1) * 0.35, tilts[9]);
-          addSlot(minSafeX + (boardX0 - minSafeX) * 0.45, boardY0 + boardH * 0.67, tilts[10]);
-          addSlot(minSafeX + (boardX0 - minSafeX) * 0.45, boardY0 + boardH * 0.33, tilts[11]);
+          addSlot(leftX, topY, tilts[0]);
+          addSlot(boardX0 + boardW * 0.32, topY, tilts[1]);
+          addSlot(boardX0 + boardW * 0.68, topY, tilts[2]);
+          addSlot(rightX, topY, tilts[3]);
+          addSlot(rightX, boardY0 + boardH * 0.33, tilts[4]);
+          addSlot(rightX, boardY0 + boardH * 0.67, tilts[5]);
+          addSlot(rightX, bottomY, tilts[6]);
+          addSlot(boardX0 + boardW * 0.68, bottomY, tilts[7]);
+          addSlot(boardX0 + boardW * 0.32, bottomY, tilts[8]);
+          addSlot(leftX, bottomY, tilts[9]);
+          addSlot(leftX, boardY0 + boardH * 0.67, tilts[10]);
+          addSlot(leftX, boardY0 + boardH * 0.33, tilts[11]);
 
         } else {
           addSlot(minSafeX + (boardX0 - minSafeX) * 0.25, minSafeY + (boardY0 - minSafeY) * 0.25, tilts[0]);
-          addSlot(minSafeX + (boardX0 - minSafeX) * 0.75, minSafeY + (boardY0 - minSafeY) * 0.65, tilts[1]);
+          addSlot(minSafeX + (boardX0 - minSafeX) * 0.70, topY, tilts[1]);
           for (let i = 0; i < 3; i++) {
-            addSlot(boardX0 + (i + 0.5) * (boardW / 3), minSafeY + (boardY0 - minSafeY) * (i % 2 === 0 ? 0.80 : 0.40), tilts[(2 + i) % tilts.length]);
+            addSlot(boardX0 + (i + 0.5) * (boardW / 3), topY, tilts[(2 + i) % tilts.length]);
           }
-          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.75, minSafeY + (boardY0 - minSafeY) * 0.65, tilts[5]);
+          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.70, topY, tilts[5]);
           addSlot(maxSafeX - (maxSafeX - boardX1) * 0.25, minSafeY + (boardY0 - minSafeY) * 0.25, tilts[6]);
           for (let i = 0; i < 3; i++) {
-            addSlot(maxSafeX - (maxSafeX - boardX1) * 0.45, boardY0 + (i + 0.5) * (boardH / 3), tilts[(7 + i) % tilts.length]);
+            addSlot(rightX, boardY0 + (i + 0.5) * (boardH / 3), tilts[(7 + i) % tilts.length]);
           }
-          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.75, maxSafeY - (maxSafeY - boardY1) * 0.65, tilts[10]);
-          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.25, maxSafeY - (maxSafeY - boardY1) * 0.25, tilts[11]);
+          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.25, maxSafeY - (maxSafeY - boardY1) * 0.25, tilts[10]);
+          addSlot(maxSafeX - (maxSafeX - boardX1) * 0.70, bottomY, tilts[11]);
           for (let i = 0; i < 3; i++) {
-            addSlot(boardX0 + (i + 0.5) * (boardW / 3), maxSafeY - (maxSafeY - boardY1) * (i % 2 === 0 ? 0.25 : 0.65), tilts[(12 + i) % tilts.length]);
+            addSlot(boardX0 + (i + 0.5) * (boardW / 3), bottomY, tilts[(12 + i) % tilts.length]);
           }
-          addSlot(minSafeX + (boardX0 - minSafeX) * 0.75, maxSafeY - (maxSafeY - boardY1) * 0.65, tilts[15]);
+          addSlot(minSafeX + (boardX0 - minSafeX) * 0.70, bottomY, tilts[15]);
           addSlot(minSafeX + (boardX0 - minSafeX) * 0.25, maxSafeY - (maxSafeY - boardY1) * 0.25, tilts[16]);
           for (let i = 0; i < 3; i++) {
-            addSlot(minSafeX + (boardX0 - minSafeX) * 0.45, boardY0 + (i + 0.5) * (boardH / 3), tilts[(17 + i) % tilts.length]);
+            addSlot(leftX, boardY0 + (i + 0.5) * (boardH / 3), tilts[(17 + i) % tilts.length]);
           }
         }
       }
@@ -14219,7 +14228,7 @@
       const slots = computeScatterSlots(puzzlePieces.length, stageW, stageH, boardX0, boardY0, boardW, boardH);
 
       const boardPieceScale = boardW / 1366;
-      const borderPieceScale = currentPuzzleDifficulty === 'hard' ? 0.60 : (currentPuzzleDifficulty === 'medium' ? 0.54 : 0.46);
+      const borderPieceScale = computeResponsivePieceScale(puzzlePieces.length, stageW, stageH, boardW, boardH);
 
       shuffled.forEach((p, idx) => {
         p.scatterSlotIdx = idx;
@@ -14279,7 +14288,7 @@
       const slots = computeScatterSlots(puzzlePieces.length, stageW, stageH, boardX0, boardY0, boardW, boardH);
 
       const boardPieceScale = boardW / 1366;
-      const borderPieceScale = currentPuzzleDifficulty === 'hard' ? 0.60 : (currentPuzzleDifficulty === 'medium' ? 0.54 : 0.46);
+      const borderPieceScale = computeResponsivePieceScale(puzzlePieces.length, stageW, stageH, boardW, boardH);
 
       unplaced.forEach((p) => {
         const card = document.getElementById(`scatterPiece_${p.id}`);
