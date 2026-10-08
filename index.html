@@ -673,7 +673,7 @@
       display: block;
     }
 
-    /* Bottom Purple Fade Gradient (Overlayed on top of buttons, under scroll down arrow) */
+    /* Bottom Purple Fade Gradient (Overlayed on top of buttons, under scroll down arrow - disappears at end of scroll) */
     .prep-bottom-fade {
       position: absolute;
       bottom: 0;
@@ -690,6 +690,13 @@
       );
       pointer-events: none;
       z-index: 20; /* ON TOP of procedure buttons (1), UNDER scroll down arrow (30) */
+      opacity: 1;
+      transition: opacity 0.35s ease;
+    }
+
+    .prep-bottom-fade.hidden {
+      opacity: 0;
+      pointer-events: none;
     }
 
     /* Fixed Bottom 4-Tab Bar (Liquid Glass Frosted Toolbar matching Top Header) */
@@ -10025,6 +10032,13 @@
       justify-content: center !important;
     }
 
+    /* Disappearing bottom purple fade when nowhere left to scroll */
+    .prep-bottom-fade.hidden,
+    .games-bottom-fade.hidden {
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+
     /* Inactive screens must never intercept pointer events or display */
     .app-screen:not(.active),
     .app-screen:not(.active) * {
@@ -10392,8 +10406,8 @@
 
               </div>
 
-              <!-- Purple Fade overlay at bottom (Overlayed on top of buttons, under scroll down arrow) -->
-              <div class="prep-bottom-fade"></div>
+              <!-- Purple Fade overlay at bottom (Overlayed on top of buttons, under scroll down arrow - disappears at end of scroll) -->
+              <div class="prep-bottom-fade" id="prepBottomFade" aria-hidden="true"></div>
 
               <!-- Up and Down Arrow Buttons (Overlayed on top of purple fade) -->
               <div class="arrow-controls">
@@ -12823,6 +12837,8 @@
           screenPrep.classList.add('active');
           if (select) select.value = 'preparations';
           if (statusSpan) statusSpan.textContent = 'Preparations Screen Active • Up/Down Arrow Scrolling Enabled';
+          setTimeout(updateArrowStates, 60);
+          setTimeout(updatePrepScrollFade, 60);
         } else {
           screenHome.classList.add('active');
           if (select) select.value = 'home';
@@ -12845,6 +12861,8 @@
 
     function goToPreparations() {
       switchScreen('preparations');
+      setTimeout(updateArrowStates, 60);
+      setTimeout(updatePrepScrollFade, 60);
     }
 
     function goToHome() {
@@ -20556,6 +20574,7 @@
         });
       }
       setTimeout(updateArrowStates, 320);
+      setTimeout(updatePrepScrollFade, 320);
     }
 
     function handleScroll() {
@@ -20581,6 +20600,21 @@
       });
       currentCardIndex = closestIdx;
       updateArrowStates();
+      updatePrepScrollFade();
+    }
+
+    // Scroll fade controller for Preparations Screen (Disappears at end of scroll, matches Games screen)
+    function updatePrepScrollFade() {
+      const viewport = document.getElementById('prepViewport');
+      const fade = document.getElementById('prepBottomFade') || document.querySelector('.prep-bottom-fade');
+      if (!viewport || !fade) return;
+
+      const maxScroll = viewport.scrollHeight - viewport.clientHeight;
+      if (maxScroll <= 15 || viewport.scrollTop >= maxScroll - 20) {
+        fade.classList.add('hidden');
+      } else {
+        fade.classList.remove('hidden');
+      }
     }
 
     function updateArrowStates() {
@@ -20606,6 +20640,8 @@
         btnUp.classList.remove('hidden');
         btnDown.classList.remove('hidden');
       }
+
+      updatePrepScrollFade();
     }
 
     // Ribbon Tab Switcher
@@ -20631,6 +20667,7 @@
         }
       });
       setTimeout(updateArrowStates, 100);
+      setTimeout(updatePrepScrollFade, 100);
     }
 
     // Device Specifications
@@ -20813,6 +20850,7 @@
       if (bottomFade) {
         const fadeH = isCompact ? Math.min(Math.max(h * 0.25, 130), 170) : Math.min(Math.max(h * 0.30, 180), 230);
         bottomFade.style.height = fadeH + 'px';
+        updatePrepScrollFade();
       }
 
       const gamesFade = document.getElementById('gamesBottomFade');

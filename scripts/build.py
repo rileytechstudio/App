@@ -374,6 +374,13 @@ def build_distribution():
       justify-content: center !important;
     }
 
+    /* Disappearing bottom purple fade when nowhere left to scroll */
+    .prep-bottom-fade.hidden,
+    .games-bottom-fade.hidden {
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+
     /* Inactive screens must never intercept pointer events or display */
     .app-screen:not(.active),
     .app-screen:not(.active) * {

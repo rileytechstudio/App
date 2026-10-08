@@ -283,9 +283,12 @@ public struct PreparationsView: View {
         }
     }
     
-    // MARK: - Purple Fade Overlay along Bottom of Screen (Overlayed on buttons, under arrows)
+    // MARK: - Purple Fade Overlay along Bottom of Screen (Overlayed on buttons, under arrows - disappears at end of scroll)
     @ViewBuilder
     private func purpleFadeOverlay(height: CGFloat) -> some View {
+        let maxIndex = max(filteredProcedures.count - 1, 0)
+        let showFade = currentScrollIndex < maxIndex
+
         VStack {
             Spacer()
             LinearGradient(
@@ -302,6 +305,8 @@ public struct PreparationsView: View {
             .frame(height: height)
             .allowsHitTesting(false)
         }
+        .opacity(showFade ? 1.0 : 0.0)
+        .animation(.easeInOut(duration: 0.35), value: showFade)
     }
     
     // MARK: - Floating Arrow Buttons Overlay
