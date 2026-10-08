@@ -375,18 +375,32 @@
       margin-bottom: auto;
     }
 
-    .card-btn, .pill-btn {
+    .card-btn {
       background: transparent;
       border: none;
       outline: none;
       cursor: pointer;
       transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.15s ease;
       display: block;
-    }
-
-    .card-btn {
       max-width: 350px;
       width: 100%;
+    }
+
+    .card-btn:hover {
+      transform: scale(1.035);
+      filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.35));
+    }
+
+    .card-btn:active {
+      transform: scale(0.94);
+      filter: brightness(0.94);
+    }
+
+    .card-btn img {
+      width: 100%;
+      height: auto;
+      display: block;
+      pointer-events: none;
     }
 
     .pill-btn {
@@ -409,20 +423,10 @@
       transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.18s ease, box-shadow 0.18s ease !important;
     }
 
-    .card-btn:hover {
-      transform: scale(1.035);
-      filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.35));
-    }
-
     .pill-btn:hover {
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.82) 100%) !important;
       transform: translateY(-2px) scale(1.035) !important;
       box-shadow: 0 8px 24px rgba(28, 14, 56, 0.24), 0 3px 8px rgba(0, 0, 0, 0.10), inset 0 1.5px 1px 0 #ffffff !important;
-    }
-
-    .card-btn:active {
-      transform: scale(0.94);
-      filter: brightness(0.94);
     }
 
     .pill-btn:active {
@@ -440,13 +444,6 @@
       user-select: none !important;
       line-height: 1 !important;
       text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) !important;
-    }
-
-    .card-btn img {
-      width: 100%;
-      height: auto;
-      display: block;
-      pointer-events: none;
     }
 
     .grid-row-top, .grid-row-mid {
@@ -2433,6 +2430,901 @@
     @keyframes promptBarShake {
       0% { transform: translateY(0); }
       100% { transform: translateY(-2px); }
+    }
+
+    /* ========================================================= */
+    /* SCREEN 2C: NASOGASTRIC TUBE (NG TUBE) PROCEDURE           */
+    /* ========================================================= */
+    #screenNGTube {
+      background: #112529;
+      overflow: hidden;
+      display: none;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+    }
+
+    #screenNGTube.active {
+      display: flex;
+    }
+
+    .ng-tube-content {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: #162c30;
+      overflow: hidden;
+    }
+
+    #screenNGTube .game-top-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: transparent !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      border: none !important;
+      box-shadow: none !important;
+      z-index: 30;
+      pointer-events: none;
+      padding: max(10px, env(safe-area-inset-top, 10px)) 20px 4px;
+    }
+
+    #screenNGTube .game-top-bar button {
+      pointer-events: auto;
+    }
+
+    .ng-tube-stage-wrapper {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #0d1e22;
+      padding: 0;
+    }
+
+    .ng-tube-stage {
+      position: relative;
+      aspect-ratio: 1366 / 1024;
+      max-width: 100%;
+      max-height: 100%;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .ng-tube-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+    }
+
+    .ng-tube-bg-layer {
+      z-index: 1;
+    }
+
+    .ng-tube-versed-layer {
+      z-index: 3;
+      opacity: 0;
+      transform: scale(0.92) translateY(10px);
+      transition: opacity 0.6s cubic-bezier(0.2, 0.9, 0.3, 1), transform 0.6s cubic-bezier(0.2, 0.9, 0.3, 1);
+      filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.35));
+    }
+
+    .ng-tube-versed-layer.visible {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+
+    /* Draggable Syringe Item (Hovering above the table with a glowing aura) */
+    .ng-tube-syringe-item {
+      position: absolute;
+      left: 15%;
+      top: 55%;
+      width: 18.8%;
+      aspect-ratio: 257 / 270;
+      z-index: 25;
+      cursor: grab;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+      transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1);
+      filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.85)) drop-shadow(0 0 32px rgba(14, 165, 233, 0.5)) drop-shadow(0 8px 18px rgba(0, 0, 0, 0.35));
+      animation: ngTubeMedicineGlow 2.4s infinite ease-in-out;
+    }
+
+    @keyframes ngTubeMedicineGlow {
+      0%, 100% {
+        filter: drop-shadow(0 0 14px rgba(56, 189, 248, 0.8)) drop-shadow(0 0 28px rgba(14, 165, 233, 0.45)) drop-shadow(0 8px 18px rgba(0, 0, 0, 0.35));
+      }
+      50% {
+        filter: drop-shadow(0 0 22px rgba(56, 189, 248, 1)) drop-shadow(0 0 42px rgba(14, 165, 233, 0.7)) drop-shadow(0 10px 22px rgba(0, 0, 0, 0.4));
+      }
+    }
+
+    .ng-tube-syringe-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+      display: block;
+    }
+
+    .ng-tube-syringe-item.dragging {
+      cursor: grabbing;
+      transform: scale(1.08);
+      filter: drop-shadow(0 0 24px rgba(56, 189, 248, 1)) drop-shadow(0 14px 28px rgba(0, 0, 0, 0.45));
+      z-index: 35;
+      transition: none;
+      animation: none;
+    }
+
+    .ng-tube-syringe-item.snapped {
+      cursor: default;
+      z-index: 24;
+      animation: none;
+      filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.35));
+    }
+
+    .ng-tube-syringe-item.spraying {
+      animation: ngTubeSprayPump 0.35s 2 cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    @keyframes ngTubeSprayPump {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(0.94) translate(4px, -4px); }
+    }
+
+    /* Spray Mist Particle Container at Nose */
+    .ng-tube-spray-mist {
+      position: absolute;
+      left: 77.5%;
+      top: 25.5%;
+      width: 110px;
+      height: 110px;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 28;
+    }
+
+    .ng-tube-spray-mist.active {
+      display: block !important;
+    }
+
+    .spray-cloud {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(186, 230, 253, 0.6) 45%, rgba(255, 255, 255, 0) 70%);
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    .spray-cloud.sc1 {
+      width: 65px;
+      height: 65px;
+      left: 22px;
+      top: 22px;
+      animation: ngSprayPuff 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .spray-cloud.sc2 {
+      width: 90px;
+      height: 90px;
+      left: 10px;
+      top: 10px;
+      animation: ngSprayPuff 1.2s 0.16s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .spray-cloud.sc3 {
+      width: 105px;
+      height: 105px;
+      left: 2px;
+      top: 2px;
+      animation: ngSprayPuff 1.2s 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes ngSprayPuff {
+      0% { transform: scale(0.3); opacity: 0.95; }
+      50% { transform: scale(1.1); opacity: 0.75; }
+      100% { transform: scale(1.45); opacity: 0; }
+    }
+
+    .spray-particle {
+      position: absolute;
+      border-radius: 50%;
+      background: #7dd3fc;
+      box-shadow: 0 0 6px #38bdf8;
+      opacity: 0;
+    }
+
+    .spray-particle.sp1 { width: 7px; height: 7px; left: 52px; top: 52px; animation: ngSprayDrop1 1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .spray-particle.sp2 { width: 9px; height: 9px; left: 55px; top: 48px; animation: ngSprayDrop2 1.1s 0.1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .spray-particle.sp3 { width: 6px; height: 6px; left: 48px; top: 55px; animation: ngSprayDrop3 1s 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .spray-particle.sp4 { width: 8px; height: 8px; left: 54px; top: 50px; animation: ngSprayDrop1 1.2s 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .spray-particle.sp5 { width: 7px; height: 7px; left: 50px; top: 52px; animation: ngSprayDrop2 1.1s 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+    @keyframes ngSprayDrop1 {
+      0% { transform: translate(0, 0) scale(0.6); opacity: 1; }
+      100% { transform: translate(22px, -18px) scale(1.2); opacity: 0; }
+    }
+    @keyframes ngSprayDrop2 {
+      0% { transform: translate(0, 0) scale(0.6); opacity: 1; }
+      100% { transform: translate(-18px, -22px) scale(1.3); opacity: 0; }
+    }
+    @keyframes ngSprayDrop3 {
+      0% { transform: translate(0, 0) scale(0.6); opacity: 1; }
+      100% { transform: translate(16px, 20px) scale(1.1); opacity: 0; }
+    }
+
+    /* Tabletop Drinks Pop-up & Tap Hotspot */
+    .ng-tube-drinks-item {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
+      transform-origin: 21.5% 67%;
+    }
+
+    .ng-tube-drinks-item.pop-in {
+      animation: ngDrinkPopIn 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    @keyframes ngDrinkPopIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.2) translateY(24px);
+      }
+      65% {
+        opacity: 1;
+        transform: scale(1.08) translateY(-6px);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .ng-tube-drinks-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Table Glowing Item (Table Transparent PNG glows as a whole) */
+    .ng-tube-tabletop-hotspot {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 6;
+      cursor: pointer;
+      pointer-events: auto;
+      filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.85)) drop-shadow(0 0 32px rgba(14, 165, 233, 0.6));
+      animation: ngTableItemGlow 2.2s infinite ease-in-out;
+      transition: filter 0.25s ease, opacity 0.3s ease;
+    }
+
+    .ng-tube-tabletop-hotspot img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      pointer-events: none;
+    }
+
+    .ng-tube-tabletop-hotspot:hover {
+      filter: drop-shadow(0 0 24px rgba(56, 189, 248, 1)) drop-shadow(0 0 46px rgba(56, 189, 248, 0.85)) drop-shadow(0 0 8px #ffffff);
+    }
+
+    @keyframes ngTableItemGlow {
+      0%, 100% {
+        filter: drop-shadow(0 0 14px rgba(56, 189, 248, 0.75)) drop-shadow(0 0 26px rgba(14, 165, 233, 0.5));
+        opacity: 0.9;
+      }
+      50% {
+        filter: drop-shadow(0 0 24px rgba(56, 189, 248, 1)) drop-shadow(0 0 46px rgba(56, 189, 248, 0.85)) drop-shadow(0 0 10px #ffffff);
+        opacity: 1;
+      }
+    }
+
+    /* Decision Popup Overlay & Action Buttons */
+    .ng-tube-decision-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.32s ease;
+      background: transparent;
+    }
+
+    .ng-tube-decision-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .ng-tube-decision-buttons {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      align-items: center;
+      transform: scale(0.8) translateY(18px);
+      opacity: 0;
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+    }
+
+    .ng-tube-decision-overlay.active .ng-tube-decision-buttons {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+
+    .ng-tube-choice-btn {
+      min-width: 136px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 28px;
+      border-radius: 28px;
+      font-size: 19px;
+      font-weight: 800;
+      border: 2px solid rgba(255, 255, 255, 0.55);
+      cursor: pointer;
+      transition: transform 0.18s cubic-bezier(0.2, 0.9, 0.3, 1), box-shadow 0.18s ease;
+      touch-action: manipulation;
+      user-select: none;
+    }
+
+    .ng-tube-choice-btn:hover {
+      transform: translateY(-3px) scale(1.05);
+    }
+
+    .ng-tube-choice-btn:active {
+      transform: translateY(1px) scale(0.96);
+    }
+
+    .ng-tube-btn-yes {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #ffffff;
+      box-shadow: 0 10px 26px rgba(16, 185, 129, 0.5), 0 3px 8px rgba(0, 0, 0, 0.28);
+    }
+
+    .ng-tube-btn-yes:hover {
+      box-shadow: 0 14px 32px rgba(16, 185, 129, 0.6), 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .ng-tube-btn-no {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: #ffffff;
+      box-shadow: 0 10px 26px rgba(239, 68, 68, 0.5), 0 3px 8px rgba(0, 0, 0, 0.28);
+    }
+
+    .ng-tube-btn-no:hover {
+      box-shadow: 0 14px 32px rgba(239, 68, 68, 0.6), 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .ng-tube-tap-hint {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(16, 8, 34, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #e2e8f0;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 20px;
+      z-index: 10;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Top Transparent Instruction & Prompt Bar for NG Tube (Overlaps the screen) */
+    .ng-tube-top-prompt-bar {
+      position: absolute;
+      top: calc(env(safe-area-inset-top, 0px) + 12px);
+      left: 50%;
+      transform: translateX(-50%);
+      width: auto;
+      max-width: min(720px, calc(100% - 240px));
+      padding: 8px 22px;
+      border-radius: 20px;
+      z-index: 25;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: rgba(14, 28, 32, 0.32);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+      transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease, opacity 0.3s ease;
+      cursor: pointer;
+      pointer-events: auto;
+      box-sizing: border-box;
+    }
+
+    @media (max-width: 700px) {
+      .ng-tube-top-prompt-bar {
+        top: calc(env(safe-area-inset-top, 0px) + 54px);
+        max-width: calc(100% - 32px);
+      }
+    }
+
+    .ng-tube-top-prompt-bar.highlight-advance {
+      background: rgba(28, 54, 62, 0.55);
+      border-color: rgba(251, 191, 36, 0.85);
+      box-shadow: 0 4px 24px rgba(251, 191, 36, 0.35);
+    }
+
+    .ng-tube-top-prompt-bar .step-instruction-card {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      padding: 0;
+    }
+
+    .ng-tube-top-prompt-bar .step-instruction-text {
+      white-space: normal;
+      font-size: 15.5px;
+      line-height: 1.35;
+      text-align: center;
+      color: #ffffff;
+      font-weight: 700;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+      max-width: 100%;
+    }
+
+    /* NG Tube Maze Phase Styles */
+    .ng-tube-maze-stage {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-width: 100%;
+      max-height: 100%;
+      aspect-ratio: 1366 / 1024;
+      background: radial-gradient(circle at 65% 45%, #fff8f6 0%, #fdeee9 45%, #fce4de 85%, #f9dbd3 100%);
+      overflow: hidden;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .ng-tube-maze-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .ng-tube-maze-syringe {
+      position: absolute;
+      left: 2.928%;
+      top: 37.109%;
+      width: 10.688%;
+      height: 30.371%;
+      object-fit: contain;
+      pointer-events: none;
+      z-index: 6;
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.18));
+    }
+
+    .ng-tube-maze-stomach {
+      position: absolute;
+      left: 83.821%;
+      top: 18.555%;
+      width: 15.447%;
+      height: 23.535%;
+      object-fit: contain;
+      pointer-events: none;
+      z-index: 6;
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.18));
+    }
+
+    .ng-tube-maze-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      touch-action: none;
+      cursor: crosshair;
+    }
+
+    /* Strikes / Touches Counter in Prompt Bar */
+    .ng-tube-strike-counter {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-left: 12px;
+      padding: 3px 11px;
+      border-radius: 14px;
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      flex-shrink: 0;
+    }
+
+    .ng-tube-strike-counter .strike-label {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #e2e8f0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .ng-tube-strike-counter .strike-dot {
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.28);
+      border: 2px solid rgba(255, 255, 255, 0.7);
+      transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+    }
+
+    .ng-tube-strike-counter .strike-dot.active {
+      background: #ef4444;
+      border-color: #fca5a5;
+      transform: scale(1.22);
+      box-shadow: 0 0 10px #ef4444, 0 0 16px rgba(239, 68, 68, 0.6);
+    }
+
+    /* Start Beacon at Syringe Tube Outlet (x: 160, y: 405 -> 11.7%, 39.5%) */
+    .ng-tube-maze-beacon {
+      position: absolute;
+      left: 11.7%;
+      top: 39.5%;
+      transform: translate(-50%, -50%);
+      width: 60px;
+      height: 60px;
+      pointer-events: none;
+      z-index: 8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.3s ease;
+    }
+
+    .ng-tube-maze-beacon .beacon-pulse {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: rgba(44, 119, 150, 0.45);
+      animation: beaconPulseAnim 1.6s infinite ease-out;
+    }
+
+    .ng-tube-maze-beacon .beacon-core {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #38bdf8;
+      border: 3px solid #ffffff;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.9);
+    }
+
+    .ng-tube-maze-beacon .beacon-tag {
+      position: absolute;
+      top: -30px;
+      white-space: nowrap;
+      background: #0284c7;
+      color: #ffffff;
+      font-size: 11.5px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+      border: 1.5px solid #ffffff;
+      pointer-events: none;
+      animation: beaconTagBounce 1.6s infinite ease-in-out;
+    }
+
+    @keyframes beaconPulseAnim {
+      0% { transform: scale(0.6); opacity: 0.9; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+
+    @keyframes beaconTagBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+
+    /* Stomach Target Glow (x: 1145, y: 190 -> 83.8%, 18.5%, width: 15.5%, height: 23.5%) */
+    .ng-tube-maze-stomach-glow {
+      position: absolute;
+      left: 83.8%;
+      top: 18.5%;
+      width: 15.5%;
+      height: 23.5%;
+      border-radius: 36px;
+      pointer-events: none;
+      z-index: 6;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .ng-tube-maze-stomach-glow.won {
+      opacity: 1;
+      box-shadow: 0 0 45px rgba(56, 189, 248, 0.85), 0 0 90px rgba(16, 185, 129, 0.6);
+      animation: stomachWinAura 1.4s infinite alternate ease-in-out;
+    }
+
+    @keyframes stomachWinAura {
+      0% { transform: scale(1); filter: brightness(1); }
+      100% { transform: scale(1.04); filter: brightness(1.2); }
+    }
+
+    /* Red Collision Bump Flash Overlay */
+    .ng-tube-maze-bump-flash {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 12;
+      background: rgba(239, 68, 68, 0);
+      transition: background 0.08s ease;
+    }
+
+    .ng-tube-maze-bump-flash.flash {
+      animation: mazeBumpFlashAnim 0.38s ease-out;
+    }
+
+    @keyframes mazeBumpFlashAnim {
+      0% { background: rgba(239, 68, 68, 0.38); }
+      100% { background: rgba(239, 68, 68, 0); }
+    }
+
+    /* Strike Warning Popup Overlay (Strikes 1-3) */
+    .ng-tube-maze-strike-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 22;
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      opacity: 0;
+      pointer-events: auto;
+      transition: opacity 0.2s ease;
+    }
+
+    .ng-tube-maze-strike-overlay.active {
+      opacity: 1;
+    }
+
+    .ng-tube-strike-card {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.96), rgba(15, 23, 42, 0.98));
+      border: 2px solid #ef4444;
+      border-radius: 24px;
+      padding: 24px 34px;
+      text-align: center;
+      color: #ffffff;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(239, 68, 68, 0.45);
+      transform: scale(0.85);
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .ng-tube-maze-strike-overlay.active .ng-tube-strike-card {
+      transform: scale(1);
+    }
+
+    .strike-popup-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(239, 68, 68, 0.2);
+      border: 1.5px solid rgba(239, 68, 68, 0.6);
+      padding: 8px 18px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+    }
+
+    .strike-popup-icon-svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      color: #fca5a5;
+    }
+
+    .strike-popup-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: #fca5a5;
+      letter-spacing: 0.5px;
+    }
+
+    .strike-popup-subtitle {
+      font-size: 15px;
+      font-weight: 600;
+      color: #cbd5e1;
+    }
+
+    /* Try Again Replay Modal Overlay */
+    .ng-tube-maze-try-again {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 25;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      animation: victoryFadeIn 0.35s ease-out;
+    }
+
+    .ng-tube-try-again-card {
+      background: linear-gradient(145deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98));
+      border: 2px solid rgba(245, 158, 11, 0.65);
+      border-radius: 28px;
+      padding: 30px 38px;
+      text-align: center;
+      color: #ffffff;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55), 0 0 35px rgba(245, 158, 11, 0.3);
+      max-width: 420px;
+      width: 90%;
+      transform: scale(0.95);
+      animation: victoryPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    .ng-tube-try-again-card .try-again-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: rgba(245, 158, 11, 0.18);
+      border: 2px solid rgba(245, 158, 11, 0.55);
+      margin: 0 auto 14px auto;
+      color: #fbbf24;
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.35);
+    }
+
+    .ng-tube-try-again-card .try-again-title {
+      font-size: 28px;
+      font-weight: 800;
+      color: #fbbf24;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+
+    .ng-tube-try-again-card .try-again-subtitle {
+      font-size: 16px;
+      font-weight: 500;
+      color: #cbd5e1;
+      margin-bottom: 24px;
+      line-height: 1.4;
+    }
+
+    .ng-tube-try-again-card .try-again-actions {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    /* Victory Card Overlay */
+    .ng-tube-maze-victory {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      animation: victoryFadeIn 0.35s ease-out;
+    }
+
+    .ng-tube-victory-card {
+      background: linear-gradient(145deg, rgba(30, 41, 59, 0.94), rgba(15, 23, 42, 0.96));
+      border: 2px solid rgba(56, 189, 248, 0.55);
+      border-radius: 28px;
+      padding: 30px 38px;
+      text-align: center;
+      color: #ffffff;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.5), 0 0 35px rgba(56, 189, 248, 0.35);
+      max-width: 420px;
+      width: 90%;
+      transform: scale(0.95);
+      animation: victoryPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes victoryPopIn {
+      to { transform: scale(1); }
+    }
+
+    @keyframes victoryFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .ng-tube-victory-card .victory-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: rgba(56, 189, 248, 0.18);
+      border: 2px solid rgba(56, 189, 248, 0.55);
+      margin: 0 auto 12px auto;
+      color: #38bdf8;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+      animation: victoryIconBounce 1s infinite alternate cubic-bezier(0.2, 0.9, 0.3, 1);
+    }
+
+    @keyframes victoryIconBounce {
+      from { transform: translateY(0); }
+      to { transform: translateY(-8px); }
+    }
+
+    .ng-tube-victory-card .victory-title {
+      font-size: 26px;
+      font-weight: 900;
+      color: #38bdf8;
+      margin-bottom: 6px;
+      font-family: inherit;
+    }
+
+    .ng-tube-victory-card .victory-subtitle {
+      font-size: 16px;
+      color: #cbd5e1;
+      margin-bottom: 22px;
+      line-height: 1.4;
+    }
+
+    .ng-tube-victory-card .victory-actions {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .ng-tube-choice-btn-secondary {
+      background: rgba(255, 255, 255, 0.16);
+      color: #ffffff;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .ng-tube-choice-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.28);
     }
 
     /* ========================================================= */
@@ -6171,7 +7063,7 @@
 
     @media (prefers-reduced-motion: reduce) {
       .games-bg-pattern-layer {
-        animation-duration: 160s;
+        animation-duration: 296s;
       }
     }
 
@@ -8765,6 +9657,33 @@
       pointer-events: auto !important;
     }
 
+    /* Nasogastric Tube (NG Tube) Procedure Overrides */
+    #screenNGTube {
+      background-color: #112529 !important;
+    }
+
+    #screenNGTube.active {
+      display: block !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      z-index: 10 !important;
+    }
+
+    #screenNGTube.active .ng-tube-content {
+      position: relative !important;
+      display: block !important;
+      width: 100% !important;
+      height: 100% !important;
+      overflow: hidden !important;
+    }
+
+    #screenNGTube.active .game-top-bar button,
+    #screenNGTube.active .ng-tube-top-prompt-bar,
+    #screenNGTube.active .ng-tube-stage-wrapper,
+    #screenNGTube.active .ng-tube-stage {
+      pointer-events: auto !important;
+    }
+
     .bottom-bar-tabs {
       display: flex !important;
       width: 100% !important;
@@ -9026,8 +9945,10 @@
                 <button class="game-top-btn-icon game-restart-btn" onclick="startMRIWelcomeSequence()" title="Replay Welcome" aria-label="Replay Welcome">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
                 </button>
-                <button class="header-icon-btn" onclick="goToHome()" title="Home" aria-label="Home" style="width: 32px; height: 32px; padding: 4px;">
-                  <img src="assets/Home.png" alt="Home" />
+                <button class="game-top-btn-icon" onclick="goToHome()" title="Home" aria-label="Home">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                  </svg>
                 </button>
               </div>
             </div>
@@ -9324,6 +10245,226 @@
               <div class="step-instruction-card">
                 <span class="step-instruction-dot confirm-pulse" id="mriPromptDot" aria-hidden="true"></span>
                 <span class="step-instruction-text" id="mriPromptText">Welcome to MRI! Lets find all the different parts of the MRI room together!</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- SCREEN 2C: NASOGASTRIC TUBE (NG TUBE) PROCEDURE           -->
+        <!-- ========================================================= -->
+        <div id="screenNGTube" class="app-screen">
+          <div class="ng-tube-content">
+            <!-- Top Navigation Header -->
+            <div class="mri-top-bar game-top-bar ng-tube-top-bar">
+              <button class="game-top-btn" onclick="goToPreparations()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                <span>Procedures</span>
+              </button>
+              <div class="game-top-actions">
+                <button class="game-top-btn-icon sound-toggle-btn" onclick="toggleSound()" title="Mute/Unmute Sound" aria-label="Toggle Sound">
+                  <svg class="sound-icon-on" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                  </svg>
+                  <svg class="sound-icon-off" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <line x1="23" y1="9" x2="17" y2="15"></line>
+                    <line x1="17" y1="9" x2="23" y2="15"></line>
+                  </svg>
+                </button>
+                <button class="game-top-btn-icon game-restart-btn" onclick="handleNGTubeRestartClick()" title="Restart Preparation" aria-label="Restart Preparation">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                </button>
+                <button class="game-top-btn-icon" onclick="goToHome()" title="Home" aria-label="Home">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Top Transparent Instruction & Prompt Bar (Placed at top for natural eye gaze, overlapping scene) -->
+            <div class="ng-tube-top-prompt-bar visible can-confirm" id="ngTubePromptBar" role="status" aria-live="polite" onclick="handleNGTubePromptBarTap()">
+              <div class="step-instruction-card">
+                <span class="step-instruction-dot confirm-pulse" id="ngTubePromptDot" aria-hidden="true"></span>
+                <span class="step-instruction-text" id="ngTubePromptText">We will now prepare our patient for an NG tube.</span>
+              </div>
+            </div>
+
+            <!-- NG Tube Stage Wrapper (1366:1024 Aspect Ratio, Scales Responsively) -->
+            <div class="ng-tube-stage-wrapper" id="ngTubeStageWrapper" onclick="handleNGTubeStageTap(event)">
+              <!-- Phase 1: Welcome & Relaxant Medicine Stage -->
+              <div class="ng-tube-stage" id="ngTubeStage" onclick="handleNGTubeStageTap(event)">
+                <!-- Layer 1: Welcome / BG Screen (Patient boy in bed) -->
+                <img id="ngTubeWelcomeBG" class="ng-tube-layer ng-tube-bg-layer" src="assets/NGTubeWelcomeBG.png" alt="Preparing for NG Tube" />
+
+                <!-- Layer 2: Draggable Syringe Item (Appears above the table with glowing aura) -->
+                <div id="ngTubeSyringeItem" class="ng-tube-syringe-item" style="display: none;" onpointerdown="startDragNGTubeSyringe(event)">
+                  <img src="assets/NGTubeVersedItem.png" alt="Relaxing Medicine Spray" draggable="false" />
+                </div>
+
+                <!-- Layer 3: Spray Mist Particles at Nose -->
+                <div id="ngTubeSprayMist" class="ng-tube-spray-mist" style="display: none;">
+                  <div class="spray-cloud sc1"></div>
+                  <div class="spray-cloud sc2"></div>
+                  <div class="spray-cloud sc3"></div>
+                  <div class="spray-particle sp1"></div>
+                  <div class="spray-particle sp2"></div>
+                  <div class="spray-particle sp3"></div>
+                  <div class="spray-particle sp4"></div>
+                  <div class="spray-particle sp5"></div>
+                </div>
+
+                <!-- Layer 4: Drinks PNG on Tabletop -->
+                <div id="ngTubeDrinksItem" class="ng-tube-drinks-item" style="display: none;">
+                  <img src="assets/NGTubeDrinks.png" alt="Drinks on table" draggable="false" />
+                </div>
+
+                <!-- Layer 5: Table Glowing Item (Table Transparent PNG glowing as a whole) -->
+                <div id="ngTubeTabletopHotspot" class="ng-tube-tabletop-hotspot" style="display: none;" onclick="handleNGTubeTabletopTap(event)" aria-label="Table">
+                  <img src="assets/NGTubeTableTransparent.png" alt="Bedside Table" draggable="false" />
+                </div>
+
+                <!-- Interactive Decision: Yes/No buttons pop up directly over the scene -->
+                <div id="ngTubeDecisionOverlay" class="ng-tube-decision-overlay" onclick="event.stopPropagation()">
+                  <div class="ng-tube-decision-buttons">
+                    <button id="ngTubeBtnYes" class="ng-tube-choice-btn ng-tube-btn-yes" onclick="handleNGTubeMedicineDecision(true)">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      <span>Yes</span>
+                    </button>
+                    <button id="ngTubeBtnNo" class="ng-tube-choice-btn ng-tube-btn-no" onclick="handleNGTubeMedicineDecision(false)">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                      <span>No</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Subtle tap hint banner for step 1 -->
+                <div id="ngTubeTapHint" class="ng-tube-tap-hint">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                  <span>Tap anywhere to continue</span>
+                </div>
+              </div>
+
+              <!-- Phase 2: NG Tube Maze Game Stage -->
+              <div class="ng-tube-stage ng-tube-maze-stage" id="ngTubeMazeStage" style="display: none;">
+                <!-- Maze Background with warm blush internal organ contours, walls and corridors -->
+                <svg class="ng-tube-maze-bg" viewBox="0 0 1366 1024" preserveAspectRatio="none">
+                  <defs>
+                    <radialGradient id="ngBgGrad" cx="65%" cy="45%" r="65%">
+                      <stop offset="0%" stop-color="#fff8f6"/>
+                      <stop offset="45%" stop-color="#fdeee9"/>
+                      <stop offset="85%" stop-color="#fce4de"/>
+                      <stop offset="100%" stop-color="#f9dbd3"/>
+                    </radialGradient>
+                  </defs>
+                  <rect width="1366" height="1024" fill="url(#ngBgGrad)"/>
+                  <path d="M120,160 Q340,70 600,110 T1050,160 Q1260,220 1280,580 T1080,920 Q740,990 400,930 T80,720 Z" fill="rgba(253, 186, 196, 0.22)"/>
+                  <path d="M280,240 Q500,160 820,180 T1180,420 Q1220,720 980,860 T420,840 Q180,720 220,460 Z" fill="rgba(254, 215, 218, 0.32)"/>
+                  <g fill="none" stroke="#1e293b" stroke-width="96" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M 160,405 C 190,405 220,415 250,420"/>
+                    <path d="M 250,420 C 240,320 200,230 270,200 C 340,170 390,260 330,330 C 275,395 240,430 330,460 C 400,485 440,370 480,280"/>
+                    <path d="M 480,280 C 520,190 600,135 690,145"/>
+                    <path d="M 690,145 C 770,150 840,180 890,240"/>
+                    <path d="M 690,145 C 750,220 740,360 700,480 C 660,590 640,660 620,730"/>
+                    <path d="M 250,420 C 210,500 200,620 210,740 C 220,860 310,915 430,895 C 510,880 560,810 530,720 C 490,630 405,660 435,760 C 455,825 550,820 620,730"/>
+                    <path d="M 620,730 C 660,820 740,905 860,895 C 970,885 1055,805 1065,675"/>
+                    <path d="M 1065,675 C 1075,550 990,450 905,475 C 825,500 835,625 915,645 C 990,660 1020,540 975,440"/>
+                    <path d="M 975,440 C 945,350 1040,310 1170,300"/>
+                  </g>
+                  <g fill="none" stroke="#ffffff" stroke-width="82" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M 160,405 C 190,405 220,415 250,420"/>
+                    <path d="M 250,420 C 240,320 200,230 270,200 C 340,170 390,260 330,330 C 275,395 240,430 330,460 C 400,485 440,370 480,280"/>
+                    <path d="M 480,280 C 520,190 600,135 690,145"/>
+                    <path d="M 690,145 C 770,150 840,180 890,240"/>
+                    <path d="M 690,145 C 750,220 740,360 700,480 C 660,590 640,660 620,730"/>
+                    <path d="M 250,420 C 210,500 200,620 210,740 C 220,860 310,915 430,895 C 510,880 560,810 530,720 C 490,630 405,660 435,760 C 455,825 550,820 620,730"/>
+                    <path d="M 620,730 C 660,820 740,905 860,895 C 970,885 1055,805 1065,675"/>
+                    <path d="M 1065,675 C 1075,550 990,450 905,475 C 825,500 835,625 915,645 C 990,660 1020,540 975,440"/>
+                    <path d="M 975,440 C 945,350 1040,310 1170,300"/>
+                  </g>
+                </svg>
+
+                <!-- Syringe on left and Stomach on right -->
+                <img class="ng-tube-maze-syringe" src="assets/NGTubeMazeSyringe.png" alt="Syringe" draggable="false" />
+                <img class="ng-tube-maze-stomach" src="assets/NGTubeMazeStomach.png" alt="Stomach" draggable="false" />
+
+                <!-- Canvas for drawing the feeding tube path -->
+                <canvas id="ngTubeMazeCanvas" width="1366" height="1024" class="ng-tube-maze-canvas"></canvas>
+
+                <!-- Confetti Canvas for Victory Celebration -->
+                <canvas id="ngTubeMazeConfettiCanvas" width="1366" height="1024" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 18;"></canvas>
+
+                <!-- Start Beacon Indicator at Syringe Outlet -->
+                <div id="ngTubeMazeStartBeacon" class="ng-tube-maze-beacon">
+                  <span class="beacon-pulse"></span>
+                  <span class="beacon-core"></span>
+                  <span class="beacon-tag">Start Here</span>
+                </div>
+
+                <!-- Stomach Glow Aura when tube reaches destination -->
+                <div id="ngTubeMazeStomachGlow" class="ng-tube-maze-stomach-glow"></div>
+
+                <!-- Red Collision Bump Flash Overlay -->
+                <div id="ngTubeMazeBumpFlash" class="ng-tube-maze-bump-flash"></div>
+
+                <!-- Strike Popup Overlay (Strikes 1-2: Dims/disables screen briefly) -->
+                <div id="ngTubeMazeStrikeOverlay" class="ng-tube-maze-strike-overlay" style="display: none;">
+                  <div class="ng-tube-strike-card" id="ngTubeStrikeCard">
+                    <div class="strike-popup-badge">
+                      <svg class="strike-popup-icon-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                      </svg>
+                      <span class="strike-popup-title" id="ngTubeStrikePopupTitle">Strike 1 of 3!</span>
+                    </div>
+                    <div class="strike-popup-subtitle" id="ngTubeStrikePopupSubtitle">Careful! Stay inside the path.</div>
+                  </div>
+                </div>
+
+                <!-- Try Again Replay Modal (Strike 3 of 3 Trigger) -->
+                <div id="ngTubeMazeTryAgainOverlay" class="ng-tube-maze-try-again" style="display: none;">
+                  <div class="ng-tube-try-again-card">
+                    <div class="try-again-icon">
+                      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                      </svg>
+                    </div>
+                    <div class="try-again-title" id="ngTubeTryAgainTitle">Strike 3 of 3!</div>
+                    <div class="try-again-subtitle" id="ngTubeTryAgainSubtitle">You touched the sides 3 times. Let's give it another shot!</div>
+                    <div class="try-again-actions">
+                      <button class="ng-tube-choice-btn ng-tube-btn-yes" onclick="restartNGTubeMaze()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                        <span>Try Again</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Victory Overlay Modal -->
+                <div id="ngTubeMazeVictoryOverlay" class="ng-tube-maze-victory" style="display: none;">
+                  <div class="ng-tube-victory-card">
+                    <div class="victory-icon">
+                      <svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                      </svg>
+                    </div>
+                    <div class="victory-title">Way to go!</div>
+                    <div class="victory-subtitle">The tube is safely in the stomach!</div>
+                    <div class="victory-actions">
+                      <button class="ng-tube-choice-btn ng-tube-btn-yes" onclick="restartNGTubeMaze()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                        <span>Play Again</span>
+                      </button>
+                      <button class="ng-tube-choice-btn ng-tube-choice-btn-secondary" onclick="goToPreparations()">
+                        <span>Done</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -10878,6 +12019,7 @@
       const screenSettings = document.getElementById('screenSettings');
       const screenAnatomy = document.getElementById('screenAnatomyExplorer');
       const screenMRI = document.getElementById('screenMRI');
+      const screenNGTube = document.getElementById('screenNGTube');
       const screenGames = document.getElementById('screenGames');
       const screenCLZPuzzle = document.getElementById('screenCLZPuzzle');
       const select = document.getElementById('screenSelect');
@@ -10891,6 +12033,7 @@
         else if (screenAbout && screenAbout.classList.contains('active')) previousScreen = 'about';
         else if (screenAnatomy && screenAnatomy.classList.contains('active')) previousScreen = 'anatomy-explorer';
         else if (screenMRI && screenMRI.classList.contains('active')) previousScreen = 'mri';
+        else if (screenNGTube && screenNGTube.classList.contains('active')) previousScreen = 'ng-tube';
         else if (screenGames && screenGames.classList.contains('active')) previousScreen = 'games';
         else if (screenCLZPuzzle && screenCLZPuzzle.classList.contains('active')) previousScreen = 'clz-puzzle';
         else previousScreen = 'home';
@@ -10905,6 +12048,7 @@
       if (screenSettings) screenSettings.classList.remove('active');
       if (screenAnatomy) screenAnatomy.classList.remove('active');
       if (screenMRI) screenMRI.classList.remove('active');
+      if (screenNGTube) screenNGTube.classList.remove('active');
       if (screenGames) screenGames.classList.remove('active');
       if (screenCLZPuzzle) screenCLZPuzzle.classList.remove('active');
       if (typeof stopPuzzleCelebration === 'function') stopPuzzleCelebration();
@@ -11030,10 +12174,33 @@
         if (select) select.value = 'mri';
         if (statusSpan) statusSpan.textContent = 'MRI Procedure Active • Welcome to the MRI Room';
         startMRIWelcomeSequence();
+      } else if (screenName === 'ng-tube') {
+        try {
+          clearAnatomyTimers();
+          clearIVIntroTimers();
+          clearMRITimers();
+          clearNGTubeTimers();
+          stopIVBackgroundMusic();
+          stopMaskBackgroundMusic();
+          resetMaskScene();
+          stopClothWipeSound(true);
+          stopClothWetWipeSound(true);
+          stopYouDidItSound(true);
+          if (typeof stopYouDidItChimeSound === 'function') stopYouDidItChimeSound(true);
+          if (typeof stopMaskConfetti === 'function') stopMaskConfetti();
+        } catch (err) {
+          console.warn('Cleanup warning:', err);
+        }
+        if (screenNGTube) screenNGTube.classList.add('active');
+        if (select) select.value = 'ng-tube';
+        if (statusSpan) statusSpan.textContent = 'Nasogastric Tube Active • Prepare patient for NG tube';
+        startNGTubeWelcomeSequence();
       } else {
         // Navigating away from games stops background music and audio
         clearAnatomyTimers();
         clearIVIntroTimers();
+        clearMRITimers();
+        clearNGTubeTimers();
         stopIVBackgroundMusic();
         stopMaskBackgroundMusic();
         resetMaskScene();
@@ -13850,7 +15017,7 @@
         puzzleConfettiAnimationId = null;
       }
       const canvas = document.getElementById('puzzleConfettiCanvas');
-      if (canvas) {
+      if (canvas && typeof canvas.getContext === 'function') {
         const ctx = canvas.getContext('2d');
         if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
       }
@@ -14117,7 +15284,7 @@
       if (blurOverlay) {
         blurOverlay.classList.remove('active');
       }
-      if (tray) {
+      if (tray && typeof tray.querySelectorAll === 'function') {
         tray.classList.remove('has-selection');
         tray.querySelectorAll('.floating-chapstick-item').forEach(item => {
           item.classList.remove('selected-chapstick');
@@ -14131,9 +15298,9 @@
         activeChapstick.style.opacity = '';
         activeChapstick.style.transition = '';
       }
-      if (canvas) {
+      if (canvas && typeof canvas.getContext === 'function') {
         const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
       }
 
       // Reset finishing transition & person scene
@@ -18607,6 +19774,29 @@
         }
       }
 
+      // Responsive NG Tube Stage Sizing (Strict 1366:1024 Aspect Ratio Containment)
+      const ngTubeWrapper = document.getElementById('ngTubeStageWrapper');
+      const ngStages = document.querySelectorAll('#screenNGTube .ng-tube-stage');
+      if (ngTubeWrapper && ngStages.length > 0) {
+        const wrapW = ngTubeWrapper.clientWidth;
+        const wrapH = ngTubeWrapper.clientHeight;
+        if (wrapW > 0 && wrapH > 0) {
+          const targetAspect = 1366 / 1024;
+          let stageW, stageH;
+          if (wrapW / wrapH > targetAspect) {
+            stageH = wrapH;
+            stageW = Math.round(stageH * targetAspect);
+          } else {
+            stageW = wrapW;
+            stageH = Math.round(stageW / targetAspect);
+          }
+          ngStages.forEach(st => {
+            st.style.width = stageW + 'px';
+            st.style.height = stageH + 'px';
+          });
+        }
+      }
+
       updateArrowStates();
     }
 
@@ -18701,8 +19891,1097 @@
         goToIVStart();
       } else if (name === 'MRI' || name === 'Magnetic Resonance Imaging' || name === 'Magnetic Resonance Imaging (MRI)') {
         goToMRI();
+      } else if (name === 'NG Tube' || name === 'Nasogastric Tube' || name === 'Nasogastric Tube (NG Tube)') {
+        goToNGTube();
       } else {
         openSheet(name);
+      }
+    }
+
+    // =========================================================
+    // NASOGASTRIC TUBE (NG TUBE) PROCEDURE
+    // =========================================================
+    let ngTubeIntroTimer = null;
+    let ngTubeCurrentStep = 'intro'; // 'intro', 'asking_medicine', 'drag_medicine', 'medicine_sprayed', 'decided_no'
+    let isDraggingNGTubeSyringe = false;
+    let isNGTubeMedicineDelivered = false;
+    const NG_TUBE_SYRINGE_DEF_LEFT = 15;
+    const NG_TUBE_SYRINGE_DEF_TOP = 55;
+    let ngTubeSyringeCurrentLeftPct = 15;
+    let ngTubeSyringeCurrentTopPct = 55;
+    let spraySound = null;
+
+    function playSpraySound() {
+      if (isSoundMuted) return;
+      try {
+        if (!spraySound) {
+          spraySound = new Audio('assets/Spray.mp3');
+          spraySound.preload = 'auto';
+          spraySound.volume = 0.95;
+        }
+        spraySound.currentTime = 0;
+        spraySound.play().catch(e => console.warn('Spray audio play blocked:', e));
+      } catch (e) {
+        console.warn('Spray audio error:', e);
+      }
+    }
+
+    let cupsSound = null;
+    function playCupsSound() {
+      if (isSoundMuted) return;
+      try {
+        if (!cupsSound) {
+          cupsSound = new Audio('assets/Cups.mp3');
+          cupsSound.preload = 'auto';
+          cupsSound.volume = 0.95;
+        }
+        cupsSound.currentTime = 0;
+        cupsSound.play().catch(e => console.warn('Cups audio play blocked:', e));
+      } catch (e) {
+        console.warn('Cups audio error:', e);
+      }
+    }
+
+    let ngTubeMazeTransitionTimer = null;
+    let ngMazeTouches = 0;
+    let isDrawingNGTube = false;
+    let ngTubeDrawnPoints = [];
+    let isNGMazeWon = false;
+    let lastNGMazeCollisionTime = 0;
+    let ngTubeCollisionCanvas = null;
+    let ngTubeCollisionCtx = null;
+    let ngTubeConfettiAnimationId = null;
+    let ngTubeEventsAttached = false;
+
+    function clearNGTubeTimers() {
+      if (ngTubeIntroTimer) {
+        clearTimeout(ngTubeIntroTimer);
+        ngTubeIntroTimer = null;
+      }
+      if (ngTubeMazeTransitionTimer) {
+        clearTimeout(ngTubeMazeTransitionTimer);
+        ngTubeMazeTransitionTimer = null;
+      }
+    }
+
+    function goToNGTube() {
+      switchScreen('ng-tube');
+      setTimeout(updateResponsiveLayout, 20);
+    }
+
+    function startNGTubeWelcomeSequence() {
+      clearNGTubeTimers();
+      stopNGTubeMazeConfetti();
+      ngTubeCurrentStep = 'intro';
+      isNGTubeMedicineDelivered = false;
+      isDraggingNGTubeSyringe = false;
+      isNGMazeWon = false;
+      isDrawingNGTube = false;
+      ngMazeTouches = 0;
+      ngTubeDrawnPoints = [];
+
+      const stage1 = document.getElementById('ngTubeStage');
+      const stage2 = document.getElementById('ngTubeMazeStage');
+      if (stage1) stage1.style.display = 'block';
+      if (stage2) stage2.style.display = 'none';
+
+      const promptText = document.getElementById('ngTubePromptText');
+      const promptBar = document.getElementById('ngTubePromptBar') || document.getElementById('ngTubeBottomPromptBar');
+      const decisionOverlay = document.getElementById('ngTubeDecisionOverlay');
+      const tapHint = document.getElementById('ngTubeTapHint');
+      const syringeEl = document.getElementById('ngTubeSyringeItem');
+      const mistEl = document.getElementById('ngTubeSprayMist');
+      const victoryOverlay = document.getElementById('ngTubeMazeVictoryOverlay');
+      const tryAgainOverlay = document.getElementById('ngTubeMazeTryAgainOverlay');
+      const stomachGlow = document.getElementById('ngTubeMazeStomachGlow');
+
+      hideNGTubeStrikePopup();
+      if (tryAgainOverlay) tryAgainOverlay.style.display = 'none';
+      if (victoryOverlay) victoryOverlay.style.display = 'none';
+      if (stomachGlow) stomachGlow.classList.remove('won');
+
+      const canvas = document.getElementById('ngTubeMazeCanvas');
+      if (canvas && typeof canvas.getContext === 'function') {
+        const ctx = canvas.getContext('2d');
+        if (ctx) ctx.clearRect(0, 0, 1366, 1024);
+      }
+
+      if (promptText) {
+        promptText.textContent = 'We will now prepare our patient for an NG tube.';
+      }
+      if (promptBar) {
+        promptBar.classList.remove('highlight-advance');
+        promptBar.classList.add('visible', 'can-confirm');
+      }
+      if (decisionOverlay) {
+        decisionOverlay.classList.remove('active');
+      }
+      if (tapHint) {
+        tapHint.style.display = 'flex';
+        tapHint.style.opacity = '1';
+      }
+      if (syringeEl) {
+        syringeEl.style.display = 'none';
+        syringeEl.classList.remove('dragging', 'snapped', 'spraying');
+        syringeEl.style.transition = '';
+        syringeEl.style.left = `${NG_TUBE_SYRINGE_DEF_LEFT}%`;
+        syringeEl.style.top = `${NG_TUBE_SYRINGE_DEF_TOP}%`;
+        ngTubeSyringeCurrentLeftPct = NG_TUBE_SYRINGE_DEF_LEFT;
+        ngTubeSyringeCurrentTopPct = NG_TUBE_SYRINGE_DEF_TOP;
+      }
+      if (mistEl) {
+        mistEl.classList.remove('active');
+        mistEl.style.display = 'none';
+      }
+      const drinksEl = document.getElementById('ngTubeDrinksItem');
+      if (drinksEl) {
+        drinksEl.style.display = 'none';
+        drinksEl.classList.remove('pop-in');
+      }
+      const hotspot = document.getElementById('ngTubeTabletopHotspot');
+      if (hotspot) hotspot.style.display = 'none';
+
+      if (typeof updateResponsiveLayout === 'function') {
+        updateResponsiveLayout();
+      }
+
+      // Automatically advance to asking the relaxant medicine question after short delay (~2.4s)
+      ngTubeIntroTimer = setTimeout(() => {
+        askNGTubeRelaxMedicine();
+      }, 2400);
+    }
+
+    function askNGTubeRelaxMedicine() {
+      clearNGTubeTimers();
+      if (ngTubeCurrentStep === 'asking_medicine' || ngTubeCurrentStep === 'drag_medicine' || ngTubeCurrentStep === 'medicine_sprayed' || ngTubeCurrentStep === 'decided_no' || ngTubeCurrentStep === 'maze' || ngTubeCurrentStep === 'maze_won') {
+        return;
+      }
+      ngTubeCurrentStep = 'asking_medicine';
+
+      const promptText = document.getElementById('ngTubePromptText');
+      const promptBar = document.getElementById('ngTubePromptBar') || document.getElementById('ngTubeBottomPromptBar');
+      const decisionOverlay = document.getElementById('ngTubeDecisionOverlay');
+      const tapHint = document.getElementById('ngTubeTapHint');
+
+      if (promptText) {
+        promptText.textContent = 'Would you like to give your patient medicine to help relax?';
+      }
+      if (promptBar) {
+        promptBar.classList.remove('highlight-advance');
+        void promptBar.offsetWidth;
+        promptBar.classList.add('highlight-advance');
+      }
+      if (tapHint) {
+        tapHint.style.opacity = '0';
+        setTimeout(() => {
+          if (tapHint) tapHint.style.display = 'none';
+        }, 300);
+      }
+      if (decisionOverlay) {
+        decisionOverlay.classList.add('active');
+      }
+      if (typeof playClothWipeSound === 'function') {
+        playClothWipeSound();
+      }
+    }
+
+    function handleNGTubeMedicineDecision(wantsMedicine) {
+      clearNGTubeTimers();
+      const promptText = document.getElementById('ngTubePromptText');
+      const promptBar = document.getElementById('ngTubePromptBar') || document.getElementById('ngTubeBottomPromptBar');
+      const decisionOverlay = document.getElementById('ngTubeDecisionOverlay');
+      const syringeEl = document.getElementById('ngTubeSyringeItem');
+
+      if (decisionOverlay) {
+        decisionOverlay.classList.remove('active');
+      }
+
+      if (wantsMedicine) {
+        ngTubeCurrentStep = 'drag_medicine';
+        isNGTubeMedicineDelivered = false;
+
+        if (syringeEl) {
+          syringeEl.style.display = 'block';
+          syringeEl.classList.remove('dragging', 'snapped', 'spraying');
+          syringeEl.style.left = `${NG_TUBE_SYRINGE_DEF_LEFT}%`;
+          syringeEl.style.top = `${NG_TUBE_SYRINGE_DEF_TOP}%`;
+          ngTubeSyringeCurrentLeftPct = NG_TUBE_SYRINGE_DEF_LEFT;
+          ngTubeSyringeCurrentTopPct = NG_TUBE_SYRINGE_DEF_TOP;
+        }
+
+        if (promptText) {
+          promptText.textContent = "Drag the medicine to the patient's nose.";
+        }
+        if (promptBar) {
+          promptBar.classList.remove('highlight-advance');
+          void promptBar.offsetWidth;
+          promptBar.classList.add('highlight-advance');
+        }
+        if (typeof playYouDidItChimeSound === 'function') {
+          playYouDidItChimeSound();
+        }
+      } else {
+        ngTubeCurrentStep = 'decided_no';
+        if (syringeEl) {
+          syringeEl.style.display = 'none';
+        }
+        if (promptText) {
+          promptText.textContent = 'Okay! We will prepare our patient without relaxation medicine.';
+        }
+        if (promptBar) {
+          promptBar.classList.remove('highlight-advance');
+          void promptBar.offsetWidth;
+          promptBar.classList.add('highlight-advance');
+        }
+        if (typeof playClothWipeSound === 'function') {
+          playClothWipeSound();
+        }
+
+        // Prompt user to tap tabletop for drinks after brief pause (1.2s)
+        ngTubeMazeTransitionTimer = setTimeout(() => {
+          promptForDrinkPreparation();
+        }, 1200);
+      }
+    }
+
+    function startDragNGTubeSyringe(e) {
+      if (isNGTubeMedicineDelivered) return;
+      e.preventDefault();
+      isDraggingNGTubeSyringe = true;
+
+      const stage = document.getElementById('ngTubeStage');
+      if (!stage) return;
+      const stageRect = stage.getBoundingClientRect();
+      const clientX = e.clientX ?? (e.touches && e.touches[0].clientX);
+      const clientY = e.clientY ?? (e.touches && e.touches[0].clientY);
+      const syringeEl = document.getElementById('ngTubeSyringeItem');
+      if (!syringeEl) return;
+
+      syringeEl.classList.add('dragging');
+      if (e.pointerId && syringeEl.setPointerCapture) {
+        try { syringeEl.setPointerCapture(e.pointerId); } catch (err) {}
+      }
+
+      const currentLeftPx = (ngTubeSyringeCurrentLeftPct / 100) * stageRect.width;
+      const currentTopPx = (ngTubeSyringeCurrentTopPct / 100) * stageRect.height;
+      const pointerOffsetLeft = (clientX - stageRect.left) - currentLeftPx;
+      const pointerOffsetTop = (clientY - stageRect.top) - currentTopPx;
+
+      function onPointerMove(moveEvent) {
+        if (!isDraggingNGTubeSyringe || isNGTubeMedicineDelivered) return;
+        const curX = moveEvent.clientX ?? (moveEvent.touches && moveEvent.touches[0].clientX);
+        const curY = moveEvent.clientY ?? (moveEvent.touches && moveEvent.touches[0].clientY);
+        const newLeftPx = (curX - stageRect.left) - pointerOffsetLeft;
+        const newTopPx = (curY - stageRect.top) - pointerOffsetTop;
+
+        ngTubeSyringeCurrentLeftPct = (newLeftPx / stageRect.width) * 100;
+        ngTubeSyringeCurrentTopPct = (newTopPx / stageRect.height) * 100;
+
+        syringeEl.style.left = `${ngTubeSyringeCurrentLeftPct}%`;
+        syringeEl.style.top = `${ngTubeSyringeCurrentTopPct}%`;
+
+        // Check distance from syringe nozzle tip to target nose
+        const tipX = ngTubeSyringeCurrentLeftPct + (18.8 * 0.95);
+        const tipY = ngTubeSyringeCurrentTopPct + (19.75 * 0.08);
+        const targetX = 78.0;
+        const targetY = 25.9;
+        const dist = Math.hypot(tipX - targetX, (tipY - targetY) * (1024 / 1366));
+
+        if (dist < 8.5) {
+          deliverNGTubeMedicineAtNose();
+          cleanupDrag();
+        }
+      }
+
+      function onPointerUp(upEvent) {
+        if (!isDraggingNGTubeSyringe) return;
+        cleanupDrag();
+        if (!isNGTubeMedicineDelivered) {
+          const tipX = ngTubeSyringeCurrentLeftPct + (18.8 * 0.95);
+          const tipY = ngTubeSyringeCurrentTopPct + (19.75 * 0.08);
+          const targetX = 78.0;
+          const targetY = 25.9;
+          const dist = Math.hypot(tipX - targetX, (tipY - targetY) * (1024 / 1366));
+
+          if (dist < 10.0) {
+            deliverNGTubeMedicineAtNose();
+          } else {
+            // Return to starting position with spring
+            ngTubeSyringeCurrentLeftPct = NG_TUBE_SYRINGE_DEF_LEFT;
+            ngTubeSyringeCurrentTopPct = NG_TUBE_SYRINGE_DEF_TOP;
+            syringeEl.style.transition = 'left 0.35s cubic-bezier(0.2, 0.9, 0.3, 1), top 0.35s cubic-bezier(0.2, 0.9, 0.3, 1)';
+            syringeEl.style.left = `${NG_TUBE_SYRINGE_DEF_LEFT}%`;
+            syringeEl.style.top = `${NG_TUBE_SYRINGE_DEF_TOP}%`;
+            setTimeout(() => {
+              if (syringeEl) syringeEl.style.transition = '';
+            }, 360);
+          }
+        }
+      }
+
+      function cleanupDrag() {
+        isDraggingNGTubeSyringe = false;
+        if (syringeEl) syringeEl.classList.remove('dragging');
+        window.removeEventListener('pointermove', onPointerMove);
+        window.removeEventListener('pointerup', onPointerUp);
+        window.removeEventListener('pointercancel', onPointerUp);
+      }
+
+      window.addEventListener('pointermove', onPointerMove);
+      window.addEventListener('pointerup', onPointerUp);
+      window.addEventListener('pointercancel', onPointerUp);
+    }
+
+    function deliverNGTubeMedicineAtNose() {
+      if (isNGTubeMedicineDelivered) return;
+      isNGTubeMedicineDelivered = true;
+      ngTubeCurrentStep = 'medicine_sprayed';
+
+      const syringeEl = document.getElementById('ngTubeSyringeItem');
+      const mistEl = document.getElementById('ngTubeSprayMist');
+      const promptText = document.getElementById('ngTubePromptText');
+      const promptBar = document.getElementById('ngTubePromptBar');
+
+      // Snapped position: tip lands right at patient's nose
+      const snappedLeft = 78.0 - (18.8 * 0.95);
+      const snappedTop = 25.9 - (19.75 * 0.08);
+
+      if (syringeEl) {
+        syringeEl.classList.remove('dragging');
+        syringeEl.classList.add('snapped');
+        syringeEl.style.transition = 'left 0.22s ease-out, top 0.22s ease-out';
+        syringeEl.style.left = `${snappedLeft}%`;
+        syringeEl.style.top = `${snappedTop}%`;
+        ngTubeSyringeCurrentLeftPct = snappedLeft;
+        ngTubeSyringeCurrentTopPct = snappedTop;
+        syringeEl.classList.add('spraying');
+      }
+
+      // Play Spray.mp3!
+      playSpraySound();
+
+      // Trigger animated mist burst at nose
+      if (mistEl) {
+        mistEl.style.display = 'block';
+        mistEl.classList.add('active');
+      }
+
+      // Remove the medicine item after spray animation is complete (approx 0.9s)
+      setTimeout(() => {
+        if (syringeEl) {
+          syringeEl.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+          syringeEl.style.opacity = '0';
+          syringeEl.style.transform = 'scale(0.8)';
+          setTimeout(() => {
+            if (syringeEl) {
+              syringeEl.style.display = 'none';
+              syringeEl.style.opacity = '';
+              syringeEl.style.transform = '';
+              syringeEl.classList.remove('spraying', 'snapped');
+            }
+          }, 360);
+        }
+        if (mistEl) {
+          mistEl.classList.remove('active');
+          mistEl.style.display = 'none';
+        }
+      }, 950);
+
+      // Update prompt
+      if (promptText) {
+        promptText.textContent = 'Great job! The medicine helps relax your patient.';
+      }
+      if (promptBar) {
+        promptBar.classList.remove('highlight-advance');
+        void promptBar.offsetWidth;
+        promptBar.classList.add('highlight-advance');
+      }
+
+      if (navigator.vibrate) {
+        try { navigator.vibrate([40, 60, 80]); } catch (e) {}
+      }
+
+      // Prompt user to tap tabletop for drinks after brief delay (1.2s)
+      ngTubeMazeTransitionTimer = setTimeout(() => {
+        promptForDrinkPreparation();
+      }, 1200);
+    }
+
+    function promptForDrinkPreparation() {
+      clearNGTubeTimers();
+      ngTubeCurrentStep = 'waiting_drink_tap';
+
+      const promptText = document.getElementById('ngTubePromptText');
+      const promptBar = document.getElementById('ngTubePromptBar') || document.getElementById('ngTubeBottomPromptBar');
+      if (promptText) {
+        promptText.textContent = 'Tap the tabletop to get a drink ready to help with the NG tube.';
+      }
+      if (promptBar) {
+        promptBar.classList.remove('highlight-advance');
+        void promptBar.offsetWidth;
+        promptBar.classList.add('highlight-advance');
+      }
+
+      const hotspot = document.getElementById('ngTubeTabletopHotspot');
+      if (hotspot) hotspot.style.display = 'block';
+    }
+
+    function handleNGTubeTabletopTap(event) {
+      if (event) event.stopPropagation();
+      if (ngTubeCurrentStep !== 'waiting_drink_tap') return;
+      ngTubeCurrentStep = 'drinks_ready';
+
+      clearNGTubeTimers();
+
+      const hotspot = document.getElementById('ngTubeTabletopHotspot');
+      if (hotspot) hotspot.style.display = 'none';
+
+      // Show Drinks item with pop-in animation
+      const drinksEl = document.getElementById('ngTubeDrinksItem');
+      if (drinksEl) {
+        drinksEl.style.display = 'block';
+        drinksEl.classList.remove('pop-in');
+        void drinksEl.offsetWidth;
+        drinksEl.classList.add('pop-in');
+      }
+
+      // Play Cups.mp3
+      playCupsSound();
+
+      if (navigator.vibrate) {
+        try { navigator.vibrate([30, 50, 40]); } catch (e) {}
+      }
+
+      const promptText = document.getElementById('ngTubePromptText');
+      const promptBar = document.getElementById('ngTubePromptBar') || document.getElementById('ngTubeBottomPromptBar');
+      if (promptText) {
+        promptText.textContent = 'Great! Having a drink ready helps with swallowing during the NG tube.';
+      }
+      if (promptBar) {
+        promptBar.classList.remove('highlight-advance');
+        void promptBar.offsetWidth;
+        promptBar.classList.add('highlight-advance');
+      }
+
+      // Automatically advance to Maze game after 2.5s
+      ngTubeMazeTransitionTimer = setTimeout(() => {
+        transitionToNGTubeMaze();
+      }, 2500);
+    }
+
+    function handleNGTubeStageTap(event) {
+      if (ngTubeCurrentStep === 'intro') {
+        askNGTubeRelaxMedicine();
+      } else if (ngTubeCurrentStep === 'waiting_drink_tap') {
+        handleNGTubeTabletopTap(event);
+      } else if (ngTubeCurrentStep === 'drinks_ready') {
+        transitionToNGTubeMaze();
+      }
+    }
+
+    function handleNGTubePromptBarTap() {
+      if (ngTubeCurrentStep === 'intro') {
+        askNGTubeRelaxMedicine();
+      } else if (ngTubeCurrentStep === 'waiting_drink_tap') {
+        handleNGTubeTabletopTap();
+      } else if (ngTubeCurrentStep === 'drinks_ready') {
+        transitionToNGTubeMaze();
+      }
+    }
+
+    function handleNGTubeRestartClick() {
+      if (ngTubeCurrentStep === 'maze' || ngTubeCurrentStep === 'maze_won') {
+        restartNGTubeMaze();
+      } else {
+        startNGTubeWelcomeSequence();
+      }
+    }
+
+    // =========================================================
+    // NG TUBE MAZE GAME LOGIC & COLLISION DETECTION
+    // =========================================================
+    const NG_MAZE_CORRIDOR_PATHS = [
+      "M 160,405 C 190,405 220,415 250,420",
+      "M 250,420 C 240,320 200,230 270,200 C 340,170 390,260 330,330 C 275,395 240,430 330,460 C 400,485 440,370 480,280",
+      "M 480,280 C 520,190 600,135 690,145",
+      "M 690,145 C 770,150 840,180 890,240",
+      "M 690,145 C 750,220 740,360 700,480 C 660,590 640,660 620,730",
+      "M 250,420 C 210,500 200,620 210,740 C 220,860 310,915 430,895 C 510,880 560,810 530,720 C 490,630 405,660 435,760 C 455,825 550,820 620,730",
+      "M 620,730 C 660,820 740,905 860,895 C 970,885 1055,805 1065,675",
+      "M 1065,675 C 1075,550 990,450 905,475 C 825,500 835,625 915,645 C 990,660 1020,540 975,440",
+      "M 975,440 C 945,350 1040,310 1170,300"
+    ];
+
+    function initNGTubeCollisionMask() {
+      if (ngTubeCollisionCanvas) return;
+      ngTubeCollisionCanvas = document.createElement('canvas');
+      ngTubeCollisionCanvas.width = 1366;
+      ngTubeCollisionCanvas.height = 1024;
+      ngTubeCollisionCtx = ngTubeCollisionCanvas.getContext('2d', { willReadFrequently: true });
+
+      // 1. Fill canvas with RED (Walls / Exterior)
+      ngTubeCollisionCtx.fillStyle = '#ff0000';
+      ngTubeCollisionCtx.fillRect(0, 0, 1366, 1024);
+
+      // 2. Corridors with GREEN (Safe corridor: width 76px within 82px corridor gives 3px finger margin)
+      ngTubeCollisionCtx.strokeStyle = '#00ff00';
+      ngTubeCollisionCtx.lineWidth = 76;
+      ngTubeCollisionCtx.lineCap = 'round';
+      ngTubeCollisionCtx.lineJoin = 'round';
+
+      for (const p of NG_MAZE_CORRIDOR_PATHS) {
+        ngTubeCollisionCtx.stroke(new Path2D(p));
+      }
+
+      // 3. Syringe start circle (Green, safe start zone)
+      ngTubeCollisionCtx.fillStyle = '#00ff00';
+      ngTubeCollisionCtx.beginPath();
+      ngTubeCollisionCtx.arc(160, 405, 55, 0, Math.PI * 2);
+      ngTubeCollisionCtx.fill();
+
+      // 4. Stomach target circle (Blue = target win)
+      ngTubeCollisionCtx.fillStyle = '#0000ff';
+      ngTubeCollisionCtx.beginPath();
+      ngTubeCollisionCtx.arc(1170, 300, 68, 0, Math.PI * 2);
+      ngTubeCollisionCtx.fill();
+    }
+
+    function checkNGMazePoint(x, y) {
+      if (!ngTubeCollisionCtx) initNGTubeCollisionMask();
+      const clampedX = Math.max(0, Math.min(1365, Math.floor(x)));
+      const clampedY = Math.max(0, Math.min(1023, Math.floor(y)));
+
+      // Direct geometric win check for stomach entrance
+      if (Math.hypot(clampedX - 1170, clampedY - 300) <= 65) {
+        return 'win';
+      }
+
+      const pixel = ngTubeCollisionCtx.getImageData(clampedX, clampedY, 1, 1).data;
+      if (pixel[2] > 180) {
+        return 'win';
+      }
+      if (pixel[0] > 150 && pixel[1] < 100) {
+        return 'wall';
+      }
+      return 'safe';
+    }
+
+    function transitionToNGTubeMaze() {
+      clearNGTubeTimers();
+      if (ngTubeCurrentStep === 'maze' || ngTubeCurrentStep === 'maze_won') return;
+      ngTubeCurrentStep = 'maze';
+      isDrawingNGTube = false;
+      isNGMazeWon = false;
+      ngMazeTouches = 0;
+      ngTubeDrawnPoints = [];
+      lastNGMazeCollisionTime = 0;
+
+      const stage1 = document.getElementById('ngTubeStage');
+      const stage2 = document.getElementById('ngTubeMazeStage');
+      if (stage1) stage1.style.display = 'none';
+      if (stage2) {
+        if (stage1 && stage1.style.width && stage1.style.height) {
+          stage2.style.width = stage1.style.width;
+          stage2.style.height = stage1.style.height;
+        }
+        stage2.style.display = 'block';
+      }
+      updateResponsiveLayout();
+
+      initNGTubeCollisionMask();
+      setupNGTubeCanvasEvents();
+
+      const beaconEl = document.getElementById('ngTubeMazeStartBeacon');
+      if (beaconEl) {
+        beaconEl.style.display = 'flex';
+        beaconEl.style.opacity = '1';
+      }
+
+      hideNGTubeStrikePopup();
+      const tryAgainOverlay = document.getElementById('ngTubeMazeTryAgainOverlay');
+      if (tryAgainOverlay) tryAgainOverlay.style.display = 'none';
+
+      const victoryOverlay = document.getElementById('ngTubeMazeVictoryOverlay');
+      if (victoryOverlay) victoryOverlay.style.display = 'none';
+
+      const stomachGlow = document.getElementById('ngTubeMazeStomachGlow');
+      if (stomachGlow) stomachGlow.classList.remove('won');
+
+      const promptText = document.getElementById('ngTubePromptText');
+      const promptBar = document.getElementById('ngTubePromptBar');
+      if (promptText) {
+        promptText.textContent = "Guide the tube from the syringe to the stomach!";
+      }
+      if (promptBar) {
+        promptBar.classList.remove('highlight-advance');
+        void promptBar.offsetWidth;
+        promptBar.classList.add('highlight-advance');
+      }
+
+      const canvas = document.getElementById('ngTubeMazeCanvas');
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, 1366, 1024);
+      }
+    }
+
+    function setupNGTubeCanvasEvents() {
+      const canvas = document.getElementById('ngTubeMazeCanvas');
+      if (!canvas || ngTubeEventsAttached) return;
+      ngTubeEventsAttached = true;
+
+      canvas.addEventListener('pointerdown', onNGMazePointerDown);
+      window.addEventListener('pointermove', onNGMazePointerMove);
+      window.addEventListener('pointerup', onNGMazePointerUp);
+      window.addEventListener('pointercancel', onNGMazePointerUp);
+    }
+
+    function isNGMazeInteractingBlocked() {
+      if (ngMazeTouches >= 3) return true;
+      const strikeOverlay = document.getElementById('ngTubeMazeStrikeOverlay');
+      if (strikeOverlay && (strikeOverlay.classList.contains('active') || strikeOverlay.style.display === 'flex')) {
+        return true;
+      }
+      const tryAgainOverlay = document.getElementById('ngTubeMazeTryAgainOverlay');
+      if (tryAgainOverlay && tryAgainOverlay.style.display === 'flex') {
+        return true;
+      }
+      return false;
+    }
+
+    function onNGMazePointerDown(e) {
+      if (ngTubeCurrentStep !== 'maze' || isNGMazeWon || isNGMazeInteractingBlocked()) return;
+      const canvas = document.getElementById('ngTubeMazeCanvas');
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      if (!rect || rect.width <= 0 || rect.height <= 0) return;
+      const scaleX = 1366 / rect.width;
+      const scaleY = 1024 / rect.height;
+      const x = (e.clientX - rect.left) * scaleX;
+      const y = (e.clientY - rect.top) * scaleY;
+
+      // Start area at syringe outlet (160, 405)
+      const distToStart = Math.hypot(x - 160, y - 405);
+      const isNearStart = distToStart < 95 || (x <= 220 && Math.abs(y - 405) <= 100);
+
+      // Or near the last point if child lifted finger and wants to continue
+      let isNearTip = false;
+      if (ngTubeDrawnPoints.length > 0) {
+        const lastPt = ngTubeDrawnPoints[ngTubeDrawnPoints.length - 1];
+        isNearTip = Math.hypot(x - lastPt.x, y - lastPt.y) < 70;
+      }
+
+      if (isNearStart || isNearTip) {
+        isDrawingNGTube = true;
+        try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+        const beaconEl = document.getElementById('ngTubeMazeStartBeacon');
+        if (beaconEl) beaconEl.style.opacity = '0';
+
+        if (isNearStart && (!isNearTip || ngTubeDrawnPoints.length === 0)) {
+          ngTubeDrawnPoints = [{ x: 160, y: 405 }];
+        }
+        ngTubeDrawnPoints.push({ x, y });
+        renderNGTubeCanvas();
+      }
+    }
+
+    function onNGMazePointerMove(e) {
+      if (!isDrawingNGTube || ngTubeCurrentStep !== 'maze' || isNGMazeWon || isNGMazeInteractingBlocked()) return;
+      const canvas = document.getElementById('ngTubeMazeCanvas');
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      if (!rect || rect.width <= 0 || rect.height <= 0) return;
+      const scaleX = 1366 / rect.width;
+      const scaleY = 1024 / rect.height;
+      const currX = Math.max(0, Math.min(1366, (e.clientX - rect.left) * scaleX));
+      const currY = Math.max(0, Math.min(1024, (e.clientY - rect.top) * scaleY));
+
+      const lastPt = ngTubeDrawnPoints[ngTubeDrawnPoints.length - 1];
+      const dist = Math.hypot(currX - lastPt.x, currY - lastPt.y);
+      if (dist < 4) return;
+
+      const steps = Math.max(1, Math.ceil(dist / 4));
+      for (let i = 1; i <= steps; i++) {
+        const interpX = lastPt.x + (currX - lastPt.x) * (i / steps);
+        const interpY = lastPt.y + (currY - lastPt.y) * (i / steps);
+
+        const check = checkNGMazePoint(interpX, interpY);
+        if (check === 'win') {
+          completeNGTubeMaze();
+          return;
+        } else if (check === 'wall') {
+          handleNGMazeCollision(interpX, interpY);
+          if (ngMazeTouches >= 3) {
+            return;
+          }
+        }
+      }
+
+      ngTubeDrawnPoints.push({ x: currX, y: currY });
+      renderNGTubeCanvas();
+    }
+
+    function onNGMazePointerUp(e) {
+      if (!isDrawingNGTube) return;
+      isDrawingNGTube = false;
+      if (!isNGMazeWon && ngTubeDrawnPoints.length <= 1) {
+        const beaconEl = document.getElementById('ngTubeMazeStartBeacon');
+        if (beaconEl) beaconEl.style.opacity = '1';
+      }
+    }
+
+    function renderNGTubeCanvas() {
+      const canvas = document.getElementById('ngTubeMazeCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, 1366, 1024);
+
+      if (ngTubeDrawnPoints.length < 2) return;
+
+      // 1. Outer tube wall (medical cyan/blue matching syringe #257593)
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = '#257593';
+      ctx.lineWidth = 22;
+      ctx.beginPath();
+      ctx.moveTo(ngTubeDrawnPoints[0].x, ngTubeDrawnPoints[0].y);
+      for (let i = 1; i < ngTubeDrawnPoints.length; i++) {
+        ctx.lineTo(ngTubeDrawnPoints[i].x, ngTubeDrawnPoints[i].y);
+      }
+      ctx.stroke();
+
+      // 2. Translucent medical fluid core (#5ebad6)
+      ctx.strokeStyle = '#5ebad6';
+      ctx.lineWidth = 14;
+      ctx.stroke();
+
+      // 3. Highlight reflection along center (#dff4fb)
+      ctx.strokeStyle = '#dff4fb';
+      ctx.lineWidth = 4;
+      ctx.stroke();
+
+      // 4. Rounded cap at current tip
+      const lastPt = ngTubeDrawnPoints[ngTubeDrawnPoints.length - 1];
+      ctx.fillStyle = '#38bdf8';
+      ctx.beginPath();
+      ctx.arc(lastPt.x, lastPt.y, 11, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(lastPt.x - 2, lastPt.y - 2, 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    let ngMazeStrikeTimeout = null;
+
+    function handleNGMazeCollision(x, y) {
+      const now = Date.now();
+      if (now - lastNGMazeCollisionTime < 500) return; // debounce
+      lastNGMazeCollisionTime = now;
+
+      ngMazeTouches++;
+      isDrawingNGTube = false;
+
+      // Red collision flash overlay
+      const flashEl = document.getElementById('ngTubeMazeBumpFlash');
+      if (flashEl) {
+        flashEl.classList.remove('flash');
+        void flashEl.offsetWidth;
+        flashEl.classList.add('flash');
+      }
+
+      // Audio bump feedback
+      playBumpWallSound();
+
+      if (navigator.vibrate) {
+        try { navigator.vibrate(60); } catch (e) {}
+      }
+
+      // Prune last few points of drawn path so tip is pulled back away from wall
+      if (ngTubeDrawnPoints.length > 2) {
+        ngTubeDrawnPoints.splice(Math.max(1, ngTubeDrawnPoints.length - 3));
+        renderNGTubeCanvas();
+      }
+
+      if (ngMazeTouches >= 3) {
+        // 3rd touch is 3/3: Prompt Try Again to replay!
+        hideNGTubeStrikePopup();
+        showNGTubeTryAgainModal();
+      } else {
+        // Touches 1, 2: Pop up "Strike X of 3!" and briefly disable/dim the screen
+        showNGTubeStrikePopup(ngMazeTouches);
+      }
+    }
+
+    function showNGTubeStrikePopup(strikeNum) {
+      const overlay = document.getElementById('ngTubeMazeStrikeOverlay');
+      const title = document.getElementById('ngTubeStrikePopupTitle');
+      const subtitle = document.getElementById('ngTubeStrikePopupSubtitle');
+      if (!overlay || !title) return;
+
+      title.textContent = "Strike " + strikeNum + " of 3!";
+      if (subtitle) {
+        if (strikeNum === 1) {
+          subtitle.textContent = "Careful! Stay inside the path.";
+        } else {
+          subtitle.textContent = "Watch out! One more touch will restart.";
+        }
+      }
+
+      if (ngMazeStrikeTimeout) {
+        clearTimeout(ngMazeStrikeTimeout);
+        ngMazeStrikeTimeout = null;
+      }
+
+      overlay.style.display = 'flex';
+      void overlay.offsetWidth;
+      overlay.classList.add('active');
+
+      ngMazeStrikeTimeout = setTimeout(() => {
+        hideNGTubeStrikePopup();
+      }, 1200);
+    }
+
+    function hideNGTubeStrikePopup() {
+      if (ngMazeStrikeTimeout) {
+        clearTimeout(ngMazeStrikeTimeout);
+        ngMazeStrikeTimeout = null;
+      }
+      const overlay = document.getElementById('ngTubeMazeStrikeOverlay');
+      if (overlay) {
+        overlay.classList.remove('active');
+        setTimeout(() => {
+          if (!overlay.classList.contains('active')) {
+            overlay.style.display = 'none';
+          }
+        }, 220);
+      }
+    }
+
+    function showNGTubeTryAgainModal() {
+      const overlay = document.getElementById('ngTubeMazeTryAgainOverlay');
+      if (overlay) {
+        overlay.style.display = 'flex';
+      }
+      const promptText = document.getElementById('ngTubePromptText');
+      const promptBar = document.getElementById('ngTubePromptBar');
+      if (promptText) {
+        promptText.textContent = "Strike 3 of 3! Tap Try Again to replay.";
+      }
+      if (promptBar) {
+        promptBar.classList.remove('highlight-advance');
+        void promptBar.offsetWidth;
+        promptBar.classList.add('highlight-advance');
+      }
+    }
+
+    function playBumpWallSound() {
+      if (isSoundMuted) return;
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) {
+          const ctx = window._sharedAudioCtx || new AudioCtx();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(180, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(70, ctx.currentTime + 0.22);
+          gain.gain.setValueAtTime(0.35, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.22);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.25);
+          return;
+        }
+      } catch (e) {}
+      if (typeof playGameSfx === 'function') {
+        playGameSfx('rubberBand', 0.6);
+      }
+    }
+
+    function completeNGTubeMaze() {
+      if (isNGMazeWon) return;
+      isNGMazeWon = true;
+      isDrawingNGTube = false;
+      ngTubeCurrentStep = 'maze_won';
+
+      // Snap final point to stomach entrance (1170, 300)
+      ngTubeDrawnPoints.push({ x: 1170, y: 300 });
+      renderNGTubeCanvas();
+
+      // Hide start beacon
+      const beaconEl = document.getElementById('ngTubeMazeStartBeacon');
+      if (beaconEl) beaconEl.style.display = 'none';
+
+      // Stomach glow aura
+      const stomachGlow = document.getElementById('ngTubeMazeStomachGlow');
+      if (stomachGlow) stomachGlow.classList.add('won');
+
+      // Hide strike popup if visible
+      hideNGTubeStrikePopup();
+
+      // Fanfare & celebration chime
+      if (typeof playYouDidItSound === 'function') {
+        playYouDidItSound();
+      } else if (typeof playYouDidItChimeSound === 'function') {
+        playYouDidItChimeSound();
+      }
+
+      const promptText = document.getElementById('ngTubePromptText');
+      const promptBar = document.getElementById('ngTubePromptBar');
+      if (promptText) {
+        promptText.textContent = "You guided the tube all the way to the stomach! Fantastic job!";
+      }
+      if (promptBar) {
+        promptBar.classList.remove('highlight-advance');
+        void promptBar.offsetWidth;
+        promptBar.classList.add('highlight-advance');
+      }
+
+      // Confetti burst
+      startNGTubeMazeConfetti();
+
+      // Show victory modal
+      setTimeout(() => {
+        const victoryOverlay = document.getElementById('ngTubeMazeVictoryOverlay');
+        if (victoryOverlay) victoryOverlay.style.display = 'flex';
+      }, 1200);
+    }
+
+    function restartNGTubeMaze() {
+      isNGMazeWon = false;
+      isDrawingNGTube = false;
+      ngMazeTouches = 0;
+      ngTubeDrawnPoints = [];
+      lastNGMazeCollisionTime = 0;
+      ngTubeCurrentStep = 'maze';
+
+      stopNGTubeMazeConfetti();
+
+      const victoryOverlay = document.getElementById('ngTubeMazeVictoryOverlay');
+      if (victoryOverlay) victoryOverlay.style.display = 'none';
+
+      const tryAgainOverlay = document.getElementById('ngTubeMazeTryAgainOverlay');
+      if (tryAgainOverlay) tryAgainOverlay.style.display = 'none';
+
+      hideNGTubeStrikePopup();
+
+      const stomachGlow = document.getElementById('ngTubeMazeStomachGlow');
+      if (stomachGlow) stomachGlow.classList.remove('won');
+
+      const beaconEl = document.getElementById('ngTubeMazeStartBeacon');
+      if (beaconEl) {
+        beaconEl.style.display = 'flex';
+        beaconEl.style.opacity = '1';
+      }
+
+      const canvas = document.getElementById('ngTubeMazeCanvas');
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, 1366, 1024);
+      }
+
+      const promptText = document.getElementById('ngTubePromptText');
+      const promptBar = document.getElementById('ngTubePromptBar');
+      if (promptText) {
+        promptText.textContent = "Guide the tube from the syringe to the stomach!";
+      }
+      if (promptBar) {
+        promptBar.classList.remove('highlight-advance');
+        void promptBar.offsetWidth;
+        promptBar.classList.add('highlight-advance');
+      }
+    }
+
+    function startNGTubeMazeConfetti() {
+      const canvas = document.getElementById('ngTubeMazeConfettiCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = 1366;
+      const h = 1024;
+      canvas.width = w;
+      canvas.height = h;
+
+      const particles = [];
+      const particleCount = 100;
+      for (let i = 0; i < particleCount; i++) {
+        const isBurst = i < 50;
+        const angle = isBurst ? Math.random() * Math.PI * 2 : 0;
+        const speed = isBurst ? Math.random() * 14 + 5 : 0;
+        particles.push({
+          x: isBurst ? 1170 + (Math.random() - 0.5) * 160 : Math.random() * w,
+          y: isBurst ? 300 + (Math.random() - 0.5) * 160 : Math.random() * -h,
+          w: Math.random() * 12 + 10,
+          h: Math.random() * 20 + 12,
+          color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+          rotation: Math.random() * 360,
+          rotationSpeed: (Math.random() - 0.5) * 8,
+          vx: isBurst ? Math.cos(angle) * speed : (Math.random() - 0.5) * 2.5,
+          vy: isBurst ? Math.sin(angle) * speed - 2.5 : Math.random() * 3.2 + 2.5,
+          gravity: 0.18,
+          drag: isBurst ? 0.94 : 0.99,
+          wobble: Math.random() * Math.PI * 2,
+          wobbleSpeed: Math.random() * 0.09 + 0.03,
+          isCircle: Math.random() > 0.78
+        });
+      }
+
+      function render() {
+        ctx.clearRect(0, 0, w, h);
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          p.vx *= p.drag;
+          p.vy = p.vy * p.drag + p.gravity;
+          p.x += p.vx + Math.sin(p.wobble) * 2;
+          p.y += p.vy;
+          p.rotation += p.rotationSpeed;
+          p.wobble += p.wobbleSpeed;
+
+          if (p.y > h + 40) {
+            p.y = -30;
+            p.x = Math.random() * w;
+            p.vy = Math.random() * 3.2 + 2.5;
+            p.vx = (Math.random() - 0.5) * 2.5;
+            p.drag = 0.99;
+          }
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rotation * Math.PI) / 180);
+          ctx.scale(Math.cos(p.wobble), 1);
+          ctx.fillStyle = p.color;
+          if (p.isCircle) {
+            ctx.beginPath();
+            ctx.arc(0, 0, p.w / 2, 0, Math.PI * 2);
+            ctx.fill();
+          } else {
+            ctx.beginPath();
+            if (ctx.roundRect) {
+              ctx.roundRect(-p.w / 2, -p.h / 2, p.w, p.h, 3);
+            } else {
+              ctx.rect(-p.w / 2, -p.h / 2, p.w, p.h);
+            }
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+        ngTubeConfettiAnimationId = requestAnimationFrame(render);
+      }
+
+      if (ngTubeConfettiAnimationId) cancelAnimationFrame(ngTubeConfettiAnimationId);
+      ngTubeConfettiAnimationId = requestAnimationFrame(render);
+    }
+
+    function stopNGTubeMazeConfetti() {
+      if (ngTubeConfettiAnimationId) {
+        cancelAnimationFrame(ngTubeConfettiAnimationId);
+        ngTubeConfettiAnimationId = null;
+      }
+      const canvas = document.getElementById('ngTubeMazeConfettiCanvas');
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
       }
     }
 
@@ -18819,8 +21098,8 @@
       }
       const vWO = document.getElementById('mriVideoWOContrast');
       const vC = document.getElementById('mriVideoContrast');
-      if (vWO) vWO.pause();
-      if (vC) vC.pause();
+      if (vWO && typeof vWO.pause === 'function') vWO.pause();
+      if (vC && typeof vC.pause === 'function') vC.pause();
       const stillPromptBar = document.getElementById('mriBottomPromptBar');
       if (stillPromptBar) {
         stillPromptBar.classList.remove('still-move-mode', 'still-warning-mode', 'still-freeze-mode', 'still-success-mode');
@@ -18828,7 +21107,7 @@
       const stageStillBtn = document.getElementById('mriStageStillGameBtn');
       if (stageStillBtn) stageStillBtn.style.display = 'none';
       const stillVideo = document.getElementById('mriStillVideo');
-      if (stillVideo) stillVideo.pause();
+      if (stillVideo && typeof stillVideo.pause === 'function') stillVideo.pause();
 
       const insideLayer = document.getElementById('mriInsideLayer');
       if (insideLayer) {

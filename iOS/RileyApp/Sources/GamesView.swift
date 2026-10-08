@@ -104,7 +104,7 @@ public struct GamesView: View {
     
     private func startSlowBackgroundScroll() {
         withAnimation(.linear(duration: 74).repeatForever(autoreverses: false)) {
-            // Smooth continuous drift down and to the left matching Settings speed (23 px/s)
+            // Smooth continuous drift matching exact angle and speed (23 px/s)
             patternOffset = CGPoint(x: -1366, y: 1024)
         }
     }

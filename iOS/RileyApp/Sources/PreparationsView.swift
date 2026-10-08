@@ -31,6 +31,7 @@ public struct PreparationsView: View {
     @State private var selectedProcedure: ProcedureItem? = nil
     @State private var isShowingIVGame: Bool = false
     @State private var isShowingMRIScreen: Bool = false
+    @State private var isShowingNGTubeScreen: Bool = false
     
     public enum RibbonTab {
         case procedures
@@ -185,6 +186,18 @@ public struct PreparationsView: View {
                     isShowingMRIScreen = false
                 })
             }
+            .fullScreenCover(isPresented: $isShowingNGTubeScreen) {
+                NGTubeProcedureView(onDismiss: {
+                    isShowingNGTubeScreen = false
+                }, onBackToHome: {
+                    isShowingNGTubeScreen = false
+                    if let onBackToHome = onBackToHome {
+                        onBackToHome()
+                    } else {
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                })
+            }
         }
         .ignoresSafeArea(.all)
     }
@@ -240,6 +253,8 @@ public struct PreparationsView: View {
                                 isShowingIVGame = true
                             } else if item.id == "mri" {
                                 isShowingMRIScreen = true
+                            } else if item.id == "ng-tube" {
+                                isShowingNGTubeScreen = true
                             } else {
                                 selectedProcedure = item
                             }

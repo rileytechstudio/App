@@ -468,6 +468,33 @@ def build_distribution():
       pointer-events: auto !important;
     }
 
+    /* Nasogastric Tube (NG Tube) Procedure Overrides */
+    #screenNGTube {
+      background-color: #112529 !important;
+    }
+
+    #screenNGTube.active {
+      display: block !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      z-index: 10 !important;
+    }
+
+    #screenNGTube.active .ng-tube-content {
+      position: relative !important;
+      display: block !important;
+      width: 100% !important;
+      height: 100% !important;
+      overflow: hidden !important;
+    }
+
+    #screenNGTube.active .game-top-bar button,
+    #screenNGTube.active .ng-tube-top-prompt-bar,
+    #screenNGTube.active .ng-tube-stage-wrapper,
+    #screenNGTube.active .ng-tube-stage {
+      pointer-events: auto !important;
+    }
+
     .bottom-bar-tabs {
       display: flex !important;
       width: 100% !important;
