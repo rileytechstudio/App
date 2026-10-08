@@ -7603,6 +7603,468 @@
     }
 
     /* ========================================================= */
+    /* SCREEN 10: MATCHING MEMORY GAME                           */
+    /* ========================================================= */
+    #screenMatchingGame {
+      background-color: var(--riley-purple, #5931ba) !important;
+      background-image: url('assets/MatchingPurpleBG.png') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+      color: #ffffff;
+      overflow: hidden !important;
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      display: none;
+      flex-direction: column !important;
+      align-items: stretch !important;
+      justify-content: flex-start !important;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      z-index: 25;
+    }
+
+    #screenMatchingGame.active {
+      display: flex !important;
+    }
+
+    #screenMatchingGame #matchingTopBar {
+      position: relative;
+      pointer-events: auto !important;
+      flex-shrink: 0 !important;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px 4px;
+      z-index: 30;
+      box-sizing: border-box;
+    }
+
+    @media (max-width: 600px) {
+      #screenMatchingGame #matchingTopBar {
+        padding: 8px 12px 4px;
+      }
+      .matching-controls-group .puzzle-diff-btn {
+        padding: 5px 11px;
+        font-size: 12.5px;
+      }
+    }
+
+    /* Standardized Top Instruction & Prompt Bar for Matching Game (Mimicking NG Tube Reference) */
+    .matching-top-prompt-bar {
+      position: absolute;
+      top: calc(env(safe-area-inset-top, 0px) + 54px);
+      left: 50%;
+      transform: translateX(-50%);
+      width: auto;
+      max-width: min(720px, calc(100% - 240px));
+      padding: 8px 22px;
+      border-radius: 20px;
+      z-index: 25;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: rgba(22, 10, 52, 0.42);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease, opacity 0.35s ease, transform 0.35s ease;
+      cursor: default;
+      pointer-events: auto;
+      box-sizing: border-box;
+    }
+
+    .matching-top-prompt-bar.hidden {
+      opacity: 0 !important;
+      pointer-events: none !important;
+      transform: translateX(-50%) translateY(-10px) !important;
+    }
+
+    @media (max-width: 700px) {
+      .matching-top-prompt-bar {
+        top: calc(env(safe-area-inset-top, 0px) + 56px);
+        max-width: calc(100% - 32px);
+      }
+    }
+
+    .matching-top-prompt-bar.highlight-advance {
+      background: rgba(56, 26, 118, 0.65);
+      border-color: rgba(251, 191, 36, 0.85);
+      box-shadow: 0 4px 24px rgba(251, 191, 36, 0.35);
+    }
+
+    .matching-top-prompt-bar .step-instruction-card {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      padding: 0;
+    }
+
+    .matching-top-prompt-bar .step-instruction-text {
+      white-space: normal;
+      font-size: 15.5px;
+      line-height: 1.35;
+      text-align: center;
+      color: #ffffff;
+      font-weight: 700;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+      max-width: 100%;
+    }
+
+    .matching-game-stage {
+      flex: 1;
+      min-height: 0;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 20px calc(24px + env(safe-area-inset-bottom, 16px));
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
+    /* Bottom Purple Fade Gradient for Games Screen (Disappears at end of scroll) */
+    .games-bottom-fade {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 215px;
+      background: linear-gradient(to top, 
+        rgba(89, 49, 186, 1) 0%, 
+        rgba(89, 49, 186, 1) 28%, 
+        rgba(89, 49, 186, 0.88) 48%, 
+        rgba(89, 49, 186, 0.55) 68%, 
+        rgba(89, 49, 186, 0.18) 88%, 
+        rgba(89, 49, 186, 0) 100%
+      ), url('assets/PurpleFade.png') bottom center / 100% 100% no-repeat;
+      pointer-events: none;
+      z-index: 24;
+      opacity: 1;
+      transition: opacity 0.35s ease;
+    }
+
+    .games-bottom-fade.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Dynamic Difficulty Grid Layouts for Matching Cards Board */
+    .matching-cards-board {
+      display: grid;
+      gap: clamp(8px, 1.8vw, 20px);
+      width: 100%;
+      justify-content: center;
+      align-content: center;
+      margin: 14px auto 0;
+      box-sizing: border-box;
+      transition: max-width 0.3s ease;
+    }
+
+    /* Easy: 3 columns x 2 rows (6 cards total) */
+    .matching-cards-board.diff-easy {
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      max-width: 660px;
+    }
+    .matching-cards-board.diff-easy .matching-card {
+      height: clamp(135px, 32vh, 260px);
+    }
+    @media (max-width: 520px) {
+      .matching-cards-board.diff-easy {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+        max-width: 330px;
+      }
+      .matching-cards-board.diff-easy .matching-card {
+        height: clamp(120px, 22vh, 185px);
+      }
+    }
+
+    /* Medium: 4 columns x 2 rows (8 cards total - matches reference) */
+    .matching-cards-board.diff-medium {
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      max-width: 866px;
+    }
+    .matching-cards-board.diff-medium .matching-card {
+      height: clamp(125px, 29vh, 240px);
+    }
+    @media (max-width: 600px) {
+      .matching-cards-board.diff-medium {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(4, 1fr);
+        max-width: 340px;
+      }
+      .matching-cards-board.diff-medium .matching-card {
+        height: clamp(95px, 17vh, 145px);
+      }
+    }
+
+    /* Hard: 4 columns x 3 rows (12 cards total - perfectly centered & balanced) */
+    .matching-cards-board.diff-hard {
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      max-width: 780px;
+    }
+    .matching-cards-board.diff-hard .matching-card {
+      height: clamp(100px, 22vh, 175px);
+    }
+    @media (max-width: 600px) {
+      .matching-cards-board.diff-hard {
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(4, 1fr);
+        max-width: 390px;
+      }
+      .matching-cards-board.diff-hard .matching-card {
+        height: clamp(90px, 16vh, 135px);
+      }
+    }
+
+    .matching-card-slot {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .matching-card {
+      position: relative;
+      width: auto;
+      aspect-ratio: 282 / 434;
+      background: transparent;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      outline: none;
+      -webkit-tap-highlight-color: transparent;
+      perspective: 1000px;
+      transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.22s ease;
+      filter: drop-shadow(0 7px 14px rgba(0, 0, 0, 0.32));
+    }
+
+    .matching-card:hover {
+      transform: translateY(-4px) scale(1.025);
+      filter: drop-shadow(0 11px 20px rgba(0, 0, 0, 0.40));
+    }
+
+    .matching-card:active {
+      transform: scale(0.96);
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.28));
+    }
+
+    .matching-card:focus-visible {
+      filter: drop-shadow(0 0 12px rgba(168, 85, 247, 0.75)) drop-shadow(0 7px 14px rgba(0, 0, 0, 0.32));
+    }
+
+    .matching-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.48s cubic-bezier(0.34, 1.25, 0.64, 1);
+      will-change: transform;
+    }
+
+    .matching-card.flipped .matching-card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .matching-card-face {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: 20px;
+      overflow: hidden;
+      background-color: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .matching-card-back {
+      transform: rotateY(0deg);
+    }
+
+    .matching-card-front {
+      transform: rotateY(180deg);
+    }
+
+    .matching-card-face img {
+      width: 100%;
+      height: 100%;
+      object-fit: fill;
+      display: block;
+      pointer-events: none;
+      border-radius: 20px;
+    }
+
+    /* Mismatch Shake Animation */
+    @keyframes matchingCardShake {
+      0%, 100% { transform: translateX(0); }
+      18% { transform: translateX(-10px) rotate(-2.5deg); }
+      36% { transform: translateX(9px) rotate(2.2deg); }
+      54% { transform: translateX(-7px) rotate(-1.5deg); }
+      72% { transform: translateX(6px) rotate(1.2deg); }
+      90% { transform: translateX(-3px) rotate(-0.5deg); }
+    }
+
+    .matching-card.shake {
+      animation: matchingCardShake 0.44s ease-in-out;
+    }
+
+    /* Match celebration pop before disappearance - Smooth clean scale without flash */
+    @keyframes matchingCardPop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+      100% { transform: scale(1.02); }
+    }
+
+    .matching-card.match-pop {
+      animation: matchingCardPop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      z-index: 10;
+    }
+
+    /* Match Disappear Animation - Smooth scale down and fade out without flash */
+    @keyframes matchingCardDisappear {
+      0% { transform: scale(1.02); opacity: 1; }
+      100% { transform: scale(0); opacity: 0; visibility: hidden; }
+    }
+
+    .matching-card.matched {
+      animation: matchingCardDisappear 0.38s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      pointer-events: none !important;
+    }
+
+    /* Success Celebration Overlay */
+    .matching-success-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 600;
+      background: rgba(18, 5, 36, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    .matching-success-overlay.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .matching-confetti-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .matching-success-card {
+      position: relative;
+      z-index: 2;
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 28px;
+      padding: 32px 36px 30px;
+      width: 90%;
+      max-width: 440px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      animation: puzzlePopIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .matching-you-did-it-img {
+      width: 100%;
+      max-width: 290px;
+      height: auto;
+      margin-bottom: 2px;
+      pointer-events: none;
+    }
+
+    .matching-success-title {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "Nunito", system-ui, sans-serif;
+      font-size: 26px;
+      font-weight: 900;
+      color: #5931ba;
+      margin: 0;
+    }
+
+    .matching-success-desc {
+      font-size: 15px;
+      color: #555566;
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    .matching-success-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    .matching-btn-primary {
+      background: linear-gradient(135deg, #7B3FE4 0%, #5931ba 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 999px;
+      padding: 13px 24px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
+      box-shadow: 0 4px 14px rgba(123, 63, 228, 0.4);
+    }
+
+    .matching-btn-primary:active {
+      transform: scale(0.96);
+    }
+
+    .matching-btn-outline {
+      background: transparent;
+      color: #5931ba;
+      border: 2px solid #5931ba;
+      border-radius: 999px;
+      padding: 11px 24px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .matching-btn-outline:hover {
+      background: #f1ecfc;
+    }
+
+    .matching-btn-outline:active {
+      transform: scale(0.96);
+    }
+
+    /* ========================================================= */
     /* SCREEN 7: ANATOMY EXPLORER                                */
     /* ========================================================= */
     #screenAnatomyExplorer {
@@ -9368,6 +9830,7 @@
         <option value="anatomy-explorer">Screen: Anatomy Explorer</option>
         <option value="games">Screen: Games &amp; Activities</option>
         <option value="clz-puzzle">Screen: CLZ Jigsaw Puzzle</option>
+        <option value="matching-game">Screen: Matching Memory Game</option>
       </select>
 
       <!-- Device Selector -->
@@ -11073,7 +11536,7 @@
 
             <!-- Scrollable Games Cards Viewport -->
             <div class="games-scroll-container">
-              <div id="gamesViewport" class="games-scroll-viewport">
+              <div id="gamesViewport" class="games-scroll-viewport" onscroll="updateGamesScrollFade()">
                 <!-- Card 1: Mask Decoration Game -->
                 <button class="procedure-card game-card" id="card-mask-decoration" onclick="goToMaskGame()" aria-label="Mask Decoration Game">
                   <img src="assets/ButtonMaskDecoration.png" alt="Mask Decoration" />
@@ -11083,7 +11546,15 @@
                 <button class="procedure-card game-card" id="card-clz-puzzle" onclick="openCLZPuzzle()" aria-label="Child Life Zone Puzzle">
                   <img src="assets/ButtonCLZPuzzle.png" alt="Child Life Zone Puzzle" />
                 </button>
+
+                <!-- Card 3: Matching Memory Game -->
+                <button class="procedure-card game-card" id="card-matching-game" onclick="openMatchingGame()" aria-label="Matching Memory Game">
+                  <img src="assets/ButtonMatchingGame.png" alt="Matching Memory Game" />
+                </button>
               </div>
+
+              <!-- Purple Fade overlay at bottom (Prompts scroll, disappears at end of scroll) -->
+              <div class="games-bottom-fade" id="gamesBottomFade" aria-hidden="true"></div>
             </div>
           </div>
 
@@ -11197,6 +11668,84 @@
                   <span>Try Next Level</span>
                 </button>
                 <button class="puzzle-btn-outline" onclick="goToGames()">
+                  <span>Back to Games</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- SCREEN 10: MATCHING MEMORY GAME                           -->
+        <!-- ========================================================= -->
+        <div id="screenMatchingGame" class="app-screen">
+          <!-- Top Navigation Header (Matching Mask Decoration & CLZ Puzzle Style) -->
+          <div class="game-top-bar matching-top-bar" id="matchingTopBar">
+            <button class="game-top-btn" onclick="handleMatchingGameBack()" title="Back to Games" aria-label="Back to Games">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              <span>Back</span>
+            </button>
+
+            <!-- Center: Difficulty Selector (Easy / Medium / Hard) -->
+            <div class="puzzle-controls-group matching-controls-group">
+              <div class="puzzle-difficulty-selector" role="radiogroup" aria-label="Matching Game Difficulty">
+                <button class="puzzle-diff-btn" id="matchingDiffBtnEasy" data-diff="easy" onclick="setMatchingDifficulty('easy')">Easy</button>
+                <button class="puzzle-diff-btn active" id="matchingDiffBtnMedium" data-diff="medium" onclick="setMatchingDifficulty('medium')">Medium</button>
+                <button class="puzzle-diff-btn" id="matchingDiffBtnHard" data-diff="hard" onclick="setMatchingDifficulty('hard')">Hard</button>
+              </div>
+            </div>
+
+            <!-- Top Actions -->
+            <div class="game-top-actions">
+              <button class="game-top-btn-icon sound-toggle-btn" onclick="toggleSound()" title="Mute/Unmute Sound" aria-label="Toggle Sound">
+                <svg class="sound-icon-on" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                </svg>
+                <svg class="sound-icon-off" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                  <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+              </button>
+              <button class="game-top-btn-icon game-restart-btn" onclick="resetMatchingGame()" title="Restart Game" aria-label="Restart Game">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+              </button>
+              <button class="game-top-btn-icon" onclick="goToHome()" title="Home" aria-label="Home">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Standardized Top Prompt Bar (Mimicking NG Tube Prep Reference) -->
+          <div class="ng-tube-top-prompt-bar matching-top-prompt-bar visible can-confirm" id="matchingPromptBar" role="status" aria-live="polite">
+            <div class="step-instruction-card">
+              <span class="step-instruction-dot confirm-pulse" id="matchingPromptDot" aria-hidden="true"></span>
+              <span class="step-instruction-text" id="matchingPromptText">Find all the matching pairs!</span>
+            </div>
+          </div>
+
+          <!-- Main Game Stage -->
+          <div class="matching-game-stage" id="matchingGameStage">
+            <!-- 2 rows x 4 columns Card Grid -->
+            <div class="matching-cards-board" id="matchingCardsBoard" role="grid" aria-label="Matching Card Board">
+              <!-- Dynamically populated 8 cards -->
+            </div>
+          </div>
+
+          <!-- Completion Celebration Overlay -->
+          <div id="matchingSuccessOverlay" class="matching-success-overlay" aria-hidden="true">
+            <canvas id="matchingConfettiCanvas" class="matching-confetti-canvas"></canvas>
+            <div class="matching-success-card" onclick="event.stopPropagation()">
+              <img class="matching-you-did-it-img" src="assets/YouDidIt2Cropped.png" alt="You Did It!" draggable="false" />
+              <h3 class="matching-success-title">Matching Complete!</h3>
+              <p class="matching-success-desc" id="matchingSuccessDesc">Amazing job! You found all 4 matching pairs!</p>
+              <div class="matching-success-actions">
+                <button class="matching-btn-primary" onclick="resetMatchingGame()">
+                  <span>Play Again</span>
+                </button>
+                <button class="matching-btn-outline" onclick="goToGames()">
                   <span>Back to Games</span>
                 </button>
               </div>
@@ -11678,6 +12227,7 @@
       const screenNGTube = document.getElementById('screenNGTube');
       const screenGames = document.getElementById('screenGames');
       const screenCLZPuzzle = document.getElementById('screenCLZPuzzle');
+      const screenMatchingGame = document.getElementById('screenMatchingGame');
       const select = document.getElementById('screenSelect');
       const statusSpan = document.querySelector('.sim-status div:last-child span');
 
@@ -11692,6 +12242,7 @@
         else if (screenNGTube && screenNGTube.classList.contains('active')) previousScreen = 'ng-tube';
         else if (screenGames && screenGames.classList.contains('active')) previousScreen = 'games';
         else if (screenCLZPuzzle && screenCLZPuzzle.classList.contains('active')) previousScreen = 'clz-puzzle';
+        else if (screenMatchingGame && screenMatchingGame.classList.contains('active')) previousScreen = 'matching-game';
         else previousScreen = 'home';
       }
 
@@ -11707,7 +12258,9 @@
       if (screenNGTube) screenNGTube.classList.remove('active');
       if (screenGames) screenGames.classList.remove('active');
       if (screenCLZPuzzle) screenCLZPuzzle.classList.remove('active');
+      if (screenMatchingGame) screenMatchingGame.classList.remove('active');
       if (typeof stopPuzzleCelebration === 'function') stopPuzzleCelebration();
+      if (typeof stopMatchingCelebration === 'function') stopMatchingCelebration();
 
       if (screenName === 'games') {
         clearAnatomyTimers();
@@ -11720,9 +12273,28 @@
         stopYouDidItSound(true);
         if (typeof stopYouDidItChimeSound === 'function') stopYouDidItChimeSound(true);
         if (typeof stopMaskConfetti === 'function') stopMaskConfetti();
+        if (typeof stopMatchingCelebration === 'function') stopMatchingCelebration();
         if (screenGames) screenGames.classList.add('active');
         if (select) select.value = 'games';
         if (statusSpan) statusSpan.textContent = 'Games Screen Active • Fun & calming activities for patients';
+        setTimeout(updateGamesScrollFade, 60);
+      } else if (screenName === 'matching-game') {
+        clearAnatomyTimers();
+        clearIVIntroTimers();
+        stopIVBackgroundMusic();
+        stopMaskBackgroundMusic();
+        resetMaskScene();
+        stopClothWipeSound(true);
+        stopClothWetWipeSound(true);
+        stopYouDidItSound(true);
+        if (typeof stopYouDidItChimeSound === 'function') stopYouDidItChimeSound(true);
+        if (typeof stopMaskConfetti === 'function') stopMaskConfetti();
+        if (typeof stopPuzzleCelebration === 'function') stopPuzzleCelebration();
+        if (typeof stopMatchingCelebration === 'function') stopMatchingCelebration();
+        if (screenMatchingGame) screenMatchingGame.classList.add('active');
+        if (select) select.value = 'matching-game';
+        if (statusSpan) statusSpan.textContent = 'Matching Memory Game Active • Find all the matching pairs';
+        initMatchingGame();
       } else if (screenName === 'clz-puzzle') {
         clearAnatomyTimers();
         clearIVIntroTimers();
@@ -11735,6 +12307,7 @@
         if (typeof stopYouDidItChimeSound === 'function') stopYouDidItChimeSound(true);
         if (typeof stopMaskConfetti === 'function') stopMaskConfetti();
         if (typeof stopPuzzleCelebration === 'function') stopPuzzleCelebration();
+        if (typeof stopMatchingCelebration === 'function') stopMatchingCelebration();
         if (screenCLZPuzzle) screenCLZPuzzle.classList.add('active');
         if (select) select.value = 'clz-puzzle';
         if (statusSpan) statusSpan.textContent = 'Child Life Zone Jigsaw Puzzle Active • Fun interactive puzzle for kids';
@@ -13866,6 +14439,7 @@
 
     function goToGames() {
       switchScreen('games');
+      setTimeout(updateGamesScrollFade, 60);
     }
 
     function handleGamesBack() {
@@ -13891,6 +14465,25 @@
       requestAnimationFrame(() => {
         initPuzzleGame(currentPuzzleDifficulty);
       });
+    }
+
+    function openMatchingGame() {
+      goToMatchingGame();
+    }
+
+    function goToMatchingGame() {
+      triggerHapticFeedback(true);
+      switchScreen('matching-game');
+    }
+
+    function handleMatchingGameBack() {
+      triggerHapticFeedback(false);
+      if (typeof stopMatchingCelebration === 'function') stopMatchingCelebration();
+      if (previousScreen && previousScreen !== 'matching-game') {
+        switchScreen(previousScreen);
+      } else {
+        switchScreen('games');
+      }
     }
 
     // =========================================================
@@ -14686,6 +15279,429 @@
         const ctx = canvas.getContext('2d');
         if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
       }
+    }
+
+    // =========================================================
+    // MATCHING MEMORY GAME CONTROLLER
+    // Features:
+    // - Authentic hospital item cards from Matching assets
+    // - 2 rows of 4 cards matching the reference screenshot layout
+    // - Tactile 3D card flipping animation (front image / back pattern)
+    // - Card stays flipped until a second card is chosen
+    // - Match detection:
+    //     * Match: celebratory chime & pop, both cards disappear
+    //     * No Match: playful wobble sound, cards shake, flip back over
+    // - Dynamic child-friendly prompts & progress tracking
+    // - Victory fanfare & colorful confetti celebration
+    // =========================================================
+    const MATCHING_CARD_ITEMS = [
+      { id: 'bandaid', name: 'Band-Aids', img: 'assets/MatchingCardBandaid.png' },
+      { id: 'gown', name: 'Hospital Gown', img: 'assets/MatchingCardGown.png' },
+      { id: 'ivpole', name: 'IV Pole', img: 'assets/MatchingCardIVPole.png' },
+      { id: 'stethoscope', name: 'Stethoscope', img: 'assets/MatchingCardStethoscope.png' },
+      { id: 'teddy', name: 'Teddy Bear', img: 'assets/MatchingCardTeddyBear.png' },
+      { id: 'wagon', name: 'Red Wagon', img: 'assets/MatchingCardWagon.png' },
+      { id: 'ambulance', name: 'Ambulance', img: 'assets/MatchingCardAmbulance.png' },
+      { id: 'clipboard', name: 'Clipboard', img: 'assets/MatchingCardClipboard.png' },
+      { id: 'gloves', name: 'Gloves', img: 'assets/MatchingCardGloves.png' },
+      { id: 'pettherapy', name: 'Pet Therapy Dog', img: 'assets/MatchingCardPetTherapy.png' },
+      { id: 'printer3d', name: '3D Printer', img: 'assets/MatchingCard3DPrinter.png' },
+      { id: 'videogames', name: 'Video Games', img: 'assets/MatchingCardVideoGames.png' }
+    ];
+
+    const MATCHING_CONFIGS = {
+      easy: { pairs: 3, label: 'Easy' },
+      medium: { pairs: 4, label: 'Medium' },
+      hard: { pairs: 6, label: 'Hard' }
+    };
+    let currentMatchingDifficulty = 'medium';
+
+    let matchingDeck = [];
+    let matchingFirstChoice = null;
+    let matchingSecondChoice = null;
+    let matchingIsBusy = false;
+    let matchingPairsCount = 0;
+    let matchingConfettiId = null;
+
+    function setMatchingDifficulty(diff) {
+      if (!MATCHING_CONFIGS[diff]) return;
+      if (currentMatchingDifficulty === diff) return;
+      currentMatchingDifficulty = diff;
+
+      // Update button active states
+      ['easy', 'medium', 'hard'].forEach(d => {
+        const btn = document.getElementById(`matchingDiffBtn${d.charAt(0).toUpperCase() + d.slice(1)}`);
+        if (btn) {
+          const isActive = (d === diff);
+          btn.classList.toggle('active', isActive);
+          btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
+        }
+      });
+
+      triggerHapticFeedback(false);
+      resetMatchingGame();
+    }
+
+    function initMatchingGame(diff) {
+      if (diff && MATCHING_CONFIGS[diff]) {
+        currentMatchingDifficulty = diff;
+      }
+      stopMatchingCelebration();
+      matchingFirstChoice = null;
+      matchingSecondChoice = null;
+      matchingIsBusy = false;
+      matchingPairsCount = 0;
+
+      // Sync button active states
+      ['easy', 'medium', 'hard'].forEach(d => {
+        const btn = document.getElementById(`matchingDiffBtn${d.charAt(0).toUpperCase() + d.slice(1)}`);
+        if (btn) {
+          const isActive = (d === currentMatchingDifficulty);
+          btn.classList.toggle('active', isActive);
+          btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
+        }
+      });
+
+      // Reset top prompt bar matching NG Tube reference and ensure visible
+      const promptBar = document.getElementById('matchingPromptBar');
+      if (promptBar) promptBar.classList.remove('hidden');
+      updateMatchingPrompt('Find all the matching pairs!', false);
+      const promptDot = document.getElementById('matchingPromptDot');
+      if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
+
+      const config = MATCHING_CONFIGS[currentMatchingDifficulty] || MATCHING_CONFIGS.medium;
+      const pairsGoal = config.pairs;
+
+      // Randomly select pairsGoal items from the 10 available hospital items
+      const shuffledCatalog = [...MATCHING_CARD_ITEMS].sort(() => Math.random() - 0.5);
+      const chosenItems = shuffledCatalog.slice(0, pairsGoal);
+
+      // Create two cards for each selected item
+      matchingDeck = [];
+      chosenItems.forEach(item => {
+        matchingDeck.push({ ...item, key: item.id + '_a' });
+        matchingDeck.push({ ...item, key: item.id + '_b' });
+      });
+
+      // Fisher-Yates shuffle algorithm for uniform randomness
+      for (let i = matchingDeck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [matchingDeck[i], matchingDeck[j]] = [matchingDeck[j], matchingDeck[i]];
+      }
+
+      // Build grid of cards with difficulty class
+      const board = document.getElementById('matchingCardsBoard');
+      if (!board) return;
+      board.className = `matching-cards-board diff-${currentMatchingDifficulty}`;
+      board.innerHTML = '';
+
+      matchingDeck.forEach((card, index) => {
+        const slot = document.createElement('div');
+        slot.className = 'matching-card-slot';
+
+        const btn = document.createElement('button');
+        btn.className = 'matching-card';
+        btn.id = `matchingCardBtn_${index}`;
+        btn.setAttribute('data-index', index);
+        btn.setAttribute('data-id', card.id);
+        btn.setAttribute('aria-label', `Card ${index + 1}: Hidden`);
+        btn.onclick = () => onMatchingCardTap(index);
+
+        btn.innerHTML = `
+          <div class="matching-card-inner">
+            <div class="matching-card-face matching-card-back">
+              <img src="assets/MatchingCardBack.png" alt="Card Back" draggable="false" />
+            </div>
+            <div class="matching-card-face matching-card-front">
+              <img src="${card.img}" alt="${card.name}" draggable="false" />
+            </div>
+          </div>
+        `;
+
+        slot.appendChild(btn);
+        board.appendChild(slot);
+      });
+    }
+
+    function onMatchingCardTap(index) {
+      if (matchingIsBusy) return;
+
+      const cardBtn = document.getElementById(`matchingCardBtn_${index}`);
+      if (!cardBtn) return;
+      if (cardBtn.classList.contains('flipped') || cardBtn.classList.contains('matched')) return;
+
+      const cardData = matchingDeck[index];
+      if (!cardData) return;
+
+      // Have prompt disappear once the user begins to play
+      const promptBar = document.getElementById('matchingPromptBar');
+      if (promptBar && !promptBar.classList.contains('hidden')) {
+        promptBar.classList.add('hidden');
+      }
+
+      // Flip card face-up
+      cardBtn.classList.add('flipped');
+      cardBtn.setAttribute('aria-label', `Card ${index + 1}: ${cardData.name}`);
+      playMatchingCardFlipSound();
+      triggerHapticFeedback(false);
+
+      if (!matchingFirstChoice) {
+        // First card selected: stays flipped until second card is chosen
+        matchingFirstChoice = { index, element: cardBtn, data: cardData };
+        updateMatchingPrompt(`Selected ${cardData.name}. Find its match.`, false);
+      } else {
+        // Second card selected
+        matchingSecondChoice = { index, element: cardBtn, data: cardData };
+        matchingIsBusy = true;
+
+        const isMatch = matchingFirstChoice.data.id === matchingSecondChoice.data.id;
+
+        if (isMatch) {
+          // MATCH!
+          matchingPairsCount++;
+          const currentPairName = matchingFirstChoice.data.name;
+
+          // Positive feedback
+          playMatchingSuccessSound(matchingPairsCount);
+          triggerHapticFeedback(true);
+          updateMatchingPrompt(`Match found! That's the ${currentPairName}.`, false);
+
+          const card1 = matchingFirstChoice.element;
+          const card2 = matchingSecondChoice.element;
+
+          card1.classList.add('match-pop');
+          card2.classList.add('match-pop');
+
+          setTimeout(() => {
+            // Both disappear
+            card1.classList.remove('match-pop');
+            card2.classList.remove('match-pop');
+            card1.classList.add('matched');
+            card2.classList.add('matched');
+            card1.setAttribute('aria-hidden', 'true');
+            card2.setAttribute('aria-hidden', 'true');
+
+            matchingFirstChoice = null;
+            matchingSecondChoice = null;
+            matchingIsBusy = false;
+
+            const config = MATCHING_CONFIGS[currentMatchingDifficulty] || MATCHING_CONFIGS.medium;
+            if (matchingPairsCount >= config.pairs) {
+              updateMatchingPrompt('You found all the matching pairs!', true);
+              setTimeout(() => {
+                showMatchingSuccessCelebration();
+              }, 480);
+            } else {
+              updateMatchingPrompt('Find all the matching pairs!', false);
+            }
+          }, 360);
+        } else {
+          // NOT A MATCH!
+          updateMatchingPrompt('Not a match. Try again.', false);
+
+          const card1 = matchingFirstChoice.element;
+          const card2 = matchingSecondChoice.element;
+
+          // Brief pause so the child can see the second card
+          setTimeout(() => {
+            playMatchingMismatchSound();
+            card1.classList.add('shake');
+            card2.classList.add('shake');
+
+            // Once the shake finishes, flip back over
+            setTimeout(() => {
+              card1.classList.remove('shake', 'flipped');
+              card2.classList.remove('shake', 'flipped');
+              card1.setAttribute('aria-label', `Card ${matchingFirstChoice ? matchingFirstChoice.index + 1 : ''}: Hidden`);
+              card2.setAttribute('aria-label', `Card ${index + 1}: Hidden`);
+              playMatchingCardFlipSound();
+
+              matchingFirstChoice = null;
+              matchingSecondChoice = null;
+              matchingIsBusy = false;
+              updateMatchingPrompt('Find all the matching pairs!', false);
+            }, 450);
+          }, 450);
+        }
+      }
+    }
+
+    function updateMatchingPrompt(text, isHighlighted) {
+      const promptText = document.getElementById('matchingPromptText');
+      if (promptText) promptText.textContent = text;
+      const promptBar = document.getElementById('matchingPromptBar');
+      if (promptBar && isHighlighted) {
+        promptBar.classList.add('highlight-advance');
+        setTimeout(() => promptBar.classList.remove('highlight-advance'), 800);
+      }
+    }
+
+    // Scroll fade controller for Games Screen
+    function updateGamesScrollFade() {
+      const viewport = document.getElementById('gamesViewport');
+      const fade = document.getElementById('gamesBottomFade');
+      if (!viewport || !fade) return;
+
+      const maxScroll = viewport.scrollHeight - viewport.clientHeight;
+      if (maxScroll <= 12 || viewport.scrollTop >= maxScroll - 20) {
+        fade.classList.add('hidden');
+      } else {
+        fade.classList.remove('hidden');
+      }
+    }
+
+    function resetMatchingGame() {
+      triggerHapticFeedback(false);
+      stopMatchingCelebration();
+      initMatchingGame();
+    }
+
+    function showMatchingSuccessCelebration() {
+      triggerHapticFeedback(true);
+      if (typeof playYouDidItChimeSound === 'function') playYouDidItChimeSound();
+      if (typeof playMarimbaChime === 'function') {
+        playMarimbaChime(6, 8, 0.45);
+        setTimeout(() => playMarimbaChime(8, 8, 0.45), 180);
+      }
+
+      const config = MATCHING_CONFIGS[currentMatchingDifficulty] || MATCHING_CONFIGS.medium;
+      const desc = document.getElementById('matchingSuccessDesc');
+      if (desc) {
+        desc.textContent = `Amazing job! You found all ${config.pairs} matching pairs!`;
+      }
+
+      const overlay = document.getElementById('matchingSuccessOverlay');
+      if (overlay) overlay.classList.add('visible');
+
+      startMatchingConfetti();
+    }
+
+    function stopMatchingCelebration() {
+      const overlay = document.getElementById('matchingSuccessOverlay');
+      if (overlay) overlay.classList.remove('visible');
+      stopMatchingConfetti();
+    }
+
+    function startMatchingConfetti() {
+      const canvas = document.getElementById('matchingConfettiCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const w = canvas.width = canvas.parentElement.clientWidth || 800;
+      const h = canvas.height = canvas.parentElement.clientHeight || 600;
+
+      const colors = ['#7B3FE4', '#38bdf8', '#fbbf24', '#34d399', '#f43f5e', '#a855f7', '#ec4899'];
+      const particles = [];
+      for (let i = 0; i < 90; i++) {
+        particles.push({
+          x: Math.random() * w,
+          y: Math.random() * -h,
+          w: Math.random() * 10 + 6,
+          h: Math.random() * 7 + 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          vy: Math.random() * 3 + 2.5,
+          vx: (Math.random() - 0.5) * 2.2,
+          rot: Math.random() * 360,
+          rotSpeed: (Math.random() - 0.5) * 9
+        });
+      }
+
+      function render() {
+        ctx.clearRect(0, 0, w, h);
+        particles.forEach(p => {
+          p.y += p.vy;
+          p.x += p.vx;
+          p.rot += p.rotSpeed;
+          if (p.y > h + 20) {
+            p.y = -20;
+            p.x = Math.random() * w;
+          }
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rot * Math.PI) / 180);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          ctx.restore();
+        });
+        matchingConfettiId = requestAnimationFrame(render);
+      }
+
+      if (matchingConfettiId) cancelAnimationFrame(matchingConfettiId);
+      matchingConfettiId = requestAnimationFrame(render);
+    }
+
+    function stopMatchingConfetti() {
+      if (matchingConfettiId) {
+        cancelAnimationFrame(matchingConfettiId);
+        matchingConfettiId = null;
+      }
+      const canvas = document.getElementById('matchingConfettiCanvas');
+      if (canvas && typeof canvas.getContext === 'function') {
+        const ctx = canvas.getContext('2d');
+        if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    // Audio effects for Matching Game
+    function playMatchingCardFlipSound() {
+      if (isSoundMuted) return;
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!window._sharedAudioCtx && AudioCtx) window._sharedAudioCtx = new AudioCtx();
+        if (!window._sharedAudioCtx) return;
+        const ctx = window._sharedAudioCtx;
+        if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+        const now = ctx.currentTime;
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(320, now);
+        osc.frequency.exponentialRampToValueAtTime(740, now + 0.07);
+
+        gain.gain.setValueAtTime(0.24, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.09);
+      } catch (e) {}
+    }
+
+    function playMatchingSuccessSound(step) {
+      if (isSoundMuted) return;
+      if (typeof playMarimbaChime === 'function') {
+        playMarimbaChime(step + 2, 8, 0.40);
+        setTimeout(() => playMarimbaChime(step + 5, 8, 0.38), 110);
+      }
+    }
+
+    function playMatchingMismatchSound() {
+      if (isSoundMuted) return;
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!window._sharedAudioCtx && AudioCtx) window._sharedAudioCtx = new AudioCtx();
+        if (!window._sharedAudioCtx) return;
+        const ctx = window._sharedAudioCtx;
+        if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+        const now = ctx.currentTime;
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(260, now);
+        osc.frequency.exponentialRampToValueAtTime(190, now + 0.20);
+
+        gain.gain.setValueAtTime(0.22, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.24);
+      } catch (e) {}
     }
 
     function handleMaskGameBack() {
@@ -19418,6 +20434,13 @@
         bottomFade.style.height = fadeH + 'px';
       }
 
+      const gamesFade = document.getElementById('gamesBottomFade');
+      if (gamesFade) {
+        const fadeH = isCompact ? Math.min(Math.max(h * 0.25, 130), 170) : Math.min(Math.max(h * 0.30, 180), 230);
+        gamesFade.style.height = fadeH + 'px';
+        updateGamesScrollFade();
+      }
+
       // Responsive MRI Stage Sizing (Strict 1366:1024 Aspect Ratio Containment)
       const mriWrapper = document.getElementById('mriStageWrapper');
       const mriStage = document.getElementById('mriStage');
@@ -19517,7 +20540,15 @@
             <img src="assets/ButtonCLZPuzzle.png" alt="Child Life Zone Puzzle" style="width: 100%; max-width: 480px; border-radius: 16px;" />
           </div>
           <p>Get ready for a fun, calming jigsaw puzzle featuring the colorful Riley Child Life Zone! Piece together games, art, and relaxing activities designed just for kids and families.</p>
-          <p style="margin-top: 14px; font-weight: 600; color: #7B3FE4;">🧩 Interactive puzzle game coming soon!</p>
+        `
+      },
+      'Matching Memory Game': {
+        title: 'Matching Memory Game',
+        content: `
+          <div style="text-align: center; margin-bottom: 16px;">
+            <img src="assets/ButtonMatchingGame.png" alt="Matching Memory Game" style="width: 100%; max-width: 480px; border-radius: 16px;" />
+          </div>
+          <p>Flip cards and match hospital items like band-aids, gowns, stethoscopes, red wagons, and teddy bears!</p>
         `
       },
       'Mask Decoration': {

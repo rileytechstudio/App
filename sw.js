@@ -1,5 +1,5 @@
 // Riley PWA Service Worker
-const CACHE_NAME = 'riley-pwa-v181';
+const CACHE_NAME = 'riley-pwa-v184';
 const PRECACHE_ASSETS = [
   './',
   './index.html',
@@ -288,9 +288,25 @@ const PRECACHE_ASSETS = [
   './assets/ButtonBurnDress.png',
   './assets/ButtonMaskDecoration.png',
   './assets/ButtonCLZPuzzle.png',
+  './assets/ButtonMatchingGame.png',
   './assets/CLZPuzzleImage.png',
   './assets/PurpleBG.png',
   './assets/Purple BG.png',
+  './assets/MatchingPurpleBG.png',
+  './assets/MatchingCardBack.png',
+  './assets/MatchingCardBlank.png',
+  './assets/MatchingCardBandaid.png',
+  './assets/MatchingCardGown.png',
+  './assets/MatchingCardIVPole.png',
+  './assets/MatchingCardStethoscope.png',
+  './assets/MatchingCardTeddyBear.png',
+  './assets/MatchingCardWagon.png',
+  './assets/MatchingCardAmbulance.png',
+  './assets/MatchingCardClipboard.png',
+  './assets/MatchingCardGloves.png',
+  './assets/MatchingCardPetTherapy.png',
+  './assets/MatchingCard3DPrinter.png',
+  './assets/MatchingCardVideoGames.png',
   './assets/TableTexture.png',
   './assets/Table Texture.png',
   './assets/About.png',

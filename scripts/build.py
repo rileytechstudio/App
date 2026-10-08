@@ -468,6 +468,44 @@ def build_distribution():
       pointer-events: auto !important;
     }
 
+    /* Matching Memory Game Overrides */
+    #screenMatchingGame {
+      display: none;
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      background-image: url('assets/MatchingPurpleBG.png') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+      background-color: var(--riley-purple, #5931ba) !important;
+    }
+
+    #screenMatchingGame.active {
+      display: flex !important;
+      flex-direction: column !important;
+      z-index: 10 !important;
+    }
+
+    #screenMatchingGame:not(.active),
+    #screenMatchingGame:not(.active) * {
+      display: none !important;
+      pointer-events: none !important;
+      visibility: hidden !important;
+    }
+
+    #screenMatchingGame.active #matchingTopBar {
+      pointer-events: auto !important;
+      flex-shrink: 0 !important;
+      width: 100% !important;
+    }
+
+    #screenMatchingGame.active .matching-game-stage,
+    #screenMatchingGame.active .matching-card {
+      pointer-events: auto !important;
+    }
+
     /* Nasogastric Tube (NG Tube) Procedure Overrides */
     #screenNGTube {
       background-color: #112529 !important;
