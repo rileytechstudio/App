@@ -2954,22 +2954,25 @@
     /* Top Transparent Instruction & Prompt Bar for NG Tube (Overlaps the screen) */
     .ng-tube-top-prompt-bar {
       position: absolute;
-      top: calc(env(safe-area-inset-top, 0px) + 12px);
-      left: 50%;
-      transform: translateX(-50%);
-      width: auto;
-      max-width: min(720px, calc(100% - 240px));
-      padding: 8px 22px;
-      border-radius: 20px;
+      top: calc(env(safe-area-inset-top, 0px) + 52px);
+      left: 0;
+      right: 0;
+      width: 100%;
+      min-height: 42px;
+      padding: 8px 24px;
+      border-radius: 0;
       z-index: 25;
       display: flex;
       justify-content: center;
       align-items: center;
-      background: rgba(14, 28, 32, 0.32);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+      background: linear-gradient(180deg, rgba(14, 28, 32, 0.30) 0%, rgba(20, 38, 44, 0.36) 100%);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.18);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+      border-left: none;
+      border-right: none;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.24);
       transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease, opacity 0.3s ease;
       cursor: pointer;
       pointer-events: auto;
@@ -2978,13 +2981,14 @@
 
     @media (max-width: 700px) {
       .ng-tube-top-prompt-bar {
-        top: calc(env(safe-area-inset-top, 0px) + 54px);
-        max-width: calc(100% - 32px);
+        top: calc(env(safe-area-inset-top, 0px) + 50px);
+        padding: 6px 16px;
+        min-height: 38px;
       }
     }
 
     .ng-tube-top-prompt-bar.highlight-advance {
-      background: rgba(28, 54, 62, 0.55);
+      background: linear-gradient(180deg, rgba(28, 54, 62, 0.65) 0%, rgba(36, 70, 80, 0.72) 100%);
       border-color: rgba(251, 191, 36, 0.85);
       box-shadow: 0 4px 24px rgba(251, 191, 36, 0.35);
     }
@@ -2995,6 +2999,7 @@
       justify-content: center;
       gap: 10px;
       width: 100%;
+      max-width: 900px;
       background: transparent;
       border: none;
       box-shadow: none;
@@ -3003,7 +3008,7 @@
 
     .ng-tube-top-prompt-bar .step-instruction-text {
       white-space: normal;
-      font-size: 15.5px;
+      font-size: 15px;
       line-height: 1.35;
       text-align: center;
       color: #ffffff;
@@ -6812,7 +6817,17 @@
       height: 100%;
       position: relative;
       overflow: hidden;
-      background-color: var(--riley-purple, #5931ba);
+      background-color: transparent !important;
+      z-index: 5;
+    }
+
+    #screenSettings #settingsHeader {
+      position: relative;
+      z-index: 30;
+      flex-shrink: 0;
+      width: 100%;
+      background: transparent;
+      pointer-events: auto;
     }
 
     .settings-body-wrapper {
@@ -6827,6 +6842,8 @@
       align-items: center;
       justify-content: center;
       -webkit-overflow-scrolling: touch;
+      background: transparent;
+      z-index: 10;
     }
 
     /* Animated Scrolling Gear Background Pattern - 100% Seamless Infinite Loop */
@@ -7661,45 +7678,52 @@
       }
     }
 
-    /* Standardized Top Instruction & Prompt Bar for Matching Game (Mimicking NG Tube Reference) */
+    /* Standardized Top Instruction & Prompt Bar for Matching Game */
     .matching-top-prompt-bar {
       position: absolute;
-      top: calc(env(safe-area-inset-top, 0px) + 54px);
-      left: 50%;
-      transform: translateX(-50%);
-      width: auto;
-      max-width: min(720px, calc(100% - 240px));
-      padding: 8px 22px;
-      border-radius: 20px;
+      top: calc(env(safe-area-inset-top, 0px) + 52px);
+      left: 0;
+      right: 0;
+      width: 100%;
+      min-height: 42px;
+      padding: 8px 24px;
+      border-radius: 0;
       z-index: 25;
       display: flex;
       justify-content: center;
       align-items: center;
-      background: rgba(22, 10, 52, 0.42);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.22);
-      transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease, opacity 0.35s ease, transform 0.35s ease;
+      background: linear-gradient(180deg, rgba(22, 10, 52, 0.38) 0%, rgba(32, 14, 72, 0.44) 100%);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.18);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+      border-left: none;
+      border-right: none;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.24);
+      transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease, opacity 0.35s ease, transform 0.35s ease, visibility 0.35s ease;
       cursor: default;
       pointer-events: auto;
       box-sizing: border-box;
+      transform: translateY(0);
     }
 
     .matching-top-prompt-bar.hidden {
       opacity: 0 !important;
+      visibility: hidden !important;
       pointer-events: none !important;
-      transform: translateX(-50%) translateY(-10px) !important;
+      transform: translateY(-10px) !important;
     }
 
     @media (max-width: 700px) {
       .matching-top-prompt-bar {
-        top: calc(env(safe-area-inset-top, 0px) + 56px);
-        max-width: calc(100% - 32px);
+        top: calc(env(safe-area-inset-top, 0px) + 50px);
+        padding: 6px 16px;
+        min-height: 38px;
       }
     }
 
     .matching-top-prompt-bar.highlight-advance {
-      background: rgba(56, 26, 118, 0.65);
+      background: linear-gradient(180deg, rgba(56, 26, 118, 0.75) 0%, rgba(72, 32, 148, 0.82) 100%);
       border-color: rgba(251, 191, 36, 0.85);
       box-shadow: 0 4px 24px rgba(251, 191, 36, 0.35);
     }
@@ -7710,6 +7734,7 @@
       justify-content: center;
       gap: 10px;
       width: 100%;
+      max-width: 900px;
       background: transparent;
       border: none;
       box-shadow: none;
@@ -7718,7 +7743,7 @@
 
     .matching-top-prompt-bar .step-instruction-text {
       white-space: normal;
-      font-size: 15.5px;
+      font-size: 15px;
       line-height: 1.35;
       text-align: center;
       color: #ffffff;
@@ -7839,6 +7864,7 @@
     }
 
     .matching-card-slot {
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -7954,6 +7980,81 @@
     .matching-card.matched {
       animation: matchingCardDisappear 0.38s cubic-bezier(0.4, 0, 0.2, 1) forwards;
       pointer-events: none !important;
+    }
+
+    /* Sparkle Burst Effect for Matching Pairs */
+    .matching-sparkle-burst {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      pointer-events: none;
+      z-index: 60;
+    }
+
+    .matching-sparkle-ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 72px;
+      height: 72px;
+      margin-top: -36px;
+      margin-left: -36px;
+      border-radius: 50%;
+      border: 2.5px solid rgba(254, 240, 138, 0.9);
+      box-shadow: 0 0 20px rgba(251, 191, 36, 0.85), inset 0 0 12px rgba(254, 240, 138, 0.5);
+      pointer-events: none;
+      animation: matchingSparkleRingExpand 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      opacity: 0.95;
+      will-change: transform, opacity;
+    }
+
+    @keyframes matchingSparkleRingExpand {
+      0% {
+        transform: scale(0.25);
+        opacity: 0.95;
+      }
+      70% {
+        opacity: 0.65;
+      }
+      100% {
+        transform: scale(2.4);
+        opacity: 0;
+      }
+    }
+
+    .matching-sparkle-particle {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: translate(-50%, -50%);
+      animation: matchingSparkleBurstAnim 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      filter: drop-shadow(0 0 6px var(--glow-color, rgba(251, 191, 36, 0.95)));
+      will-change: transform, opacity;
+    }
+
+    @keyframes matchingSparkleBurstAnim {
+      0% {
+        transform: translate(-50%, -50%) translate(0, 0) scale(0) rotate(0deg);
+        opacity: 0;
+      }
+      18% {
+        opacity: 1;
+        transform: translate(-50%, -50%) translate(calc(var(--tx, 0px) * 0.32), calc(var(--ty, 0px) * 0.32)) scale(var(--scale, 1.25)) rotate(calc(var(--rot, 0deg) * 0.35));
+      }
+      70% {
+        opacity: 0.92;
+        transform: translate(-50%, -50%) translate(calc(var(--tx, 0px) * 0.88), calc(var(--ty, 0px) * 0.88)) scale(calc(var(--scale, 1.25) * 0.92)) rotate(calc(var(--rot, 0deg) * 0.85));
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) translate(var(--tx, 0px), var(--ty, 0px)) scale(0) rotate(var(--rot, 0deg));
+      }
     }
 
     /* Success Celebration Overlay */
@@ -11097,6 +11198,9 @@
         <!-- SCREEN 6: SETTINGS SCREEN                                 -->
         <!-- ========================================================= -->
         <div id="screenSettings" class="app-screen">
+          <!-- Animated Scrolling Background Pattern Layer - Carried to top of screen, behind header -->
+          <div class="settings-bg-pattern-layer" aria-hidden="true"></div>
+
           <div class="settings-screen-container">
             
             <!-- Top Apple Glass Navigation Bar (Matches About Header Style) -->
@@ -11122,10 +11226,8 @@
               </div>
             </header>
 
-            <!-- Animated Background Layer & Centered Settings Windows -->
+            <!-- Centered Settings Windows Body -->
             <div class="settings-body-wrapper">
-              <div class="settings-bg-pattern-layer" aria-hidden="true"></div>
-
               <div class="settings-content-body">
                 <div class="settings-cards-container">
                   
@@ -15358,6 +15460,7 @@
         currentMatchingDifficulty = diff;
       }
       stopMatchingCelebration();
+      document.querySelectorAll('.matching-sparkle-burst').forEach(el => el.remove());
       matchingFirstChoice = null;
       matchingSecondChoice = null;
       matchingIsBusy = false;
@@ -15444,7 +15547,7 @@
       const cardData = matchingDeck[index];
       if (!cardData) return;
 
-      // Have prompt disappear once the user begins to play
+      // Hide the initial prompt bar immediately when the user begins to play
       const promptBar = document.getElementById('matchingPromptBar');
       if (promptBar && !promptBar.classList.contains('hidden')) {
         promptBar.classList.add('hidden');
@@ -15459,7 +15562,6 @@
       if (!matchingFirstChoice) {
         // First card selected: stays flipped until second card is chosen
         matchingFirstChoice = { index, element: cardBtn, data: cardData };
-        updateMatchingPrompt(`Selected ${cardData.name}. Find its match.`, false);
       } else {
         // Second card selected
         matchingSecondChoice = { index, element: cardBtn, data: cardData };
@@ -15475,10 +15577,12 @@
           // Positive feedback
           playMatchingSuccessSound(matchingPairsCount);
           triggerHapticFeedback(true);
-          updateMatchingPrompt(`Match found! That's the ${currentPairName}.`, false);
 
           const card1 = matchingFirstChoice.element;
           const card2 = matchingSecondChoice.element;
+
+          // Trigger sparkle burst effect on both matching cards
+          triggerMatchingSparkleBurst(card1, card2);
 
           card1.classList.add('match-pop');
           card2.classList.add('match-pop');
@@ -15498,18 +15602,13 @@
 
             const config = MATCHING_CONFIGS[currentMatchingDifficulty] || MATCHING_CONFIGS.medium;
             if (matchingPairsCount >= config.pairs) {
-              updateMatchingPrompt('You found all the matching pairs!', true);
               setTimeout(() => {
                 showMatchingSuccessCelebration();
               }, 480);
-            } else {
-              updateMatchingPrompt('Find all the matching pairs!', false);
             }
           }, 360);
         } else {
           // NOT A MATCH!
-          updateMatchingPrompt('Not a match. Try again.', false);
-
           const card1 = matchingFirstChoice.element;
           const card2 = matchingSecondChoice.element;
 
@@ -15530,7 +15629,6 @@
               matchingFirstChoice = null;
               matchingSecondChoice = null;
               matchingIsBusy = false;
-              updateMatchingPrompt('Find all the matching pairs!', false);
             }, 450);
           }, 450);
         }
@@ -15545,6 +15643,85 @@
         promptBar.classList.add('highlight-advance');
         setTimeout(() => promptBar.classList.remove('highlight-advance'), 800);
       }
+    }
+
+    // Sparkle Burst Effect for Matched Pairs
+    function triggerMatchingSparkleBurst(card1, card2) {
+      if (card1) spawnSparklesOnCard(card1);
+      if (card2) spawnSparklesOnCard(card2);
+    }
+
+    function spawnSparklesOnCard(cardEl) {
+      const slot = cardEl ? cardEl.parentElement : null;
+      if (!slot) return;
+
+      const burst = document.createElement('div');
+      burst.className = 'matching-sparkle-burst';
+      burst.setAttribute('aria-hidden', 'true');
+
+      // Soft expanding halo ring
+      const ring = document.createElement('div');
+      ring.className = 'matching-sparkle-ring';
+      burst.appendChild(ring);
+
+      // SVG Sparkle Star templates
+      const starSvg = '<svg width="100%" height="100%" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0 L14.5 9.5 L24 12 L14.5 14.5 L12 24 L9.5 14.5 L0 12 L9.5 9.5 Z"/></svg>';
+      const diamondSvg = '<svg width="100%" height="100%" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1 L14.2 9.2 L22 12 L14.2 14.8 L12 23 L9.8 14.8 L2 12 L9.8 9.2 Z"/></svg>';
+      const dotSvg = '<svg width="100%" height="100%" viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="4.5"/></svg>';
+
+      // Cheerful sparkling color palette
+      const colors = [
+        { fill: '#fef08a', glow: 'rgba(254, 240, 138, 0.95)' }, // Radiant light yellow
+        { fill: '#fbbf24', glow: 'rgba(251, 191, 36, 0.95)' },  // Warm amber gold
+        { fill: '#ffffff', glow: 'rgba(255, 255, 255, 0.95)' },  // Pure white
+        { fill: '#f472b6', glow: 'rgba(244, 114, 182, 0.85)' },  // Joyful pink
+        { fill: '#38bdf8', glow: 'rgba(56, 189, 248, 0.9)' },   // Cyan starlight
+        { fill: '#c084fc', glow: 'rgba(192, 132, 252, 0.9)' }   // Lavender purple
+      ];
+
+      const particleCount = 16;
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'matching-sparkle-particle';
+
+        // Distribution around 360 degrees
+        const angle = (i / particleCount) * (2 * Math.PI) + (Math.random() - 0.5) * 0.45;
+        // Radial distance outward
+        const distance = 42 + Math.random() * 54; // 42px - 96px
+        const tx = Math.round(Math.cos(angle) * distance);
+        const ty = Math.round(Math.sin(angle) * distance);
+
+        const rot = Math.round((Math.random() - 0.5) * 360);
+        const scale = (0.85 + Math.random() * 0.55).toFixed(2);
+        const duration = (0.60 + Math.random() * 0.22).toFixed(2);
+        const delay = ((i % 4) * 0.025).toFixed(3);
+
+        const colorObj = colors[i % colors.length];
+        const isDot = (i % 3 === 0);
+        const isDiamond = (i % 3 === 1);
+        const size = isDot ? (7 + Math.random() * 5) : (16 + Math.random() * 10);
+
+        particle.innerHTML = isDot ? dotSvg : (isDiamond ? diamondSvg : starSvg);
+        particle.style.width = `${Math.round(size)}px`;
+        particle.style.height = `${Math.round(size)}px`;
+        particle.style.color = colorObj.fill;
+        particle.style.setProperty('--glow-color', colorObj.glow);
+        particle.style.setProperty('--tx', `${tx}px`);
+        particle.style.setProperty('--ty', `${ty}px`);
+        particle.style.setProperty('--rot', `${rot}deg`);
+        particle.style.setProperty('--scale', scale);
+        particle.style.animationDuration = `${duration}s`;
+        particle.style.animationDelay = `${delay}s`;
+
+        burst.appendChild(particle);
+      }
+
+      slot.appendChild(burst);
+
+      // Clean up after animation finishes
+      setTimeout(() => {
+        if (burst && burst.parentNode) burst.remove();
+      }, 900);
     }
 
     // Scroll fade controller for Games Screen

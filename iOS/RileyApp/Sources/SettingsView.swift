@@ -25,34 +25,35 @@ public struct SettingsView: View {
     public var body: some View {
         GeometryReader { proxy in
             let isLandscape = proxy.size.width > proxy.size.height
-            VStack(spacing: 0) {
-                // Top Header Bar matching Home screen
-                HomeHeaderView(
-                    availableWidth: proxy.size.width,
-                    availableHeight: proxy.size.height,
-                    safeAreaTop: proxy.safeAreaInsets.top,
-                    showBackButton: true,
-                    showHomeButton: true,
-                    showSettingsButton: false,
-                    onBackTapped: {
-                        HapticManager.shared.lightTap()
-                        onBack()
-                    },
-                    onHomeTapped: {
-                        HapticManager.shared.lightTap()
-                        onHomeTapped()
-                    }
-                )
-                .zIndex(10)
+            ZStack(alignment: .top) {
+                // Base background color
+                AppTheme.primaryPurple
+                    .ignoresSafeArea()
                 
-                // Settings Body with Animated Repeating Gear Background
-                ZStack {
-                    // Background Color Layer
-                    AppTheme.primaryPurple
-                        .ignoresSafeArea()
-                    
-                    // Animated Scrolling Gear Background Pattern
-                    scrollingPatternLayer(size: proxy.size)
+                // Animated Scrolling Gear Background Pattern carried up to top of screen
+                scrollingPatternLayer(size: proxy.size)
+                    .ignoresSafeArea()
+                
+                // Content Layer with Header on top and Cards scrollable underneath
+                VStack(spacing: 0) {
+                    // Top Header Bar matching Home screen
+                    HomeHeaderView(
+                        availableWidth: proxy.size.width,
+                        availableHeight: proxy.size.height,
+                        safeAreaTop: proxy.safeAreaInsets.top,
+                        showBackButton: true,
+                        showHomeButton: true,
+                        showSettingsButton: false,
+                        onBackTapped: {
+                            HapticManager.shared.lightTap()
+                            onBack()
+                        },
+                        onHomeTapped: {
+                            HapticManager.shared.lightTap()
+                            onHomeTapped()
+                        }
+                    )
+                    .zIndex(10)
                     
                     // Settings Windows Scroll View
                     ScrollView(.vertical, showsIndicators: false) {

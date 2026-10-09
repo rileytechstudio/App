@@ -123,15 +123,12 @@ public struct NGTubeProcedureView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                // MARK: - Top Transparent Prompt Bar (Overlapping screen at top)
-                topPromptBar
-                    .frame(maxWidth: max(screenSize.width - 240, 240))
-                    .padding(.top, max(geometry.safeAreaInsets.top, 10) + 4)
-                    .zIndex(20)
-
-                // MARK: - Top Header (Consistent with IV Start, Transparent background)
-                topHeaderBar(geometry: geometry, isLandscape: isLandscape)
-                    .zIndex(25)
+                // MARK: - Top Header & Full-Width Prompt Bar
+                VStack(spacing: 0) {
+                    topHeaderBar(geometry: geometry, isLandscape: isLandscape)
+                    topPromptBar
+                }
+                .zIndex(25)
             }
         }
         .ignoresSafeArea()
@@ -752,19 +749,23 @@ public struct NGTubeProcedureView: View {
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
         }
-        .padding(.horizontal, 18)
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 24)
         .padding(.vertical, 9)
         .background(
-            Capsule()
+            Rectangle()
                 .fill(Color(red: 14/255, green: 28/255, blue: 32/255).opacity(0.32))
-                .background(.ultraThinMaterial, in: Capsule())
+                .background(.ultraThinMaterial, in: Rectangle())
         )
         .overlay(
-            Capsule()
-                .stroke(Color.white.opacity(0.18), lineWidth: 1)
+            VStack {
+                Divider().background(Color.white.opacity(0.18))
+                Spacer()
+                Divider().background(Color.white.opacity(0.14))
+            }
         )
-        .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 3)
-        .contentShape(Capsule())
+        .shadow(color: Color.black.opacity(0.20), radius: 6, x: 0, y: 3)
+        .contentShape(Rectangle())
         .onTapGesture {
             if currentStep == .intro {
                 advanceToAskingMedicine()
