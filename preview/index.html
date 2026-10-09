@@ -10254,8 +10254,11 @@
                   <img id="mriInsideScreen" class="mri-layer mri-inside-screen" src="assets/MRIInside.png" alt="MRI Inside View" />
                   
                   <!-- MRI Video Player Layer -->
-                  <video id="mriVideoPlayer" class="mri-video-layer" src="assets/MRIVideo.mp4" crossorigin="anonymous" playsinline webkit-playsinline preload="metadata">
+                  <video id="mriVideoPlayer" class="mri-video-layer" playsinline webkit-playsinline preload="auto">
                     <source src="assets/MRIVideo.mp4" type="video/mp4">
+                    <source src="assets/MRIVideo2.mp4" type="video/mp4">
+                    <source src="assets/MRI%20Video.mp4" type="video/mp4">
+                    <source src="assets/MRI%20Video%202.mp4" type="video/mp4">
                   </video>
 
                   <!-- Sound Waves Overlays (Left: Waves 1 to 4) -->
@@ -10370,8 +10373,10 @@
 
                   <!-- Center Stage: Dancing Skeleton Video (Plays in fluid loop, freezes during freeze intervals) -->
                   <div class="mri-still-skeleton-stage" id="mriStillSkeletonStage">
-                    <video id="mriStillVideo" class="mri-still-video" src="assets/MRIDance.mp4" crossorigin="anonymous" loop playsinline webkit-playsinline muted preload="auto">
+                    <video id="mriStillVideo" class="mri-still-video" loop playsinline webkit-playsinline muted preload="auto">
                       <source src="assets/MRIDance.mp4" type="video/mp4">
+                      <source src="assets/MRI%20Dance%202.mp4" type="video/mp4">
+                      <source src="assets/MRI%20Dance.mp4" type="video/mp4">
                     </video>
                   </div>
 
@@ -10416,14 +10421,16 @@
                   <!-- Contrast Comparison Stage Container -->
                   <div class="mri-contrast-container" id="mriContrastContainer">
                     <!-- Base Video: Without Contrast (WO Contrast) -->
-                    <video id="mriVideoWOContrast" class="mri-contrast-video" src="assets/MRIWOContrast.mp4" crossorigin="anonymous" loop playsinline webkit-playsinline muted preload="auto">
+                    <video id="mriVideoWOContrast" class="mri-contrast-video" loop playsinline webkit-playsinline muted preload="auto">
                       <source src="assets/MRIWOContrast.mp4" type="video/mp4">
+                      <source src="assets/MRI%20WO%20Contrast.mp4" type="video/mp4">
                     </video>
 
                     <!-- Top Video Wrapper: With Contrast (Clipped via clip-path) -->
                     <div id="mriContrastClipWrapper" class="mri-contrast-clip-wrapper">
-                      <video id="mriVideoContrast" class="mri-contrast-video" src="assets/MRIContrast.mp4" crossorigin="anonymous" loop playsinline webkit-playsinline muted preload="auto">
+                      <video id="mriVideoContrast" class="mri-contrast-video" loop playsinline webkit-playsinline muted preload="auto">
                         <source src="assets/MRIContrast.mp4" type="video/mp4">
+                        <source src="assets/MRI%20Contrast.mp4" type="video/mp4">
                       </video>
                     </div>
 
@@ -11999,6 +12006,10 @@
           src.start(0);
         }
       } catch (e) {}
+
+      if (typeof preloadMatchingAudioBuffers === 'function') {
+        preloadMatchingAudioBuffers();
+      }
 
       // Prime HTML5 Audio pool instances so mobile WebKit/Blink allow delayed timer playback
       for (const key in sfxPools) {
@@ -14586,6 +14597,7 @@
 
     function goToMatchingGame() {
       triggerHapticFeedback(true);
+      if (typeof preloadMatchingAudioBuffers === 'function') preloadMatchingAudioBuffers();
       switchScreen('matching-game');
     }
 
@@ -15456,6 +15468,7 @@
     }
 
     function initMatchingGame(diff) {
+      if (typeof preloadMatchingAudioBuffers === 'function') preloadMatchingAudioBuffers();
       if (diff && MATCHING_CONFIGS[diff]) {
         currentMatchingDifficulty = diff;
       }
@@ -15573,40 +15586,42 @@
           // MATCH!
           matchingPairsCount++;
           const currentPairName = matchingFirstChoice.data.name;
-
-          // Positive feedback
-          playMatchingSuccessSound(matchingPairsCount);
-          triggerHapticFeedback(true);
-
           const card1 = matchingFirstChoice.element;
           const card2 = matchingSecondChoice.element;
 
-          // Trigger sparkle burst effect on both matching cards
-          triggerMatchingSparkleBurst(card1, card2);
-
-          card1.classList.add('match-pop');
-          card2.classList.add('match-pop');
-
+          // Wait until the second card finishes flipping face-up (~380ms) before celebrating
           setTimeout(() => {
-            // Both disappear
-            card1.classList.remove('match-pop');
-            card2.classList.remove('match-pop');
-            card1.classList.add('matched');
-            card2.classList.add('matched');
-            card1.setAttribute('aria-hidden', 'true');
-            card2.setAttribute('aria-hidden', 'true');
+            // Positive feedback right as the matching pair is revealed
+            playMatchingSuccessSound(matchingPairsCount);
+            triggerHapticFeedback(true);
 
-            matchingFirstChoice = null;
-            matchingSecondChoice = null;
-            matchingIsBusy = false;
+            // Trigger sparkle burst effect on both matching cards
+            triggerMatchingSparkleBurst(card1, card2);
 
-            const config = MATCHING_CONFIGS[currentMatchingDifficulty] || MATCHING_CONFIGS.medium;
-            if (matchingPairsCount >= config.pairs) {
-              setTimeout(() => {
-                showMatchingSuccessCelebration();
-              }, 480);
-            }
-          }, 360);
+            card1.classList.add('match-pop');
+            card2.classList.add('match-pop');
+
+            setTimeout(() => {
+              // Both disappear cleanly after player sees the match
+              card1.classList.remove('match-pop');
+              card2.classList.remove('match-pop');
+              card1.classList.add('matched');
+              card2.classList.add('matched');
+              card1.setAttribute('aria-hidden', 'true');
+              card2.setAttribute('aria-hidden', 'true');
+
+              matchingFirstChoice = null;
+              matchingSecondChoice = null;
+              matchingIsBusy = false;
+
+              const config = MATCHING_CONFIGS[currentMatchingDifficulty] || MATCHING_CONFIGS.medium;
+              if (matchingPairsCount >= config.pairs) {
+                setTimeout(() => {
+                  showMatchingSuccessCelebration();
+                }, 480);
+              }
+            }, 380);
+          }, 380);
         } else {
           // NOT A MATCH!
           const card1 = matchingFirstChoice.element;
@@ -15618,13 +15633,12 @@
             card1.classList.add('shake');
             card2.classList.add('shake');
 
-            // Once the shake finishes, flip back over
+            // Once the shake finishes, flip back over silently without flip sound
             setTimeout(() => {
               card1.classList.remove('shake', 'flipped');
               card2.classList.remove('shake', 'flipped');
               card1.setAttribute('aria-label', `Card ${matchingFirstChoice ? matchingFirstChoice.index + 1 : ''}: Hidden`);
               card2.setAttribute('aria-label', `Card ${index + 1}: Hidden`);
-              playMatchingCardFlipSound();
 
               matchingFirstChoice = null;
               matchingSecondChoice = null;
@@ -15831,39 +15845,121 @@
       }
     }
 
-    // Audio effects for Matching Game
+    // Audio effects for Matching Game using authentic sound assets
+    let matchingCardFlipBuffer = null;
+    let matchingSuccessFlipBuffer = null;
+    let isMatchingAudioLoading = false;
+
+    function preloadMatchingAudioBuffers() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        if (!window._sharedAudioCtx) {
+          window._sharedAudioCtx = new AudioCtx();
+        }
+        const ctx = window._sharedAudioCtx;
+        if (ctx && ctx.state === 'suspended') {
+          ctx.resume().catch(() => {});
+        }
+
+        if (!matchingCardFlipBuffer && !isMatchingAudioLoading) {
+          isMatchingAudioLoading = true;
+
+          fetch('assets/CardFlip.mp3')
+            .then(res => res.arrayBuffer())
+            .then(ab => ctx.decodeAudioData(ab))
+            .then(buf => { matchingCardFlipBuffer = buf; })
+            .catch(() => {});
+
+          fetch('assets/SuccessfulFlip.mp3')
+            .then(res => res.arrayBuffer())
+            .then(ab => ctx.decodeAudioData(ab))
+            .then(buf => { matchingSuccessFlipBuffer = buf; })
+            .catch(() => {});
+        }
+      } catch (e) {}
+    }
+
     function playMatchingCardFlipSound() {
       if (isSoundMuted) return;
+      preloadMatchingAudioBuffers();
+
       try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         if (!window._sharedAudioCtx && AudioCtx) window._sharedAudioCtx = new AudioCtx();
-        if (!window._sharedAudioCtx) return;
         const ctx = window._sharedAudioCtx;
-        if (ctx.state === 'suspended') ctx.resume().catch(() => {});
-        const now = ctx.currentTime;
+        if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
 
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(320, now);
-        osc.frequency.exponentialRampToValueAtTime(740, now + 0.07);
+        if (ctx && matchingCardFlipBuffer) {
+          const src = ctx.createBufferSource();
+          src.buffer = matchingCardFlipBuffer;
+          // Organic micro-pitch variation (+/- 2.5%) for natural tactile card feel
+          src.playbackRate.value = 0.98 + Math.random() * 0.05;
+          const gain = ctx.createGain();
+          gain.gain.value = 0.70;
+          src.connect(gain);
+          gain.connect(ctx.destination);
+          src.start(0);
+          return;
+        }
+      } catch (e) {}
 
-        gain.gain.setValueAtTime(0.24, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.09);
+      // Fallback
+      try {
+        const audio = new Audio('assets/CardFlip.mp3');
+        audio.volume = 0.70;
+        audio.play().catch(() => {});
       } catch (e) {}
     }
 
     function playMatchingSuccessSound(step) {
       if (isSoundMuted) return;
-      if (typeof playMarimbaChime === 'function') {
-        playMarimbaChime(step + 2, 8, 0.40);
-        setTimeout(() => playMarimbaChime(step + 5, 8, 0.38), 110);
+      preloadMatchingAudioBuffers();
+
+      const config = MATCHING_CONFIGS[currentMatchingDifficulty] || MATCHING_CONFIGS.medium;
+      const totalPairs = config.pairs;
+      const progress = Math.max(0, Math.min(1, (step - 1) / Math.max(1, totalPairs - 1)));
+
+      // Rising pitch progression: very mild for hard level, musical step-up for medium and easy
+      let maxSemitones = 3.2; // Medium: 4 pairs, rising smoothly by ~1.07 semitones each
+      if (currentMatchingDifficulty === 'hard') {
+        maxSemitones = 2.4; // Hard: 6 pairs, very mild rise (~0.48 semitones each)
+      } else if (currentMatchingDifficulty === 'easy') {
+        maxSemitones = 2.8; // Easy: 3 pairs, gentle 3-step ascent (~1.4 semitones each)
       }
+
+      const semitones = progress * maxSemitones;
+      const pitchMultiplier = Math.pow(2, semitones / 12);
+
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!window._sharedAudioCtx && AudioCtx) window._sharedAudioCtx = new AudioCtx();
+        const ctx = window._sharedAudioCtx;
+        if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
+
+        if (ctx && matchingSuccessFlipBuffer) {
+          const src = ctx.createBufferSource();
+          src.buffer = matchingSuccessFlipBuffer;
+          src.playbackRate.value = pitchMultiplier;
+          const gain = ctx.createGain();
+          gain.gain.value = 0.85;
+          src.connect(gain);
+          gain.connect(ctx.destination);
+          src.start(0);
+          return;
+        }
+      } catch (e) {}
+
+      // Fallback to HTMLMediaElement with pitch-shift
+      try {
+        const audio = new Audio('assets/SuccessfulFlip.mp3');
+        audio.preservesPitch = false;
+        audio.webkitPreservesPitch = false;
+        audio.mozPreservesPitch = false;
+        audio.playbackRate = pitchMultiplier;
+        audio.volume = 0.85;
+        audio.play().catch(() => {});
+      } catch (e) {}
     }
 
     function playMatchingMismatchSound() {
@@ -24393,38 +24489,67 @@
     // Video resilience for tablet PWA (iOS WebClip standalone and Android Chrome)
     function setupVideoResilience() {
       const videoConfigs = [
-        { id: 'mriVideoPlayer', src: 'assets/MRIVideo.mp4', muted: false },
-        { id: 'mriStillVideo', src: 'assets/MRIDance.mp4', muted: true },
-        { id: 'mriVideoWOContrast', src: 'assets/MRIWOContrast.mp4', muted: true },
-        { id: 'mriVideoContrast', src: 'assets/MRIContrast.mp4', muted: true }
+        {
+          id: 'mriVideoPlayer',
+          sources: ['assets/MRIVideo.mp4', 'assets/MRIVideo2.mp4', 'assets/MRI Video 2.mp4', 'assets/MRI Video.mp4'],
+          muted: false
+        },
+        {
+          id: 'mriStillVideo',
+          sources: ['assets/MRIDance.mp4', 'assets/MRI Dance 2.mp4', 'assets/MRI Dance.mp4'],
+          muted: true
+        },
+        {
+          id: 'mriVideoWOContrast',
+          sources: ['assets/MRIWOContrast.mp4', 'assets/MRI WO Contrast.mp4'],
+          muted: true
+        },
+        {
+          id: 'mriVideoContrast',
+          sources: ['assets/MRIContrast.mp4', 'assets/MRI Contrast.mp4'],
+          muted: true
+        }
       ];
 
-      videoConfigs.forEach(({ id, src, muted }) => {
+      videoConfigs.forEach(({ id, sources, muted }) => {
         const vid = document.getElementById(id);
         if (!vid) return;
 
+        vid.removeAttribute('crossorigin');
         vid.setAttribute('playsinline', '');
         vid.setAttribute('webkit-playsinline', '');
-        vid.setAttribute('crossorigin', 'anonymous');
         if (muted) {
           vid.muted = true;
           vid.defaultMuted = true;
           vid.setAttribute('muted', '');
         }
 
-        // Error recovery
+        let sourceIndex = 0;
+        let retryCount = 0;
+        const maxRetries = sources.length + 1;
+
+        // Error recovery across fallbacks without infinite loops
         vid.addEventListener('error', (e) => {
           const err = vid.error;
           console.warn(`[Video Resilience] Error on #${id}:`, err ? `Code ${err.code} (${err.message})` : e);
+          if (retryCount >= maxRetries) {
+            console.warn(`[Video Resilience] Max retries reached for #${id}`);
+            return;
+          }
+          retryCount++;
+          sourceIndex = (sourceIndex + 1) % sources.length;
+          const nextSrc = sources[sourceIndex];
+          console.log(`[Video Resilience] Retrying #${id} with ${nextSrc}`);
           setTimeout(() => {
             if (vid) {
               try {
+                vid.removeAttribute('crossorigin');
                 if (muted) vid.muted = true;
-                vid.src = src + (src.includes('?') ? '&' : '?') + 'r=' + Date.now();
+                vid.src = nextSrc;
                 vid.load();
               } catch (_) {}
             }
-          }, 400);
+          }, 300);
         });
       });
     }

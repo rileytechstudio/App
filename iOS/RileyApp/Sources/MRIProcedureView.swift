@@ -1408,10 +1408,18 @@ public struct MRIProcedureView: View {
                     promptText = "Program resumed! Put on your movie or music with headphones while the MRI takes pictures!"
                 }
             } else {
-                let videoURL = Bundle.main.url(forResource: "MRIVideo", withExtension: "mp4") ??
+                var videoURL = Bundle.main.url(forResource: "MRIVideo", withExtension: "mp4") ??
                                Bundle.main.url(forResource: "MRI Video 2", withExtension: "mp4") ??
                                Bundle.main.url(forResource: "MRIVideo2", withExtension: "mp4") ??
                                Bundle.main.url(forResource: "MRI Video", withExtension: "mp4")
+                #if SWIFT_PACKAGE
+                if videoURL == nil {
+                    videoURL = Bundle.module.url(forResource: "MRIVideo", withExtension: "mp4") ??
+                               Bundle.module.url(forResource: "MRI Video 2", withExtension: "mp4") ??
+                               Bundle.module.url(forResource: "MRIVideo2", withExtension: "mp4") ??
+                               Bundle.module.url(forResource: "MRI Video", withExtension: "mp4")
+                }
+                #endif
                 if let videoURL = videoURL {
                     let player = AVPlayer(url: videoURL)
                     self.avPlayer = player
