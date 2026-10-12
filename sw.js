@@ -1,5 +1,5 @@
 // Riley PWA Service Worker
-const CACHE_NAME = 'riley-pwa-v194';
+const CACHE_NAME = 'riley-pwa-v222';
 const PRECACHE_ASSETS = [
   './',
   './index.html',
@@ -284,6 +284,24 @@ const PRECACHE_ASSETS = [
   './assets/NGTubeTableTransparent.png',
   './assets/Spray.mp3',
   './assets/Cups.mp3',
+  './assets/NGTubeMeasuringTape.png',
+  './assets/NGTubeMeasuringTapeClosed.png',
+  './assets/NGTubeMeasuringTapeItem.png',
+  './assets/NGTubeLongTape.png',
+  './assets/NGTubeLongTapeItem.png',
+  './assets/NGTubeSyringe.png',
+  './assets/Syringe.png',
+  './assets/Syringe 2.png',
+  './assets/Syringe%202.png',
+  './assets/Syringe 3.png',
+  './assets/Syringe%203.png',
+  './assets/NGTubeJelly.png',
+  './assets/NGTubePatientWithTube.png',
+  './assets/NGTubeFaceTapeItem.png',
+  './assets/Jelly2.png',
+  './assets/Jelly.mp3',
+  './assets/MeasuringTape.mp3',
+  './assets/Measuring%20Tape.mp3',
   './assets/ButtonPortAccess.png',
   './assets/ButtonBurnDress.png',
   './assets/ButtonMaskDecoration.png',

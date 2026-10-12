@@ -2461,6 +2461,7 @@
       height: 100%;
       background: #162c30;
       overflow: hidden;
+      transition: background 0.4s ease;
     }
 
     #screenNGTube .game-top-bar {
@@ -2493,6 +2494,54 @@
       overflow: hidden;
       background: #0d1e22;
       padding: 0;
+      transition: background 0.4s ease;
+    }
+
+    /* NG Tube Maze Mode - Extend Maze Background to Top of Screen & Dark Liquid Glass Navigation Buttons */
+    #screenNGTube.maze-mode,
+    #screenNGTube.maze-mode .ng-tube-content,
+    #screenNGTube.maze-mode .ng-tube-stage-wrapper {
+      background: radial-gradient(circle at 65% 45%, #fff8f6 0%, #fdeee9 45%, #fce4de 85%, #f9dbd3 100%) !important;
+    }
+
+    #screenNGTube.maze-mode .game-top-btn {
+      color: #ffffff !important;
+      background: rgba(15, 23, 42, 0.58) !important;
+      backdrop-filter: blur(14px) saturate(160%) !important;
+      -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.24) !important;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22), inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    }
+
+    #screenNGTube.maze-mode .game-top-btn:hover {
+      background: rgba(15, 23, 42, 0.72) !important;
+      border-color: rgba(255, 255, 255, 0.35) !important;
+    }
+
+    #screenNGTube.maze-mode .game-top-btn:active {
+      background: rgba(15, 23, 42, 0.85) !important;
+      transform: scale(0.96);
+    }
+
+    #screenNGTube.maze-mode .game-top-btn-icon {
+      color: #ffffff !important;
+      background: rgba(15, 23, 42, 0.58) !important;
+      backdrop-filter: blur(14px) saturate(160%) !important;
+      -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.24) !important;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22), inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    }
+
+    #screenNGTube.maze-mode .game-top-btn-icon:hover {
+      background: rgba(15, 23, 42, 0.72) !important;
+      border-color: rgba(255, 255, 255, 0.35) !important;
+    }
+
+    #screenNGTube.maze-mode .game-top-btn-icon:active {
+      background: rgba(15, 23, 42, 0.85) !important;
+      transform: scale(0.96);
     }
 
     .ng-tube-stage {
@@ -2502,6 +2551,15 @@
       max-height: 100%;
       overflow: hidden;
       cursor: pointer;
+      margin-top: 0;
+    }
+
+    #ngTubeStage {
+      width: 100%;
+      height: 100%;
+      max-width: none;
+      max-height: none;
+      aspect-ratio: unset;
     }
 
     .ng-tube-layer {
@@ -2510,7 +2568,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: fill;
       pointer-events: none;
     }
 
@@ -2536,7 +2594,7 @@
       position: absolute;
       left: 15%;
       top: 55%;
-      width: 18.8%;
+      width: 15.0%;
       aspect-ratio: 257 / 270;
       z-index: 25;
       cursor: grab;
@@ -2593,8 +2651,8 @@
     /* Spray Mist Particle Container at Nose */
     .ng-tube-spray-mist {
       position: absolute;
-      left: 77.5%;
-      top: 25.5%;
+      left: 77.0%;
+      top: 34.5%;
       width: 110px;
       height: 110px;
       transform: translate(-50%, -50%);
@@ -2680,7 +2738,7 @@
       height: 100%;
       pointer-events: none;
       z-index: 5;
-      transform-origin: 21.5% 67%;
+      transform-origin: 23.6% 70.9%;
     }
 
     .ng-tube-drinks-item.pop-in {
@@ -2705,7 +2763,7 @@
     .ng-tube-drinks-item img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: fill;
       display: block;
     }
 
@@ -2727,7 +2785,7 @@
     .ng-tube-tabletop-hotspot img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: fill;
       display: block;
       pointer-events: none;
     }
@@ -2747,6 +2805,440 @@
       }
     }
 
+    /* Measuring Tape on Tabletop (Pops up with glowing aura) */
+    .ng-tube-tape-table-item {
+      position: absolute;
+      left: 14%;
+      top: 80%;
+      width: 9.2%;
+      aspect-ratio: 120 / 158;
+      z-index: 25;
+      cursor: pointer;
+      pointer-events: auto;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+      filter: drop-shadow(0 0 16px rgba(249, 115, 22, 0.95)) drop-shadow(0 0 32px rgba(234, 88, 12, 0.65)) drop-shadow(0 8px 18px rgba(0, 0, 0, 0.35));
+      animation: ngTapeGlow 2.2s infinite ease-in-out;
+      transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1);
+    }
+
+    .ng-tube-tape-table-item:hover {
+      transform: scale(1.08);
+      filter: drop-shadow(0 0 22px rgba(249, 115, 22, 1)) drop-shadow(0 0 42px rgba(234, 88, 12, 0.85));
+    }
+
+    .ng-tube-tape-table-item.pop-in {
+      animation: ngDrinkPopIn 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, ngTapeGlow 2.2s 0.55s infinite ease-in-out;
+    }
+
+    .ng-tube-tape-table-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+    }
+
+    @keyframes ngTapeGlow {
+      0%, 100% {
+        filter: drop-shadow(0 0 14px rgba(249, 115, 22, 0.85)) drop-shadow(0 0 28px rgba(234, 88, 12, 0.5)) drop-shadow(0 8px 18px rgba(0, 0, 0, 0.35));
+      }
+      50% {
+        filter: drop-shadow(0 0 24px rgba(249, 115, 22, 1)) drop-shadow(0 0 46px rgba(234, 88, 12, 0.85)) drop-shadow(0 10px 22px rgba(0, 0, 0, 0.4));
+      }
+    }
+
+    /* Measuring Tape Container across patient body */
+    .ng-tube-tape-container {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 26;
+    }
+
+    /* Belly Target Beacon */
+    .ng-tube-belly-target {
+      position: absolute;
+      left: 52.56%;
+      top: 70.0%;
+      width: 76px;
+      height: 76px;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 24;
+      transition: filter 0.3s;
+    }
+
+    .ng-tube-target-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 2.5px dashed rgba(249, 115, 22, 0.9);
+      animation: ngTargetRingPulse 2.4s infinite linear;
+    }
+
+    .ng-tube-target-ring.r2 {
+      inset: -10px;
+      border: 2px dashed rgba(251, 146, 60, 0.6);
+      animation: ngTargetRingPulse 3.2s infinite reverse linear;
+    }
+
+    @keyframes ngTargetRingPulse {
+      0% { transform: rotate(0deg) scale(0.96); opacity: 0.65; }
+      50% { transform: rotate(180deg) scale(1.05); opacity: 1; }
+      100% { transform: rotate(360deg) scale(0.96); opacity: 0.65; }
+    }
+
+    .ng-tube-target-dot {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 14px;
+      height: 14px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: #f97316;
+      box-shadow: 0 0 14px #f97316;
+      animation: ngTargetDotPulse 1.4s infinite ease-in-out;
+    }
+
+    @keyframes ngTargetDotPulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(0.85); opacity: 0.7; }
+      50% { transform: translate(-50%, -50%) scale(1.25); opacity: 1; }
+    }
+
+    .ng-tube-belly-target.won .ng-tube-target-ring {
+      border-color: #22c55e !important;
+      animation-duration: 1.2s;
+    }
+
+    .ng-tube-belly-target.won .ng-tube-target-dot {
+      background: #22c55e !important;
+      box-shadow: 0 0 20px #22c55e;
+    }
+
+    /* Dynamic Extending Tape Ribbon using authentic Long Tape PNG */
+    .ng-tube-tape-ribbon {
+      position: absolute;
+      left: 0;
+      top: 34.5%;
+      width: 100%;
+      height: 8px;
+      pointer-events: none;
+      z-index: 26;
+      overflow: hidden;
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.45));
+    }
+
+    .ng-tube-tape-ribbon img {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: auto;
+      display: block;
+      pointer-events: none;
+    }
+
+    /* Draggable Orange Tape Measure Casing */
+    .ng-tube-tape-casing {
+      position: absolute;
+      left: 52.56%;
+      top: 34.5%;
+      width: 9.5%;
+      aspect-ratio: 120 / 158;
+      transform: translate(-50%, 0);
+      transform-origin: top center;
+      z-index: 28;
+      cursor: grab;
+      pointer-events: auto;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+      filter: drop-shadow(0 0 16px rgba(249, 115, 22, 0.95)) drop-shadow(0 8px 18px rgba(0, 0, 0, 0.4));
+      animation: ngTapeCasingGlow 2.4s infinite ease-in-out;
+      transition: transform 0.15s ease-out;
+    }
+
+    .ng-tube-tape-casing::before {
+      content: '';
+      position: absolute;
+      inset: -14px;
+      cursor: grab;
+    }
+
+    @keyframes ngTapeCasingGlow {
+      0%, 100% {
+        filter: drop-shadow(0 0 14px rgba(249, 115, 22, 0.85)) drop-shadow(0 8px 18px rgba(0, 0, 0, 0.35));
+      }
+      50% {
+        filter: drop-shadow(0 0 24px rgba(249, 115, 22, 1)) drop-shadow(0 0 38px rgba(251, 146, 60, 0.7)) drop-shadow(0 10px 22px rgba(0, 0, 0, 0.45));
+      }
+    }
+
+    .ng-tube-tape-casing.dragging {
+      cursor: grabbing;
+      transform: translate(-50%, 0) scale(1.08);
+      z-index: 35;
+      animation: none;
+      filter: drop-shadow(0 0 24px rgba(249, 115, 22, 1)) drop-shadow(0 12px 24px rgba(0, 0, 0, 0.5));
+    }
+
+    .ng-tube-tape-casing.snapped {
+      cursor: default;
+      z-index: 27;
+      animation: none;
+      transform: translate(-50%, 0);
+      filter: drop-shadow(0 0 20px rgba(34, 197, 94, 0.95)) drop-shadow(0 6px 16px rgba(0, 0, 0, 0.35));
+    }
+
+    .ng-tube-tape-casing img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+    }
+
+    /* Pop-out animation for tape container upon successful measurement */
+    .ng-tube-pop-out {
+      animation: ngTapePopOut 0.38s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
+      pointer-events: none !important;
+    }
+
+    @keyframes ngTapePopOut {
+      0% { transform: scale(1); opacity: 1; }
+      35% { transform: scale(1.12); opacity: 1; }
+      100% { transform: scale(0.05); opacity: 0; }
+    }
+
+    /* Layer 8: NG Tube Preparation Step (Syringe + Jelly on Tip) */
+    .ng-tube-prep-container {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 30;
+    }
+
+    .ng-tube-prep-syringe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 31;
+      animation: ngPrepSyringePopIn 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    .ng-tube-prep-syringe img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.85)) drop-shadow(0 0 26px rgba(255, 255, 255, 0.55));
+      animation: ngSyringeGlowPulse 2.4s infinite ease-in-out;
+    }
+
+    @keyframes ngPrepSyringePopIn {
+      0% { transform: scale(0.35); opacity: 0; }
+      70% { transform: scale(1.06); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes ngSyringeGlowPulse {
+      0%, 100% { filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.75)) drop-shadow(0 0 22px rgba(255, 255, 255, 0.45)); }
+      50% { filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.95)) drop-shadow(0 0 36px rgba(255, 255, 255, 0.7)); }
+    }
+
+    .ng-tube-jelly-target {
+      position: absolute;
+      left: 36.2%;
+      top: 57.6%;
+      width: 60px;
+      height: 60px;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      pointer-events: auto;
+      z-index: 35;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: manipulation;
+    }
+
+    .ng-tube-glowing-circle {
+      position: relative;
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .ng-tube-glow-ring {
+      position: absolute;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 3px solid #00e5ff;
+      box-shadow: 0 0 12px #00e5ff, 0 0 22px rgba(0, 229, 255, 0.65), inset 0 0 8px #00e5ff;
+      background: rgba(0, 229, 255, 0.12);
+      animation: ngGlowCircleBreathe 2s infinite ease-in-out;
+    }
+
+    .ng-tube-pulse-ring {
+      position: absolute;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 2.5px solid #00e5ff;
+      box-shadow: 0 0 14px #00e5ff;
+      animation: mriPulse 2s infinite ease-out;
+    }
+
+    @keyframes ngGlowCircleBreathe {
+      0%, 100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 10px #00e5ff, 0 0 18px rgba(0, 229, 255, 0.5), inset 0 0 6px #00e5ff;
+      }
+      50% {
+        transform: scale(1.06);
+        box-shadow: 0 0 16px #00e5ff, 0 0 28px rgba(0, 229, 255, 0.85), inset 0 0 10px #00e5ff;
+      }
+    }
+
+    .ng-tube-prep-jelly {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 33;
+      transform-origin: 36.2% 57.6%;
+      animation: ngJellyPopIn 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    .ng-tube-prep-jelly img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 0 16px rgba(129, 245, 246, 0.95)) drop-shadow(0 0 28px rgba(56, 189, 248, 0.75));
+    }
+
+    @keyframes ngJellyPopIn {
+      0% { transform: scale(0.2); opacity: 0; }
+      70% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Maze Intro Pause & Prompt Modal (Between Jelly application and Maze game) */
+    .ng-tube-maze-intro-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 35;
+      background: rgba(15, 23, 42, 0.72);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    .ng-tube-maze-intro-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .ng-tube-maze-intro-card {
+      background: linear-gradient(145deg, rgba(30, 41, 59, 0.96), rgba(15, 23, 42, 0.98));
+      border: 2px solid rgba(56, 189, 248, 0.65);
+      border-radius: 28px;
+      padding: 32px 36px;
+      text-align: center;
+      color: #ffffff;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55), 0 0 35px rgba(56, 189, 248, 0.3);
+      max-width: 440px;
+      width: 90%;
+      transform: scale(0.92);
+      transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .ng-tube-maze-intro-overlay.active .ng-tube-maze-intro-card {
+      transform: scale(1);
+    }
+
+    .ng-tube-maze-intro-card .intro-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 20px;
+      background: rgba(56, 189, 248, 0.16);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: #38bdf8;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .ng-tube-maze-intro-card .intro-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.35;
+      margin-bottom: 10px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+    }
+
+    .ng-tube-maze-intro-card .intro-subtitle {
+      font-size: 15px;
+      color: #cbd5e1;
+      line-height: 1.45;
+      margin-bottom: 24px;
+    }
+
+    .ng-tube-maze-intro-card .intro-actions {
+      display: flex;
+      justify-content: center;
+    }
+
+    .intro-start-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #0ea5e9, #0284c7) !important;
+      color: #ffffff !important;
+      box-shadow: 0 6px 20px rgba(14, 165, 233, 0.45) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+      font-size: 18px !important;
+      font-weight: 800 !important;
+      padding: 14px 32px !important;
+      border-radius: 28px !important;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .intro-start-btn:hover {
+      transform: translateY(-2px) scale(1.04);
+      box-shadow: 0 10px 26px rgba(14, 165, 233, 0.6) !important;
+    }
+
+    .intro-start-btn:active {
+      transform: scale(0.97);
+    }
+
     /* Decision Popup Overlay & Action Buttons */
     .ng-tube-decision-overlay {
       position: absolute;
@@ -2755,8 +3247,10 @@
       width: 100%;
       height: 100%;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
+      padding-top: 24%;
+      box-sizing: border-box;
       z-index: 20;
       pointer-events: none;
       opacity: 0;
@@ -2831,7 +3325,7 @@
 
     .ng-tube-tap-hint {
       position: absolute;
-      bottom: 24px;
+      bottom: 68px;
       left: 50%;
       transform: translateX(-50%);
       background: rgba(16, 8, 34, 0.72);
@@ -2865,14 +3359,14 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: linear-gradient(180deg, rgba(14, 28, 32, 0.30) 0%, rgba(20, 38, 44, 0.36) 100%);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-top: 1px solid rgba(255, 255, 255, 0.18);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+      background: linear-gradient(180deg, rgba(14, 28, 32, 0.16) 0%, rgba(20, 38, 44, 0.22) 100%);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-top: 1px solid rgba(255, 255, 255, 0.14);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       border-left: none;
       border-right: none;
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.24);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
       transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease, opacity 0.3s ease;
       cursor: pointer;
       pointer-events: auto;
@@ -2888,9 +3382,9 @@
     }
 
     .ng-tube-top-prompt-bar.highlight-advance {
-      background: linear-gradient(180deg, rgba(28, 54, 62, 0.65) 0%, rgba(36, 70, 80, 0.72) 100%);
+      background: linear-gradient(180deg, rgba(28, 54, 62, 0.36) 0%, rgba(36, 70, 80, 0.44) 100%);
       border-color: rgba(251, 191, 36, 0.85);
-      box-shadow: 0 4px 24px rgba(251, 191, 36, 0.35);
+      box-shadow: 0 4px 20px rgba(251, 191, 36, 0.30);
     }
 
     .ng-tube-top-prompt-bar .step-instruction-card {
@@ -3337,6 +3831,84 @@
 
     .ng-tube-choice-btn-secondary:hover {
       background: rgba(255, 255, 255, 0.28);
+    }
+
+    /* Face Tape Draggable Item (Spawned on left side above bedside table with glowing aura) */
+    .ng-tube-face-tape-item {
+      position: absolute;
+      left: 32.0%;
+      top: 46.0%;
+      width: 3.8%;
+      aspect-ratio: 95 / 243;
+      transform: translate(-50%, -50%);
+      z-index: 28;
+      cursor: grab;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+      filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.95)) drop-shadow(0 0 32px rgba(255, 255, 255, 0.75)) drop-shadow(0 6px 14px rgba(0, 0, 0, 0.35));
+      animation: ngFaceTapeGlow 2.4s infinite ease-in-out;
+      transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1);
+    }
+
+    .ng-tube-face-tape-item::before {
+      content: '';
+      position: absolute;
+      inset: -22px;
+      cursor: grab;
+    }
+
+    @keyframes ngFaceTapeGlow {
+      0%, 100% {
+        filter: drop-shadow(0 0 14px rgba(56, 189, 248, 0.85)) drop-shadow(0 0 26px rgba(255, 255, 255, 0.65)) drop-shadow(0 6px 14px rgba(0, 0, 0, 0.35));
+      }
+      50% {
+        filter: drop-shadow(0 0 24px rgba(56, 189, 248, 1)) drop-shadow(0 0 42px rgba(255, 255, 255, 0.9)) drop-shadow(0 8px 18px rgba(0, 0, 0, 0.4));
+      }
+    }
+
+    .ng-tube-face-tape-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+    }
+
+    .ng-tube-face-tape-item.dragging {
+      cursor: grabbing;
+      transform: translate(-50%, -50%) scale(1.15) rotate(-8deg);
+      z-index: 38;
+      transition: none;
+      animation: none;
+      filter: drop-shadow(0 0 28px rgba(56, 189, 248, 1)) drop-shadow(0 0 44px rgba(255, 255, 255, 0.95)) drop-shadow(0 12px 24px rgba(0, 0, 0, 0.45));
+    }
+
+    .ng-tube-face-tape-item.snapped {
+      cursor: default;
+      left: 84.33% !important;
+      top: 37.11% !important;
+      transform: translate(-50%, -50%) rotate(-12deg) scale(0.92) !important;
+      z-index: 25;
+      animation: none;
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
+      pointer-events: none;
+      transition: all 0.32s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    /* Cheek Target Beacon on Patient Face */
+    .ng-tube-cheek-target {
+      position: absolute;
+      left: 84.33%;
+      top: 37.11%;
+      width: 58px;
+      height: 58px;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 24;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     /* ========================================================= */
@@ -7592,14 +8164,14 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: linear-gradient(180deg, rgba(22, 10, 52, 0.38) 0%, rgba(32, 14, 72, 0.44) 100%);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-top: 1px solid rgba(255, 255, 255, 0.18);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+      background: linear-gradient(180deg, rgba(22, 10, 52, 0.18) 0%, rgba(32, 14, 72, 0.24) 100%);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-top: 1px solid rgba(255, 255, 255, 0.14);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       border-left: none;
       border-right: none;
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.24);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
       transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease, opacity 0.35s ease, transform 0.35s ease, visibility 0.35s ease;
       cursor: default;
       pointer-events: auto;
@@ -7623,9 +8195,9 @@
     }
 
     .matching-top-prompt-bar.highlight-advance {
-      background: linear-gradient(180deg, rgba(56, 26, 118, 0.75) 0%, rgba(72, 32, 148, 0.82) 100%);
+      background: linear-gradient(180deg, rgba(56, 26, 118, 0.40) 0%, rgba(72, 32, 148, 0.48) 100%);
       border-color: rgba(251, 191, 36, 0.85);
-      box-shadow: 0 4px 24px rgba(251, 191, 36, 0.35);
+      box-shadow: 0 4px 20px rgba(251, 191, 36, 0.30);
     }
 
     .matching-top-prompt-bar .step-instruction-card {
@@ -7660,7 +8232,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 10px 20px calc(24px + env(safe-area-inset-bottom, 16px));
+      padding: 56px 20px calc(24px + env(safe-area-inset-bottom, 16px));
       box-sizing: border-box;
       overflow: hidden;
     }
@@ -10916,11 +11488,14 @@
             </div>
 
             <!-- NG Tube Stage Wrapper (1366:1024 Aspect Ratio, Scales Responsively) -->
-            <div class="ng-tube-stage-wrapper" id="ngTubeStageWrapper" onclick="handleNGTubeStageTap(event)">
+            <div class="ng-tube-stage-wrapper" id="ngTubeStageWrapper">
               <!-- Phase 1: Welcome & Relaxant Medicine Stage -->
               <div class="ng-tube-stage" id="ngTubeStage" onclick="handleNGTubeStageTap(event)">
                 <!-- Layer 1: Welcome / BG Screen (Patient boy in bed) -->
                 <img id="ngTubeWelcomeBG" class="ng-tube-layer ng-tube-bg-layer" src="assets/NGTubeWelcomeBG.png" alt="Preparing for NG Tube" />
+
+                <!-- Layer 1b: Patient with NG Tube (Shown after maze for cheek tape step) -->
+                <img id="ngTubePatientWithTube" class="ng-tube-layer" src="assets/NGTubePatientWithTube.png" alt="Patient with NG Tube" style="display: none; z-index: 2;" />
 
                 <!-- Layer 2: Draggable Syringe Item (Appears above the table with glowing aura) -->
                 <div id="ngTubeSyringeItem" class="ng-tube-syringe-item" style="display: none;" onpointerdown="startDragNGTubeSyringe(event)">
@@ -10947,6 +11522,107 @@
                 <!-- Layer 5: Table Glowing Item (Table Transparent PNG glowing as a whole) -->
                 <div id="ngTubeTabletopHotspot" class="ng-tube-tabletop-hotspot" style="display: none;" onclick="handleNGTubeTabletopTap(event)" aria-label="Table">
                   <img src="assets/NGTubeTableTransparent.png" alt="Bedside Table" draggable="false" />
+                </div>
+
+                <!-- Layer 6: Measuring Tape on Table (Pops up with glowing aura) -->
+                <div id="ngTubeTapeTableItem" class="ng-tube-tape-table-item" style="display: none;" onclick="handleNGTubeTapeTableTap(event)" aria-label="Measuring Tape on Table">
+                  <img src="assets/NGTubeMeasuringTapeItem.png" alt="Measuring Tape" draggable="false" />
+                </div>
+
+                <!-- Layer 7: Measuring Tape Container (Ribbon + Casing across patient body) -->
+                <div id="ngTubeTapeContainer" class="ng-tube-tape-container" style="display: none;">
+                  <!-- Target Beacon at Belly -->
+                  <div id="ngTubeBellyTarget" class="ng-tube-belly-target" style="display: none;">
+                    <div class="ng-tube-target-ring r1"></div>
+                    <div class="ng-tube-target-ring r2"></div>
+                    <div class="ng-tube-target-dot"></div>
+                  </div>
+                  <!-- Extending Tape Ribbon using authentic Long Tape PNG -->
+                  <div id="ngTubeTapeRibbon" class="ng-tube-tape-ribbon" style="display: none;">
+                    <img id="ngTubeTapeRibbonImg" src="assets/NGTubeLongTape.png" alt="Measuring Tape Ribbon" draggable="false" />
+                  </div>
+                  <!-- Draggable Orange Tape Casing -->
+                  <div id="ngTubeTapeCasing" class="ng-tube-tape-casing" onpointerdown="startDragNGTubeTape(event)">
+                    <img src="assets/NGTubeMeasuringTapeItem.png" alt="Tape Measure Casing" draggable="false" />
+                  </div>
+                </div>
+
+                <!-- Layer 8: Tube Preparation (Syringe with NG Tube + Jelly on Tip) -->
+                <div id="ngTubePrepContainer" class="ng-tube-prep-container" style="display: none;">
+                  <!-- Syringe with Tube PNG in middle of screen with glow -->
+                  <div id="ngTubePrepSyringe" class="ng-tube-prep-syringe">
+                    <img src="assets/Syringe 3.png" alt="NG Tube with Syringe" draggable="false" />
+                  </div>
+                  <!-- Interactive Tap Target Beacon on the Tip of the Tube (MRI-style glowing circle) -->
+                  <div id="ngTubeJellyTarget" class="ng-tube-jelly-target" onclick="handleNGTubeJellyTap(event)" aria-label="Tap tube tip to add jelly">
+                    <div class="ng-tube-glowing-circle">
+                      <div class="ng-tube-glow-ring"></div>
+                      <div class="ng-tube-pulse-ring"></div>
+                    </div>
+                  </div>
+                  <!-- Jelly 2 PNG on the very tip of the tube -->
+                  <div id="ngTubePrepJelly" class="ng-tube-prep-jelly" style="display: none;">
+                    <img src="assets/NGTubeJelly.png" alt="Lubricating Jelly on Tip of Tube" draggable="false" />
+                  </div>
+                </div>
+
+                <!-- Layer 9: Face Tape Cheek Target Beacon -->
+                <div id="ngTubeCheekTarget" class="ng-tube-cheek-target" style="display: none;" aria-label="Tape Cheek Target">
+                  <div class="ng-tube-glowing-circle">
+                    <div class="ng-tube-glow-ring"></div>
+                    <div class="ng-tube-pulse-ring"></div>
+                  </div>
+                </div>
+
+                <!-- Layer 10: Draggable Face Tape Item -->
+                <div id="ngTubeFaceTapeItem" class="ng-tube-face-tape-item" style="display: none;" onpointerdown="startDragNGTubeFaceTape(event)" role="button" aria-label="Soft tape for cheek" tabindex="0">
+                  <img src="assets/NGTubeFaceTapeItem.png" alt="Soft tape" draggable="false" />
+                </div>
+
+                <!-- NG Tube Final Procedure Complete Overlay -->
+                <div id="ngTubeFinalVictoryOverlay" class="ng-tube-maze-victory" style="display: none;">
+                  <div class="ng-tube-victory-card">
+                    <div class="victory-icon" style="background: rgba(34, 197, 94, 0.2); border-color: rgba(34, 197, 94, 0.6); color: #22c55e;">
+                      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </div>
+                    <div class="victory-title" style="color: #22c55e;">All Done!</div>
+                    <div class="victory-subtitle">The NG tube is safely placed and secured with soft tape! Fantastic job!</div>
+                    <div class="victory-actions">
+                      <button class="ng-tube-choice-btn ng-tube-btn-yes" onclick="goToPreparations()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        <span>Finished</span>
+                      </button>
+                      <button class="ng-tube-choice-btn ng-tube-choice-btn-secondary" onclick="restartNGTubeFaceTape()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                        <span>Tape Again</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Maze Intro Overlay: Dimmed screen pause before maze -->
+                <div id="ngTubeMazeIntroOverlay" class="ng-tube-maze-intro-overlay" style="display: none;" onclick="startNGTubeMazeFromIntro()">
+                  <div class="ng-tube-maze-intro-card" onclick="event.stopPropagation()">
+                    <div class="intro-badge">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polygon points="10 8 16 12 10 16 10 8" fill="currentColor"></polygon>
+                      </svg>
+                      <span>Practice Activity</span>
+                    </div>
+                    <div class="intro-title">Let's practice guiding the tube to the stomach!</div>
+                    <div class="intro-subtitle">Trace a gentle path from the syringe all the way down to the tummy.</div>
+                    <div class="intro-actions">
+                      <button class="ng-tube-choice-btn intro-start-btn" onclick="startNGTubeMazeFromIntro()">
+                        <span>Start Practice</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
                 <!-- Interactive Decision: Yes/No buttons pop up directly over the scene -->
@@ -10983,14 +11659,14 @@
                     </radialGradient>
                   </defs>
                   <rect width="1366" height="1024" fill="url(#ngBgGrad)"/>
-                  <path d="M120,160 Q340,70 600,110 T1050,160 Q1260,220 1280,580 T1080,920 Q740,990 400,930 T80,720 Z" fill="rgba(253, 186, 196, 0.22)"/>
-                  <path d="M280,240 Q500,160 820,180 T1180,420 Q1220,720 980,860 T420,840 Q180,720 220,460 Z" fill="rgba(254, 215, 218, 0.32)"/>
+                  <path d="M120,240 Q340,160 600,195 T1050,230 Q1260,280 1280,580 T1080,920 Q740,990 400,930 T80,720 Z" fill="rgba(253, 186, 196, 0.22)"/>
+                  <path d="M280,310 Q500,240 820,255 T1180,450 Q1220,720 980,860 T420,840 Q180,720 220,460 Z" fill="rgba(254, 215, 218, 0.32)"/>
                   <g fill="none" stroke="#1e293b" stroke-width="96" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M 160,405 C 190,405 220,415 250,420"/>
-                    <path d="M 250,420 C 240,320 200,230 270,200 C 340,170 390,260 330,330 C 275,395 240,430 330,460 C 400,485 440,370 480,280"/>
-                    <path d="M 480,280 C 520,190 600,135 690,145"/>
-                    <path d="M 690,145 C 770,150 840,180 890,240"/>
-                    <path d="M 690,145 C 750,220 740,360 700,480 C 660,590 640,660 620,730"/>
+                    <path d="M 250,420 C 240,350 210,295 270,275 C 330,255 380,310 330,375 C 280,420 250,455 330,480 C 395,495 440,410 480,340"/>
+                    <path d="M 480,340 C 530,280 610,245 690,250"/>
+                    <path d="M 690,250 C 770,255 840,275 890,320"/>
+                    <path d="M 690,250 C 740,305 735,400 700,490 C 660,590 640,660 620,730"/>
                     <path d="M 250,420 C 210,500 200,620 210,740 C 220,860 310,915 430,895 C 510,880 560,810 530,720 C 490,630 405,660 435,760 C 455,825 550,820 620,730"/>
                     <path d="M 620,730 C 660,820 740,905 860,895 C 970,885 1055,805 1065,675"/>
                     <path d="M 1065,675 C 1075,550 990,450 905,475 C 825,500 835,625 915,645 C 990,660 1020,540 975,440"/>
@@ -10998,10 +11674,10 @@
                   </g>
                   <g fill="none" stroke="#ffffff" stroke-width="82" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M 160,405 C 190,405 220,415 250,420"/>
-                    <path d="M 250,420 C 240,320 200,230 270,200 C 340,170 390,260 330,330 C 275,395 240,430 330,460 C 400,485 440,370 480,280"/>
-                    <path d="M 480,280 C 520,190 600,135 690,145"/>
-                    <path d="M 690,145 C 770,150 840,180 890,240"/>
-                    <path d="M 690,145 C 750,220 740,360 700,480 C 660,590 640,660 620,730"/>
+                    <path d="M 250,420 C 240,350 210,295 270,275 C 330,255 380,310 330,375 C 280,420 250,455 330,480 C 395,495 440,410 480,340"/>
+                    <path d="M 480,340 C 530,280 610,245 690,250"/>
+                    <path d="M 690,250 C 770,255 840,275 890,320"/>
+                    <path d="M 690,250 C 740,305 735,400 700,490 C 660,590 640,660 620,730"/>
                     <path d="M 250,420 C 210,500 200,620 210,740 C 220,860 310,915 430,895 C 510,880 560,810 530,720 C 490,630 405,660 435,760 C 455,825 550,820 620,730"/>
                     <path d="M 620,730 C 660,820 740,905 860,895 C 970,885 1055,805 1065,675"/>
                     <path d="M 1065,675 C 1075,550 990,450 905,475 C 825,500 835,625 915,645 C 990,660 1020,540 975,440"/>
@@ -11036,12 +11712,7 @@
                 <div id="ngTubeMazeStrikeOverlay" class="ng-tube-maze-strike-overlay" style="display: none;">
                   <div class="ng-tube-strike-card" id="ngTubeStrikeCard">
                     <div class="strike-popup-badge">
-                      <svg class="strike-popup-icon-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="8" x2="12" y2="12"></line>
-                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                      </svg>
-                      <span class="strike-popup-title" id="ngTubeStrikePopupTitle">Strike 1 of 3!</span>
+                      <span class="strike-popup-title" id="ngTubeStrikePopupTitle">Strike 1 of 3</span>
                     </div>
                     <div class="strike-popup-subtitle" id="ngTubeStrikePopupSubtitle">Careful! Stay inside the path.</div>
                   </div>
@@ -11055,7 +11726,7 @@
                         <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
                       </svg>
                     </div>
-                    <div class="try-again-title" id="ngTubeTryAgainTitle">Strike 3 of 3!</div>
+                    <div class="try-again-title" id="ngTubeTryAgainTitle">Strike 3 of 3</div>
                     <div class="try-again-subtitle" id="ngTubeTryAgainSubtitle">You touched the sides 3 times. Let's give it another shot!</div>
                     <div class="try-again-actions">
                       <button class="ng-tube-choice-btn ng-tube-btn-yes" onclick="restartNGTubeMaze()">
@@ -11077,12 +11748,13 @@
                     <div class="victory-title">Way to go!</div>
                     <div class="victory-subtitle">The tube is safely in the stomach!</div>
                     <div class="victory-actions">
-                      <button class="ng-tube-choice-btn ng-tube-btn-yes" onclick="restartNGTubeMaze()">
+                      <button class="ng-tube-choice-btn ng-tube-btn-yes" onclick="startNGTubeFaceTapeStep()">
+                        <span>Secure Tube</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                      </button>
+                      <button class="ng-tube-choice-btn ng-tube-choice-btn-secondary" onclick="restartNGTubeMaze()">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
                         <span>Play Again</span>
-                      </button>
-                      <button class="ng-tube-choice-btn ng-tube-choice-btn-secondary" onclick="goToPreparations()">
-                        <span>Done</span>
                       </button>
                     </div>
                   </div>
@@ -12973,12 +13645,16 @@
     }
 
     function goToPreparations() {
+      const screenNGTube = document.getElementById('screenNGTube');
+      if (screenNGTube) screenNGTube.classList.remove('maze-mode');
       switchScreen('preparations');
       setTimeout(updateArrowStates, 60);
       setTimeout(updatePrepScrollFade, 60);
     }
 
     function goToHome() {
+      const screenNGTube = document.getElementById('screenNGTube');
+      if (screenNGTube) screenNGTube.classList.remove('maze-mode');
       switchScreen('home');
     }
 
@@ -21154,26 +21830,38 @@
         }
       }
 
-      // Responsive NG Tube Stage Sizing (Strict 1366:1024 Aspect Ratio Containment)
+      // Responsive NG Tube Stage Sizing
       const ngTubeWrapper = document.getElementById('ngTubeStageWrapper');
-      const ngStages = document.querySelectorAll('#screenNGTube .ng-tube-stage');
-      if (ngTubeWrapper && ngStages.length > 0) {
+      const ngWelcomeStage = document.getElementById('ngTubeStage');
+      const ngMazeStage = document.getElementById('ngTubeMazeStage');
+      if (ngTubeWrapper) {
         const wrapW = ngTubeWrapper.clientWidth;
         const wrapH = ngTubeWrapper.clientHeight;
         if (wrapW > 0 && wrapH > 0) {
-          const targetAspect = 1366 / 1024;
-          let stageW, stageH;
-          if (wrapW / wrapH > targetAspect) {
-            stageH = wrapH;
-            stageW = Math.round(stageH * targetAspect);
-          } else {
-            stageW = wrapW;
-            stageH = Math.round(stageW / targetAspect);
+          // Phase 1 Welcome Stage fills the entire screen edge-to-edge
+          if (ngWelcomeStage) {
+            ngWelcomeStage.style.width = '100%';
+            ngWelcomeStage.style.height = '100%';
           }
-          ngStages.forEach(st => {
-            st.style.width = stageW + 'px';
-            st.style.height = stageH + 'px';
-          });
+          // Phase 2 Maze Stage maintains strict 1366:1024 aspect ratio containment
+          if (ngMazeStage) {
+            const targetAspect = 1366 / 1024;
+            let mazeW, mazeH;
+            if (wrapW / wrapH > targetAspect) {
+              mazeH = wrapH;
+              mazeW = Math.round(mazeH * targetAspect);
+            } else {
+              mazeW = wrapW;
+              mazeH = Math.round(mazeW / targetAspect);
+            }
+            ngMazeStage.style.width = mazeW + 'px';
+            ngMazeStage.style.height = mazeH + 'px';
+          }
+          if (ngWelcomeStage && typeof updateMeasuringRibbon === 'function') {
+            if (ngTubeCurrentStep === 'drag_measuring_tape' || ngTubeCurrentStep === 'tape_measured') {
+              updateMeasuringRibbon(ngTubeTapeProgress);
+            }
+          }
         }
       }
 
@@ -21330,6 +22018,61 @@
       }
     }
 
+    let tapeSound = null;
+    function playTapeSound() {
+      if (isSoundMuted) return;
+      try {
+        if (!tapeSound) {
+          tapeSound = new Audio('assets/MeasuringTape.mp3');
+          tapeSound.preload = 'auto';
+          tapeSound.volume = 0.95;
+        }
+        tapeSound.currentTime = 0;
+        tapeSound.play().catch(e => console.warn('Tape audio play blocked:', e));
+      } catch (e) {
+        console.warn('Tape audio error:', e);
+      }
+    }
+
+    let jellySound = null;
+    function playJellySound() {
+      if (isSoundMuted) return;
+      try {
+        if (!jellySound) {
+          jellySound = new Audio('assets/Jelly.mp3');
+          jellySound.preload = 'auto';
+          jellySound.volume = 0.95;
+        }
+        jellySound.currentTime = 0;
+        jellySound.play().catch(e => console.warn('Jelly audio play blocked:', e));
+      } catch (e) {
+        console.warn('Jelly audio error:', e);
+      }
+    }
+
+    let ngTubeTapePromptTimer = null;
+    let isDraggingNGTubeTape = false;
+    let isNGTubeTapeMeasured = false;
+    let isNGTubeJellyApplied = false;
+    const NG_TUBE_NOSE_X = 77.0;
+    const NG_TUBE_NOSE_Y = 34.5;
+    const NG_TUBE_TAPE_X = 52.56;
+    const NG_TUBE_TAPE_START_Y = 34.5;
+    const NG_TUBE_TAPE_END_Y = 70.0;
+    let ngTubeTapeCurrentLeftPct = 52.56;
+    let ngTubeTapeCurrentTopPct = 34.5;
+    let ngTubeTapeProgress = 0.0;
+
+    // Face tape constants & state
+    const NG_TUBE_CHEEK_TARGET_X = 84.33;
+    const NG_TUBE_CHEEK_TARGET_Y = 37.11;
+    const NG_TUBE_FACE_TAPE_DEF_LEFT = 32.0;
+    const NG_TUBE_FACE_TAPE_DEF_TOP = 46.0;
+    let isDraggingNGTubeFaceTape = false;
+    let isNGTubeFaceTapeSecured = false;
+    let ngTubeFaceTapeCurrentLeftPct = NG_TUBE_FACE_TAPE_DEF_LEFT;
+    let ngTubeFaceTapeCurrentTopPct = NG_TUBE_FACE_TAPE_DEF_TOP;
+
     let ngTubeMazeTransitionTimer = null;
     let ngMazeTouches = 0;
     let isDrawingNGTube = false;
@@ -21350,6 +22093,14 @@
         clearTimeout(ngTubeMazeTransitionTimer);
         ngTubeMazeTransitionTimer = null;
       }
+      if (ngTubeTapePromptTimer) {
+        clearTimeout(ngTubeTapePromptTimer);
+        ngTubeTapePromptTimer = null;
+      }
+      if (ngTubeCurrentStep !== 'maze' && ngTubeCurrentStep !== 'maze_won') {
+        const screenNGTube = document.getElementById('screenNGTube');
+        if (screenNGTube) screenNGTube.classList.remove('maze-mode');
+      }
     }
 
     function goToNGTube() {
@@ -21367,6 +22118,9 @@
       isDrawingNGTube = false;
       ngMazeTouches = 0;
       ngTubeDrawnPoints = [];
+
+      const screenNGTube = document.getElementById('screenNGTube');
+      if (screenNGTube) screenNGTube.classList.remove('maze-mode');
 
       const stage1 = document.getElementById('ngTubeStage');
       const stage2 = document.getElementById('ngTubeMazeStage');
@@ -21428,6 +22182,72 @@
       }
       const hotspot = document.getElementById('ngTubeTabletopHotspot');
       if (hotspot) hotspot.style.display = 'none';
+
+      if (ngTubeTapePromptTimer) {
+        clearTimeout(ngTubeTapePromptTimer);
+        ngTubeTapePromptTimer = null;
+      }
+      isDraggingNGTubeTape = false;
+      isNGTubeTapeMeasured = false;
+      ngTubeTapeProgress = 0.0;
+      ngTubeTapeCurrentLeftPct = NG_TUBE_TAPE_X;
+      ngTubeTapeCurrentTopPct = NG_TUBE_TAPE_START_Y;
+      const tapeTableItem = document.getElementById('ngTubeTapeTableItem');
+      if (tapeTableItem) {
+        tapeTableItem.style.display = 'none';
+        tapeTableItem.classList.remove('pop-in');
+      }
+      const tapeContainer = document.getElementById('ngTubeTapeContainer');
+      if (tapeContainer) tapeContainer.style.display = 'none';
+      const bellyTarget = document.getElementById('ngTubeBellyTarget');
+      if (bellyTarget) {
+        bellyTarget.style.display = 'none';
+        bellyTarget.classList.remove('won');
+      }
+      const ribbonEl = document.getElementById('ngTubeTapeRibbon');
+      if (ribbonEl) {
+        ribbonEl.style.display = 'none';
+        ribbonEl.style.height = '0px';
+      }
+      const casingEl = document.getElementById('ngTubeTapeCasing');
+      if (casingEl) {
+        casingEl.classList.remove('dragging', 'snapped');
+        casingEl.style.transition = '';
+        casingEl.style.left = `${NG_TUBE_TAPE_X}%`;
+        casingEl.style.top = `${NG_TUBE_TAPE_START_Y}%`;
+      }
+
+      isNGTubeJellyApplied = false;
+      const prepContainer = document.getElementById('ngTubePrepContainer');
+      if (prepContainer) prepContainer.style.display = 'none';
+      const jellyTarget = document.getElementById('ngTubeJellyTarget');
+      if (jellyTarget) jellyTarget.style.display = 'none';
+      const prepJelly = document.getElementById('ngTubePrepJelly');
+      if (prepJelly) prepJelly.style.display = 'none';
+
+      const introOverlay = document.getElementById('ngTubeMazeIntroOverlay');
+      if (introOverlay) {
+        introOverlay.classList.remove('active');
+        introOverlay.style.display = 'none';
+      }
+
+      isDraggingNGTubeFaceTape = false;
+      isNGTubeFaceTapeSecured = false;
+      ngTubeFaceTapeCurrentLeftPct = NG_TUBE_FACE_TAPE_DEF_LEFT;
+      ngTubeFaceTapeCurrentTopPct = NG_TUBE_FACE_TAPE_DEF_TOP;
+      const patientWithTube = document.getElementById('ngTubePatientWithTube');
+      if (patientWithTube) patientWithTube.style.display = 'none';
+      const cheekTarget = document.getElementById('ngTubeCheekTarget');
+      if (cheekTarget) cheekTarget.style.display = 'none';
+      const faceTapeItem = document.getElementById('ngTubeFaceTapeItem');
+      if (faceTapeItem) {
+        faceTapeItem.style.display = 'none';
+        faceTapeItem.classList.remove('dragging', 'snapped');
+        faceTapeItem.style.left = `${NG_TUBE_FACE_TAPE_DEF_LEFT}%`;
+        faceTapeItem.style.top = `${NG_TUBE_FACE_TAPE_DEF_TOP}%`;
+      }
+      const finalVictoryOverlay = document.getElementById('ngTubeFinalVictoryOverlay');
+      if (finalVictoryOverlay) finalVictoryOverlay.style.display = 'none';
 
       if (typeof updateResponsiveLayout === 'function') {
         updateResponsiveLayout();
@@ -21569,13 +22389,13 @@
         syringeEl.style.top = `${ngTubeSyringeCurrentTopPct}%`;
 
         // Check distance from syringe nozzle tip to target nose
-        const tipX = ngTubeSyringeCurrentLeftPct + (18.8 * 0.95);
-        const tipY = ngTubeSyringeCurrentTopPct + (19.75 * 0.08);
-        const targetX = 78.0;
-        const targetY = 25.9;
+        const tipX = ngTubeSyringeCurrentLeftPct + (15.0 * 0.94);
+        const tipY = ngTubeSyringeCurrentTopPct + (15.0 * (270 / 257) * 0.05);
+        const targetX = NG_TUBE_NOSE_X;
+        const targetY = NG_TUBE_NOSE_Y;
         const dist = Math.hypot(tipX - targetX, (tipY - targetY) * (1024 / 1366));
 
-        if (dist < 8.5) {
+        if (dist < 9.5) {
           deliverNGTubeMedicineAtNose();
           cleanupDrag();
         }
@@ -21585,13 +22405,13 @@
         if (!isDraggingNGTubeSyringe) return;
         cleanupDrag();
         if (!isNGTubeMedicineDelivered) {
-          const tipX = ngTubeSyringeCurrentLeftPct + (18.8 * 0.95);
-          const tipY = ngTubeSyringeCurrentTopPct + (19.75 * 0.08);
-          const targetX = 78.0;
-          const targetY = 25.9;
+          const tipX = ngTubeSyringeCurrentLeftPct + (15.0 * 0.94);
+          const tipY = ngTubeSyringeCurrentTopPct + (15.0 * (270 / 257) * 0.05);
+          const targetX = NG_TUBE_NOSE_X;
+          const targetY = NG_TUBE_NOSE_Y;
           const dist = Math.hypot(tipX - targetX, (tipY - targetY) * (1024 / 1366));
 
-          if (dist < 10.0) {
+          if (dist < 12.0) {
             deliverNGTubeMedicineAtNose();
           } else {
             // Return to starting position with spring
@@ -21631,8 +22451,8 @@
       const promptBar = document.getElementById('ngTubePromptBar');
 
       // Snapped position: tip lands right at patient's nose
-      const snappedLeft = 78.0 - (18.8 * 0.95);
-      const snappedTop = 25.9 - (19.75 * 0.08);
+      const snappedLeft = NG_TUBE_NOSE_X - (15.0 * 0.94);
+      const snappedTop = NG_TUBE_NOSE_Y - (15.0 * (270 / 257) * 0.05);
 
       if (syringeEl) {
         syringeEl.classList.remove('dragging');
@@ -21751,10 +22571,362 @@
         promptBar.classList.add('highlight-advance');
       }
 
-      // Automatically advance to Maze game after 2.5s
+      // Advance to measuring tape step after a pause with drinks explanation (~2.4s)
+      ngTubeTapePromptTimer = setTimeout(() => {
+        promptForMeasuringTape();
+      }, 2400);
+    }
+
+    function promptForMeasuringTape() {
+      clearNGTubeTimers();
+      ngTubeCurrentStep = 'drag_measuring_tape';
+      isDraggingNGTubeTape = false;
+      isNGTubeTapeMeasured = false;
+      ngTubeTapeProgress = 0.0;
+
+      const tapeTableItem = document.getElementById('ngTubeTapeTableItem');
+      if (tapeTableItem) tapeTableItem.style.display = 'none';
+
+      const tapeContainer = document.getElementById('ngTubeTapeContainer');
+      const casingEl = document.getElementById('ngTubeTapeCasing');
+      const bellyTarget = document.getElementById('ngTubeBellyTarget');
+
+      ngTubeTapeCurrentLeftPct = NG_TUBE_TAPE_X;
+      ngTubeTapeCurrentTopPct = NG_TUBE_TAPE_START_Y;
+
+      if (tapeContainer) tapeContainer.style.display = 'block';
+      if (casingEl) {
+        casingEl.style.transition = '';
+        casingEl.style.left = `${NG_TUBE_TAPE_X}%`;
+        casingEl.style.top = `${NG_TUBE_TAPE_START_Y}%`;
+        casingEl.classList.remove('snapped', 'dragging');
+      }
+      if (bellyTarget) {
+        bellyTarget.style.display = 'block';
+        bellyTarget.style.left = `${NG_TUBE_TAPE_X}%`;
+        bellyTarget.style.top = `${NG_TUBE_TAPE_END_Y}%`;
+        bellyTarget.classList.remove('won');
+      }
+
+      updateMeasuringRibbon(0.0);
+
+      playTapeSound();
+
+      const promptText = document.getElementById('ngTubePromptText');
+      const promptBar = document.getElementById('ngTubePromptBar') || document.getElementById('ngTubeBottomPromptBar');
+      if (promptText) {
+        promptText.textContent = "Drag the measuring tape down from nose level to belly level.";
+      }
+      if (promptBar) {
+        promptBar.classList.remove('highlight-advance');
+        void promptBar.offsetWidth;
+        promptBar.classList.add('highlight-advance');
+      }
+    }
+
+    function startDragNGTubeTape(e) {
+      if (isNGTubeTapeMeasured) return;
+      if (e.cancelable) e.preventDefault();
+      isDraggingNGTubeTape = true;
+
+      const stage = document.getElementById('ngTubeStage');
+      if (!stage) return;
+      const stageRect = stage.getBoundingClientRect();
+      const casingEl = document.getElementById('ngTubeTapeCasing');
+      if (!casingEl) return;
+
+      casingEl.classList.add('dragging');
+      casingEl.style.transition = '';
+      if (e.pointerId && casingEl.setPointerCapture) {
+        try { casingEl.setPointerCapture(e.pointerId); } catch (err) {}
+      }
+
+      playTapeSound();
+
+      const stageH = stageRect.height || 1024;
+      const startY_px = (NG_TUBE_TAPE_START_Y / 100) * stageH;
+      const endY_px = (NG_TUBE_TAPE_END_Y / 100) * stageH;
+      const totalDist = endY_px - startY_px;
+
+      const getClientY = (evt) => {
+        if (evt.clientY !== undefined) return evt.clientY;
+        if (evt.touches && evt.touches[0]) return evt.touches[0].clientY;
+        if (evt.changedTouches && evt.changedTouches[0]) return evt.changedTouches[0].clientY;
+        return 0;
+      };
+
+      const pointerStartY = getClientY(e);
+      const currentCasingTop_px = ((ngTubeTapeCurrentTopPct || NG_TUBE_TAPE_START_Y) / 100) * stageH;
+      const initialDragY = Math.max(0, currentCasingTop_px - startY_px);
+
+      // Begin tape display immediately on click / press down
+      updateMeasuringRibbon(Math.max(0.005, ngTubeTapeProgress));
+
+      function onPointerMove(moveEvent) {
+        if (!isDraggingNGTubeTape || isNGTubeTapeMeasured) return;
+        if (moveEvent.cancelable) moveEvent.preventDefault();
+        const curY = getClientY(moveEvent);
+
+        const pointerDelta = curY - pointerStartY;
+        const dragY = Math.max(0, initialDragY + pointerDelta);
+        const progress = Math.min(1.0, dragY / totalDist);
+        ngTubeTapeProgress = progress;
+
+        ngTubeTapeCurrentLeftPct = NG_TUBE_TAPE_X;
+        ngTubeTapeCurrentTopPct = NG_TUBE_TAPE_START_Y + progress * (NG_TUBE_TAPE_END_Y - NG_TUBE_TAPE_START_Y);
+
+        casingEl.style.left = `${NG_TUBE_TAPE_X}%`;
+        casingEl.style.top = `${ngTubeTapeCurrentTopPct}%`;
+
+        updateMeasuringRibbon(progress);
+
+        // Check if pointer or casing has reached the target beacon
+        const curPointerStageY = curY - stageRect.top;
+        const reachedTarget = progress >= 0.88 || curPointerStageY >= (endY_px - 24);
+        if (reachedTarget) {
+          deliverNGTubeTapeAtBelly();
+          cleanupDrag();
+        }
+      }
+
+      function onPointerUp(upEvent) {
+        if (!isDraggingNGTubeTape) return;
+        cleanupDrag();
+        if (!isNGTubeTapeMeasured) {
+          if (ngTubeTapeProgress >= 0.82) {
+            deliverNGTubeTapeAtBelly();
+          } else {
+            // Retract smoothly back to start position
+            ngTubeTapeProgress = 0.0;
+            ngTubeTapeCurrentLeftPct = NG_TUBE_TAPE_X;
+            ngTubeTapeCurrentTopPct = NG_TUBE_TAPE_START_Y;
+            casingEl.style.transition = 'top 0.35s cubic-bezier(0.2, 0.9, 0.3, 1)';
+            casingEl.style.left = `${NG_TUBE_TAPE_X}%`;
+            casingEl.style.top = `${NG_TUBE_TAPE_START_Y}%`;
+
+            const ribbonEl = document.getElementById('ngTubeTapeRibbon');
+            if (ribbonEl) {
+              ribbonEl.style.transition = 'height 0.35s cubic-bezier(0.2, 0.9, 0.3, 1)';
+              ribbonEl.style.height = '8px';
+            }
+            setTimeout(() => {
+              if (casingEl) casingEl.style.transition = '';
+              if (ribbonEl) {
+                ribbonEl.style.transition = '';
+              }
+            }, 360);
+          }
+        }
+      }
+
+      function cleanupDrag() {
+        isDraggingNGTubeTape = false;
+        if (casingEl) casingEl.classList.remove('dragging');
+        window.removeEventListener('pointermove', onPointerMove);
+        window.removeEventListener('pointerup', onPointerUp);
+        window.removeEventListener('pointercancel', onPointerUp);
+        window.removeEventListener('touchmove', onPointerMove);
+        window.removeEventListener('touchend', onPointerUp);
+        window.removeEventListener('touchcancel', onPointerUp);
+      }
+
+      window.addEventListener('pointermove', onPointerMove, { passive: false });
+      window.addEventListener('pointerup', onPointerUp);
+      window.addEventListener('pointercancel', onPointerUp);
+      window.addEventListener('touchmove', onPointerMove, { passive: false });
+      window.addEventListener('touchend', onPointerUp);
+      window.addEventListener('touchcancel', onPointerUp);
+    }
+
+    function updateMeasuringRibbon(progress) {
+      if (typeof progress === 'number') {
+        ngTubeTapeProgress = Math.max(0, Math.min(1, progress));
+      }
+      const stage = document.getElementById('ngTubeStage');
+      const ribbonEl = document.getElementById('ngTubeTapeRibbon');
+      const ribbonImg = document.getElementById('ngTubeTapeRibbonImg');
+      if (!stage || !ribbonEl) return;
+
+      const stageRect = stage.getBoundingClientRect();
+      const stageH = stageRect.height || 1024;
+      const startY_px = (NG_TUBE_TAPE_START_Y / 100) * stageH;
+      const endY_px = (NG_TUBE_TAPE_END_Y / 100) * stageH;
+      const totalDist = endY_px - startY_px;
+
+      if (ribbonImg) {
+        ribbonImg.style.width = '100%';
+        ribbonImg.style.height = `${stageH}px`;
+        // Row 23 is where the thick black bar starts in the 1024px PNG
+        ribbonImg.style.marginTop = `-${(23 / 1024) * stageH}px`;
+      }
+
+      ribbonEl.style.display = 'block';
+      ribbonEl.style.top = `${NG_TUBE_TAPE_START_Y}%`;
+      ribbonEl.style.left = '0';
+      ribbonEl.style.width = '100%';
+      const curDist = ngTubeTapeProgress * totalDist;
+      // Tape ribbon height stops precisely at the target
+      ribbonEl.style.height = `${curDist}px`;
+    }
+
+    function deliverNGTubeTapeAtBelly() {
+      if (isNGTubeTapeMeasured) return;
+      isNGTubeTapeMeasured = true;
+      ngTubeTapeProgress = 1.0;
+
+      const casingEl = document.getElementById('ngTubeTapeCasing');
+      const bellyTarget = document.getElementById('ngTubeBellyTarget');
+      const tapeContainer = document.getElementById('ngTubeTapeContainer');
+
+      ngTubeTapeCurrentLeftPct = NG_TUBE_TAPE_X;
+      ngTubeTapeCurrentTopPct = NG_TUBE_TAPE_END_Y;
+
+      if (casingEl) {
+        casingEl.classList.remove('dragging');
+        casingEl.classList.add('snapped');
+        casingEl.style.transition = 'top 0.18s ease-out';
+        casingEl.style.left = `${NG_TUBE_TAPE_X}%`;
+        casingEl.style.top = `${NG_TUBE_TAPE_END_Y}%`;
+      }
+
+      updateMeasuringRibbon(1.0);
+
+      if (bellyTarget) {
+        bellyTarget.classList.add('won');
+      }
+
+      playTapeSound();
+
+      if (navigator.vibrate) {
+        try { navigator.vibrate([40, 60, 40]); } catch (e) {}
+      }
+
+      // Measuring tape disappears with a pop effect!
+      setTimeout(() => {
+        if (typeof playYouDidItChimeSound === 'function') {
+          playYouDidItChimeSound();
+        }
+        if (tapeContainer) {
+          tapeContainer.classList.add('ng-tube-pop-out');
+        }
+        setTimeout(() => {
+          if (tapeContainer) {
+            tapeContainer.style.display = 'none';
+            tapeContainer.classList.remove('ng-tube-pop-out');
+          }
+          startNGTubePrepStep();
+        }, 380);
+      }, 350);
+    }
+
+    function startNGTubePrepStep() {
+      ngTubeCurrentStep = 'prep_tube_jelly';
+      isNGTubeJellyApplied = false;
+
+      const promptText = document.getElementById('ngTubePromptText');
+      const promptBar = document.getElementById('ngTubePromptBar') || document.getElementById('ngTubeBottomPromptBar');
+      const prepContainer = document.getElementById('ngTubePrepContainer');
+      const jellyTarget = document.getElementById('ngTubeJellyTarget');
+      const prepJelly = document.getElementById('ngTubePrepJelly');
+
+      if (prepContainer) prepContainer.style.display = 'block';
+      if (jellyTarget) jellyTarget.style.display = 'flex';
+      if (prepJelly) prepJelly.style.display = 'none';
+
+      if (promptText) {
+        promptText.textContent = "Excellent work! Now we can prepare our tube!";
+      }
+      if (promptBar) {
+        promptBar.classList.remove('highlight-advance');
+        void promptBar.offsetWidth;
+        promptBar.classList.add('highlight-advance');
+      }
+
+      // Prompt the user to tap the end of the tube to add jelly
+      ngTubeTapePromptTimer = setTimeout(() => {
+        if (ngTubeCurrentStep === 'prep_tube_jelly' && !isNGTubeJellyApplied) {
+          if (promptText) {
+            promptText.textContent = "Tap the end of the tube to add a little jelly.";
+          }
+          if (promptBar) {
+            promptBar.classList.remove('highlight-advance');
+            void promptBar.offsetWidth;
+            promptBar.classList.add('highlight-advance');
+          }
+        }
+      }, 1400);
+    }
+
+    function handleNGTubeJellyTap(event) {
+      if (event && event.stopPropagation) event.stopPropagation();
+      if (ngTubeCurrentStep !== 'prep_tube_jelly' || isNGTubeJellyApplied) return;
+      isNGTubeJellyApplied = true;
+
+      const jellyTarget = document.getElementById('ngTubeJellyTarget');
+      const prepJelly = document.getElementById('ngTubePrepJelly');
+      const promptText = document.getElementById('ngTubePromptText');
+      const promptBar = document.getElementById('ngTubePromptBar') || document.getElementById('ngTubeBottomPromptBar');
+
+      if (jellyTarget) jellyTarget.style.display = 'none';
+      if (prepJelly) {
+        prepJelly.style.display = 'block';
+        prepJelly.classList.remove('pop-in');
+        void prepJelly.offsetWidth;
+        prepJelly.classList.add('pop-in');
+      }
+
+      playJellySound();
+
+      if (navigator.vibrate) {
+        try { navigator.vibrate([40, 60, 40]); } catch (e) {}
+      }
+
+      if (promptText) {
+        promptText.textContent = "Great job! Lubricating jelly helps the tube slide smoothly and comfortably.";
+      }
+      if (promptBar) {
+        promptBar.classList.remove('highlight-advance');
+        void promptBar.offsetWidth;
+        promptBar.classList.add('highlight-advance');
+      }
+
+      // Pause to appreciate jelly application, then show dimmed intro to the maze
       ngTubeMazeTransitionTimer = setTimeout(() => {
-        transitionToNGTubeMaze();
-      }, 2500);
+        showNGTubeMazeIntro();
+      }, 2000);
+    }
+
+    function showNGTubeMazeIntro() {
+      clearNGTubeTimers();
+      ngTubeCurrentStep = 'maze_intro';
+
+      const promptText = document.getElementById('ngTubePromptText');
+      const promptBar = document.getElementById('ngTubePromptBar') || document.getElementById('ngTubeBottomPromptBar');
+      if (promptText) {
+        promptText.textContent = "Let's practice guiding the tube to the stomach!";
+      }
+      if (promptBar) {
+        promptBar.classList.remove('highlight-advance');
+        void promptBar.offsetWidth;
+        promptBar.classList.add('highlight-advance');
+      }
+
+      const introOverlay = document.getElementById('ngTubeMazeIntroOverlay');
+      if (introOverlay) {
+        introOverlay.style.display = 'flex';
+        introOverlay.classList.remove('active');
+        void introOverlay.offsetWidth;
+        introOverlay.classList.add('active');
+      }
+    }
+
+    function startNGTubeMazeFromIntro() {
+      const introOverlay = document.getElementById('ngTubeMazeIntroOverlay');
+      if (introOverlay) {
+        introOverlay.classList.remove('active');
+        introOverlay.style.display = 'none';
+      }
+      transitionToNGTubeMaze();
     }
 
     function handleNGTubeStageTap(event) {
@@ -21763,7 +22935,13 @@
       } else if (ngTubeCurrentStep === 'waiting_drink_tap') {
         handleNGTubeTabletopTap(event);
       } else if (ngTubeCurrentStep === 'drinks_ready') {
-        transitionToNGTubeMaze();
+        promptForMeasuringTape();
+      } else if (ngTubeCurrentStep === 'prep_tube_jelly') {
+        handleNGTubeJellyTap(event);
+      } else if (ngTubeCurrentStep === 'maze_intro') {
+        startNGTubeMazeFromIntro();
+      } else if (ngTubeCurrentStep === 'tape_measured') {
+        startNGTubePrepStep();
       }
     }
 
@@ -21773,7 +22951,13 @@
       } else if (ngTubeCurrentStep === 'waiting_drink_tap') {
         handleNGTubeTabletopTap();
       } else if (ngTubeCurrentStep === 'drinks_ready') {
-        transitionToNGTubeMaze();
+        promptForMeasuringTape();
+      } else if (ngTubeCurrentStep === 'prep_tube_jelly') {
+        handleNGTubeJellyTap();
+      } else if (ngTubeCurrentStep === 'maze_intro') {
+        startNGTubeMazeFromIntro();
+      } else if (ngTubeCurrentStep === 'tape_measured') {
+        startNGTubePrepStep();
       }
     }
 
@@ -21790,10 +22974,10 @@
     // =========================================================
     const NG_MAZE_CORRIDOR_PATHS = [
       "M 160,405 C 190,405 220,415 250,420",
-      "M 250,420 C 240,320 200,230 270,200 C 340,170 390,260 330,330 C 275,395 240,430 330,460 C 400,485 440,370 480,280",
-      "M 480,280 C 520,190 600,135 690,145",
-      "M 690,145 C 770,150 840,180 890,240",
-      "M 690,145 C 750,220 740,360 700,480 C 660,590 640,660 620,730",
+      "M 250,420 C 240,350 210,295 270,275 C 330,255 380,310 330,375 C 280,420 250,455 330,480 C 395,495 440,410 480,340",
+      "M 480,340 C 530,280 610,245 690,250",
+      "M 690,250 C 770,255 840,275 890,320",
+      "M 690,250 C 740,305 735,400 700,490 C 660,590 640,660 620,730",
       "M 250,420 C 210,500 200,620 210,740 C 220,860 310,915 430,895 C 510,880 560,810 530,720 C 490,630 405,660 435,760 C 455,825 550,820 620,730",
       "M 620,730 C 660,820 740,905 860,895 C 970,885 1055,805 1065,675",
       "M 1065,675 C 1075,550 990,450 905,475 C 825,500 835,625 915,645 C 990,660 1020,540 975,440",
@@ -21864,14 +23048,19 @@
       ngTubeDrawnPoints = [];
       lastNGMazeCollisionTime = 0;
 
+      const screenNGTube = document.getElementById('screenNGTube');
+      if (screenNGTube) screenNGTube.classList.add('maze-mode');
+
+      const introOverlay = document.getElementById('ngTubeMazeIntroOverlay');
+      if (introOverlay) {
+        introOverlay.classList.remove('active');
+        introOverlay.style.display = 'none';
+      }
+
       const stage1 = document.getElementById('ngTubeStage');
       const stage2 = document.getElementById('ngTubeMazeStage');
       if (stage1) stage1.style.display = 'none';
       if (stage2) {
-        if (stage1 && stage1.style.width && stage1.style.height) {
-          stage2.style.width = stage1.style.width;
-          stage2.style.height = stage1.style.height;
-        }
         stage2.style.display = 'block';
       }
       updateResponsiveLayout();
@@ -22107,7 +23296,7 @@
       const subtitle = document.getElementById('ngTubeStrikePopupSubtitle');
       if (!overlay || !title) return;
 
-      title.textContent = "Strike " + strikeNum + " of 3!";
+      title.textContent = "Strike " + strikeNum + " of 3";
       if (subtitle) {
         if (strikeNum === 1) {
           subtitle.textContent = "Careful! Stay inside the path.";
@@ -22154,7 +23343,7 @@
       const promptText = document.getElementById('ngTubePromptText');
       const promptBar = document.getElementById('ngTubePromptBar');
       if (promptText) {
-        promptText.textContent = "Strike 3 of 3! Tap Try Again to replay.";
+        promptText.textContent = "Strike 3 of 3. Tap Try Again to replay.";
       }
       if (promptBar) {
         promptBar.classList.remove('highlight-advance');
@@ -22244,6 +23433,9 @@
       ngTubeDrawnPoints = [];
       lastNGMazeCollisionTime = 0;
       ngTubeCurrentStep = 'maze';
+
+      const screenNGTube = document.getElementById('screenNGTube');
+      if (screenNGTube) screenNGTube.classList.add('maze-mode');
 
       stopNGTubeMazeConfetti();
 
@@ -22371,6 +23563,234 @@
         const ctx = canvas.getContext('2d');
         if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
       }
+    }
+
+    // =========================================================
+    // NG TUBE STEP: SECURE FACE TAPE ON CHEEK
+    // =========================================================
+    function startNGTubeFaceTapeStep() {
+      clearNGTubeTimers();
+      stopNGTubeMazeConfetti();
+      ngTubeCurrentStep = 'secure_face_tape';
+      isDraggingNGTubeFaceTape = false;
+      isNGTubeFaceTapeSecured = false;
+
+      const screenNGTube = document.getElementById('screenNGTube');
+      if (screenNGTube) screenNGTube.classList.remove('maze-mode');
+
+      // Return to main hospital room stage
+      const stage1 = document.getElementById('ngTubeStage');
+      const stage2 = document.getElementById('ngTubeMazeStage');
+      if (stage1) stage1.style.display = 'block';
+      if (stage2) stage2.style.display = 'none';
+
+      const victoryOverlay = document.getElementById('ngTubeMazeVictoryOverlay');
+      if (victoryOverlay) victoryOverlay.style.display = 'none';
+
+      const finalVictoryOverlay = document.getElementById('ngTubeFinalVictoryOverlay');
+      if (finalVictoryOverlay) finalVictoryOverlay.style.display = 'none';
+
+      // Ensure measuring tape, table hotspot, and syringe prep are hidden
+      const tapeTableItem = document.getElementById('ngTubeTapeTableItem');
+      if (tapeTableItem) tapeTableItem.style.display = 'none';
+      const tapeContainer = document.getElementById('ngTubeTapeContainer');
+      if (tapeContainer) tapeContainer.style.display = 'none';
+      const hotspot = document.getElementById('ngTubeTabletopHotspot');
+      if (hotspot) hotspot.style.display = 'none';
+      const prepContainer = document.getElementById('ngTubePrepContainer');
+      if (prepContainer) prepContainer.style.display = 'none';
+      const syringeEl = document.getElementById('ngTubeSyringeItem');
+      if (syringeEl) syringeEl.style.display = 'none';
+
+      // Display cups on table (without measuring tape)
+      const drinksEl = document.getElementById('ngTubeDrinksItem');
+      if (drinksEl) {
+        drinksEl.style.display = 'block';
+        drinksEl.classList.remove('pop-in');
+      }
+
+      // Display patient with NG tube inserted layer
+      const patientWithTube = document.getElementById('ngTubePatientWithTube');
+      if (patientWithTube) {
+        patientWithTube.style.display = 'block';
+      }
+
+      // Prompt instruction
+      const promptText = document.getElementById('ngTubePromptText');
+      const promptBar = document.getElementById('ngTubePromptBar');
+      if (promptText) {
+        promptText.textContent = "Secure the NG tube on the patient's cheek using soft tape!";
+      }
+      if (promptBar) {
+        promptBar.classList.remove('highlight-advance');
+        void promptBar.offsetWidth;
+        promptBar.classList.add('highlight-advance');
+      }
+
+      // Show glowing cheek target beacon over the curve of the NG tube
+      const cheekTarget = document.getElementById('ngTubeCheekTarget');
+      if (cheekTarget) {
+        cheekTarget.style.display = 'flex';
+      }
+
+      // Bring up draggable face tape item with glowing aura on the left
+      const tapeItem = document.getElementById('ngTubeFaceTapeItem');
+      if (tapeItem) {
+        tapeItem.style.display = 'block';
+        tapeItem.classList.remove('dragging', 'snapped');
+        tapeItem.style.transition = '';
+        tapeItem.style.left = `${NG_TUBE_FACE_TAPE_DEF_LEFT}%`;
+        tapeItem.style.top = `${NG_TUBE_FACE_TAPE_DEF_TOP}%`;
+        ngTubeFaceTapeCurrentLeftPct = NG_TUBE_FACE_TAPE_DEF_LEFT;
+        ngTubeFaceTapeCurrentTopPct = NG_TUBE_FACE_TAPE_DEF_TOP;
+      }
+    }
+
+    function startDragNGTubeFaceTape(e) {
+      if (isNGTubeFaceTapeSecured) return;
+      e.preventDefault();
+      isDraggingNGTubeFaceTape = true;
+
+      const stage = document.getElementById('ngTubeStage');
+      if (!stage) return;
+      const stageRect = stage.getBoundingClientRect();
+      const clientX = e.clientX ?? (e.touches && e.touches[0].clientX);
+      const clientY = e.clientY ?? (e.touches && e.touches[0].clientY);
+      const tapeItem = document.getElementById('ngTubeFaceTapeItem');
+      if (!tapeItem) return;
+
+      tapeItem.classList.add('dragging');
+      tapeItem.style.transition = '';
+      if (e.pointerId && tapeItem.setPointerCapture) {
+        try { tapeItem.setPointerCapture(e.pointerId); } catch (err) {}
+      }
+
+      const currentLeftPx = (ngTubeFaceTapeCurrentLeftPct / 100) * stageRect.width;
+      const currentTopPx = (ngTubeFaceTapeCurrentTopPct / 100) * stageRect.height;
+      const pointerOffsetLeft = (clientX - stageRect.left) - currentLeftPx;
+      const pointerOffsetTop = (clientY - stageRect.top) - currentTopPx;
+
+      function onPointerMove(moveEvent) {
+        if (!isDraggingNGTubeFaceTape || isNGTubeFaceTapeSecured) return;
+        const curX = moveEvent.clientX ?? (moveEvent.touches && moveEvent.touches[0].clientX);
+        const curY = moveEvent.clientY ?? (moveEvent.touches && moveEvent.touches[0].clientY);
+        const newLeftPx = (curX - stageRect.left) - pointerOffsetLeft;
+        const newTopPx = (curY - stageRect.top) - pointerOffsetTop;
+
+        ngTubeFaceTapeCurrentLeftPct = (newLeftPx / stageRect.width) * 100;
+        ngTubeFaceTapeCurrentTopPct = (newTopPx / stageRect.height) * 100;
+
+        tapeItem.style.left = `${ngTubeFaceTapeCurrentLeftPct}%`;
+        tapeItem.style.top = `${ngTubeFaceTapeCurrentTopPct}%`;
+
+        // Check distance to cheek target
+        const dist = Math.hypot(
+          ngTubeFaceTapeCurrentLeftPct - NG_TUBE_CHEEK_TARGET_X,
+          (ngTubeFaceTapeCurrentTopPct - NG_TUBE_CHEEK_TARGET_Y) * (1024 / 1366)
+        );
+
+        if (dist < 7.5) {
+          secureNGTubeFaceTapeOnCheek();
+          cleanupDrag();
+        }
+      }
+
+      function onPointerUp(upEvent) {
+        if (!isDraggingNGTubeFaceTape) return;
+        cleanupDrag();
+        if (!isNGTubeFaceTapeSecured) {
+          const dist = Math.hypot(
+            ngTubeFaceTapeCurrentLeftPct - NG_TUBE_CHEEK_TARGET_X,
+            (ngTubeFaceTapeCurrentTopPct - NG_TUBE_CHEEK_TARGET_Y) * (1024 / 1366)
+          );
+
+          if (dist < 11.5) {
+            secureNGTubeFaceTapeOnCheek();
+          } else {
+            // Spring smoothly back to starting position
+            ngTubeFaceTapeCurrentLeftPct = NG_TUBE_FACE_TAPE_DEF_LEFT;
+            ngTubeFaceTapeCurrentTopPct = NG_TUBE_FACE_TAPE_DEF_TOP;
+            tapeItem.style.transition = 'left 0.35s cubic-bezier(0.2, 0.9, 0.3, 1), top 0.35s cubic-bezier(0.2, 0.9, 0.3, 1)';
+            tapeItem.style.left = `${NG_TUBE_FACE_TAPE_DEF_LEFT}%`;
+            tapeItem.style.top = `${NG_TUBE_FACE_TAPE_DEF_TOP}%`;
+            setTimeout(() => {
+              if (tapeItem) tapeItem.style.transition = '';
+            }, 360);
+          }
+        }
+      }
+
+      function cleanupDrag() {
+        isDraggingNGTubeFaceTape = false;
+        if (tapeItem) tapeItem.classList.remove('dragging');
+        window.removeEventListener('pointermove', onPointerMove);
+        window.removeEventListener('pointerup', onPointerUp);
+        window.removeEventListener('pointercancel', onPointerUp);
+        window.removeEventListener('touchmove', onPointerMove);
+        window.removeEventListener('touchend', onPointerUp);
+        window.removeEventListener('touchcancel', onPointerUp);
+      }
+
+      window.addEventListener('pointermove', onPointerMove, { passive: false });
+      window.addEventListener('pointerup', onPointerUp);
+      window.addEventListener('pointercancel', onPointerUp);
+      window.addEventListener('touchmove', onPointerMove, { passive: false });
+      window.addEventListener('touchend', onPointerUp);
+      window.addEventListener('touchcancel', onPointerUp);
+    }
+
+    function secureNGTubeFaceTapeOnCheek() {
+      if (isNGTubeFaceTapeSecured) return;
+      isNGTubeFaceTapeSecured = true;
+      ngTubeCurrentStep = 'face_tape_secured';
+
+      const tapeItem = document.getElementById('ngTubeFaceTapeItem');
+      const cheekTarget = document.getElementById('ngTubeCheekTarget');
+      const promptText = document.getElementById('ngTubePromptText');
+      const promptBar = document.getElementById('ngTubePromptBar');
+
+      if (cheekTarget) {
+        cheekTarget.style.display = 'none';
+      }
+
+      if (tapeItem) {
+        tapeItem.classList.remove('dragging');
+        tapeItem.classList.add('snapped');
+        tapeItem.style.left = `${NG_TUBE_CHEEK_TARGET_X}%`;
+        tapeItem.style.top = `${NG_TUBE_CHEEK_TARGET_Y}%`;
+      }
+
+      if (typeof playBandageSound === 'function') {
+        playBandageSound();
+      }
+
+      if (navigator.vibrate) {
+        try { navigator.vibrate([40, 60, 40]); } catch (e) {}
+      }
+
+      if (promptText) {
+        promptText.textContent = "Great job! The NG tube is securely taped in place!";
+      }
+      if (promptBar) {
+        promptBar.classList.remove('highlight-advance');
+        void promptBar.offsetWidth;
+        promptBar.classList.add('highlight-advance');
+      }
+
+      setTimeout(() => {
+        if (typeof playYouDidItSound === 'function') {
+          playYouDidItSound();
+        } else if (typeof playYouDidItChimeSound === 'function') {
+          playYouDidItChimeSound();
+        }
+
+        const finalOverlay = document.getElementById('ngTubeFinalVictoryOverlay');
+        if (finalOverlay) finalOverlay.style.display = 'flex';
+      }, 1200);
+    }
+
+    function restartNGTubeFaceTape() {
+      startNGTubeFaceTapeStep();
     }
 
     // =========================================================

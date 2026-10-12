@@ -10,8 +10,17 @@ public enum NGTubeStep: Equatable {
     case decidedNo
     case waitingDrinkTap
     case drinksReady
+    case waitingTapeTap
+    case dragTapeToBelly
+    case tapeMeasured
+    case prepTube
+    case jellyApplied
+    case mazeIntro
     case maze
     case mazeWon
+    case secureFaceTape
+    case faceTapeSecured
+    case procedureComplete
 }
 
 // MARK: - Bezier Curve Helper for Maze Geometry
@@ -54,6 +63,26 @@ public struct NGTubeProcedureView: View {
     @State private var bumpAudioPlayer: AVAudioPlayer? = nil
     @State private var victoryAudioPlayer: AVAudioPlayer? = nil
 
+    // Tape measuring states
+    @State private var showTapeOnTable: Bool = false
+    @State private var tapeTableScale: CGFloat = 0.0
+    @State private var isTapeDelivered: Bool = false
+    @State private var isDraggingTape: Bool = false
+    @State private var tapeDragProgress: CGFloat = 0.0
+    @State private var tapeDragOffset: CGSize = .zero
+    @State private var tapePromptTimer: Timer? = nil
+    @State private var tapeAudioPlayer: AVAudioPlayer? = nil
+    @State private var tapeGlowPulse: Bool = false
+    @State private var showTapePopOut: Bool = false
+
+    // Tube preparation states
+    @State private var showPrepSyringe: Bool = false
+    @State private var showJellyTarget: Bool = false
+    @State private var isJellyApplied: Bool = false
+    @State private var showMazeIntroModal: Bool = false
+    @State private var jellyAudioPlayer: AVAudioPlayer? = nil
+    @State private var popAudioPlayer: AVAudioPlayer? = nil
+
     // Maze game states
     @State private var mazeTouches: Int = 0
     @State private var drawnPoints: [CGPoint] = [] // in 1366 x 1024 coordinate space
@@ -66,6 +95,14 @@ public struct NGTubeProcedureView: View {
     @State private var currentStrikeNumber: Int = 0
     @State private var strikeDismissTimer: DispatchWorkItem? = nil
     @State private var stomachAuraPulse: Bool = false
+
+    // Face tape states
+    @State private var showPatientWithTube: Bool = false
+    @State private var showFaceTape: Bool = false
+    @State private var isFaceTapeSecured: Bool = false
+    @State private var isDraggingFaceTape: Bool = false
+    @State private var faceTapeDragOffset: CGSize = .zero
+    @State private var showFinalVictoryModal: Bool = false
 
     public init(
         onDismiss: (() -> Void)? = nil,
@@ -80,11 +117,26 @@ public struct NGTubeProcedureView: View {
             let screenSize = geometry.size
             let isLandscape = screenSize.width > screenSize.height
             let stageTargetAspect: CGFloat = 1366.0 / 1024.0
+            let isMazeActive = (currentStep == .maze || currentStep == .mazeWon)
 
             ZStack(alignment: .top) {
-                // Background dark teal color matching hospital illustration
-                Color(red: 22/255, green: 44/255, blue: 48/255)
+                // Background dark teal color matching hospital illustration OR light warm maze background extending to the top
+                if isMazeActive {
+                    RadialGradient(
+                        colors: [
+                            Color(red: 255/255, green: 248/255, blue: 246/255),
+                            Color(red: 253/255, green: 238/255, blue: 233/255),
+                            Color(red: 249/255, green: 219/255, blue: 211/255)
+                        ],
+                        center: UnitPoint(x: 0.65, y: 0.45),
+                        startRadius: 40,
+                        endRadius: max(screenSize.width, screenSize.height)
+                    )
                     .ignoresSafeArea()
+                } else {
+                    Color(red: 22/255, green: 44/255, blue: 48/255)
+                        .ignoresSafeArea()
+                }
 
                 // MARK: - Procedure Stage Area (Center, Fills remaining space, maintaining 1366:1024)
                 GeometryReader { stageGeo in
@@ -98,15 +150,20 @@ public struct NGTubeProcedureView: View {
                     )
 
                     ZStack {
-                        Color(red: 13/255, green: 30/255, blue: 34/255)
-                            .ignoresSafeArea()
+                        if isMazeActive {
+                            Color.clear
+                                .ignoresSafeArea()
+                        } else {
+                            Color(red: 13/255, green: 30/255, blue: 34/255)
+                                .ignoresSafeArea()
+                        }
 
-                        if currentStep == .maze || currentStep == .mazeWon {
+                        if isMazeActive {
                             // Phase 2: NG Tube Maze Game Stage
                             mazeStageView(stageW: stageW, stageH: stageH)
                         } else {
-                            // Phase 1: Welcome & Relaxant Medicine Stage
-                            welcomeStageView(stageW: stageW, stageH: stageH)
+                            // Phase 1: Welcome & Relaxant Medicine Stage (fills full screen edge-to-edge)
+                            welcomeStageView(stageW: availableW, stageH: availableH)
                         }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -117,6 +174,12 @@ public struct NGTubeProcedureView: View {
                         } else if currentStep == .waitingDrinkTap {
                             handleTabletopTap()
                         } else if currentStep == .drinksReady {
+                            promptForMeasuringTape()
+                        } else if currentStep == .prepTube {
+                            applyJelly()
+                        } else if currentStep == .tapeMeasured {
+                            startTubePreparation()
+                        } else if currentStep == .jellyApplied || currentStep == .mazeIntro || currentStep == .mazeWon {
                             advanceToMaze()
                         }
                     }
@@ -143,13 +206,18 @@ public struct NGTubeProcedureView: View {
     // MARK: - Phase 1: Welcome Stage View
     @ViewBuilder
     private func welcomeStageView(stageW: CGFloat, stageH: CGFloat) -> some View {
-        let targetNoseX = stageW * 0.780
-        let targetNoseY = stageH * 0.259
+        let targetNoseX = stageW * 0.770
+        let targetNoseY = stageH * 0.345
 
-        let syringeW = stageW * 0.188
+        let tapeCenterX = stageW * (718.0 / 1366.0)
+        let tapeStartY = stageH * 0.345
+        let tapeEndY = stageH * 0.700
+        let totalPathDist = tapeEndY - tapeStartY
+
+        let syringeW = stageW * 0.150
         let syringeH = syringeW * (270.0 / 257.0)
-        let tipOffsetX = syringeW * 0.95
-        let tipOffsetY = syringeH * 0.08
+        let tipOffsetX = syringeW * 0.94
+        let tipOffsetY = syringeH * 0.05
 
         let initialSyringeX = stageW * 0.15
         let initialSyringeY = stageH * 0.55
@@ -159,13 +227,49 @@ public struct NGTubeProcedureView: View {
         let currentSyringeX = isMedicineDelivered ? snappedSyringeX : (initialSyringeX + syringeDragOffset.width)
         let currentSyringeY = isMedicineDelivered ? snappedSyringeY : (initialSyringeY + syringeDragOffset.height)
 
+        // Draggable tape casing constants
+        let casingW = stageW * 0.095
+        let casingH = casingW * (158.0 / 120.0)
+        let casingHalfH = casingH / 2.0
+
+        let effectiveProgress = isTapeDelivered ? 1.0 : tapeDragProgress
+        let currentCasingTop = tapeStartY + effectiveProgress * totalPathDist
+        let currentCasingCenterX = tapeCenterX
+        let currentCasingCenterY = currentCasingTop + casingHalfH
+
+        // Dynamic ribbon calculations (straight vertical line)
+        let ribbonHeight = max(8.0, effectiveProgress * totalPathDist + 8.0)
+
+        let tableTapeW = stageW * 0.092
+        let tableTapeH = tableTapeW * (158.0 / 120.0)
+        let tableTapeX = stageW * 0.14 + tableTapeW / 2.0
+        let tableTapeY = stageH * 0.80 + tableTapeH / 2.0
+
+        // Face tape on cheek coordinates
+        let cheekTargetX = stageW * 0.8433
+        let cheekTargetY = stageH * 0.3711
+        let initialTapeX = stageW * 0.32
+        let initialTapeY = stageH * 0.46
+        let faceTapeW = stageW * 0.038
+        let faceTapeH = faceTapeW * (243.0 / 95.0)
+
+        let currentTapeX = isFaceTapeSecured ? cheekTargetX : (initialTapeX + faceTapeDragOffset.width)
+        let currentTapeY = isFaceTapeSecured ? cheekTargetY : (initialTapeY + faceTapeDragOffset.height)
+
         ZStack(alignment: .topLeading) {
             // Layer 1: Welcome / BG Screen
             Image("NGTubeWelcomeBG")
                 .resizable()
-                .scaledToFill()
                 .frame(width: stageW, height: stageH)
                 .clipped()
+
+            // Layer 1b: Patient with NG Tube (Shown for cheek tape step after maze)
+            if showPatientWithTube {
+                Image("NGTubePatientWithTube")
+                    .resizable()
+                    .frame(width: stageW, height: stageH)
+                    .clipped()
+            }
 
             // Layer 2: Draggable Versed Medicine Syringe
             if (currentStep == .dragMedicineToNose || currentStep == .medicineDelivered) && showVersed {
@@ -188,7 +292,7 @@ public struct NGTubeProcedureView: View {
                                 let tipX = initialSyringeX + gesture.translation.width + tipOffsetX
                                 let tipY = initialSyringeY + gesture.translation.height + tipOffsetY
                                 let dist = hypot(tipX - targetNoseX, tipY - targetNoseY)
-                                if dist < stageW * 0.085 {
+                                if dist < stageW * 0.095 {
                                     deliverMedicine()
                                 }
                             }
@@ -198,7 +302,7 @@ public struct NGTubeProcedureView: View {
                                 let tipX = initialSyringeX + gesture.translation.width + tipOffsetX
                                 let tipY = initialSyringeY + gesture.translation.height + tipOffsetY
                                 let dist = hypot(tipX - targetNoseX, tipY - targetNoseY)
-                                if dist < stageW * 0.10 {
+                                if dist < stageW * 0.12 {
                                     deliverMedicine()
                                 } else {
                                     withAnimation(.spring(response: 0.38, dampingFraction: 0.72)) {
@@ -237,9 +341,8 @@ public struct NGTubeProcedureView: View {
             if showDrinks {
                 Image("NGTubeDrinks")
                     .resizable()
-                    .scaledToFill()
                     .frame(width: stageW, height: stageH)
-                    .scaleEffect(drinksPopScale, anchor: UnitPoint(x: 0.215, y: 0.670))
+                    .scaleEffect(drinksPopScale, anchor: UnitPoint(x: 0.236, y: 0.709))
                     .allowsHitTesting(false)
             }
 
@@ -250,7 +353,6 @@ public struct NGTubeProcedureView: View {
                 }) {
                     Image("NGTubeTableTransparent")
                         .resizable()
-                        .scaledToFill()
                         .frame(width: stageW, height: stageH)
                         .shadow(color: Color(red: 56/255, green: 189/255, blue: 248/255).opacity(0.85), radius: 16)
                         .shadow(color: Color(red: 14/255, green: 165/255, blue: 233/255).opacity(0.6), radius: 30)
@@ -258,6 +360,250 @@ public struct NGTubeProcedureView: View {
                 .buttonStyle(PlainButtonStyle())
                 .frame(width: stageW, height: stageH)
                 .transition(.opacity)
+            }
+
+            // Layer 6: Measuring Tape Item on Bedside Table (Glowing for click)
+            if showTapeOnTable && currentStep == .waitingTapeTap {
+                Button(action: {
+                    startTapeMeasurementAtNose()
+                }) {
+                    Image("NGTubeMeasuringTapeItem")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: tableTapeW, height: tableTapeH)
+                        .shadow(color: Color(red: 249/255, green: 115/255, blue: 22/255).opacity(0.95), radius: 14)
+                        .shadow(color: Color(red: 234/255, green: 88/255, blue: 12/255).opacity(0.65), radius: 26)
+                        .scaleEffect(tapeTableScale)
+                }
+                .buttonStyle(PlainButtonStyle())
+                .position(x: tableTapeX, y: tableTapeY)
+                .transition(.scale(scale: 0.5).combined(with: .opacity))
+            }
+
+            // Layer 7: Measuring Tape Interaction (Belly Beacon, Extending Yellow Ribbon, Draggable Casing)
+            if (currentStep == .dragTapeToBelly || currentStep == .tapeMeasured) && !showTapePopOut {
+                Group {
+                    // 7a: Belly Target Beacon
+                    ZStack {
+                        Circle()
+                            .stroke(
+                                isTapeDelivered ? Color(red: 34/255, green: 197/255, blue: 94/255) : Color(red: 249/255, green: 115/255, blue: 22/255).opacity(0.85),
+                                style: StrokeStyle(lineWidth: 2.5, dash: [6, 4])
+                            )
+                            .frame(width: 72, height: 72)
+                            .rotationEffect(Angle(degrees: tapeGlowPulse ? 180 : 0))
+                            .scaleEffect(tapeGlowPulse ? 1.08 : 0.94)
+
+                        Circle()
+                            .stroke(
+                                isTapeDelivered ? Color(red: 34/255, green: 197/255, blue: 94/255).opacity(0.9) : Color(red: 251/255, green: 146/255, blue: 60/255).opacity(0.6),
+                                style: StrokeStyle(lineWidth: 2, dash: [4, 4])
+                            )
+                            .frame(width: 52, height: 52)
+                            .rotationEffect(Angle(degrees: tapeGlowPulse ? -180 : 0))
+
+                        Circle()
+                            .fill(isTapeDelivered ? Color(red: 34/255, green: 197/255, blue: 94/255) : Color(red: 249/255, green: 115/255, blue: 22/255))
+                            .frame(width: 14, height: 14)
+                            .shadow(color: isTapeDelivered ? Color(red: 34/255, green: 197/255, blue: 94/255) : Color(red: 249/255, green: 115/255, blue: 22/255), radius: 10)
+                            .scaleEffect(tapeGlowPulse ? 1.25 : 0.85)
+                    }
+                    .position(x: tapeCenterX, y: tapeEndY)
+                    .allowsHitTesting(false)
+
+                    // 7b: Extending Yellow Tape Ribbon using authentic NGTubeLongTape asset
+                    ZStack(alignment: .top) {
+                        Image("NGTubeLongTape")
+                            .resizable()
+                            .frame(width: stageW, height: stageH)
+                            .offset(y: -stageH * (23.0 / 1024.0))
+                    }
+                    .frame(width: stageW, height: ribbonHeight, alignment: .top)
+                    .clipped()
+                    .position(x: stageW / 2.0, y: tapeStartY + ribbonHeight / 2.0)
+                    .shadow(color: Color.black.opacity(0.35), radius: 4, x: 0, y: 2)
+                    .allowsHitTesting(false)
+
+                    // 7c: Draggable Orange Tape Measure Casing
+                    Image("NGTubeMeasuringTapeItem")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: casingW, height: casingH)
+                        .shadow(
+                            color: isTapeDelivered ? Color(red: 34/255, green: 197/255, blue: 94/255).opacity(0.95) : Color(red: 249/255, green: 115/255, blue: 22/255).opacity(isDraggingTape ? 1.0 : 0.85),
+                            radius: isTapeDelivered ? 18 : (isDraggingTape ? 22 : 14),
+                            x: 0,
+                            y: 0
+                        )
+                        .shadow(color: Color.black.opacity(isDraggingTape ? 0.45 : 0.3), radius: isDraggingTape ? 14 : 8, x: 0, y: isDraggingTape ? 8 : 4)
+                        .scaleEffect(isDraggingTape ? 1.08 : 1.0, anchor: .top)
+                        .position(x: currentCasingCenterX, y: currentCasingCenterY)
+                        .gesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged { gesture in
+                                    guard !isTapeDelivered else { return }
+                                    if !isDraggingTape {
+                                        isDraggingTape = true
+                                        playTapeSound()
+                                    }
+                                    let dragY = max(0.0, gesture.translation.height)
+                                    let progress = min(1.0, dragY / totalPathDist)
+                                    tapeDragProgress = progress
+
+                                    if progress >= 0.88 {
+                                        deliverTapeAtBelly()
+                                    }
+                                }
+                                .onEnded { gesture in
+                                    guard !isTapeDelivered else { return }
+                                    isDraggingTape = false
+                                    if tapeDragProgress >= 0.82 {
+                                        deliverTapeAtBelly()
+                                    } else {
+                                        withAnimation(.spring(response: 0.38, dampingFraction: 0.72)) {
+                                            tapeDragProgress = 0.0
+                                        }
+                                    }
+                                }
+                        )
+                }
+                .scaleEffect(showTapePopOut ? 0.05 : 1.0)
+                .opacity(showTapePopOut ? 0.0 : 1.0)
+                .animation(.spring(response: 0.38, dampingFraction: 0.65), value: showTapePopOut)
+            }
+
+            // Layer 8: Tube Preparation (Syringe with NG Tube + Jelly on Tip)
+            if currentStep == .prepTube || currentStep == .jellyApplied || currentStep == .mazeIntro {
+                ZStack {
+                    // 8a: Syringe with Tube PNG in middle of screen with gentle medical aura glow
+                    Image("NGTubeSyringe")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: stageW, height: stageH)
+                        .shadow(color: Color.white.opacity(0.85), radius: 24)
+                        .shadow(color: Color.white.opacity(0.55), radius: 44)
+                        .position(x: stageW / 2.0, y: stageH / 2.0)
+                        .scaleEffect(showPrepSyringe ? 1.0 : 0.35)
+                        .opacity(showPrepSyringe ? 1.0 : 0.0)
+
+                    // 8b: Glowing circle at the tip of the tube furthest from syringe (matching MRI prep)
+                    if showJellyTarget && !isJellyApplied {
+                        Button(action: {
+                            applyJelly()
+                        }) {
+                            ZStack {
+                                // Touch area
+                                Circle()
+                                    .fill(Color.white.opacity(0.001))
+                                    .frame(width: 54, height: 54)
+
+                                // Pulsing expanding outer ring (matching MRI pulse ring)
+                                Circle()
+                                    .stroke(Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0), lineWidth: 2.5)
+                                    .frame(width: 38, height: 38)
+                                    .scaleEffect(tapeGlowPulse ? 1.55 : 0.85)
+                                    .opacity(tapeGlowPulse ? 0.0 : 0.95)
+                                    .animation(Animation.easeOut(duration: 1.8).repeatForever(autoreverses: false), value: tapeGlowPulse)
+
+                                // Core glowing circle with cyan aura (matching MRI prep discovery ring)
+                                Circle()
+                                    .stroke(Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0), lineWidth: 3)
+                                    .background(Circle().fill(Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0).opacity(0.14)))
+                                    .frame(width: 38, height: 38)
+                                    .shadow(color: Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0), radius: 8)
+                                    .shadow(color: Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0).opacity(0.6), radius: 16)
+                                    .scaleEffect(tapeGlowPulse ? 1.05 : 0.95)
+                                    .animation(Animation.easeInOut(duration: 1.2).repeatForever(autoreverses: true), value: tapeGlowPulse)
+                            }
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .position(x: stageW * 0.362, y: stageH * 0.576)
+                    }
+
+                    // 8c: Jelly 2 PNG on the very tip of the tube (furthest from syringe)
+                    if isJellyApplied {
+                        Image("NGTubeJelly")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: stageW, height: stageH)
+                            .shadow(color: Color(red: 129/255, green: 245/255, blue: 246/255).opacity(0.95), radius: 16)
+                            .shadow(color: Color(red: 56/255, green: 189/255, blue: 248/255).opacity(0.7), radius: 28)
+                            .position(x: stageW / 2.0, y: stageH / 2.0)
+                            .transition(.scale(scale: 0.2, anchor: UnitPoint(x: 0.362, y: 0.576)).combined(with: .opacity))
+                    }
+                }
+            }
+
+            // Layer 9: Face Tape Cheek Target Beacon
+            if showFaceTape && !isFaceTapeSecured {
+                ZStack {
+                    Circle()
+                        .stroke(Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0), lineWidth: 2.5)
+                        .frame(width: 44, height: 44)
+                        .scaleEffect(tapeGlowPulse ? 1.55 : 0.85)
+                        .opacity(tapeGlowPulse ? 0.0 : 0.95)
+                        .animation(Animation.easeOut(duration: 1.8).repeatForever(autoreverses: false), value: tapeGlowPulse)
+
+                    Circle()
+                        .stroke(Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0), lineWidth: 3)
+                        .background(Circle().fill(Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0).opacity(0.14)))
+                        .frame(width: 40, height: 40)
+                        .shadow(color: Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0), radius: 10)
+                        .shadow(color: Color.white.opacity(0.8), radius: 16)
+                }
+                .position(x: cheekTargetX, y: cheekTargetY)
+                .allowsHitTesting(false)
+            }
+
+            // Layer 10: Draggable Soft Face Tape
+            if showFaceTape {
+                Image("NGTubeFaceTapeItem")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: faceTapeW, height: faceTapeH)
+                    .shadow(
+                        color: isFaceTapeSecured ? Color.clear : Color(red: 56/255, green: 189/255, blue: 248/255).opacity(0.9),
+                        radius: isFaceTapeSecured ? 0 : 16,
+                        x: 0,
+                        y: 0
+                    )
+                    .shadow(
+                        color: isFaceTapeSecured ? Color.black.opacity(0.3) : Color.white.opacity(0.8),
+                        radius: isFaceTapeSecured ? 4 : 28,
+                        x: 0,
+                        y: isFaceTapeSecured ? 2 : 0
+                    )
+                    .rotationEffect(Angle(degrees: isFaceTapeSecured ? -12 : (isDraggingFaceTape ? -8 : 0)))
+                    .scaleEffect(isDraggingFaceTape ? 1.15 : (isFaceTapeSecured ? 0.92 : 1.0))
+                    .position(x: currentTapeX, y: currentTapeY)
+                    .gesture(
+                        DragGesture(minimumDistance: 0)
+                            .onChanged { gesture in
+                                guard !isFaceTapeSecured else { return }
+                                isDraggingFaceTape = true
+                                faceTapeDragOffset = gesture.translation
+                                let curX = initialTapeX + gesture.translation.width
+                                let curY = initialTapeY + gesture.translation.height
+                                let dist = hypot(curX - cheekTargetX, curY - cheekTargetY)
+                                if dist < stageW * 0.075 {
+                                    secureFaceTapeOnCheek()
+                                }
+                            }
+                            .onEnded { gesture in
+                                guard !isFaceTapeSecured else { return }
+                                isDraggingFaceTape = false
+                                let curX = initialTapeX + gesture.translation.width
+                                let curY = initialTapeY + gesture.translation.height
+                                let dist = hypot(curX - cheekTargetX, curY - cheekTargetY)
+                                if dist < stageW * 0.115 {
+                                    secureFaceTapeOnCheek()
+                                } else {
+                                    withAnimation(.spring(response: 0.38, dampingFraction: 0.72)) {
+                                        faceTapeDragOffset = .zero
+                                    }
+                                }
+                            }
+                    )
             }
 
             // Tap Hint (during intro)
@@ -275,7 +621,7 @@ public struct NGTubeProcedureView: View {
                     .padding(.vertical, 8)
                     .background(Color.black.opacity(0.65))
                     .cornerRadius(20)
-                    .padding(.bottom, 24)
+                    .padding(.bottom, 64)
                     .frame(maxWidth: .infinity)
                 }
                 .transition(.opacity)
@@ -284,7 +630,7 @@ public struct NGTubeProcedureView: View {
             // Decision Buttons
             if currentStep == .askingRelaxMedicine {
                 VStack {
-                    Spacer()
+                    Spacer().frame(height: max(16, stageH * 0.22))
                     HStack {
                         Spacer()
                         decisionActionButtons
@@ -297,6 +643,105 @@ public struct NGTubeProcedureView: View {
                     removal: .scale(scale: 0.92).combined(with: .opacity)
                 ))
             }
+
+            // Maze Intro Overlay (dimmed pause & friendly modal before maze)
+            if showMazeIntroModal && currentStep == .mazeIntro {
+                ZStack {
+                    Color.black.opacity(0.68)
+                        .ignoresSafeArea()
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            advanceToMaze()
+                        }
+
+                    VStack(spacing: 16) {
+                        // Badge / Icon
+                        HStack(spacing: 8) {
+                            Image(systemName: "play.circle.fill")
+                                .font(.system(size: 20, weight: .bold))
+                                .foregroundColor(Color(red: 56/255, green: 189/255, blue: 248/255))
+                            Text("Practice Activity")
+                                .font(.system(size: 14, weight: .bold, design: .rounded))
+                                .foregroundColor(Color(red: 56/255, green: 189/255, blue: 248/255))
+                        }
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 6)
+                        .background(Color(red: 56/255, green: 189/255, blue: 248/255).opacity(0.16))
+                        .clipShape(Capsule())
+
+                        Text("Let's practice guiding the tube to the stomach!")
+                            .font(.system(size: 22, weight: .black, design: .rounded))
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+                            .fixedSize(horizontal: false, vertical: true)
+
+                        Text("Trace a gentle path from the syringe all the way down to the tummy.")
+                            .font(.system(size: 15, weight: .medium, design: .rounded))
+                            .foregroundColor(.white.opacity(0.85))
+                            .multilineTextAlignment(.center)
+                            .padding(.bottom, 6)
+
+                        Button(action: {
+                            advanceToMaze()
+                        }) {
+                            HStack(spacing: 10) {
+                                Text("Start Practice")
+                                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                                Image(systemName: "arrow.right")
+                                    .font(.system(size: 16, weight: .bold))
+                            }
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 28)
+                            .padding(.vertical, 14)
+                            .background(
+                                LinearGradient(
+                                    colors: [
+                                        Color(red: 14/255, green: 165/255, blue: 233/255),
+                                        Color(red: 2/255, green: 132/255, blue: 199/255)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .cornerRadius(26)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 26)
+                                    .stroke(Color.white.opacity(0.35), lineWidth: 1.5)
+                            )
+                            .shadow(color: Color(red: 14/255, green: 165/255, blue: 233/255).opacity(0.5), radius: 12, y: 4)
+                        }
+                    }
+                    .padding(.horizontal, 28)
+                    .padding(.vertical, 28)
+                    .frame(maxWidth: 420)
+                    .background(
+                        LinearGradient(
+                            colors: [
+                                Color(red: 30/255, green: 41/255, blue: 59/255).opacity(0.96),
+                                Color(red: 15/255, green: 23/255, blue: 42/255).opacity(0.98)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .cornerRadius(28)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 28)
+                            .stroke(Color(red: 56/255, green: 189/255, blue: 248/255).opacity(0.6), lineWidth: 2)
+                    )
+                    .shadow(color: Color.black.opacity(0.55), radius: 30, y: 15)
+                    .shadow(color: Color(red: 56/255, green: 189/255, blue: 248/255).opacity(0.3), radius: 24)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        advanceToMaze()
+                    }
+                }
+                .transition(.asymmetric(
+                    insertion: .opacity.combined(with: .scale(scale: 0.92)),
+                    removal: .opacity.combined(with: .scale(scale: 0.96))
+                ))
+                .zIndex(35)
+            }
         }
         .frame(width: stageW, height: stageH)
         .contentShape(Rectangle())
@@ -306,6 +751,10 @@ public struct NGTubeProcedureView: View {
             } else if currentStep == .waitingDrinkTap {
                 handleTabletopTap()
             } else if currentStep == .drinksReady {
+                promptForMeasuringTape()
+            } else if currentStep == .prepTube {
+                applyJelly()
+            } else if currentStep == .jellyApplied || currentStep == .mazeIntro {
                 advanceToMaze()
             }
         }
@@ -342,10 +791,10 @@ public struct NGTubeProcedureView: View {
 
             // 2. Subtle translucent anatomical organ contours
             Path { p in
-                p.move(to: CGPoint(x: 120 * sx, y: 160 * sy))
-                p.addQuadCurve(to: CGPoint(x: 600 * sx, y: 110 * sy), control: CGPoint(x: 340 * sx, y: 70 * sy))
-                p.addQuadCurve(to: CGPoint(x: 1050 * sx, y: 160 * sy), control: CGPoint(x: 820 * sx, y: 135 * sy))
-                p.addQuadCurve(to: CGPoint(x: 1280 * sx, y: 580 * sy), control: CGPoint(x: 1260 * sx, y: 220 * sy))
+                p.move(to: CGPoint(x: 120 * sx, y: 240 * sy))
+                p.addQuadCurve(to: CGPoint(x: 600 * sx, y: 195 * sy), control: CGPoint(x: 340 * sx, y: 160 * sy))
+                p.addQuadCurve(to: CGPoint(x: 1050 * sx, y: 230 * sy), control: CGPoint(x: 820 * sx, y: 210 * sy))
+                p.addQuadCurve(to: CGPoint(x: 1280 * sx, y: 580 * sy), control: CGPoint(x: 1260 * sx, y: 280 * sy))
                 p.addQuadCurve(to: CGPoint(x: 1080 * sx, y: 920 * sy), control: CGPoint(x: 1280 * sx, y: 750 * sy))
                 p.addQuadCurve(to: CGPoint(x: 400 * sx, y: 930 * sy), control: CGPoint(x: 740 * sx, y: 990 * sy))
                 p.closeSubpath()
@@ -469,19 +918,14 @@ public struct NGTubeProcedureView: View {
                         .contentShape(Rectangle())
 
                     VStack(spacing: 10) {
-                        HStack(spacing: 8) {
-                            Image(systemName: "exclamationmark.circle.fill")
-                                .font(.system(size: 20, weight: .bold))
-                                .foregroundColor(Color(red: 252/255, green: 165/255, blue: 165/255))
-                            Text("Strike \(currentStrikeNumber) of 3!")
-                                .font(.system(size: 22, weight: .heavy, design: .rounded))
-                                .foregroundColor(Color(red: 252/255, green: 165/255, blue: 165/255))
-                        }
-                        .padding(.horizontal, 18)
-                        .padding(.vertical, 8)
-                        .background(Color(red: 239/255, green: 68/255, blue: 68/255).opacity(0.2))
-                        .clipShape(Capsule())
-                        .overlay(Capsule().stroke(Color(red: 239/255, green: 68/255, blue: 68/255).opacity(0.6), lineWidth: 1.5))
+                        Text("Strike \(currentStrikeNumber) of 3")
+                            .font(.system(size: 22, weight: .heavy, design: .rounded))
+                            .foregroundColor(Color(red: 252/255, green: 165/255, blue: 165/255))
+                            .padding(.horizontal, 18)
+                            .padding(.vertical, 8)
+                            .background(Color(red: 239/255, green: 68/255, blue: 68/255).opacity(0.2))
+                            .clipShape(Capsule())
+                            .overlay(Capsule().stroke(Color(red: 239/255, green: 68/255, blue: 68/255).opacity(0.6), lineWidth: 1.5))
 
                         Text(strikeSubtitle(for: currentStrikeNumber))
                             .font(.system(size: 14, weight: .semibold, design: .rounded))
@@ -520,7 +964,7 @@ public struct NGTubeProcedureView: View {
                                 .foregroundColor(Color(red: 251/255, green: 191/255, blue: 36/255))
                         }
 
-                        Text("Strike 3 of 3!")
+                        Text("Strike 3 of 3")
                             .font(.system(size: 26, weight: .heavy, design: .rounded))
                             .foregroundColor(Color(red: 251/255, green: 191/255, blue: 36/255))
 
@@ -592,35 +1036,35 @@ public struct NGTubeProcedureView: View {
 
                         HStack(spacing: 14) {
                             Button(action: {
-                                restartMaze()
+                                startFaceTapeStep()
                             }) {
                                 HStack(spacing: 8) {
-                                    Image(systemName: "arrow.counterclockwise")
-                                        .font(.system(size: 16, weight: .bold))
-                                    Text("Play Again")
+                                    Text("Secure Tube")
                                         .font(.system(size: 16, weight: .bold, design: .rounded))
+                                    Image(systemName: "arrow.right")
+                                        .font(.system(size: 16, weight: .bold))
                                 }
                                 .foregroundColor(.white)
-                                .padding(.horizontal, 20)
+                                .padding(.horizontal, 22)
                                 .padding(.vertical, 12)
                                 .background(Color(red: 16/255, green: 185/255, blue: 129/255))
                                 .clipShape(Capsule())
                             }
 
                             Button(action: {
-                                if let onDismiss = onDismiss {
-                                    onDismiss()
-                                } else {
-                                    presentationMode.wrappedValue.dismiss()
-                                }
+                                restartMaze()
                             }) {
-                                Text("Done")
-                                    .font(.system(size: 16, weight: .bold, design: .rounded))
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal, 24)
-                                    .padding(.vertical, 12)
-                                    .background(Color.white.opacity(0.2))
-                                    .clipShape(Capsule())
+                                HStack(spacing: 6) {
+                                    Image(systemName: "arrow.counterclockwise")
+                                        .font(.system(size: 15, weight: .bold))
+                                    Text("Play Again")
+                                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                                }
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 18)
+                                .padding(.vertical, 12)
+                                .background(Color.white.opacity(0.2))
+                                .clipShape(Capsule())
                             }
                         }
                     }
@@ -634,6 +1078,84 @@ public struct NGTubeProcedureView: View {
                     .shadow(color: Color.black.opacity(0.5), radius: 24, x: 0, y: 12)
                 }
                 .transition(.scale(scale: 0.9).combined(with: .opacity))
+            }
+
+            // 13. Final Procedure Complete Victory Modal
+            if showFinalVictoryModal {
+                ZStack {
+                    Color.black.opacity(0.45)
+                        .ignoresSafeArea()
+
+                    VStack(spacing: 14) {
+                        ZStack {
+                            Circle()
+                                .fill(Color(red: 34/255, green: 197/255, blue: 94/255).opacity(0.18))
+                                .frame(width: 68, height: 68)
+                                .overlay(Circle().stroke(Color(red: 34/255, green: 197/255, blue: 94/255).opacity(0.65), lineWidth: 2))
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 34, weight: .bold))
+                                .foregroundColor(Color(red: 34/255, green: 197/255, blue: 94/255))
+                        }
+
+                        Text("All Done!")
+                            .font(.system(size: 24, weight: .black, design: .rounded))
+                            .foregroundColor(Color(red: 34/255, green: 197/255, blue: 94/255))
+
+                        Text("The NG tube is safely placed and secured with soft tape! Fantastic job!")
+                            .font(.system(size: 16, weight: .medium, design: .rounded))
+                            .foregroundColor(.white.opacity(0.85))
+                            .multilineTextAlignment(.center)
+                            .padding(.bottom, 6)
+
+                        HStack(spacing: 14) {
+                            Button(action: {
+                                if let onDismiss = onDismiss {
+                                    onDismiss()
+                                } else {
+                                    presentationMode.wrappedValue.dismiss()
+                                }
+                            }) {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "checkmark.circle.fill")
+                                    Text("Finished")
+                                }
+                                .font(.system(size: 16, weight: .bold, design: .rounded))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 22)
+                                .padding(.vertical, 12)
+                                .background(Color(red: 16/255, green: 185/255, blue: 129/255))
+                                .clipShape(Capsule())
+                            }
+
+                            Button(action: {
+                                showFinalVictoryModal = false
+                                startFaceTapeStep()
+                            }) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "arrow.counterclockwise")
+                                    Text("Tape Again")
+                                }
+                                .font(.system(size: 16, weight: .bold, design: .rounded))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 12)
+                                .background(Color.white.opacity(0.2))
+                                .clipShape(Capsule())
+                            }
+                        }
+                    }
+                    .padding(28)
+                    .background(Color(red: 22/255, green: 34/255, blue: 48/255))
+                    .cornerRadius(28)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 28)
+                            .stroke(Color(red: 34/255, green: 197/255, blue: 94/255).opacity(0.55), lineWidth: 2)
+                    )
+                    .shadow(color: Color.black.opacity(0.55), radius: 24, x: 0, y: 12)
+                    .shadow(color: Color(red: 34/255, green: 197/255, blue: 94/255).opacity(0.25), radius: 20)
+                }
+                .transition(.scale(scale: 0.9).combined(with: .opacity))
+                .zIndex(26)
             }
         }
         .frame(width: stageW, height: stageH)
@@ -653,6 +1175,7 @@ public struct NGTubeProcedureView: View {
     @ViewBuilder
     private func topHeaderBar(geometry: GeometryProxy, isLandscape: Bool) -> some View {
         let topPadding = max(geometry.safeAreaInsets.top, 10)
+        let isMazeActive = (currentStep == .maze || currentStep == .mazeWon)
 
         HStack {
             Button(action: {
@@ -673,8 +1196,28 @@ public struct NGTubeProcedureView: View {
                 .foregroundColor(.white)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
-                .background(Color.white.opacity(0.18))
+                .background(
+                    isMazeActive
+                        ? Color(red: 15/255, green: 23/255, blue: 42/255).opacity(0.58)
+                        : Color.white.opacity(0.18)
+                )
+                .background(.ultraThinMaterial.opacity(isMazeActive ? 0.70 : 0.0), in: Capsule())
                 .clipShape(Capsule())
+                .overlay(
+                    Capsule()
+                        .stroke(
+                            isMazeActive
+                                ? Color.white.opacity(0.24)
+                                : Color.white.opacity(0.25),
+                            lineWidth: 1
+                        )
+                )
+                .shadow(
+                    color: isMazeActive
+                        ? Color.black.opacity(0.22)
+                        : Color.clear,
+                    radius: 5, x: 0, y: 2
+                )
             }
 
             Spacer()
@@ -688,8 +1231,28 @@ public struct NGTubeProcedureView: View {
                         .font(.system(size: 15, weight: .bold))
                         .foregroundColor(.white)
                         .padding(9)
-                        .background(Color.white.opacity(0.18))
+                        .background(
+                            isMazeActive
+                                ? Color(red: 15/255, green: 23/255, blue: 42/255).opacity(0.58)
+                                : Color.white.opacity(0.18)
+                        )
+                        .background(.ultraThinMaterial.opacity(isMazeActive ? 0.70 : 0.0), in: Circle())
                         .clipShape(Circle())
+                        .overlay(
+                            Circle()
+                                .stroke(
+                                    isMazeActive
+                                        ? Color.white.opacity(0.24)
+                                        : Color.white.opacity(0.25),
+                                    lineWidth: 1
+                                )
+                        )
+                        .shadow(
+                            color: isMazeActive
+                                ? Color.black.opacity(0.22)
+                                : Color.clear,
+                            radius: 5, x: 0, y: 2
+                        )
                 }
                 .accessibilityLabel(isSoundMuted ? "Unmute Sound" : "Mute Sound")
 
@@ -705,8 +1268,28 @@ public struct NGTubeProcedureView: View {
                         .font(.system(size: 15, weight: .bold))
                         .foregroundColor(.white)
                         .padding(9)
-                        .background(Color.white.opacity(0.18))
+                        .background(
+                            isMazeActive
+                                ? Color(red: 15/255, green: 23/255, blue: 42/255).opacity(0.58)
+                                : Color.white.opacity(0.18)
+                        )
+                        .background(.ultraThinMaterial.opacity(isMazeActive ? 0.70 : 0.0), in: Circle())
                         .clipShape(Circle())
+                        .overlay(
+                            Circle()
+                                .stroke(
+                                    isMazeActive
+                                        ? Color.white.opacity(0.24)
+                                        : Color.white.opacity(0.25),
+                                    lineWidth: 1
+                                )
+                        )
+                        .shadow(
+                            color: isMazeActive
+                                ? Color.black.opacity(0.22)
+                                : Color.clear,
+                            radius: 5, x: 0, y: 2
+                        )
                 }
                 .accessibilityLabel("Reset Preparation")
 
@@ -723,8 +1306,28 @@ public struct NGTubeProcedureView: View {
                         .font(.system(size: 15, weight: .bold))
                         .foregroundColor(.white)
                         .padding(9)
-                        .background(Color.white.opacity(0.18))
+                        .background(
+                            isMazeActive
+                                ? Color(red: 15/255, green: 23/255, blue: 42/255).opacity(0.58)
+                                : Color.white.opacity(0.18)
+                        )
+                        .background(.ultraThinMaterial.opacity(isMazeActive ? 0.70 : 0.0), in: Circle())
                         .clipShape(Circle())
+                        .overlay(
+                            Circle()
+                                .stroke(
+                                    isMazeActive
+                                        ? Color.white.opacity(0.24)
+                                        : Color.white.opacity(0.25),
+                                    lineWidth: 1
+                                )
+                        )
+                        .shadow(
+                            color: isMazeActive
+                                ? Color.black.opacity(0.22)
+                                : Color.clear,
+                            radius: 5, x: 0, y: 2
+                        )
                 }
                 .accessibilityLabel("Home")
             }
@@ -754,17 +1357,17 @@ public struct NGTubeProcedureView: View {
         .padding(.vertical, 9)
         .background(
             Rectangle()
-                .fill(Color(red: 14/255, green: 28/255, blue: 32/255).opacity(0.32))
-                .background(.ultraThinMaterial, in: Rectangle())
+                .fill(Color(red: 14/255, green: 28/255, blue: 32/255).opacity(0.16))
+                .background(.ultraThinMaterial.opacity(0.65), in: Rectangle())
         )
         .overlay(
             VStack {
-                Divider().background(Color.white.opacity(0.18))
+                Divider().background(Color.white.opacity(0.12))
                 Spacer()
-                Divider().background(Color.white.opacity(0.14))
+                Divider().background(Color.white.opacity(0.08))
             }
         )
-        .shadow(color: Color.black.opacity(0.20), radius: 6, x: 0, y: 3)
+        .shadow(color: Color.black.opacity(0.14), radius: 5, x: 0, y: 2)
         .contentShape(Rectangle())
         .onTapGesture {
             if currentStep == .intro {
@@ -772,6 +1375,10 @@ public struct NGTubeProcedureView: View {
             } else if currentStep == .waitingDrinkTap {
                 handleTabletopTap()
             } else if currentStep == .drinksReady {
+                promptForMeasuringTape()
+            } else if currentStep == .prepTube {
+                applyJelly()
+            } else if currentStep == .jellyApplied || currentStep == .mazeIntro {
                 advanceToMaze()
             }
         }
@@ -847,6 +1454,8 @@ public struct NGTubeProcedureView: View {
         introTimer = nil
         mazeTransitionTimer?.invalidate()
         mazeTransitionTimer = nil
+        tapePromptTimer?.invalidate()
+        tapePromptTimer = nil
         strikeDismissTimer?.cancel()
         strikeDismissTimer = nil
     }
@@ -863,6 +1472,17 @@ public struct NGTubeProcedureView: View {
             showSprayMist = false
             showDrinks = false
             drinksPopScale = 0.0
+            showTapeOnTable = false
+            tapeTableScale = 0.0
+            isTapeDelivered = false
+            isDraggingTape = false
+            tapeDragProgress = 0.0
+            tapeDragOffset = .zero
+            tapeGlowPulse = true
+            showTapePopOut = false
+            showPrepSyringe = false
+            showJellyTarget = false
+            isJellyApplied = false
             mazeTouches = 0
             drawnPoints = []
             isDrawingPath = false
@@ -870,7 +1490,14 @@ public struct NGTubeProcedureView: View {
             showMazeVictoryModal = false
             showMazeTryAgainModal = false
             showMazeStrikeOverlay = false
+            showMazeIntroModal = false
             stomachAuraPulse = false
+            showPatientWithTube = false
+            showFaceTape = false
+            isFaceTapeSecured = false
+            isDraggingFaceTape = false
+            faceTapeDragOffset = .zero
+            showFinalVictoryModal = false
         }
 
         introTimer = Timer.scheduledTimer(withTimeInterval: 2.6, repeats: false) { _ in
@@ -957,9 +1584,105 @@ public struct NGTubeProcedureView: View {
             promptText = "Great! Having a drink ready helps with swallowing during the NG tube."
         }
 
-        mazeTransitionTimer = Timer.scheduledTimer(withTimeInterval: 2.5, repeats: false) { _ in
-            advanceToMaze()
+        tapePromptTimer = Timer.scheduledTimer(withTimeInterval: 2.4, repeats: false) { _ in
+            promptForMeasuringTape()
         }
+    }
+
+    private func promptForMeasuringTape() {
+        cleanupTimers()
+        withAnimation(.spring(response: 0.48, dampingFraction: 0.72)) {
+            currentStep = .dragTapeToBelly
+            showTapeOnTable = false
+            tapeDragProgress = 0.0
+            tapeDragOffset = .zero
+            isDraggingTape = false
+            isTapeDelivered = false
+            promptText = "Drag the measuring tape down from nose level to belly level."
+        }
+        playTapeSound()
+    }
+
+    private func startTapeMeasurementAtNose() {
+        promptForMeasuringTape()
+    }
+
+    private func deliverTapeAtBelly() {
+        guard (currentStep == .dragTapeToBelly || currentStep == .waitingTapeTap) && !isTapeDelivered else { return }
+        isTapeDelivered = true
+        isDraggingTape = false
+        tapeDragProgress = 1.0
+        currentStep = .tapeMeasured
+        HapticManager.shared.success()
+        playTapeSound()
+
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+            tapeDragOffset = .zero
+            promptText = "Great job! Measuring ensures the NG tube is the perfect length."
+        }
+
+        // Measuring tape disappears with a pop effect!
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+            playPopSound()
+            withAnimation(.spring(response: 0.38, dampingFraction: 0.65)) {
+                showTapePopOut = true
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.38) {
+                startTubePreparation()
+            }
+        }
+    }
+
+    private func startTubePreparation() {
+        cleanupTimers()
+        currentStep = .prepTube
+        isJellyApplied = false
+
+        withAnimation(.spring(response: 0.55, dampingFraction: 0.72)) {
+            showPrepSyringe = true
+            showJellyTarget = true
+            promptText = "Excellent work! Now we can prepare our tube!"
+        }
+
+        tapePromptTimer = Timer.scheduledTimer(withTimeInterval: 1.4, repeats: false) { _ in
+            guard currentStep == .prepTube && !isJellyApplied else { return }
+            withAnimation(.spring(response: 0.45, dampingFraction: 0.75)) {
+                promptText = "Tap the end of the tube to add a little jelly."
+            }
+        }
+    }
+
+    private func applyJelly() {
+        guard (currentStep == .prepTube || currentStep == .tapeMeasured) && !isJellyApplied else { return }
+        cleanupTimers()
+        isJellyApplied = true
+        currentStep = .jellyApplied
+        HapticManager.shared.success()
+        playJellySound()
+
+        withAnimation(.spring(response: 0.45, dampingFraction: 0.65)) {
+            showJellyTarget = false
+            promptText = "Great job! Lubricating jelly helps the tube slide smoothly and comfortably."
+        }
+
+        mazeTransitionTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { _ in
+            showMazeIntroduction()
+        }
+    }
+
+    private func showMazeIntroduction() {
+        cleanupTimers()
+        withAnimation(.spring(response: 0.5, dampingFraction: 0.78)) {
+            currentStep = .mazeIntro
+            showMazeIntroModal = true
+            promptText = "Let's practice guiding the tube to the stomach!"
+        }
+        HapticManager.shared.lightTap()
+    }
+
+    private func playTapeSound() {
+        guard !isSoundMuted else { return }
+        playAudio(name: "MeasuringTape", player: &tapeAudioPlayer)
     }
 
     private func playCupsSound() {
@@ -978,6 +1701,7 @@ public struct NGTubeProcedureView: View {
         guard currentStep != .maze && currentStep != .mazeWon else { return }
 
         withAnimation(.spring(response: 0.5, dampingFraction: 0.75)) {
+            showMazeIntroModal = false
             currentStep = .maze
             promptText = "Guide the tube from the syringe to the stomach!"
             mazeTouches = 0
@@ -1070,7 +1794,7 @@ public struct NGTubeProcedureView: View {
             }
             withAnimation(.spring(response: 0.45, dampingFraction: 0.75)) {
                 showMazeTryAgainModal = true
-                promptText = "Strike 3 of 3! Tap Try Again to replay."
+                promptText = "Strike 3 of 3. Tap Try Again to replay."
             }
         } else {
             // Strikes 1, 2: Pop up "Strike X of 3!" and briefly disable/dim the screen
@@ -1161,6 +1885,64 @@ public struct NGTubeProcedureView: View {
         playAudio(name: "YouDidIt", player: &victoryAudioPlayer)
     }
 
+    private func playPopSound() {
+        guard !isSoundMuted else { return }
+        playAudio(name: "YouDidItChime", player: &popAudioPlayer)
+    }
+
+    private func playJellySound() {
+        guard !isSoundMuted else { return }
+        playAudio(name: "Jelly", player: &jellyAudioPlayer)
+    }
+
+    private func playBandageSound() {
+        guard !isSoundMuted else { return }
+        playAudio(name: "Bandage", player: &tapeAudioPlayer)
+    }
+
+    private func startFaceTapeStep() {
+        cleanupTimers()
+        showMazeVictoryModal = false
+        withAnimation(.spring(response: 0.45, dampingFraction: 0.75)) {
+            currentStep = .secureFaceTape
+            showPatientWithTube = true
+            showDrinks = true
+            drinksPopScale = 1.0
+            showTapeOnTable = false
+            isTapeDelivered = false
+            showPrepSyringe = false
+            showJellyTarget = false
+            isJellyApplied = false
+            showFaceTape = true
+            isFaceTapeSecured = false
+            isDraggingFaceTape = false
+            faceTapeDragOffset = .zero
+            promptText = "Secure the NG tube on the patient's cheek using soft tape!"
+        }
+        HapticManager.shared.lightTap()
+    }
+
+    private func secureFaceTapeOnCheek() {
+        guard !isFaceTapeSecured else { return }
+        withAnimation(.spring(response: 0.32, dampingFraction: 0.75)) {
+            isFaceTapeSecured = true
+            isDraggingFaceTape = false
+            currentStep = .faceTapeSecured
+            faceTapeDragOffset = .zero
+            promptText = "Great job! The NG tube is securely taped in place!"
+        }
+        HapticManager.shared.success()
+        playBandageSound()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+            playVictorySound()
+            withAnimation(.spring(response: 0.45, dampingFraction: 0.75)) {
+                showFinalVictoryModal = true
+                currentStep = .procedureComplete
+            }
+        }
+    }
+
     private func playAudio(name: String, player: inout AVAudioPlayer?) {
         if let dataAsset = NSDataAsset(name: name) {
             do {
@@ -1204,20 +1986,20 @@ public struct NGTubeProcedureView: View {
         NGTubeBezierCurve(p0: CGPoint(x: 160, y: 405), p1: CGPoint(x: 190, y: 405), p2: CGPoint(x: 220, y: 415), p3: CGPoint(x: 250, y: 420)),
 
         // 2. Upper-left loop (Branch A)
-        NGTubeBezierCurve(p0: CGPoint(x: 250, y: 420), p1: CGPoint(x: 240, y: 320), p2: CGPoint(x: 200, y: 230), p3: CGPoint(x: 270, y: 200)),
-        NGTubeBezierCurve(p0: CGPoint(x: 270, y: 200), p1: CGPoint(x: 340, y: 170), p2: CGPoint(x: 390, y: 260), p3: CGPoint(x: 330, y: 330)),
-        NGTubeBezierCurve(p0: CGPoint(x: 330, y: 330), p1: CGPoint(x: 275, y: 395), p2: CGPoint(x: 240, y: 430), p3: CGPoint(x: 330, y: 460)),
-        NGTubeBezierCurve(p0: CGPoint(x: 330, y: 460), p1: CGPoint(x: 400, y: 485), p2: CGPoint(x: 440, y: 370), p3: CGPoint(x: 480, y: 280)),
+        NGTubeBezierCurve(p0: CGPoint(x: 250, y: 420), p1: CGPoint(x: 240, y: 350), p2: CGPoint(x: 210, y: 295), p3: CGPoint(x: 270, y: 275)),
+        NGTubeBezierCurve(p0: CGPoint(x: 270, y: 275), p1: CGPoint(x: 330, y: 255), p2: CGPoint(x: 380, y: 310), p3: CGPoint(x: 330, y: 375)),
+        NGTubeBezierCurve(p0: CGPoint(x: 330, y: 375), p1: CGPoint(x: 280, y: 420), p2: CGPoint(x: 250, y: 455), p3: CGPoint(x: 330, y: 480)),
+        NGTubeBezierCurve(p0: CGPoint(x: 330, y: 480), p1: CGPoint(x: 395, y: 495), p2: CGPoint(x: 440, y: 410), p3: CGPoint(x: 480, y: 340)),
 
         // 3. Top arch ascending to crest
-        NGTubeBezierCurve(p0: CGPoint(x: 480, y: 280), p1: CGPoint(x: 520, y: 190), p2: CGPoint(x: 600, y: 135), p3: CGPoint(x: 690, y: 145)),
+        NGTubeBezierCurve(p0: CGPoint(x: 480, y: 340), p1: CGPoint(x: 530, y: 280), p2: CGPoint(x: 610, y: 245), p3: CGPoint(x: 690, y: 250)),
 
         // 4. Top-right dead end (blocks direct route to stomach)
-        NGTubeBezierCurve(p0: CGPoint(x: 690, y: 145), p1: CGPoint(x: 770, y: 150), p2: CGPoint(x: 840, y: 180), p3: CGPoint(x: 890, y: 240)),
+        NGTubeBezierCurve(p0: CGPoint(x: 690, y: 250), p1: CGPoint(x: 770, y: 255), p2: CGPoint(x: 840, y: 275), p3: CGPoint(x: 890, y: 320)),
 
         // 5. Central vertical plunging channel
-        NGTubeBezierCurve(p0: CGPoint(x: 690, y: 145), p1: CGPoint(x: 750, y: 220), p2: CGPoint(x: 740, y: 360), p3: CGPoint(x: 700, y: 480)),
-        NGTubeBezierCurve(p0: CGPoint(x: 700, y: 480), p1: CGPoint(x: 660, y: 590), p2: CGPoint(x: 640, y: 660), p3: CGPoint(x: 620, y: 730)),
+        NGTubeBezierCurve(p0: CGPoint(x: 690, y: 250), p1: CGPoint(x: 740, y: 305), p2: CGPoint(x: 735, y: 400), p3: CGPoint(x: 700, y: 490)),
+        NGTubeBezierCurve(p0: CGPoint(x: 700, y: 490), p1: CGPoint(x: 660, y: 590), p2: CGPoint(x: 640, y: 660), p3: CGPoint(x: 620, y: 730)),
 
         // 6. Lower-left flank and pretzel (Branch B)
         NGTubeBezierCurve(p0: CGPoint(x: 250, y: 420), p1: CGPoint(x: 210, y: 500), p2: CGPoint(x: 200, y: 620), p3: CGPoint(x: 210, y: 740)),
@@ -1267,22 +2049,22 @@ struct NGTubeMazePaths: Shape {
 
         // 2. Upper-left loop (Branch A)
         path.move(to: pt(250, 420))
-        path.addCurve(to: pt(270, 200), control1: pt(240, 320), control2: pt(200, 230))
-        path.addCurve(to: pt(330, 330), control1: pt(340, 170), control2: pt(390, 260))
-        path.addCurve(to: pt(330, 460), control1: pt(275, 395), control2: pt(240, 430))
-        path.addCurve(to: pt(480, 280), control1: pt(400, 485), control2: pt(440, 370))
+        path.addCurve(to: pt(270, 275), control1: pt(240, 350), control2: pt(210, 295))
+        path.addCurve(to: pt(330, 375), control1: pt(330, 255), control2: pt(380, 310))
+        path.addCurve(to: pt(330, 480), control1: pt(280, 420), control2: pt(250, 455))
+        path.addCurve(to: pt(480, 340), control1: pt(395, 495), control2: pt(440, 410))
 
         // 3. Top arch ascending to crest
-        path.move(to: pt(480, 280))
-        path.addCurve(to: pt(690, 145), control1: pt(520, 190), control2: pt(600, 135))
+        path.move(to: pt(480, 340))
+        path.addCurve(to: pt(690, 250), control1: pt(530, 280), control2: pt(610, 245))
 
         // 4. Top-right dead end (blocks direct route to stomach)
-        path.move(to: pt(690, 145))
-        path.addCurve(to: pt(890, 240), control1: pt(770, 150), control2: pt(840, 180))
+        path.move(to: pt(690, 250))
+        path.addCurve(to: pt(890, 320), control1: pt(770, 255), control2: pt(840, 275))
 
         // 5. Central vertical plunging channel
-        path.move(to: pt(690, 145))
-        path.addCurve(to: pt(700, 480), control1: pt(750, 220), control2: pt(740, 360))
+        path.move(to: pt(690, 250))
+        path.addCurve(to: pt(700, 490), control1: pt(740, 305), control2: pt(735, 400))
         path.addCurve(to: pt(620, 730), control1: pt(660, 590), control2: pt(640, 660))
 
         // 6. Lower-left flank and pretzel (Branch B)
