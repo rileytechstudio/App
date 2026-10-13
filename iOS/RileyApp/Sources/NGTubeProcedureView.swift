@@ -20,7 +20,48 @@ public enum NGTubeStep: Equatable {
     case mazeWon
     case secureFaceTape
     case faceTapeSecured
+    case swipeCups
+    case cupsSwiped
+    case tapTableForWhiteboard
+    case tapMiniWhiteboard
+    case largeWhiteboard
+    case miniWhiteboardDisplay
     case procedureComplete
+}
+
+// MARK: - Whiteboard Tool & Stroke Models
+public enum WhiteboardTool: Equatable {
+    case blue
+    case green
+    case red
+    case eraser
+
+    var color: Color {
+        switch self {
+        case .blue: return Color(red: 2/255, green: 132/255, blue: 199/255)
+        case .green: return Color(red: 22/255, green: 163/255, blue: 74/255)
+        case .red: return Color(red: 220/255, green: 38/255, blue: 38/255)
+        case .eraser: return Color.clear
+        }
+    }
+
+    var lineWidth: CGFloat {
+        switch self {
+        case .eraser: return 54
+        default: return 10
+        }
+    }
+}
+
+public struct WhiteboardStroke: Identifiable, Equatable {
+    public let id = UUID()
+    public var points: [CGPoint]
+    public var tool: WhiteboardTool
+
+    public init(points: [CGPoint], tool: WhiteboardTool) {
+        self.points = points
+        self.tool = tool
+    }
 }
 
 // MARK: - Bezier Curve Helper for Maze Geometry
@@ -104,6 +145,22 @@ public struct NGTubeProcedureView: View {
     @State private var faceTapeDragOffset: CGSize = .zero
     @State private var showFinalVictoryModal: Bool = false
 
+    // Cups swipe states
+    @State private var isDrinksSwiped: Bool = false
+    @State private var drinksDragOffset: CGFloat = 0.0
+    @State private var showCupsSwipeHint: Bool = false
+
+    // Tabletop Whiteboard states
+    @State private var showWhiteboardTableBeacon: Bool = false
+    @State private var showMiniWhiteboard: Bool = false
+    @State private var whiteboardDelayTimer: DispatchWorkItem? = nil
+
+    // Large Whiteboard screen & drawing states
+    @State private var showLargeWhiteboardModal: Bool = false
+    @State private var whiteboardCurrentTool: WhiteboardTool = .blue
+    @State private var whiteboardStrokes: [WhiteboardStroke] = []
+    @State private var currentStrokePoints: [CGPoint] = []
+
     public init(
         onDismiss: (() -> Void)? = nil,
         onBackToHome: (() -> Void)? = nil
@@ -181,6 +238,10 @@ public struct NGTubeProcedureView: View {
                             startTubePreparation()
                         } else if currentStep == .jellyApplied || currentStep == .mazeIntro || currentStep == .mazeWon {
                             advanceToMaze()
+                        } else if currentStep == .tapTableForWhiteboard {
+                            handleWhiteboardTableTap()
+                        } else if currentStep == .tapMiniWhiteboard || currentStep == .miniWhiteboardDisplay {
+                            openLargeWhiteboard()
                         }
                     }
                 }
@@ -192,6 +253,27 @@ public struct NGTubeProcedureView: View {
                     topPromptBar
                 }
                 .zIndex(25)
+
+                // MARK: - Large Whiteboard Screen Modal
+                if showLargeWhiteboardModal {
+                    GeometryReader { modalGeo in
+                        let (mStageW, mStageH) = calculateStageSize(
+                            containerW: modalGeo.size.width,
+                            containerH: modalGeo.size.height,
+                            aspectRatio: stageTargetAspect
+                        )
+                        largeWhiteboardModalView(stageW: mStageW, stageH: mStageH)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    }
+                    .zIndex(45)
+                    .transition(.opacity)
+                }
+
+                // MARK: - Final Victory Modal
+                if showFinalVictoryModal {
+                    finalVictoryModalView
+                        .zIndex(50)
+                }
             }
         }
         .ignoresSafeArea()
@@ -248,9 +330,9 @@ public struct NGTubeProcedureView: View {
         // Face tape on cheek coordinates
         let cheekTargetX = stageW * 0.8433
         let cheekTargetY = stageH * 0.3711
-        let initialTapeX = stageW * 0.32
-        let initialTapeY = stageH * 0.46
-        let faceTapeW = stageW * 0.038
+        let initialTapeX = stageW * 0.50
+        let initialTapeY = stageH * 0.50
+        let faceTapeW = stageW * 0.02736
         let faceTapeH = faceTapeW * (243.0 / 95.0)
 
         let currentTapeX = isFaceTapeSecured ? cheekTargetX : (initialTapeX + faceTapeDragOffset.width)
@@ -337,13 +419,130 @@ public struct NGTubeProcedureView: View {
                 .transition(.scale(scale: 0.4).combined(with: .opacity))
             }
 
-            // Layer 4: Drinks PNG on Tabletop (popping up when ready)
+            // Layer 4: Drinks PNG on Tabletop (popping up when ready & swipeable away)
             if showDrinks {
-                Image("NGTubeDrinks")
-                    .resizable()
-                    .frame(width: stageW, height: stageH)
-                    .scaleEffect(drinksPopScale, anchor: UnitPoint(x: 0.236, y: 0.709))
-                    .allowsHitTesting(false)
+                ZStack {
+                    Image("NGTubeDrinks")
+                        .resizable()
+                        .frame(width: stageW, height: stageH)
+                        .scaleEffect(drinksPopScale, anchor: UnitPoint(x: 0.236, y: 0.709))
+                        .offset(x: drinksDragOffset, y: 0)
+                        .rotationEffect(Angle(degrees: Double(drinksDragOffset) * 0.04))
+                        .opacity(isDrinksSwiped ? 0.0 : max(0.2, 1.0 + Double(drinksDragOffset) / 300.0))
+
+                    if currentStep == .swipeCups && showCupsSwipeHint {
+                        HStack(spacing: 6) {
+                            Image(systemName: "arrow.left")
+                                .font(.system(size: 13, weight: .bold))
+                            Text("Swipe Away")
+                                .font(.system(size: 13, weight: .bold, design: .rounded))
+                        }
+                        .foregroundColor(Color(red: 56/255, green: 189/255, blue: 248/255))
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 7)
+                        .background(Color(red: 15/255, green: 23/255, blue: 42/255).opacity(0.9))
+                        .cornerRadius(20)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color(red: 56/255, green: 189/255, blue: 248/255).opacity(0.65), lineWidth: 1.5)
+                        )
+                        .shadow(color: Color.black.opacity(0.4), radius: 8, y: 3)
+                        .position(x: stageW * 0.236, y: stageH * 0.67)
+                        .allowsHitTesting(false)
+                    }
+                }
+                .allowsHitTesting(currentStep == .swipeCups)
+                .gesture(
+                    DragGesture(minimumDistance: 0)
+                        .onChanged { gesture in
+                            guard currentStep == .swipeCups && !isDrinksSwiped else { return }
+                            let dragX = gesture.translation.width
+                            if dragX < 0 {
+                                drinksDragOffset = dragX
+                                if dragX < -stageW * 0.075 {
+                                    finishCupsSwipe(stageW: stageW)
+                                }
+                            }
+                        }
+                        .onEnded { gesture in
+                            guard currentStep == .swipeCups && !isDrinksSwiped else { return }
+                            if gesture.translation.width < -stageW * 0.04 || gesture.predictedEndTranslation.width < -stageW * 0.08 {
+                                finishCupsSwipe(stageW: stageW)
+                            } else {
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                    drinksDragOffset = 0
+                                }
+                            }
+                        }
+                )
+            }
+
+            // Layer 4b: Whiteboard Tabletop Target Beacon
+            if showWhiteboardTableBeacon && currentStep == .tapTableForWhiteboard {
+                Button(action: {
+                    handleWhiteboardTableTap()
+                }) {
+                    ZStack {
+                        Circle()
+                            .stroke(Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0), lineWidth: 2.5)
+                            .frame(width: 44, height: 44)
+                            .scaleEffect(tapeGlowPulse ? 1.55 : 0.85)
+                            .opacity(tapeGlowPulse ? 0.0 : 0.95)
+                            .animation(Animation.easeOut(duration: 1.8).repeatForever(autoreverses: false), value: tapeGlowPulse)
+
+                        Circle()
+                            .stroke(Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0), lineWidth: 3)
+                            .background(Circle().fill(Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0).opacity(0.18)))
+                            .frame(width: 44, height: 44)
+                            .shadow(color: Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0), radius: 8)
+                            .shadow(color: Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0).opacity(0.6), radius: 16)
+                            .scaleEffect(tapeGlowPulse ? 1.05 : 0.95)
+                            .animation(Animation.easeInOut(duration: 1.2).repeatForever(autoreverses: true), value: tapeGlowPulse)
+                    }
+                }
+                .buttonStyle(PlainButtonStyle())
+                .position(x: stageW * 0.208, y: stageH * 0.689)
+                .transition(.scale.combined(with: .opacity))
+            }
+
+            // Layer 4c: Mini Whiteboard on Bedside Table (renders live downscaled user design!)
+            if showMiniWhiteboard {
+                Button(action: {
+                    openLargeWhiteboard()
+                }) {
+                    ZStack {
+                        Image("TransparentMiniWhiteboard")
+                            .resizable()
+                            .frame(width: stageW, height: stageH)
+
+                        Canvas { context, size in
+                            let scaleX = size.width / 984.0
+                            let scaleY = size.height / 758.0
+                            context.drawLayer { layer in
+                                for stroke in whiteboardStrokes {
+                                    var path = Path()
+                                    guard let first = stroke.points.first else { continue }
+                                    path.move(to: CGPoint(x: first.x * scaleX, y: first.y * scaleY))
+                                    for pt in stroke.points.dropFirst() {
+                                        path.addLine(to: CGPoint(x: pt.x * scaleX, y: pt.y * scaleY))
+                                    }
+                                    if stroke.tool == .eraser {
+                                        layer.blendMode = .clear
+                                        layer.stroke(path, with: .color(.black), style: StrokeStyle(lineWidth: stroke.tool.lineWidth * scaleX, lineCap: .round, lineJoin: .round))
+                                    } else {
+                                        layer.blendMode = .normal
+                                        layer.stroke(path, with: .color(stroke.tool.color), style: StrokeStyle(lineWidth: stroke.tool.lineWidth * scaleX, lineCap: .round, lineJoin: .round))
+                                    }
+                                }
+                            }
+                        }
+                        .frame(width: stageW * (342.0 / 1366.0), height: stageH * (264.0 / 1024.0))
+                        .position(x: stageW * (285.0 / 1366.0), y: stageH * (704.0 / 1024.0))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
+                }
+                .buttonStyle(PlainButtonStyle())
+                .transition(.scale(scale: 0.6).combined(with: .opacity))
             }
 
             // Layer 5: Table Glowing Item (Table Transparent PNG glowing as a whole)
@@ -534,30 +733,11 @@ public struct NGTubeProcedureView: View {
                 }
             }
 
-            // Layer 9: Face Tape Cheek Target Beacon
-            if showFaceTape && !isFaceTapeSecured {
-                ZStack {
-                    Circle()
-                        .stroke(Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0), lineWidth: 2.5)
-                        .frame(width: 44, height: 44)
-                        .scaleEffect(tapeGlowPulse ? 1.55 : 0.85)
-                        .opacity(tapeGlowPulse ? 0.0 : 0.95)
-                        .animation(Animation.easeOut(duration: 1.8).repeatForever(autoreverses: false), value: tapeGlowPulse)
 
-                    Circle()
-                        .stroke(Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0), lineWidth: 3)
-                        .background(Circle().fill(Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0).opacity(0.14)))
-                        .frame(width: 40, height: 40)
-                        .shadow(color: Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0), radius: 10)
-                        .shadow(color: Color.white.opacity(0.8), radius: 16)
-                }
-                .position(x: cheekTargetX, y: cheekTargetY)
-                .allowsHitTesting(false)
-            }
 
             // Layer 10: Draggable Soft Face Tape
             if showFaceTape {
-                Image("NGTubeFaceTapeItem")
+                Image(isFaceTapeSecured ? "NGTubeFaceTapeSecured" : "NGTubeFaceTapeItem")
                     .resizable()
                     .scaledToFit()
                     .frame(width: faceTapeW, height: faceTapeH)
@@ -669,13 +849,13 @@ public struct NGTubeProcedureView: View {
                         .background(Color(red: 56/255, green: 189/255, blue: 248/255).opacity(0.16))
                         .clipShape(Capsule())
 
-                        Text("Let's practice guiding the tube to the stomach!")
+                        Text("Let's practice guiding the tube!")
                             .font(.system(size: 22, weight: .black, design: .rounded))
                             .foregroundColor(.white)
                             .multilineTextAlignment(.center)
                             .fixedSize(horizontal: false, vertical: true)
 
-                        Text("Trace a gentle path from the syringe all the way down to the tummy.")
+                        Text("Trace a path from the syringe to the stomach.")
                             .font(.system(size: 15, weight: .medium, design: .rounded))
                             .foregroundColor(.white.opacity(0.85))
                             .multilineTextAlignment(.center)
@@ -685,7 +865,7 @@ public struct NGTubeProcedureView: View {
                             advanceToMaze()
                         }) {
                             HStack(spacing: 10) {
-                                Text("Start Practice")
+                                Text("Start")
                                     .font(.system(size: 17, weight: .bold, design: .rounded))
                                 Image(systemName: "arrow.right")
                                     .font(.system(size: 16, weight: .bold))
@@ -1034,37 +1214,29 @@ public struct NGTubeProcedureView: View {
                             .multilineTextAlignment(.center)
                             .padding(.bottom, 6)
 
-                        HStack(spacing: 14) {
+                        HStack(spacing: 10) {
                             Button(action: {
                                 startFaceTapeStep()
                             }) {
-                                HStack(spacing: 8) {
-                                    Text("Secure Tube")
-                                        .font(.system(size: 16, weight: .bold, design: .rounded))
-                                    Image(systemName: "arrow.right")
-                                        .font(.system(size: 16, weight: .bold))
-                                }
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 22)
-                                .padding(.vertical, 12)
-                                .background(Color(red: 16/255, green: 185/255, blue: 129/255))
-                                .clipShape(Capsule())
+                                Text("Continue")
+                                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 9)
+                                    .background(Color(red: 16/255, green: 185/255, blue: 129/255))
+                                    .clipShape(Capsule())
                             }
 
                             Button(action: {
                                 restartMaze()
                             }) {
-                                HStack(spacing: 6) {
-                                    Image(systemName: "arrow.counterclockwise")
-                                        .font(.system(size: 15, weight: .bold))
-                                    Text("Play Again")
-                                        .font(.system(size: 15, weight: .bold, design: .rounded))
-                                }
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 18)
-                                .padding(.vertical, 12)
-                                .background(Color.white.opacity(0.2))
-                                .clipShape(Capsule())
+                                Text("Play Again")
+                                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 9)
+                                    .background(Color.white.opacity(0.2))
+                                    .clipShape(Capsule())
                             }
                         }
                     }
@@ -1078,84 +1250,6 @@ public struct NGTubeProcedureView: View {
                     .shadow(color: Color.black.opacity(0.5), radius: 24, x: 0, y: 12)
                 }
                 .transition(.scale(scale: 0.9).combined(with: .opacity))
-            }
-
-            // 13. Final Procedure Complete Victory Modal
-            if showFinalVictoryModal {
-                ZStack {
-                    Color.black.opacity(0.45)
-                        .ignoresSafeArea()
-
-                    VStack(spacing: 14) {
-                        ZStack {
-                            Circle()
-                                .fill(Color(red: 34/255, green: 197/255, blue: 94/255).opacity(0.18))
-                                .frame(width: 68, height: 68)
-                                .overlay(Circle().stroke(Color(red: 34/255, green: 197/255, blue: 94/255).opacity(0.65), lineWidth: 2))
-                            Image(systemName: "checkmark")
-                                .font(.system(size: 34, weight: .bold))
-                                .foregroundColor(Color(red: 34/255, green: 197/255, blue: 94/255))
-                        }
-
-                        Text("All Done!")
-                            .font(.system(size: 24, weight: .black, design: .rounded))
-                            .foregroundColor(Color(red: 34/255, green: 197/255, blue: 94/255))
-
-                        Text("The NG tube is safely placed and secured with soft tape! Fantastic job!")
-                            .font(.system(size: 16, weight: .medium, design: .rounded))
-                            .foregroundColor(.white.opacity(0.85))
-                            .multilineTextAlignment(.center)
-                            .padding(.bottom, 6)
-
-                        HStack(spacing: 14) {
-                            Button(action: {
-                                if let onDismiss = onDismiss {
-                                    onDismiss()
-                                } else {
-                                    presentationMode.wrappedValue.dismiss()
-                                }
-                            }) {
-                                HStack(spacing: 8) {
-                                    Image(systemName: "checkmark.circle.fill")
-                                    Text("Finished")
-                                }
-                                .font(.system(size: 16, weight: .bold, design: .rounded))
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 22)
-                                .padding(.vertical, 12)
-                                .background(Color(red: 16/255, green: 185/255, blue: 129/255))
-                                .clipShape(Capsule())
-                            }
-
-                            Button(action: {
-                                showFinalVictoryModal = false
-                                startFaceTapeStep()
-                            }) {
-                                HStack(spacing: 6) {
-                                    Image(systemName: "arrow.counterclockwise")
-                                    Text("Tape Again")
-                                }
-                                .font(.system(size: 16, weight: .bold, design: .rounded))
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 20)
-                                .padding(.vertical, 12)
-                                .background(Color.white.opacity(0.2))
-                                .clipShape(Capsule())
-                            }
-                        }
-                    }
-                    .padding(28)
-                    .background(Color(red: 22/255, green: 34/255, blue: 48/255))
-                    .cornerRadius(28)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 28)
-                            .stroke(Color(red: 34/255, green: 197/255, blue: 94/255).opacity(0.55), lineWidth: 2)
-                    )
-                    .shadow(color: Color.black.opacity(0.55), radius: 24, x: 0, y: 12)
-                    .shadow(color: Color(red: 34/255, green: 197/255, blue: 94/255).opacity(0.25), radius: 20)
-                }
-                .transition(.scale(scale: 0.9).combined(with: .opacity))
-                .zIndex(26)
             }
         }
         .frame(width: stageW, height: stageH)
@@ -1380,6 +1474,10 @@ public struct NGTubeProcedureView: View {
                 applyJelly()
             } else if currentStep == .jellyApplied || currentStep == .mazeIntro {
                 advanceToMaze()
+            } else if currentStep == .tapTableForWhiteboard {
+                handleWhiteboardTableTap()
+            } else if currentStep == .tapMiniWhiteboard || currentStep == .miniWhiteboardDisplay {
+                openLargeWhiteboard()
             }
         }
     }
@@ -1458,6 +1556,8 @@ public struct NGTubeProcedureView: View {
         tapePromptTimer = nil
         strikeDismissTimer?.cancel()
         strikeDismissTimer = nil
+        whiteboardDelayTimer?.cancel()
+        whiteboardDelayTimer = nil
     }
 
     private func startWelcomeSequence() {
@@ -1498,6 +1598,17 @@ public struct NGTubeProcedureView: View {
             isDraggingFaceTape = false
             faceTapeDragOffset = .zero
             showFinalVictoryModal = false
+
+            // Cups swipe & whiteboard states reset
+            isDrinksSwiped = false
+            drinksDragOffset = 0.0
+            showCupsSwipeHint = false
+            showWhiteboardTableBeacon = false
+            showMiniWhiteboard = false
+            showLargeWhiteboardModal = false
+            whiteboardCurrentTool = .blue
+            whiteboardStrokes = []
+            currentStrokePoints = []
         }
 
         introTimer = Timer.scheduledTimer(withTimeInterval: 2.6, repeats: false) { _ in
@@ -1908,6 +2019,16 @@ public struct NGTubeProcedureView: View {
             showPatientWithTube = true
             showDrinks = true
             drinksPopScale = 1.0
+            isDrinksSwiped = false
+            drinksDragOffset = 0.0
+            showCupsSwipeHint = false
+            showWhiteboardTableBeacon = false
+            showMiniWhiteboard = false
+            showLargeWhiteboardModal = false
+            whiteboardCurrentTool = .blue
+            whiteboardStrokes = []
+            currentStrokePoints = []
+            showFinalVictoryModal = false
             showTapeOnTable = false
             isTapeDelivered = false
             showPrepSyringe = false
@@ -1934,13 +2055,366 @@ public struct NGTubeProcedureView: View {
         HapticManager.shared.success()
         playBandageSound()
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+        // Transition to post-tape cups swipe step after celebratory pause
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.3) {
+            startCupsSwipeStep()
+        }
+    }
+
+    // MARK: - Post-Tape Sequence: Cups Swipe & Whiteboard
+    private func startCupsSwipeStep() {
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+            currentStep = .swipeCups
+            promptText = "Swipe away the cups on the bedside table to clear space!"
+            showCupsSwipeHint = true
+            isDrinksSwiped = false
+            drinksDragOffset = 0.0
+        }
+        HapticManager.shared.lightTap()
+    }
+
+    private func finishCupsSwipe(stageW: CGFloat) {
+        guard !isDrinksSwiped else { return }
+        isDrinksSwiped = true
+        currentStep = .cupsSwiped
+        showCupsSwipeHint = false
+        playBandageSound()
+        HapticManager.shared.mediumTap()
+        withAnimation(.easeInOut(duration: 0.45)) {
+            drinksDragOffset = -stageW * 0.8
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            showDrinks = false
+            promptForWhiteboardTable()
+        }
+    }
+
+    private func promptForWhiteboardTable() {
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+            currentStep = .tapTableForWhiteboard
+            promptText = "Sometimes, patients like having a whiteboard to communicate right after getting an NG tube. Tap the table to get a whiteboard!"
+            showWhiteboardTableBeacon = true
+        }
+        HapticManager.shared.lightTap()
+    }
+
+    private func handleWhiteboardTableTap() {
+        guard currentStep == .tapTableForWhiteboard else { return }
+        playBandageSound()
+        HapticManager.shared.mediumTap()
+        withAnimation(.spring(response: 0.45, dampingFraction: 0.75)) {
+            showWhiteboardTableBeacon = false
+            showMiniWhiteboard = true
+            currentStep = .tapMiniWhiteboard
+            promptText = "Finish the preparation by drawing something silly on the whiteboard! Tap the whiteboard to begin."
+        }
+    }
+
+    private func openLargeWhiteboard() {
+        guard currentStep == .tapMiniWhiteboard || currentStep == .miniWhiteboardDisplay else { return }
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+            currentStep = .largeWhiteboard
+            showLargeWhiteboardModal = true
+        }
+        HapticManager.shared.lightTap()
+    }
+
+    private func selectWhiteboardTool(_ tool: WhiteboardTool) {
+        whiteboardCurrentTool = tool
+        HapticManager.shared.lightTap()
+    }
+
+    private func clearWhiteboard() {
+        whiteboardStrokes = []
+        currentStrokePoints = []
+        HapticManager.shared.mediumTap()
+    }
+
+    private func finishWhiteboard() {
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+            showLargeWhiteboardModal = false
+            currentStep = .miniWhiteboardDisplay
+            promptText = "Your whiteboard drawing is ready for the patient!"
+        }
+        playBandageSound()
+        HapticManager.shared.success()
+
+        // Hold design on mini whiteboard for a moment (~2.5s) before congratulating them for finishing
+        whiteboardDelayTimer?.cancel()
+        let timer = DispatchWorkItem {
             playVictorySound()
             withAnimation(.spring(response: 0.45, dampingFraction: 0.75)) {
                 showFinalVictoryModal = true
                 currentStep = .procedureComplete
             }
         }
+        whiteboardDelayTimer = timer
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5, execute: timer)
+    }
+
+    // MARK: - Large Whiteboard Modal View
+    @ViewBuilder
+    private func largeWhiteboardModalView(stageW: CGFloat, stageH: CGFloat) -> some View {
+        let canvasW = stageW * (984.0 / 1366.0)
+        let canvasH = stageH * (758.0 / 1024.0)
+        let canvasCenterX = stageW * 0.50
+        let canvasCenterY = stageH * (480.0 / 1024.0)
+
+        ZStack {
+            Color.black.opacity(0.85)
+                .ignoresSafeArea()
+
+            ZStack {
+                // Background whiteboard on table
+                Image("NGTubeWhiteboardGame")
+                    .resizable()
+                    .frame(width: stageW, height: stageH)
+
+                // Interactive Large Drawing Surface
+                Canvas { context, size in
+                    context.drawLayer { layer in
+                        for stroke in whiteboardStrokes {
+                            var path = Path()
+                            guard let first = stroke.points.first else { continue }
+                            path.move(to: first)
+                            for pt in stroke.points.dropFirst() {
+                                path.addLine(to: pt)
+                            }
+                            if stroke.tool == .eraser {
+                                layer.blendMode = .clear
+                                layer.stroke(path, with: .color(.black), style: StrokeStyle(lineWidth: stroke.tool.lineWidth, lineCap: .round, lineJoin: .round))
+                            } else {
+                                layer.blendMode = .normal
+                                layer.stroke(path, with: .color(stroke.tool.color), style: StrokeStyle(lineWidth: stroke.tool.lineWidth, lineCap: .round, lineJoin: .round))
+                            }
+                        }
+
+                        if !currentStrokePoints.isEmpty {
+                            var activePath = Path()
+                            let first = currentStrokePoints[0]
+                            activePath.move(to: first)
+                            for pt in currentStrokePoints.dropFirst() {
+                                activePath.addLine(to: pt)
+                            }
+                            if whiteboardCurrentTool == .eraser {
+                                layer.blendMode = .clear
+                                layer.stroke(activePath, with: .color(.black), style: StrokeStyle(lineWidth: whiteboardCurrentTool.lineWidth, lineCap: .round, lineJoin: .round))
+                            } else {
+                                layer.blendMode = .normal
+                                layer.stroke(activePath, with: .color(whiteboardCurrentTool.color), style: StrokeStyle(lineWidth: whiteboardCurrentTool.lineWidth, lineCap: .round, lineJoin: .round))
+                            }
+                        }
+                    }
+                }
+                .frame(width: canvasW, height: canvasH)
+                .background(Color.white)
+                .clipShape(RoundedRectangle(cornerRadius: 32))
+                .position(x: canvasCenterX, y: canvasCenterY)
+                .gesture(
+                    DragGesture(minimumDistance: 0)
+                        .onChanged { gesture in
+                            let loc = gesture.location
+                            if loc.x >= 0 && loc.x <= canvasW && loc.y >= 0 && loc.y <= canvasH {
+                                let refX = loc.x * (984.0 / canvasW)
+                                let refY = loc.y * (758.0 / canvasH)
+                                currentStrokePoints.append(CGPoint(x: refX, y: refY))
+                            }
+                        }
+                        .onEnded { gesture in
+                            if !currentStrokePoints.isEmpty {
+                                whiteboardStrokes.append(
+                                    WhiteboardStroke(points: currentStrokePoints, tool: whiteboardCurrentTool)
+                                )
+                                currentStrokePoints = []
+                            }
+                        }
+                )
+
+                // Interactive Eraser Tool on Table
+                Button(action: {
+                    selectWhiteboardTool(.eraser)
+                }) {
+                    Image("NGTubeWhiteboardEraserItem")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: stageW * (319.0 / 1366.0), height: stageH * (196.0 / 1024.0))
+                        .shadow(
+                            color: whiteboardCurrentTool == .eraser ? Color.white.opacity(0.9) : Color.black.opacity(0.2),
+                            radius: whiteboardCurrentTool == .eraser ? 16 : 4
+                        )
+                        .scaleEffect(whiteboardCurrentTool == .eraser ? 1.08 : 1.0)
+                }
+                .buttonStyle(PlainButtonStyle())
+                .position(x: stageW * (218.5 / 1366.0), y: stageH * (897.0 / 1024.0))
+
+                // Interactive Blue Marker
+                Button(action: {
+                    selectWhiteboardTool(.blue)
+                }) {
+                    Image("NGTubeWhiteboardBlueMarkerItem")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: stageW * (284.0 / 1366.0), height: stageH * (86.0 / 1024.0))
+                        .shadow(
+                            color: whiteboardCurrentTool == .blue ? Color(red: 2/255, green: 132/255, blue: 199/255).opacity(0.95) : Color.black.opacity(0.2),
+                            radius: whiteboardCurrentTool == .blue ? 16 : 4
+                        )
+                        .scaleEffect(whiteboardCurrentTool == .blue ? 1.10 : 1.0)
+                }
+                .buttonStyle(PlainButtonStyle())
+                .position(x: stageW * (1014.0 / 1366.0), y: stageH * (840.0 / 1024.0))
+
+                // Interactive Green Marker
+                Button(action: {
+                    selectWhiteboardTool(.green)
+                }) {
+                    Image("NGTubeWhiteboardGreenMarkerItem")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: stageW * (70.0 / 1366.0), height: stageH * (283.0 / 1024.0))
+                        .shadow(
+                            color: whiteboardCurrentTool == .green ? Color(red: 22/255, green: 163/255, blue: 74/255).opacity(0.95) : Color.black.opacity(0.2),
+                            radius: whiteboardCurrentTool == .green ? 16 : 4
+                        )
+                        .scaleEffect(whiteboardCurrentTool == .green ? 1.10 : 1.0)
+                }
+                .buttonStyle(PlainButtonStyle())
+                .position(x: stageW * (1215.0 / 1366.0), y: stageH * (831.5 / 1024.0))
+
+                // Interactive Red Marker
+                Button(action: {
+                    selectWhiteboardTool(.red)
+                }) {
+                    Image("NGTubeWhiteboardRedMarkerItem")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: stageW * (72.0 / 1366.0), height: stageH * (283.0 / 1024.0))
+                        .shadow(
+                            color: whiteboardCurrentTool == .red ? Color(red: 220/255, green: 38/255, blue: 38/255).opacity(0.95) : Color.black.opacity(0.2),
+                            radius: whiteboardCurrentTool == .red ? 16 : 4
+                        )
+                        .scaleEffect(whiteboardCurrentTool == .red ? 1.10 : 1.0)
+                }
+                .buttonStyle(PlainButtonStyle())
+                .position(x: stageW * (1306.0 / 1366.0), y: stageH * (780.5 / 1024.0))
+
+                // Top Header Bar (Clear & All Done at Top Center)
+                VStack {
+                    HStack(spacing: 16) {
+                        Button(action: {
+                            clearWhiteboard()
+                        }) {
+                            Text("Clear")
+                                .font(.system(size: 15, weight: .bold, design: .rounded))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 10)
+                                .background(Color.white.opacity(0.25))
+                                .clipShape(Capsule())
+                        }
+
+                        Button(action: {
+                            finishWhiteboard()
+                        }) {
+                            HStack(spacing: 6) {
+                                Text("All Done")
+                                Image(systemName: "checkmark")
+                            }
+                            .font(.system(size: 15, weight: .bold, design: .rounded))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 22)
+                            .padding(.vertical, 10)
+                            .background(Color(red: 16/255, green: 185/255, blue: 129/255))
+                            .clipShape(Capsule())
+                            .shadow(color: Color(red: 16/255, green: 185/255, blue: 129/255).opacity(0.5), radius: 8, y: 3)
+                        }
+                    }
+                    .padding(.top, 20)
+
+                    Spacer()
+                }
+            }
+            .frame(width: stageW, height: stageH)
+        }
+        .transition(.opacity)
+    }
+
+    // MARK: - Final Procedure Complete Victory Modal
+    @ViewBuilder
+    private var finalVictoryModalView: some View {
+        ZStack {
+            Color.black.opacity(0.45)
+                .ignoresSafeArea()
+
+            VStack(spacing: 14) {
+                ZStack {
+                    Circle()
+                        .fill(Color(red: 34/255, green: 197/255, blue: 94/255).opacity(0.18))
+                        .frame(width: 68, height: 68)
+                        .overlay(Circle().stroke(Color(red: 34/255, green: 197/255, blue: 94/255).opacity(0.65), lineWidth: 2))
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 34, weight: .bold))
+                        .foregroundColor(Color(red: 34/255, green: 197/255, blue: 94/255))
+                }
+
+                Text("All Done!")
+                    .font(.system(size: 24, weight: .black, design: .rounded))
+                    .foregroundColor(Color(red: 34/255, green: 197/255, blue: 94/255))
+
+                Text("The NG tube is safely placed and secured with soft tape! Fantastic job!")
+                    .font(.system(size: 16, weight: .medium, design: .rounded))
+                    .foregroundColor(.white.opacity(0.85))
+                    .multilineTextAlignment(.center)
+                    .padding(.bottom, 6)
+
+                HStack(spacing: 14) {
+                    Button(action: {
+                        if let onDismiss = onDismiss {
+                            onDismiss()
+                        } else {
+                            presentationMode.wrappedValue.dismiss()
+                        }
+                    }) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "checkmark.circle.fill")
+                            Text("Finished")
+                        }
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 22)
+                        .padding(.vertical, 12)
+                        .background(Color(red: 16/255, green: 185/255, blue: 129/255))
+                        .clipShape(Capsule())
+                    }
+
+                    Button(action: {
+                        showFinalVictoryModal = false
+                        startFaceTapeStep()
+                    }) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "arrow.counterclockwise")
+                            Text("Tape Again")
+                        }
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 12)
+                        .background(Color.white.opacity(0.2))
+                        .clipShape(Capsule())
+                    }
+                }
+            }
+            .padding(28)
+            .background(Color(red: 22/255, green: 34/255, blue: 48/255))
+            .cornerRadius(28)
+            .overlay(
+                RoundedRectangle(cornerRadius: 28)
+                    .stroke(Color(red: 34/255, green: 197/255, blue: 94/255).opacity(0.55), lineWidth: 2)
+            )
+            .shadow(color: Color.black.opacity(0.55), radius: 24, x: 0, y: 12)
+            .shadow(color: Color(red: 34/255, green: 197/255, blue: 94/255).opacity(0.25), radius: 20)
+        }
+        .transition(.scale(scale: 0.9).combined(with: .opacity))
     }
 
     private func playAudio(name: String, player: inout AVAudioPlayer?) {

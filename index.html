@@ -3819,8 +3819,25 @@
     .ng-tube-victory-card .victory-actions {
       display: flex;
       justify-content: center;
-      gap: 16px;
-      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: nowrap;
+    }
+
+    .ng-tube-victory-card .victory-actions .ng-tube-choice-btn {
+      min-width: 0;
+      padding: 9px 16px;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 22px;
+      gap: 7px;
+      white-space: nowrap;
+      flex: 0 1 auto;
+    }
+
+    .ng-tube-victory-card .victory-actions .ng-tube-choice-btn svg {
+      width: 16px;
+      height: 16px;
     }
 
     .ng-tube-choice-btn-secondary {
@@ -3833,12 +3850,12 @@
       background: rgba(255, 255, 255, 0.28);
     }
 
-    /* Face Tape Draggable Item (Spawned on left side above bedside table with glowing aura) */
+    /* Face Tape Draggable Item (Spawned in middle of screen with glowing aura) */
     .ng-tube-face-tape-item {
       position: absolute;
-      left: 32.0%;
-      top: 46.0%;
-      width: 3.8%;
+      left: 50.0%;
+      top: 50.0%;
+      width: 2.736%;
       aspect-ratio: 95 / 243;
       transform: translate(-50%, -50%);
       z-index: 28;
@@ -3896,19 +3913,220 @@
       transition: all 0.32s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    /* Cheek Target Beacon on Patient Face */
-    .ng-tube-cheek-target {
-      position: absolute;
-      left: 84.33%;
-      top: 37.11%;
-      width: 58px;
-      height: 58px;
-      transform: translate(-50%, -50%);
+    /* Swipable Drinks Item */
+    .ng-tube-drinks-item.swipable {
+      pointer-events: auto;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      transition: transform 0.25s ease-out, opacity 0.25s ease-out;
+    }
+    .ng-tube-drinks-item.swiping {
+      cursor: grabbing;
+      transition: none;
+    }
+    .ng-tube-drinks-item.swiped-away {
+      transform: translateX(-160%) rotate(-14deg) scale(0.9) !important;
+      opacity: 0 !important;
       pointer-events: none;
-      z-index: 24;
+      transition: transform 0.45s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.45s ease-out !important;
+    }
+
+    /* Swipe Hint Banner */
+    .ng-tube-swipe-hint {
+      position: absolute;
+      left: 20%;
+      top: 67%;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(15, 23, 42, 0.88);
+      border: 1.5px solid rgba(56, 189, 248, 0.65);
+      border-radius: 20px;
+      color: #38bdf8;
+      font-size: 14px;
+      font-weight: 700;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      z-index: 12;
+      animation: swipeHintNudge 1.6s infinite ease-in-out;
+      pointer-events: none;
+    }
+    @keyframes swipeHintNudge {
+      0%, 100% { transform: translateX(0); opacity: 0.95; }
+      50% { transform: translateX(-16px); opacity: 0.65; }
+    }
+
+    /* Whiteboard Tabletop Beacon */
+    .ng-tube-tabletop-beacon {
+      position: absolute;
+      left: 20.8%;
+      top: 68.9%;
+      width: 76px;
+      height: 76px;
+      transform: translate(-50%, -50%);
+      z-index: 14;
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
+    }
+
+    /* Mini Whiteboard on Bedside Table */
+    .ng-tube-mini-whiteboard-container {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 12;
+      pointer-events: auto;
+      cursor: pointer;
+      animation: miniWhiteboardPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: filter 0.2s ease, transform 0.2s ease;
+    }
+    @keyframes miniWhiteboardPop {
+      0% { transform: scale(0.65) translateY(20px); opacity: 0; }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    .ng-tube-mini-whiteboard-container img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      pointer-events: none;
+    }
+    .ng-tube-mini-whiteboard-canvas {
+      position: absolute;
+      left: 8.35%;
+      top: 55.86%;
+      width: 25.04%;
+      height: 25.78%;
+      border-radius: 12px;
+      pointer-events: none;
+      object-fit: fill;
+    }
+    .ng-tube-mini-whiteboard-container:hover {
+      filter: drop-shadow(0 0 18px rgba(56, 189, 248, 0.85));
+      transform: scale(1.02);
+    }
+
+    /* Large Whiteboard Screen Modal */
+    .ng-tube-whiteboard-modal {
+      position: absolute;
+      inset: 0;
+      z-index: 45;
+      background: rgba(15, 23, 42, 0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: victoryFadeIn 0.35s ease-out;
+    }
+    .ng-tube-whiteboard-stage {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-width: 1366px;
+      max-height: 1024px;
+      aspect-ratio: 1366 / 1024;
+      overflow: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .ng-tube-whiteboard-stage .whiteboard-bg-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      pointer-events: none;
+    }
+    .ng-tube-whiteboard-canvas {
+      position: absolute;
+      left: 14.06%;
+      top: 9.86%;
+      width: 72.04%;
+      height: 74.02%;
+      border-radius: 36px;
+      background: transparent;
+      z-index: 2;
+      touch-action: none;
+      cursor: crosshair;
+    }
+    /* Whiteboard Tool Hit Areas & Hover Effects */
+    #ngTubeWhiteboardModal .wb-tool {
+      position: absolute;
+      cursor: pointer;
+      z-index: 4;
+      touch-action: manipulation;
+      transition: transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1), filter 0.22s ease;
+    }
+    #ngTubeWhiteboardModal .wb-tool img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+    }
+    #ngTubeWhiteboardModal .wb-tool:hover {
+      transform: translateY(-6px) scale(1.05);
+      filter: drop-shadow(0 0 14px rgba(56, 189, 248, 0.8));
+    }
+    #ngTubeWhiteboardModal .wb-tool.selected {
+      transform: translateY(-10px) scale(1.09);
+      filter: drop-shadow(0 0 18px rgba(56, 189, 248, 0.95)) drop-shadow(0 0 32px rgba(255, 255, 255, 0.85));
+    }
+    #ngTubeWhiteboardModal .wb-tool-eraser {
+      left: 4.32%;
+      top: 78.03%;
+      width: 23.35%;
+      height: 19.14%;
+    }
+    #ngTubeWhiteboardModal .wb-tool-blue {
+      left: 63.84%;
+      top: 77.83%;
+      width: 20.79%;
+      height: 8.40%;
+    }
+    #ngTubeWhiteboardModal .wb-tool-green {
+      left: 86.38%;
+      top: 67.38%;
+      width: 5.12%;
+      height: 27.64%;
+    }
+    #ngTubeWhiteboardModal .wb-tool-red {
+      left: 92.97%;
+      top: 62.40%;
+      width: 5.27%;
+      height: 27.64%;
+    }
+    /* Header Bar on Large Whiteboard - Top Center */
+    .whiteboard-header-bar {
+      position: absolute;
+      top: 20px;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      z-index: 10;
+      pointer-events: auto;
+    }
+    .whiteboard-clear-btn {
+      background: rgba(255, 255, 255, 0.16);
+      color: #ffffff;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      padding: 10px 22px;
+      font-size: 15px;
+      border-radius: 24px;
+    }
+    .whiteboard-clear-btn:hover {
+      background: rgba(255, 255, 255, 0.28);
+    }
+    .whiteboard-done-btn {
+      padding: 10px 24px !important;
+      font-size: 16px !important;
+      border-radius: 24px !important;
     }
 
     /* ========================================================= */
@@ -8232,9 +8450,15 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 56px 20px calc(24px + env(safe-area-inset-bottom, 16px));
+      padding: 50px clamp(12px, 2.5vw, 36px) calc(20px + env(safe-area-inset-bottom, 16px));
       box-sizing: border-box;
       overflow: hidden;
+    }
+
+    @media (max-width: 580px) {
+      .matching-game-stage {
+        padding: 42px 10px calc(14px + env(safe-area-inset-bottom, 12px));
+      }
     }
 
     /* Bottom Purple Fade Gradient for Games Screen (Disappears at end of scroll) */
@@ -8266,32 +8490,33 @@
     /* Dynamic Difficulty Grid Layouts for Matching Cards Board */
     .matching-cards-board {
       display: grid;
-      gap: clamp(8px, 1.8vw, 20px);
       width: 100%;
       justify-content: center;
       align-content: center;
-      margin: 14px auto 0;
+      margin: 0 auto;
       box-sizing: border-box;
-      transition: max-width 0.3s ease;
+      transition: max-width 0.3s ease, gap 0.3s ease;
     }
 
     /* Easy: 3 columns x 2 rows (6 cards total) */
     .matching-cards-board.diff-easy {
       grid-template-columns: repeat(3, 1fr);
       grid-template-rows: repeat(2, 1fr);
-      max-width: 660px;
+      max-width: min(94vw, 1140px);
+      gap: clamp(12px, 2.2vw, 28px);
     }
     .matching-cards-board.diff-easy .matching-card {
-      height: clamp(135px, 32vh, 260px);
+      height: clamp(145px, min(37vh, 42vw), 420px);
     }
-    @media (max-width: 520px) {
+    @media (max-width: 580px) {
       .matching-cards-board.diff-easy {
         grid-template-columns: repeat(2, 1fr);
         grid-template-rows: repeat(3, 1fr);
-        max-width: 330px;
+        max-width: min(92vw, 380px);
+        gap: clamp(10px, 2.5vw, 16px);
       }
       .matching-cards-board.diff-easy .matching-card {
-        height: clamp(120px, 22vh, 185px);
+        height: clamp(125px, min(23vh, 56vw), 215px);
       }
     }
 
@@ -8299,39 +8524,54 @@
     .matching-cards-board.diff-medium {
       grid-template-columns: repeat(4, 1fr);
       grid-template-rows: repeat(2, 1fr);
-      max-width: 866px;
+      max-width: min(94vw, 1340px);
+      gap: clamp(10px, 1.8vw, 24px);
     }
     .matching-cards-board.diff-medium .matching-card {
-      height: clamp(125px, 29vh, 240px);
+      height: clamp(135px, min(37vh, 30vw), 390px);
     }
-    @media (max-width: 600px) {
+    @media (max-width: 580px) {
       .matching-cards-board.diff-medium {
         grid-template-columns: repeat(2, 1fr);
         grid-template-rows: repeat(4, 1fr);
-        max-width: 340px;
+        max-width: min(92vw, 360px);
+        gap: clamp(8px, 2vw, 14px);
       }
       .matching-cards-board.diff-medium .matching-card {
-        height: clamp(95px, 17vh, 145px);
+        height: clamp(100px, min(17.5vh, 52vw), 160px);
       }
     }
 
-    /* Hard: 4 columns x 3 rows (12 cards total - perfectly centered & balanced) */
+    /* Hard: 12 cards total (6x2 on widescreen, 4x3 on tablet portrait, 3x4 on phone) */
     .matching-cards-board.diff-hard {
-      grid-template-columns: repeat(4, 1fr);
-      grid-template-rows: repeat(3, 1fr);
-      max-width: 780px;
+      grid-template-columns: repeat(6, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      max-width: min(95vw, 1480px);
+      gap: clamp(8px, 1.4vw, 20px);
     }
     .matching-cards-board.diff-hard .matching-card {
-      height: clamp(100px, 22vh, 175px);
+      height: clamp(125px, min(35vh, 22vw), 330px);
     }
-    @media (max-width: 600px) {
+    @media (max-width: 859px) {
+      .matching-cards-board.diff-hard {
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+        max-width: min(92vw, 780px);
+        gap: clamp(8px, 1.8vw, 16px);
+      }
+      .matching-cards-board.diff-hard .matching-card {
+        height: clamp(105px, min(24vh, 31vw), 240px);
+      }
+    }
+    @media (max-width: 580px) {
       .matching-cards-board.diff-hard {
         grid-template-columns: repeat(3, 1fr);
         grid-template-rows: repeat(4, 1fr);
-        max-width: 390px;
+        max-width: min(94vw, 440px);
+        gap: clamp(6px, 1.6vw, 12px);
       }
       .matching-cards-board.diff-hard .matching-card {
-        height: clamp(90px, 16vh, 135px);
+        height: clamp(90px, min(17.5vh, 40vw), 155px);
       }
     }
 
@@ -8392,7 +8632,7 @@
       height: 100%;
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
-      border-radius: 20px;
+      border-radius: clamp(14px, 2.2vw, 24px);
       overflow: hidden;
       background-color: transparent;
       display: flex;
@@ -8414,7 +8654,7 @@
       object-fit: fill;
       display: block;
       pointer-events: none;
-      border-radius: 20px;
+      border-radius: clamp(14px, 2.2vw, 24px);
     }
 
     /* Mismatch Shake Animation */
@@ -11514,9 +11754,27 @@
                   <div class="spray-particle sp5"></div>
                 </div>
 
-                <!-- Layer 4: Drinks PNG on Tabletop -->
-                <div id="ngTubeDrinksItem" class="ng-tube-drinks-item" style="display: none;">
+                <!-- Layer 4: Drinks PNG on Tabletop (Swipeable away after tape placement) -->
+                <div id="ngTubeDrinksItem" class="ng-tube-drinks-item" style="display: none;" onpointerdown="startNGTubeDrinksSwipe(event)">
                   <img src="assets/NGTubeDrinks.png" alt="Drinks on table" draggable="false" />
+                  <div id="ngTubeSwipeHint" class="ng-tube-swipe-hint" style="display: none;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    <span>Swipe Away</span>
+                  </div>
+                </div>
+
+                <!-- Whiteboard Tabletop Beacon -->
+                <div id="ngTubeWhiteboardTableBeacon" class="ng-tube-tabletop-beacon" style="display: none;" onclick="handleNGTubeWhiteboardTableTap(event)" aria-label="Tap table for whiteboard">
+                  <div class="ng-tube-glowing-circle">
+                    <div class="ng-tube-glow-ring"></div>
+                    <div class="ng-tube-pulse-ring"></div>
+                  </div>
+                </div>
+
+                <!-- Mini Whiteboard on Bedside Table -->
+                <div id="ngTubeMiniWhiteboardContainer" class="ng-tube-mini-whiteboard-container" style="display: none;" onclick="openNGTubeLargeWhiteboard()" aria-label="Mini Whiteboard on Bedside Table" role="button" tabindex="0">
+                  <img src="assets/TransparentMiniWhiteboard.png" alt="Mini Whiteboard" draggable="false" />
+                  <canvas id="ngTubeMiniWhiteboardCanvas" width="342" height="264" class="ng-tube-mini-whiteboard-canvas"></canvas>
                 </div>
 
                 <!-- Layer 5: Table Glowing Item (Table Transparent PNG glowing as a whole) -->
@@ -11566,15 +11824,7 @@
                   </div>
                 </div>
 
-                <!-- Layer 9: Face Tape Cheek Target Beacon -->
-                <div id="ngTubeCheekTarget" class="ng-tube-cheek-target" style="display: none;" aria-label="Tape Cheek Target">
-                  <div class="ng-tube-glowing-circle">
-                    <div class="ng-tube-glow-ring"></div>
-                    <div class="ng-tube-pulse-ring"></div>
-                  </div>
-                </div>
-
-                <!-- Layer 10: Draggable Face Tape Item -->
+                <!-- Layer 9: Draggable Face Tape Item -->
                 <div id="ngTubeFaceTapeItem" class="ng-tube-face-tape-item" style="display: none;" onpointerdown="startDragNGTubeFaceTape(event)" role="button" aria-label="Soft tape for cheek" tabindex="0">
                   <img src="assets/NGTubeFaceTapeItem.png" alt="Soft tape" draggable="false" />
                 </div>
@@ -11602,6 +11852,46 @@
                   </div>
                 </div>
 
+                <!-- Fullscreen Whiteboard Screen (Whiteboard Game) -->
+                <div id="ngTubeWhiteboardModal" class="ng-tube-whiteboard-modal" style="display: none;">
+                  <div class="ng-tube-whiteboard-stage">
+                    <!-- Background: Table and Large Whiteboard Stand -->
+                    <img class="whiteboard-bg-img" src="assets/NGTubeWhiteboardGame.png" alt="Whiteboard on table" draggable="false" />
+
+                    <!-- Interactive Large Canvas Surface -->
+                    <canvas id="ngTubeWhiteboardCanvas" width="984" height="758" class="ng-tube-whiteboard-canvas"></canvas>
+
+                    <!-- Interactive Eraser on Table -->
+                    <div id="ngTubeToolEraser" class="wb-tool wb-tool-eraser" onclick="selectNGTubeWhiteboardTool('eraser')" role="button" aria-label="Large Eraser tool" tabindex="0">
+                      <img src="assets/NGTubeWhiteboardEraserItem.png" alt="Eraser" draggable="false" />
+                    </div>
+
+                    <!-- Interactive Markers on Table -->
+                    <div id="ngTubeToolBlueMarker" class="wb-tool wb-tool-blue selected" onclick="selectNGTubeWhiteboardTool('blue')" role="button" aria-label="Blue Marker" tabindex="0">
+                      <img src="assets/NGTubeWhiteboardBlueMarkerItem.png" alt="Blue Marker" draggable="false" />
+                    </div>
+
+                    <div id="ngTubeToolGreenMarker" class="wb-tool wb-tool-green" onclick="selectNGTubeWhiteboardTool('green')" role="button" aria-label="Green Marker" tabindex="0">
+                      <img src="assets/NGTubeWhiteboardGreenMarkerItem.png" alt="Green Marker" draggable="false" />
+                    </div>
+
+                    <div id="ngTubeToolRedMarker" class="wb-tool wb-tool-red" onclick="selectNGTubeWhiteboardTool('red')" role="button" aria-label="Red Marker" tabindex="0">
+                      <img src="assets/NGTubeWhiteboardRedMarkerItem.png" alt="Red Marker" draggable="false" />
+                    </div>
+
+                    <!-- Top Header Bar with Clear & All Done Buttons (Top Center) -->
+                    <div class="whiteboard-header-bar">
+                      <button class="ng-tube-choice-btn whiteboard-clear-btn" onclick="clearNGTubeWhiteboard()">
+                        <span>Clear</span>
+                      </button>
+                      <button class="ng-tube-choice-btn ng-tube-btn-yes whiteboard-done-btn" onclick="finishNGTubeWhiteboard()">
+                        <span>All Done</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
                 <!-- Maze Intro Overlay: Dimmed screen pause before maze -->
                 <div id="ngTubeMazeIntroOverlay" class="ng-tube-maze-intro-overlay" style="display: none;" onclick="startNGTubeMazeFromIntro()">
                   <div class="ng-tube-maze-intro-card" onclick="event.stopPropagation()">
@@ -11612,11 +11902,11 @@
                       </svg>
                       <span>Practice Activity</span>
                     </div>
-                    <div class="intro-title">Let's practice guiding the tube to the stomach!</div>
-                    <div class="intro-subtitle">Trace a gentle path from the syringe all the way down to the tummy.</div>
+                    <div class="intro-title">Let's practice guiding the tube!</div>
+                    <div class="intro-subtitle">Trace a path from the syringe to the stomach.</div>
                     <div class="intro-actions">
                       <button class="ng-tube-choice-btn intro-start-btn" onclick="startNGTubeMazeFromIntro()">
-                        <span>Start Practice</span>
+                        <span>Start</span>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
                           <polyline points="9 18 15 12 9 6"></polyline>
                         </svg>
@@ -11749,11 +12039,9 @@
                     <div class="victory-subtitle">The tube is safely in the stomach!</div>
                     <div class="victory-actions">
                       <button class="ng-tube-choice-btn ng-tube-btn-yes" onclick="startNGTubeFaceTapeStep()">
-                        <span>Secure Tube</span>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                        <span>Continue</span>
                       </button>
                       <button class="ng-tube-choice-btn ng-tube-choice-btn-secondary" onclick="restartNGTubeMaze()">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
                         <span>Play Again</span>
                       </button>
                     </div>
@@ -22066,12 +22354,23 @@
     // Face tape constants & state
     const NG_TUBE_CHEEK_TARGET_X = 84.33;
     const NG_TUBE_CHEEK_TARGET_Y = 37.11;
-    const NG_TUBE_FACE_TAPE_DEF_LEFT = 32.0;
-    const NG_TUBE_FACE_TAPE_DEF_TOP = 46.0;
+    const NG_TUBE_FACE_TAPE_DEF_LEFT = 50.0;
+    const NG_TUBE_FACE_TAPE_DEF_TOP = 50.0;
     let isDraggingNGTubeFaceTape = false;
     let isNGTubeFaceTapeSecured = false;
     let ngTubeFaceTapeCurrentLeftPct = NG_TUBE_FACE_TAPE_DEF_LEFT;
     let ngTubeFaceTapeCurrentTopPct = NG_TUBE_FACE_TAPE_DEF_TOP;
+
+    let isNGTubeDrinksSwiped = false;
+    let isNGTubeDrinksSwiping = false;
+    let drinksSwipeStartX = 0;
+    let drinksSwipeCurrentDelta = 0;
+    let ngTubeWhiteboardCurrentTool = 'blue';
+    let isDrawingNGTubeWhiteboard = false;
+    let ngTubeWhiteboardLastX = 0;
+    let ngTubeWhiteboardLastY = 0;
+    let ngTubeWhiteboardDelayTimer = null;
+    let ngTubeWhiteboardEventsBound = false;
 
     let ngTubeMazeTransitionTimer = null;
     let ngMazeTouches = 0;
@@ -22096,6 +22395,10 @@
       if (ngTubeTapePromptTimer) {
         clearTimeout(ngTubeTapePromptTimer);
         ngTubeTapePromptTimer = null;
+      }
+      if (ngTubeWhiteboardDelayTimer) {
+        clearTimeout(ngTubeWhiteboardDelayTimer);
+        ngTubeWhiteboardDelayTimer = null;
       }
       if (ngTubeCurrentStep !== 'maze' && ngTubeCurrentStep !== 'maze_won') {
         const screenNGTube = document.getElementById('screenNGTube');
@@ -22245,7 +22548,41 @@
         faceTapeItem.classList.remove('dragging', 'snapped');
         faceTapeItem.style.left = `${NG_TUBE_FACE_TAPE_DEF_LEFT}%`;
         faceTapeItem.style.top = `${NG_TUBE_FACE_TAPE_DEF_TOP}%`;
+        const tapeImg = faceTapeItem.querySelector('img');
+        if (tapeImg) tapeImg.src = 'assets/NGTubeFaceTapeItem.png';
       }
+
+      // Reset Cups & Whiteboard states
+      isNGTubeDrinksSwiped = false;
+      isNGTubeDrinksSwiping = false;
+      drinksSwipeStartX = 0;
+      ngTubeWhiteboardCurrentTool = 'blue';
+      const drinksSwipeHint = document.getElementById('ngTubeSwipeHint');
+      if (drinksSwipeHint) drinksSwipeHint.style.display = 'none';
+      if (drinksEl) {
+        drinksEl.classList.remove('swiped-away', 'swiping', 'swipable');
+        drinksEl.style.transform = '';
+        drinksEl.style.opacity = '';
+        drinksEl.style.pointerEvents = 'none';
+      }
+      const whiteboardBeacon = document.getElementById('ngTubeWhiteboardTableBeacon');
+      if (whiteboardBeacon) whiteboardBeacon.style.display = 'none';
+      const miniWhiteboard = document.getElementById('ngTubeMiniWhiteboardContainer');
+      if (miniWhiteboard) miniWhiteboard.style.display = 'none';
+      const whiteboardModal = document.getElementById('ngTubeWhiteboardModal');
+      if (whiteboardModal) whiteboardModal.style.display = 'none';
+
+      const miniWbCanvas = document.getElementById('ngTubeMiniWhiteboardCanvas');
+      if (miniWbCanvas) {
+        const miniCtx = miniWbCanvas.getContext('2d');
+        if (miniCtx) miniCtx.clearRect(0, 0, miniWbCanvas.width, miniWbCanvas.height);
+      }
+      const largeWbCanvas = document.getElementById('ngTubeWhiteboardCanvas');
+      if (largeWbCanvas) {
+        const largeCtx = largeWbCanvas.getContext('2d');
+        if (largeCtx) largeCtx.clearRect(0, 0, largeWbCanvas.width, largeWbCanvas.height);
+      }
+
       const finalVictoryOverlay = document.getElementById('ngTubeFinalVictoryOverlay');
       if (finalVictoryOverlay) finalVictoryOverlay.style.display = 'none';
 
@@ -23603,10 +23940,35 @@
       if (syringeEl) syringeEl.style.display = 'none';
 
       // Display cups on table (without measuring tape)
+      isNGTubeDrinksSwiped = false;
+      isNGTubeDrinksSwiping = false;
+      drinksSwipeStartX = 0;
+      ngTubeWhiteboardCurrentTool = 'blue';
       const drinksEl = document.getElementById('ngTubeDrinksItem');
       if (drinksEl) {
         drinksEl.style.display = 'block';
-        drinksEl.classList.remove('pop-in');
+        drinksEl.classList.remove('pop-in', 'swiped-away', 'swiping', 'swipable');
+        drinksEl.style.transform = '';
+        drinksEl.style.opacity = '1';
+        drinksEl.style.pointerEvents = 'none';
+      }
+      const swipeHint = document.getElementById('ngTubeSwipeHint');
+      if (swipeHint) swipeHint.style.display = 'none';
+      const whiteboardBeacon = document.getElementById('ngTubeWhiteboardTableBeacon');
+      if (whiteboardBeacon) whiteboardBeacon.style.display = 'none';
+      const miniWhiteboard = document.getElementById('ngTubeMiniWhiteboardContainer');
+      if (miniWhiteboard) miniWhiteboard.style.display = 'none';
+      const whiteboardModal = document.getElementById('ngTubeWhiteboardModal');
+      if (whiteboardModal) whiteboardModal.style.display = 'none';
+      const miniWbCanvas = document.getElementById('ngTubeMiniWhiteboardCanvas');
+      if (miniWbCanvas) {
+        const miniCtx = miniWbCanvas.getContext('2d');
+        if (miniCtx) miniCtx.clearRect(0, 0, miniWbCanvas.width, miniWbCanvas.height);
+      }
+      const largeWbCanvas = document.getElementById('ngTubeWhiteboardCanvas');
+      if (largeWbCanvas) {
+        const largeCtx = largeWbCanvas.getContext('2d');
+        if (largeCtx) largeCtx.clearRect(0, 0, largeWbCanvas.width, largeWbCanvas.height);
       }
 
       // Display patient with NG tube inserted layer
@@ -23627,13 +23989,7 @@
         promptBar.classList.add('highlight-advance');
       }
 
-      // Show glowing cheek target beacon over the curve of the NG tube
-      const cheekTarget = document.getElementById('ngTubeCheekTarget');
-      if (cheekTarget) {
-        cheekTarget.style.display = 'flex';
-      }
-
-      // Bring up draggable face tape item with glowing aura on the left
+      // Bring up draggable face tape item with glowing aura in the middle of the screen
       const tapeItem = document.getElementById('ngTubeFaceTapeItem');
       if (tapeItem) {
         tapeItem.style.display = 'block';
@@ -23641,6 +23997,8 @@
         tapeItem.style.transition = '';
         tapeItem.style.left = `${NG_TUBE_FACE_TAPE_DEF_LEFT}%`;
         tapeItem.style.top = `${NG_TUBE_FACE_TAPE_DEF_TOP}%`;
+        const tapeImg = tapeItem.querySelector('img');
+        if (tapeImg) tapeImg.src = 'assets/NGTubeFaceTapeItem.png';
         ngTubeFaceTapeCurrentLeftPct = NG_TUBE_FACE_TAPE_DEF_LEFT;
         ngTubeFaceTapeCurrentTopPct = NG_TUBE_FACE_TAPE_DEF_TOP;
       }
@@ -23758,6 +24116,10 @@
         tapeItem.classList.add('snapped');
         tapeItem.style.left = `${NG_TUBE_CHEEK_TARGET_X}%`;
         tapeItem.style.top = `${NG_TUBE_CHEEK_TARGET_Y}%`;
+        const tapeImg = tapeItem.querySelector('img');
+        if (tapeImg) {
+          tapeImg.src = 'assets/NGTubeFaceTapeSecured.png';
+        }
       }
 
       if (typeof playBandageSound === 'function') {
@@ -23777,16 +24139,393 @@
         promptBar.classList.add('highlight-advance');
       }
 
+      // Transition to post-tape cups swipe step
       setTimeout(() => {
-        if (typeof playYouDidItSound === 'function') {
-          playYouDidItSound();
-        } else if (typeof playYouDidItChimeSound === 'function') {
-          playYouDidItChimeSound();
+        startNGTubeCupsSwipeStep();
+      }, 1300);
+    }
+
+    // =========================================================
+    // POST-TAPE STEP 1: SWIPE AWAY CUPS ON BEDSIDE TABLE
+    // =========================================================
+    function startNGTubeCupsSwipeStep() {
+      ngTubeCurrentStep = 'swipe_cups';
+      isNGTubeDrinksSwiped = false;
+      isNGTubeDrinksSwiping = false;
+
+      const promptText = document.getElementById('ngTubePromptText');
+      const promptBar = document.getElementById('ngTubePromptBar');
+      if (promptText) {
+        promptText.textContent = "Swipe away the cups on the bedside table to clear space!";
+      }
+      if (promptBar) {
+        promptBar.classList.remove('highlight-advance');
+        void promptBar.offsetWidth;
+        promptBar.classList.add('highlight-advance');
+      }
+
+      const drinksItem = document.getElementById('ngTubeDrinksItem');
+      if (drinksItem) {
+        drinksItem.style.display = 'block';
+        drinksItem.style.pointerEvents = 'auto';
+        drinksItem.classList.remove('swiped-away', 'swiping');
+        drinksItem.classList.add('swipable');
+        drinksItem.style.transform = '';
+        drinksItem.style.opacity = '1';
+      }
+
+      const swipeHint = document.getElementById('ngTubeSwipeHint');
+      if (swipeHint) {
+        swipeHint.style.display = 'flex';
+      }
+    }
+
+    function startNGTubeDrinksSwipe(e) {
+      if (ngTubeCurrentStep !== 'swipe_cups' || isNGTubeDrinksSwiped) return;
+      isNGTubeDrinksSwiping = true;
+      drinksSwipeStartX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+      drinksSwipeCurrentDelta = 0;
+
+      const drinksItem = document.getElementById('ngTubeDrinksItem');
+      if (drinksItem) {
+        drinksItem.classList.add('swiping');
+      }
+
+      function onPointerMove(moveEvent) {
+        if (!isNGTubeDrinksSwiping) return;
+        const curX = (moveEvent.touches && moveEvent.touches[0]) ? moveEvent.touches[0].clientX : moveEvent.clientX;
+        const deltaX = curX - drinksSwipeStartX;
+        drinksSwipeCurrentDelta = deltaX;
+
+        if (drinksItem) {
+          if (deltaX < 0) {
+            const moveDist = Math.abs(deltaX);
+            drinksItem.style.transform = `translateX(${deltaX}px) rotate(${deltaX * 0.08}deg) scale(${Math.max(0.75, 1 - moveDist / 600)})`;
+            drinksItem.style.opacity = `${Math.max(0.3, 1 - moveDist / 350)}`;
+          }
         }
 
-        const finalOverlay = document.getElementById('ngTubeFinalVictoryOverlay');
-        if (finalOverlay) finalOverlay.style.display = 'flex';
-      }, 1200);
+        // Trigger swipe if dragged left by > 55px
+        if (deltaX < -55) {
+          cleanupSwipe();
+          finishDrinksSwipe();
+        }
+      }
+
+      function onPointerUp(upEvent) {
+        if (!isNGTubeDrinksSwiping) return;
+        cleanupSwipe();
+        if (drinksSwipeCurrentDelta < -35) {
+          finishDrinksSwipe();
+        } else {
+          // Snap back
+          if (drinksItem) {
+            drinksItem.classList.remove('swiping');
+            drinksItem.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+            drinksItem.style.transform = '';
+            drinksItem.style.opacity = '1';
+            setTimeout(() => {
+              if (drinksItem) drinksItem.style.transition = '';
+            }, 300);
+          }
+        }
+      }
+
+      function cleanupSwipe() {
+        isNGTubeDrinksSwiping = false;
+        window.removeEventListener('pointermove', onPointerMove);
+        window.removeEventListener('pointerup', onPointerUp);
+        window.removeEventListener('pointercancel', onPointerUp);
+        window.removeEventListener('touchmove', onPointerMove);
+        window.removeEventListener('touchend', onPointerUp);
+        window.removeEventListener('touchcancel', onPointerUp);
+      }
+
+      window.addEventListener('pointermove', onPointerMove, { passive: false });
+      window.addEventListener('pointerup', onPointerUp);
+      window.addEventListener('pointercancel', onPointerUp);
+      window.addEventListener('touchmove', onPointerMove, { passive: false });
+      window.addEventListener('touchend', onPointerUp);
+      window.addEventListener('touchcancel', onPointerUp);
+    }
+
+    function finishDrinksSwipe() {
+      if (isNGTubeDrinksSwiped) return;
+      isNGTubeDrinksSwiped = true;
+      ngTubeCurrentStep = 'cups_swiped';
+
+      const drinksItem = document.getElementById('ngTubeDrinksItem');
+      const swipeHint = document.getElementById('ngTubeSwipeHint');
+      if (swipeHint) swipeHint.style.display = 'none';
+
+      if (drinksItem) {
+        drinksItem.classList.remove('swiping', 'swipable');
+        drinksItem.classList.add('swiped-away');
+        drinksItem.style.pointerEvents = 'none';
+      }
+
+      if (typeof playBandageSound === 'function') {
+        playBandageSound();
+      }
+      if (navigator.vibrate) {
+        try { navigator.vibrate([30, 40]); } catch (e) {}
+      }
+
+      setTimeout(() => {
+        if (drinksItem) drinksItem.style.display = 'none';
+        promptForWhiteboardTable();
+      }, 550);
+    }
+
+    // =========================================================
+    // POST-TAPE STEP 2: TABLE BEACON & PROMPT FOR WHITEBOARD
+    // =========================================================
+    function promptForWhiteboardTable() {
+      ngTubeCurrentStep = 'tap_table_whiteboard';
+
+      const promptText = document.getElementById('ngTubePromptText');
+      const promptBar = document.getElementById('ngTubePromptBar');
+      if (promptText) {
+        promptText.textContent = "Sometimes, patients like having a whiteboard to communicate right after getting an NG tube. Tap the table to get a whiteboard!";
+      }
+      if (promptBar) {
+        promptBar.classList.remove('highlight-advance');
+        void promptBar.offsetWidth;
+        promptBar.classList.add('highlight-advance');
+      }
+
+      const tableBeacon = document.getElementById('ngTubeWhiteboardTableBeacon');
+      if (tableBeacon) {
+        tableBeacon.style.display = 'flex';
+      }
+    }
+
+    function handleNGTubeWhiteboardTableTap(e) {
+      if (e) {
+        e.stopPropagation();
+        e.preventDefault();
+      }
+      if (ngTubeCurrentStep !== 'tap_table_whiteboard') return;
+
+      const tableBeacon = document.getElementById('ngTubeWhiteboardTableBeacon');
+      if (tableBeacon) {
+        tableBeacon.style.display = 'none';
+      }
+
+      if (typeof playBandageSound === 'function') {
+        playBandageSound();
+      }
+      if (navigator.vibrate) {
+        try { navigator.vibrate(30); } catch (e) {}
+      }
+
+      const miniWhiteboard = document.getElementById('ngTubeMiniWhiteboardContainer');
+      if (miniWhiteboard) {
+        miniWhiteboard.style.display = 'block';
+      }
+
+      ngTubeCurrentStep = 'tap_mini_whiteboard';
+
+      const promptText = document.getElementById('ngTubePromptText');
+      const promptBar = document.getElementById('ngTubePromptBar');
+      if (promptText) {
+        promptText.textContent = "Finish the preparation by drawing something silly on the whiteboard! Tap the whiteboard to begin.";
+      }
+      if (promptBar) {
+        promptBar.classList.remove('highlight-advance');
+        void promptBar.offsetWidth;
+        promptBar.classList.add('highlight-advance');
+      }
+    }
+
+    // =========================================================
+    // POST-TAPE STEP 3: LARGE WHITEBOARD DRAWING SCREEN
+    // =========================================================
+    function openNGTubeLargeWhiteboard() {
+      if (ngTubeCurrentStep !== 'tap_mini_whiteboard' && ngTubeCurrentStep !== 'mini_whiteboard_display') return;
+      ngTubeCurrentStep = 'drawing_whiteboard';
+
+      const modal = document.getElementById('ngTubeWhiteboardModal');
+      if (modal) {
+        modal.style.display = 'flex';
+      }
+
+      setupNGTubeWhiteboardCanvas();
+      selectNGTubeWhiteboardTool(ngTubeWhiteboardCurrentTool || 'blue');
+    }
+
+    function setupNGTubeWhiteboardCanvas() {
+      const canvas = document.getElementById('ngTubeWhiteboardCanvas');
+      if (!canvas) return;
+
+      if (!ngTubeWhiteboardEventsBound) {
+        ngTubeWhiteboardEventsBound = true;
+
+        function getCoords(e) {
+          const rect = canvas.getBoundingClientRect();
+          const scaleX = canvas.width / rect.width;
+          const scaleY = canvas.height / rect.height;
+          const clientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+          const clientY = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
+          return {
+            x: (clientX - rect.left) * scaleX,
+            y: (clientY - rect.top) * scaleY
+          };
+        }
+
+        function onDrawStart(e) {
+          e.preventDefault();
+          isDrawingNGTubeWhiteboard = true;
+          const coords = getCoords(e);
+          ngTubeWhiteboardLastX = coords.x;
+          ngTubeWhiteboardLastY = coords.y;
+
+          const ctx = canvas.getContext('2d');
+          applyWhiteboardToolStyle(ctx);
+          ctx.beginPath();
+          ctx.arc(coords.x, coords.y, ctx.lineWidth / 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        function onDrawMove(e) {
+          if (!isDrawingNGTubeWhiteboard) return;
+          e.preventDefault();
+          const coords = getCoords(e);
+          const ctx = canvas.getContext('2d');
+          applyWhiteboardToolStyle(ctx);
+          ctx.beginPath();
+          ctx.moveTo(ngTubeWhiteboardLastX, ngTubeWhiteboardLastY);
+          ctx.lineTo(coords.x, coords.y);
+          ctx.stroke();
+          ngTubeWhiteboardLastX = coords.x;
+          ngTubeWhiteboardLastY = coords.y;
+        }
+
+        function onDrawEnd(e) {
+          isDrawingNGTubeWhiteboard = false;
+        }
+
+        canvas.addEventListener('pointerdown', onDrawStart);
+        canvas.addEventListener('pointermove', onDrawMove);
+        canvas.addEventListener('pointerup', onDrawEnd);
+        canvas.addEventListener('pointercancel', onDrawEnd);
+        canvas.addEventListener('pointerleave', onDrawEnd);
+
+        canvas.addEventListener('touchstart', onDrawStart, { passive: false });
+        canvas.addEventListener('touchmove', onDrawMove, { passive: false });
+        canvas.addEventListener('touchend', onDrawEnd);
+        canvas.addEventListener('touchcancel', onDrawEnd);
+      }
+    }
+
+    function applyWhiteboardToolStyle(ctx) {
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      if (ngTubeWhiteboardCurrentTool === 'eraser') {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.lineWidth = 54;
+      } else {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.lineWidth = 10;
+        if (ngTubeWhiteboardCurrentTool === 'blue') {
+          ctx.strokeStyle = '#0284c7';
+          ctx.fillStyle = '#0284c7';
+        } else if (ngTubeWhiteboardCurrentTool === 'green') {
+          ctx.strokeStyle = '#16a34a';
+          ctx.fillStyle = '#16a34a';
+        } else if (ngTubeWhiteboardCurrentTool === 'red') {
+          ctx.strokeStyle = '#dc2626';
+          ctx.fillStyle = '#dc2626';
+        } else {
+          ctx.strokeStyle = '#0284c7';
+          ctx.fillStyle = '#0284c7';
+        }
+      }
+    }
+
+    function selectNGTubeWhiteboardTool(tool) {
+      ngTubeWhiteboardCurrentTool = tool;
+
+      const eraserEl = document.getElementById('ngTubeToolEraser');
+      const blueEl = document.getElementById('ngTubeToolBlueMarker');
+      const greenEl = document.getElementById('ngTubeToolGreenMarker');
+      const redEl = document.getElementById('ngTubeToolRedMarker');
+
+      if (eraserEl) eraserEl.classList.toggle('selected', tool === 'eraser');
+      if (blueEl) blueEl.classList.toggle('selected', tool === 'blue');
+      if (greenEl) greenEl.classList.toggle('selected', tool === 'green');
+      if (redEl) redEl.classList.toggle('selected', tool === 'red');
+
+      if (navigator.vibrate) {
+        try { navigator.vibrate(20); } catch (e) {}
+      }
+    }
+
+    function clearNGTubeWhiteboard() {
+      const canvas = document.getElementById('ngTubeWhiteboardCanvas');
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+      if (navigator.vibrate) {
+        try { navigator.vibrate([20, 30]); } catch (e) {}
+      }
+    }
+
+    function finishNGTubeWhiteboard() {
+      // Transfer large whiteboard drawing onto mini whiteboard canvas on bedside table
+      const largeCanvas = document.getElementById('ngTubeWhiteboardCanvas');
+      const miniCanvas = document.getElementById('ngTubeMiniWhiteboardCanvas');
+      if (largeCanvas && miniCanvas) {
+        const miniCtx = miniCanvas.getContext('2d');
+        if (miniCtx) {
+          miniCtx.clearRect(0, 0, miniCanvas.width, miniCanvas.height);
+          miniCtx.drawImage(largeCanvas, 0, 0, miniCanvas.width, miniCanvas.height);
+        }
+      }
+
+      // Close modal
+      const modal = document.getElementById('ngTubeWhiteboardModal');
+      if (modal) {
+        modal.style.display = 'none';
+      }
+
+      ngTubeCurrentStep = 'mini_whiteboard_display';
+
+      const promptText = document.getElementById('ngTubePromptText');
+      const promptBar = document.getElementById('ngTubePromptBar');
+      if (promptText) {
+        promptText.textContent = "Your whiteboard drawing is ready for the patient!";
+      }
+      if (promptBar) {
+        promptBar.classList.remove('highlight-advance');
+        void promptBar.offsetWidth;
+        promptBar.classList.add('highlight-advance');
+      }
+
+      if (typeof playBandageSound === 'function') {
+        playBandageSound();
+      }
+
+      // Hold design on mini whiteboard for a moment (~2.5s) before congratulating them for finishing
+      if (ngTubeWhiteboardDelayTimer) clearTimeout(ngTubeWhiteboardDelayTimer);
+      ngTubeWhiteboardDelayTimer = setTimeout(() => {
+        showNGTubeFinalVictoryModal();
+      }, 2500);
+    }
+
+    function showNGTubeFinalVictoryModal() {
+      ngTubeCurrentStep = 'procedure_complete';
+      if (typeof playYouDidItSound === 'function') {
+        playYouDidItSound();
+      } else if (typeof playYouDidItChimeSound === 'function') {
+        playYouDidItChimeSound();
+      }
+
+      const finalOverlay = document.getElementById('ngTubeFinalVictoryOverlay');
+      if (finalOverlay) {
+        finalOverlay.style.display = 'flex';
+      }
     }
 
     function restartNGTubeFaceTape() {
