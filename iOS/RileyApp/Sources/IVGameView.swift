@@ -2177,24 +2177,44 @@ public struct IVGameView: View {
                     .frame(maxWidth: 460)
                     .shadow(color: Color.black.opacity(0.7), radius: 20, x: 0, y: 10)
                 
-                Button(action: {
-                    HapticManager.shared.buttonTap()
-                    resetGame()
-                }) {
-                    Text("Play Again")
-                        .font(.system(size: 17, weight: .bold))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 36)
-                        .padding(.vertical, 13)
-                        .background(
-                            LinearGradient(
-                                colors: [Color(red: 0/255, green: 198/255, blue: 255/255), Color(red: 0/255, green: 114/255, blue: 255/255)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
+                HStack(spacing: 16) {
+                    Button(action: {
+                        HapticManager.shared.buttonTap()
+                        if let onDismiss = onDismiss {
+                            onDismiss()
+                        } else {
+                            presentationMode.wrappedValue.dismiss()
+                        }
+                    }) {
+                        Text("Finished")
+                            .font(.system(size: 17, weight: .bold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 28)
+                            .padding(.vertical, 13)
+                            .background(Color(red: 16/255, green: 185/255, blue: 129/255))
+                            .clipShape(Capsule())
+                            .shadow(color: Color(red: 16/255, green: 185/255, blue: 129/255).opacity(0.45), radius: 10, y: 4)
+                    }
+
+                    Button(action: {
+                        HapticManager.shared.buttonTap()
+                        resetGame()
+                    }) {
+                        Text("Play Again")
+                            .font(.system(size: 17, weight: .bold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 28)
+                            .padding(.vertical, 13)
+                            .background(
+                                LinearGradient(
+                                    colors: [Color(red: 0/255, green: 198/255, blue: 255/255), Color(red: 0/255, green: 114/255, blue: 255/255)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
                             )
-                        )
-                        .clipShape(Capsule())
-                        .shadow(color: Color(red: 0, green: 114/255, blue: 255/255).opacity(0.45), radius: 12, x: 0, y: 6)
+                            .clipShape(Capsule())
+                            .shadow(color: Color(red: 0, green: 114/255, blue: 255/255).opacity(0.45), radius: 12, x: 0, y: 6)
+                    }
                 }
             }
             .padding(.horizontal, 30)

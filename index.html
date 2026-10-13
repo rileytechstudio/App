@@ -2859,67 +2859,6 @@
       z-index: 26;
     }
 
-    /* Belly Target Beacon */
-    .ng-tube-belly-target {
-      position: absolute;
-      left: 52.56%;
-      top: 70.0%;
-      width: 76px;
-      height: 76px;
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-      z-index: 24;
-      transition: filter 0.3s;
-    }
-
-    .ng-tube-target-ring {
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      border: 2.5px dashed rgba(249, 115, 22, 0.9);
-      animation: ngTargetRingPulse 2.4s infinite linear;
-    }
-
-    .ng-tube-target-ring.r2 {
-      inset: -10px;
-      border: 2px dashed rgba(251, 146, 60, 0.6);
-      animation: ngTargetRingPulse 3.2s infinite reverse linear;
-    }
-
-    @keyframes ngTargetRingPulse {
-      0% { transform: rotate(0deg) scale(0.96); opacity: 0.65; }
-      50% { transform: rotate(180deg) scale(1.05); opacity: 1; }
-      100% { transform: rotate(360deg) scale(0.96); opacity: 0.65; }
-    }
-
-    .ng-tube-target-dot {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      width: 14px;
-      height: 14px;
-      transform: translate(-50%, -50%);
-      border-radius: 50%;
-      background: #f97316;
-      box-shadow: 0 0 14px #f97316;
-      animation: ngTargetDotPulse 1.4s infinite ease-in-out;
-    }
-
-    @keyframes ngTargetDotPulse {
-      0%, 100% { transform: translate(-50%, -50%) scale(0.85); opacity: 0.7; }
-      50% { transform: translate(-50%, -50%) scale(1.25); opacity: 1; }
-    }
-
-    .ng-tube-belly-target.won .ng-tube-target-ring {
-      border-color: #22c55e !important;
-      animation-duration: 1.2s;
-    }
-
-    .ng-tube-belly-target.won .ng-tube-target-dot {
-      background: #22c55e !important;
-      box-shadow: 0 0 20px #22c55e;
-    }
-
     /* Dynamic Extending Tape Ribbon using authentic Long Tape PNG */
     .ng-tube-tape-ribbon {
       position: absolute;
@@ -3850,6 +3789,58 @@
       background: rgba(255, 255, 255, 0.28);
     }
 
+    /* NG Tube Final Procedure Complete Overlay & Confetti */
+    .ng-tube-final-victory-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      background: rgba(15, 23, 42, 0.70);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      animation: victoryFadeIn 0.4s ease-out;
+    }
+    .ng-tube-final-confetti-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .ng-tube-final-victory-card {
+      position: relative;
+      z-index: 2;
+      background: linear-gradient(145deg, rgba(30, 41, 59, 0.96), rgba(15, 23, 42, 0.98));
+      border: 2px solid rgba(56, 189, 248, 0.65);
+      border-radius: 32px;
+      padding: 34px 40px;
+      text-align: center;
+      color: #ffffff;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(56, 189, 248, 0.4);
+      max-width: 480px;
+      width: 90%;
+      transform: scale(0.95);
+      animation: victoryPopIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+    .ng-tube-you-did-it-img {
+      max-width: 360px;
+      width: 88%;
+      height: auto;
+      margin: 0 auto 16px auto;
+      display: block;
+      filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.5));
+    }
+    .ng-tube-final-victory-card .victory-subtitle {
+      font-size: 18px;
+      font-weight: 700;
+      color: #f1f5f9;
+      margin-bottom: 22px;
+      line-height: 1.45;
+    }
+
     /* Face Tape Draggable Item (Spawned in middle of screen with glowing aura) */
     .ng-tube-face-tape-item {
       position: absolute;
@@ -3958,19 +3949,30 @@
       50% { transform: translateX(-16px); opacity: 0.65; }
     }
 
-    /* Whiteboard Tabletop Beacon */
-    .ng-tube-tabletop-beacon {
+    /* Bedside Table Glow Hotspot (Table itself glows and pulses) */
+    .ng-tube-table-glow {
       position: absolute;
-      left: 20.8%;
-      top: 68.9%;
-      width: 76px;
-      height: 76px;
-      transform: translate(-50%, -50%);
+      inset: 0;
+      width: 100%;
+      height: 100%;
       z-index: 14;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      pointer-events: auto;
+      animation: ngTubeTableGlowPulse 1.8s infinite ease-in-out;
+    }
+    .ng-tube-table-glow img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      pointer-events: none;
+    }
+    @keyframes ngTubeTableGlowPulse {
+      0%, 100% {
+        filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.85)) drop-shadow(0 0 32px rgba(56, 189, 248, 0.6)) brightness(1.12);
+      }
+      50% {
+        filter: drop-shadow(0 0 28px rgba(56, 189, 248, 1)) drop-shadow(0 0 50px rgba(255, 255, 255, 0.85)) brightness(1.28);
+      }
     }
 
     /* Mini Whiteboard on Bedside Table */
@@ -4083,7 +4085,7 @@
     }
     #ngTubeWhiteboardModal .wb-tool-blue {
       left: 63.84%;
-      top: 77.83%;
+      top: 89.65%;
       width: 20.79%;
       height: 8.40%;
     }
@@ -11655,12 +11657,12 @@
                     <img class="mri-you-did-it-img" src="assets/YouDidIt2Cropped.png" alt="You Did It!" draggable="false" />
                     <p class="mri-success-subtitle">You completed your MRI scan! You were brave and stayed so still!</p>
                     <div class="mri-success-actions">
-                      <button class="mri-btn-action mri-btn-replay" onclick="replayMRIFromCelebration()" aria-label="Explore MRI Again">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
-                        <span>Explore Again</span>
+                      <button class="mri-btn-action mri-btn-done" onclick="finishMRIToProcedures()" aria-label="Finished">
+                        <span>Finished</span>
                       </button>
-                      <button class="mri-btn-action mri-btn-done" onclick="finishMRIToProcedures()" aria-label="Finish Procedure">
-                        <span>Back to Procedures</span>
+                      <button class="mri-btn-action mri-btn-replay" onclick="replayMRIFromCelebration()" aria-label="Play Again">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                        <span>Play Again</span>
                       </button>
                     </div>
                   </div>
@@ -11763,12 +11765,9 @@
                   </div>
                 </div>
 
-                <!-- Whiteboard Tabletop Beacon -->
-                <div id="ngTubeWhiteboardTableBeacon" class="ng-tube-tabletop-beacon" style="display: none;" onclick="handleNGTubeWhiteboardTableTap(event)" aria-label="Tap table for whiteboard">
-                  <div class="ng-tube-glowing-circle">
-                    <div class="ng-tube-glow-ring"></div>
-                    <div class="ng-tube-pulse-ring"></div>
-                  </div>
+                <!-- Bedside Table Glow Hotspot (Table itself glows and pulses) -->
+                <div id="ngTubeWhiteboardTableBeacon" class="ng-tube-table-glow" style="display: none;" onclick="handleNGTubeWhiteboardTableTap(event)" role="button" aria-label="Tap table to get a whiteboard" tabindex="0">
+                  <img src="assets/NGTubeTableTransparent.png" alt="Bedside Table" draggable="false" />
                 </div>
 
                 <!-- Mini Whiteboard on Bedside Table -->
@@ -11789,12 +11788,6 @@
 
                 <!-- Layer 7: Measuring Tape Container (Ribbon + Casing across patient body) -->
                 <div id="ngTubeTapeContainer" class="ng-tube-tape-container" style="display: none;">
-                  <!-- Target Beacon at Belly -->
-                  <div id="ngTubeBellyTarget" class="ng-tube-belly-target" style="display: none;">
-                    <div class="ng-tube-target-ring r1"></div>
-                    <div class="ng-tube-target-ring r2"></div>
-                    <div class="ng-tube-target-dot"></div>
-                  </div>
                   <!-- Extending Tape Ribbon using authentic Long Tape PNG -->
                   <div id="ngTubeTapeRibbon" class="ng-tube-tape-ribbon" style="display: none;">
                     <img id="ngTubeTapeRibbonImg" src="assets/NGTubeLongTape.png" alt="Measuring Tape Ribbon" draggable="false" />
@@ -11829,24 +11822,20 @@
                   <img src="assets/NGTubeFaceTapeItem.png" alt="Soft tape" draggable="false" />
                 </div>
 
-                <!-- NG Tube Final Procedure Complete Overlay -->
-                <div id="ngTubeFinalVictoryOverlay" class="ng-tube-maze-victory" style="display: none;">
-                  <div class="ng-tube-victory-card">
-                    <div class="victory-icon" style="background: rgba(34, 197, 94, 0.2); border-color: rgba(34, 197, 94, 0.6); color: #22c55e;">
-                      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                      </svg>
-                    </div>
-                    <div class="victory-title" style="color: #22c55e;">All Done!</div>
-                    <div class="victory-subtitle">The NG tube is safely placed and secured with soft tape! Fantastic job!</div>
+                <!-- NG Tube Final Procedure Complete Overlay (You Did It Screen with Confetti) -->
+                <div id="ngTubeFinalVictoryOverlay" class="ng-tube-maze-victory ng-tube-final-victory-overlay" style="display: none;">
+                  <canvas id="ngTubeFinalConfettiCanvas" class="ng-tube-final-confetti-canvas"></canvas>
+                  <div class="ng-tube-victory-card ng-tube-final-victory-card">
+                    <img class="ng-tube-you-did-it-img" src="assets/YouDidIt2Cropped.png" alt="You Did It!" draggable="false" />
+                    <div class="victory-subtitle">You helped your brave patient get a new NG tube!</div>
                     <div class="victory-actions">
-                      <button class="ng-tube-choice-btn ng-tube-btn-yes" onclick="goToPreparations()">
+                      <button class="ng-tube-choice-btn ng-tube-btn-yes" onclick="finishNGTubeToProcedures()">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
                         <span>Finished</span>
                       </button>
                       <button class="ng-tube-choice-btn ng-tube-choice-btn-secondary" onclick="restartNGTubeFaceTape()">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-                        <span>Tape Again</span>
+                        <span>Play Again</span>
                       </button>
                     </div>
                   </div>
@@ -12188,7 +12177,10 @@
                   <canvas id="gameConfettiCanvas" class="game-confetti-canvas"></canvas>
                   <div class="success-content">
                     <img class="game-you-did-it-img" src="assets/GameYouDidIt.png" alt="You Did It!" draggable="false" />
-                    <button class="game-btn-replay" onclick="resetGame()">Play Again</button>
+                    <div style="display: flex; gap: 14px; justify-content: center; margin-top: 18px;">
+                      <button class="ng-tube-choice-btn ng-tube-btn-yes" onclick="goToPreparations()" style="padding: 10px 24px; font-size: 16px; border-radius: 24px;">Finished</button>
+                      <button class="game-btn-replay" onclick="resetGame()" style="margin: 0; padding: 10px 24px; font-size: 16px; border-radius: 24px;">Play Again</button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -12437,9 +12429,10 @@
                   <canvas id="maskConfettiCanvas" class="mask-confetti-canvas"></canvas>
                   <div class="mask-success-content" onclick="event.stopPropagation()">
                     <img class="mask-you-did-it-img" src="assets/YouDidIt2Cropped.png" alt="You Did It!" draggable="false" />
-                    <button class="mask-btn-replay" id="personReplayBtn" onclick="playMaskSceneSequence()" aria-label="Decorate another mask">
-                      <span>Decorate Again</span>
-                    </button>
+                    <div style="display: flex; gap: 14px; justify-content: center; margin-top: 18px;">
+                      <button class="ng-tube-choice-btn ng-tube-btn-yes" onclick="goToPreparations()" style="padding: 10px 24px; font-size: 16px; border-radius: 24px;">Finished</button>
+                      <button class="mask-btn-replay" id="personReplayBtn" onclick="playMaskSceneSequence()" aria-label="Play Again" style="margin: 0; padding: 10px 24px; font-size: 16px; border-radius: 24px;">Play Again</button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -22400,6 +22393,9 @@
         clearTimeout(ngTubeWhiteboardDelayTimer);
         ngTubeWhiteboardDelayTimer = null;
       }
+      if (typeof stopNGTubeFinalConfetti === 'function') {
+        stopNGTubeFinalConfetti();
+      }
       if (ngTubeCurrentStep !== 'maze' && ngTubeCurrentStep !== 'maze_won') {
         const screenNGTube = document.getElementById('screenNGTube');
         if (screenNGTube) screenNGTube.classList.remove('maze-mode');
@@ -22414,6 +22410,7 @@
     function startNGTubeWelcomeSequence() {
       clearNGTubeTimers();
       stopNGTubeMazeConfetti();
+      if (typeof stopNGTubeFinalConfetti === 'function') stopNGTubeFinalConfetti();
       ngTubeCurrentStep = 'intro';
       isNGTubeMedicineDelivered = false;
       isDraggingNGTubeSyringe = false;
@@ -22502,11 +22499,6 @@
       }
       const tapeContainer = document.getElementById('ngTubeTapeContainer');
       if (tapeContainer) tapeContainer.style.display = 'none';
-      const bellyTarget = document.getElementById('ngTubeBellyTarget');
-      if (bellyTarget) {
-        bellyTarget.style.display = 'none';
-        bellyTarget.classList.remove('won');
-      }
       const ribbonEl = document.getElementById('ngTubeTapeRibbon');
       if (ribbonEl) {
         ribbonEl.style.display = 'none';
@@ -22585,6 +22577,7 @@
 
       const finalVictoryOverlay = document.getElementById('ngTubeFinalVictoryOverlay');
       if (finalVictoryOverlay) finalVictoryOverlay.style.display = 'none';
+      if (typeof stopNGTubeFinalConfetti === 'function') stopNGTubeFinalConfetti();
 
       if (typeof updateResponsiveLayout === 'function') {
         updateResponsiveLayout();
@@ -22926,7 +22919,6 @@
 
       const tapeContainer = document.getElementById('ngTubeTapeContainer');
       const casingEl = document.getElementById('ngTubeTapeCasing');
-      const bellyTarget = document.getElementById('ngTubeBellyTarget');
 
       ngTubeTapeCurrentLeftPct = NG_TUBE_TAPE_X;
       ngTubeTapeCurrentTopPct = NG_TUBE_TAPE_START_Y;
@@ -22937,12 +22929,6 @@
         casingEl.style.left = `${NG_TUBE_TAPE_X}%`;
         casingEl.style.top = `${NG_TUBE_TAPE_START_Y}%`;
         casingEl.classList.remove('snapped', 'dragging');
-      }
-      if (bellyTarget) {
-        bellyTarget.style.display = 'block';
-        bellyTarget.style.left = `${NG_TUBE_TAPE_X}%`;
-        bellyTarget.style.top = `${NG_TUBE_TAPE_END_Y}%`;
-        bellyTarget.classList.remove('won');
       }
 
       updateMeasuringRibbon(0.0);
@@ -23112,7 +23098,6 @@
       ngTubeTapeProgress = 1.0;
 
       const casingEl = document.getElementById('ngTubeTapeCasing');
-      const bellyTarget = document.getElementById('ngTubeBellyTarget');
       const tapeContainer = document.getElementById('ngTubeTapeContainer');
 
       ngTubeTapeCurrentLeftPct = NG_TUBE_TAPE_X;
@@ -23127,10 +23112,6 @@
       }
 
       updateMeasuringRibbon(1.0);
-
-      if (bellyTarget) {
-        bellyTarget.classList.add('won');
-      }
 
       playTapeSound();
 
@@ -24495,7 +24476,7 @@
       const promptText = document.getElementById('ngTubePromptText');
       const promptBar = document.getElementById('ngTubePromptBar');
       if (promptText) {
-        promptText.textContent = "Your whiteboard drawing is ready for the patient!";
+        promptText.textContent = "Look at your wonderful drawing! What a great way for your patient to communicate.";
       }
       if (promptBar) {
         promptBar.classList.remove('highlight-advance');
@@ -24507,11 +24488,11 @@
         playBandageSound();
       }
 
-      // Hold design on mini whiteboard for a moment (~2.5s) before congratulating them for finishing
+      // Pause for a moment (~3.2s) to admire the user's drawing before congratulating them with You Did It celebration
       if (ngTubeWhiteboardDelayTimer) clearTimeout(ngTubeWhiteboardDelayTimer);
       ngTubeWhiteboardDelayTimer = setTimeout(() => {
         showNGTubeFinalVictoryModal();
-      }, 2500);
+      }, 3200);
     }
 
     function showNGTubeFinalVictoryModal() {
@@ -24526,10 +24507,115 @@
       if (finalOverlay) {
         finalOverlay.style.display = 'flex';
       }
+      startNGTubeFinalConfetti();
+    }
+
+    function finishNGTubeToProcedures() {
+      stopNGTubeFinalConfetti();
+      goToPreparations();
     }
 
     function restartNGTubeFaceTape() {
+      stopNGTubeFinalConfetti();
+      const finalOverlay = document.getElementById('ngTubeFinalVictoryOverlay');
+      if (finalOverlay) {
+        finalOverlay.style.display = 'none';
+      }
       startNGTubeFaceTapeStep();
+    }
+
+    // NG Tube Final Screen Confetti Engine (Full Stage Burst & Fall)
+    let ngTubeFinalConfettiAnimationId = null;
+
+    function startNGTubeFinalConfetti() {
+      const canvas = document.getElementById('ngTubeFinalConfettiCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = 1366;
+      const h = 1024;
+      canvas.width = w;
+      canvas.height = h;
+
+      const particles = [];
+      const particleCount = 120;
+      for (let i = 0; i < particleCount; i++) {
+        const isBurst = i < 60;
+        const angle = isBurst ? Math.random() * Math.PI * 2 : 0;
+        const speed = isBurst ? Math.random() * 16 + 6 : 0;
+        particles.push({
+          x: isBurst ? w / 2 + (Math.random() - 0.5) * 240 : Math.random() * w,
+          y: isBurst ? h / 2 + (Math.random() - 0.5) * 120 : Math.random() * -h,
+          w: Math.random() * 12 + 10,
+          h: Math.random() * 20 + 12,
+          color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+          rotation: Math.random() * 360,
+          rotationSpeed: (Math.random() - 0.5) * 8,
+          vx: isBurst ? Math.cos(angle) * speed : (Math.random() - 0.5) * 2.5,
+          vy: isBurst ? Math.sin(angle) * speed - 2.5 : Math.random() * 3.2 + 2.5,
+          gravity: 0.18,
+          drag: isBurst ? 0.94 : 0.99,
+          wobble: Math.random() * Math.PI * 2,
+          wobbleSpeed: Math.random() * 0.09 + 0.03,
+          isCircle: Math.random() > 0.78
+        });
+      }
+
+      function render() {
+        ctx.clearRect(0, 0, w, h);
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          p.vx *= p.drag;
+          p.vy = p.vy * p.drag + p.gravity;
+          p.x += p.vx + Math.sin(p.wobble) * 2;
+          p.y += p.vy;
+          p.rotation += p.rotationSpeed;
+          p.wobble += p.wobbleSpeed;
+
+          if (p.y > h + 40) {
+            p.y = -30;
+            p.x = Math.random() * w;
+            p.vy = Math.random() * 3.2 + 2.5;
+            p.vx = (Math.random() - 0.5) * 2.5;
+            p.drag = 0.99;
+          }
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rotation * Math.PI) / 180);
+          ctx.scale(Math.cos(p.wobble), 1);
+          ctx.fillStyle = p.color;
+          if (p.isCircle) {
+            ctx.beginPath();
+            ctx.arc(0, 0, p.w / 2, 0, Math.PI * 2);
+            ctx.fill();
+          } else {
+            ctx.beginPath();
+            if (ctx.roundRect) {
+              ctx.roundRect(-p.w / 2, -p.h / 2, p.w, p.h, 3);
+            } else {
+              ctx.rect(-p.w / 2, -p.h / 2, p.w, p.h);
+            }
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+        ngTubeFinalConfettiAnimationId = requestAnimationFrame(render);
+      }
+
+      if (ngTubeFinalConfettiAnimationId) cancelAnimationFrame(ngTubeFinalConfettiAnimationId);
+      ngTubeFinalConfettiAnimationId = requestAnimationFrame(render);
+    }
+
+    function stopNGTubeFinalConfetti() {
+      if (ngTubeFinalConfettiAnimationId) {
+        cancelAnimationFrame(ngTubeFinalConfettiAnimationId);
+        ngTubeFinalConfettiAnimationId = null;
+      }
+      const canvas = document.getElementById('ngTubeFinalConfettiCanvas');
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
     }
 
     // =========================================================

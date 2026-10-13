@@ -477,32 +477,21 @@ public struct NGTubeProcedureView: View {
                 )
             }
 
-            // Layer 4b: Whiteboard Tabletop Target Beacon
+            // Layer 4b: Bedside Table Glow (Table itself glows and pulses)
             if showWhiteboardTableBeacon && currentStep == .tapTableForWhiteboard {
                 Button(action: {
                     handleWhiteboardTableTap()
                 }) {
-                    ZStack {
-                        Circle()
-                            .stroke(Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0), lineWidth: 2.5)
-                            .frame(width: 44, height: 44)
-                            .scaleEffect(tapeGlowPulse ? 1.55 : 0.85)
-                            .opacity(tapeGlowPulse ? 0.0 : 0.95)
-                            .animation(Animation.easeOut(duration: 1.8).repeatForever(autoreverses: false), value: tapeGlowPulse)
-
-                        Circle()
-                            .stroke(Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0), lineWidth: 3)
-                            .background(Circle().fill(Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0).opacity(0.18)))
-                            .frame(width: 44, height: 44)
-                            .shadow(color: Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0), radius: 8)
-                            .shadow(color: Color(red: 0, green: 229 / 255.0, blue: 255 / 255.0).opacity(0.6), radius: 16)
-                            .scaleEffect(tapeGlowPulse ? 1.05 : 0.95)
-                            .animation(Animation.easeInOut(duration: 1.2).repeatForever(autoreverses: true), value: tapeGlowPulse)
-                    }
+                    Image("NGTubeTableTransparent")
+                        .resizable()
+                        .frame(width: stageW, height: stageH)
+                        .shadow(color: Color(red: 56/255, green: 189/255, blue: 248/255).opacity(tapeGlowPulse ? 0.95 : 0.6), radius: tapeGlowPulse ? 24 : 12)
+                        .shadow(color: Color.white.opacity(tapeGlowPulse ? 0.8 : 0.3), radius: tapeGlowPulse ? 36 : 18)
+                        .brightness(tapeGlowPulse ? 0.15 : 0.05)
+                        .animation(Animation.easeInOut(duration: 1.2).repeatForever(autoreverses: true), value: tapeGlowPulse)
                 }
                 .buttonStyle(PlainButtonStyle())
-                .position(x: stageW * 0.208, y: stageH * 0.689)
-                .transition(.scale.combined(with: .opacity))
+                .transition(.opacity)
             }
 
             // Layer 4c: Mini Whiteboard on Bedside Table (renders live downscaled user design!)
@@ -579,38 +568,10 @@ public struct NGTubeProcedureView: View {
                 .transition(.scale(scale: 0.5).combined(with: .opacity))
             }
 
-            // Layer 7: Measuring Tape Interaction (Belly Beacon, Extending Yellow Ribbon, Draggable Casing)
+            // Layer 7: Measuring Tape Interaction (Extending Yellow Ribbon, Draggable Casing)
             if (currentStep == .dragTapeToBelly || currentStep == .tapeMeasured) && !showTapePopOut {
                 Group {
-                    // 7a: Belly Target Beacon
-                    ZStack {
-                        Circle()
-                            .stroke(
-                                isTapeDelivered ? Color(red: 34/255, green: 197/255, blue: 94/255) : Color(red: 249/255, green: 115/255, blue: 22/255).opacity(0.85),
-                                style: StrokeStyle(lineWidth: 2.5, dash: [6, 4])
-                            )
-                            .frame(width: 72, height: 72)
-                            .rotationEffect(Angle(degrees: tapeGlowPulse ? 180 : 0))
-                            .scaleEffect(tapeGlowPulse ? 1.08 : 0.94)
-
-                        Circle()
-                            .stroke(
-                                isTapeDelivered ? Color(red: 34/255, green: 197/255, blue: 94/255).opacity(0.9) : Color(red: 251/255, green: 146/255, blue: 60/255).opacity(0.6),
-                                style: StrokeStyle(lineWidth: 2, dash: [4, 4])
-                            )
-                            .frame(width: 52, height: 52)
-                            .rotationEffect(Angle(degrees: tapeGlowPulse ? -180 : 0))
-
-                        Circle()
-                            .fill(isTapeDelivered ? Color(red: 34/255, green: 197/255, blue: 94/255) : Color(red: 249/255, green: 115/255, blue: 22/255))
-                            .frame(width: 14, height: 14)
-                            .shadow(color: isTapeDelivered ? Color(red: 34/255, green: 197/255, blue: 94/255) : Color(red: 249/255, green: 115/255, blue: 22/255), radius: 10)
-                            .scaleEffect(tapeGlowPulse ? 1.25 : 0.85)
-                    }
-                    .position(x: tapeCenterX, y: tapeEndY)
-                    .allowsHitTesting(false)
-
-                    // 7b: Extending Yellow Tape Ribbon using authentic NGTubeLongTape asset
+                    // 7a: Extending Yellow Tape Ribbon using authentic NGTubeLongTape asset
                     ZStack(alignment: .top) {
                         Image("NGTubeLongTape")
                             .resizable()
@@ -2134,22 +2095,24 @@ public struct NGTubeProcedureView: View {
         withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
             showLargeWhiteboardModal = false
             currentStep = .miniWhiteboardDisplay
-            promptText = "Your whiteboard drawing is ready for the patient!"
+            promptText = "Look at your wonderful drawing! What a great way for your patient to communicate."
         }
         playBandageSound()
         HapticManager.shared.success()
 
-        // Hold design on mini whiteboard for a moment (~2.5s) before congratulating them for finishing
+        // Pause for a moment (~3.2s) to admire the user's drawing before congratulating them with You Did It celebration
         whiteboardDelayTimer?.cancel()
         let timer = DispatchWorkItem {
             playVictorySound()
+            playChimeSound()
+            HapticManager.shared.success()
             withAnimation(.spring(response: 0.45, dampingFraction: 0.75)) {
                 showFinalVictoryModal = true
                 currentStep = .procedureComplete
             }
         }
         whiteboardDelayTimer = timer
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5, execute: timer)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.2, execute: timer)
     }
 
     // MARK: - Large Whiteboard Modal View
@@ -2262,7 +2225,7 @@ public struct NGTubeProcedureView: View {
                         .scaleEffect(whiteboardCurrentTool == .blue ? 1.10 : 1.0)
                 }
                 .buttonStyle(PlainButtonStyle())
-                .position(x: stageW * (1014.0 / 1366.0), y: stageH * (840.0 / 1024.0))
+                .position(x: stageW * (1014.0 / 1366.0), y: stageH * (961.0 / 1024.0))
 
                 // Interactive Green Marker
                 Button(action: {
@@ -2343,32 +2306,32 @@ public struct NGTubeProcedureView: View {
     @ViewBuilder
     private var finalVictoryModalView: some View {
         ZStack {
-            Color.black.opacity(0.45)
+            Color.black.opacity(0.65)
                 .ignoresSafeArea()
+                .onTapGesture { }
 
-            VStack(spacing: 14) {
-                ZStack {
-                    Circle()
-                        .fill(Color(red: 34/255, green: 197/255, blue: 94/255).opacity(0.18))
-                        .frame(width: 68, height: 68)
-                        .overlay(Circle().stroke(Color(red: 34/255, green: 197/255, blue: 94/255).opacity(0.65), lineWidth: 2))
-                    Image(systemName: "checkmark")
-                        .font(.system(size: 34, weight: .bold))
-                        .foregroundColor(Color(red: 34/255, green: 197/255, blue: 94/255))
-                }
+            // Confetti animation behind celebration card
+            ConfettiAnimationView()
+                .ignoresSafeArea()
+                .allowsHitTesting(false)
 
-                Text("All Done!")
-                    .font(.system(size: 24, weight: .black, design: .rounded))
-                    .foregroundColor(Color(red: 34/255, green: 197/255, blue: 94/255))
+            VStack(spacing: 20) {
+                Image("GameYouDidIt")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: 380)
+                    .shadow(color: Color.black.opacity(0.6), radius: 16, x: 0, y: 8)
 
-                Text("The NG tube is safely placed and secured with soft tape! Fantastic job!")
-                    .font(.system(size: 16, weight: .medium, design: .rounded))
-                    .foregroundColor(.white.opacity(0.85))
+                Text("You helped your brave patient get a new NG tube!")
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
                     .multilineTextAlignment(.center)
-                    .padding(.bottom, 6)
+                    .padding(.horizontal, 16)
 
-                HStack(spacing: 14) {
+                HStack(spacing: 16) {
                     Button(action: {
+                        HapticManager.shared.buttonTap()
+                        showFinalVictoryModal = false
                         if let onDismiss = onDismiss {
                             onDismiss()
                         } else {
@@ -2385,34 +2348,39 @@ public struct NGTubeProcedureView: View {
                         .padding(.vertical, 12)
                         .background(Color(red: 16/255, green: 185/255, blue: 129/255))
                         .clipShape(Capsule())
+                        .shadow(color: Color(red: 16/255, green: 185/255, blue: 129/255).opacity(0.4), radius: 6, y: 3)
                     }
 
                     Button(action: {
+                        HapticManager.shared.buttonTap()
                         showFinalVictoryModal = false
                         startFaceTapeStep()
                     }) {
                         HStack(spacing: 6) {
                             Image(systemName: "arrow.counterclockwise")
-                            Text("Tape Again")
+                            Text("Play Again")
                         }
                         .font(.system(size: 16, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
+                        .foregroundColor(Color(red: 15/255, green: 23/255, blue: 42/255))
                         .padding(.horizontal, 20)
                         .padding(.vertical, 12)
-                        .background(Color.white.opacity(0.2))
+                        .background(Color.white)
                         .clipShape(Capsule())
+                        .shadow(color: Color.black.opacity(0.2), radius: 6, y: 3)
                     }
                 }
             }
-            .padding(28)
-            .background(Color(red: 22/255, green: 34/255, blue: 48/255))
-            .cornerRadius(28)
-            .overlay(
-                RoundedRectangle(cornerRadius: 28)
-                    .stroke(Color(red: 34/255, green: 197/255, blue: 94/255).opacity(0.55), lineWidth: 2)
+            .padding(32)
+            .background(
+                RoundedRectangle(cornerRadius: 32)
+                    .fill(Color(red: 22/255, green: 34/255, blue: 48/255).opacity(0.96))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 32)
+                            .stroke(Color(red: 56/255, green: 189/255, blue: 248/255).opacity(0.55), lineWidth: 2)
+                    )
             )
-            .shadow(color: Color.black.opacity(0.55), radius: 24, x: 0, y: 12)
-            .shadow(color: Color(red: 34/255, green: 197/255, blue: 94/255).opacity(0.25), radius: 20)
+            .shadow(color: Color.black.opacity(0.55), radius: 28, x: 0, y: 14)
+            .shadow(color: Color(red: 56/255, green: 189/255, blue: 248/255).opacity(0.25), radius: 22)
         }
         .transition(.scale(scale: 0.9).combined(with: .opacity))
     }

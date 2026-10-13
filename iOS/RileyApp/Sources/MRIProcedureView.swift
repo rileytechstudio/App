@@ -2351,7 +2351,7 @@ public struct MRIProcedureView: View {
                         showCelebrationModal = false
                         startWelcomeSequence()
                     }) {
-                        Text("Explore Again")
+                        Text("Play Again")
                             .font(.system(size: 16, weight: .bold))
                             .foregroundColor(Color(red: 15/255, green: 23/255, blue: 42/255))
                             .padding(.horizontal, 24)
@@ -2370,7 +2370,7 @@ public struct MRIProcedureView: View {
                             presentationMode.wrappedValue.dismiss()
                         }
                     }) {
-                        Text("Back to Procedures")
+                        Text("Finished")
                             .font(.system(size: 16, weight: .bold))
                             .foregroundColor(.white)
                             .padding(.horizontal, 24)
