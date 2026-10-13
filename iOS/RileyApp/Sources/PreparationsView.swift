@@ -148,21 +148,34 @@ public struct PreparationsView: View {
                         }
                     )
                     
-                    // MARK: - Search Bar (Scooted down to fill space following ribbon removal)
-                    searchBarView(availableWidth: screenSize.width)
-                        .padding(.top, isLandscape ? 16 : 14)
-                        .padding(.bottom, isLandscape ? 14 : 12)
+                    // MARK: - Scrollable Procedure Cards with Overlapping Search Bar & Fades
+                    let searchBarTopPad: CGFloat = isLandscape ? 16 : 14
+                    let searchBarBottomPad: CGFloat = isLandscape ? 14 : 12
+                    let searchAreaHeight: CGFloat = 38 + searchBarTopPad + searchBarBottomPad
                     
-                    // MARK: - Scrollable Procedure Cards with Arrows
-                    ZStack(alignment: .trailing) {
-                        scrollableCardsList(cardWidth: cardWidth, availableHeight: screenSize.height)
+                    ZStack(alignment: .top) {
+                        // 1. Scrollable Procedure Cards (under search bar and fades)
+                        scrollableCardsList(cardWidth: cardWidth, availableHeight: screenSize.height, topPadding: searchAreaHeight)
+                            .zIndex(1)
                         
-                        // Purple Fade overlay at bottom of procedure cards (overlayed over buttons, under arrows)
+                        // 2. Top Purple Fade overlay (between buttons and search bar - appears when buttons scroll under search bar)
+                        topPurpleFadeOverlay(height: min(max(screenSize.height * 0.22, 120), 160))
+                            .zIndex(20)
+                        
+                        // 3. Search Bar (Overlaps buttons with top fade buffer)
+                        searchBarView(availableWidth: screenSize.width)
+                            .padding(.top, searchBarTopPad)
+                            .padding(.bottom, searchBarBottomPad)
+                            .zIndex(25)
+                        
+                        // 4. Purple Fade overlay at bottom of procedure cards (overlayed over buttons, under arrows)
                         purpleFadeOverlay(height: min(max(screenSize.height * 0.28, 140), 220))
+                            .zIndex(20)
                         
-                        // Floating Arrow Buttons on the Right Side (overlayed ON TOP of purple fade)
-                        arrowButtonsOverlay(screenHeight: screenSize.height)
+                        // 5. Floating Arrow Buttons on the Right Side (overlayed ON TOP of purple fade)
+                        arrowButtonsOverlay(screenHeight: screenSize.height, topPadding: searchAreaHeight)
                             .padding(.trailing, min(max(screenSize.width * 0.05, 12), 48))
+                            .zIndex(30)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     
@@ -240,11 +253,11 @@ public struct PreparationsView: View {
     
     // MARK: - Scrollable Cards List
     @ViewBuilder
-    private func scrollableCardsList(cardWidth: CGFloat, availableHeight: CGFloat) -> some View {
+    private func scrollableCardsList(cardWidth: CGFloat, availableHeight: CGFloat, topPadding: CGFloat = 68) -> some View {
         ScrollViewReader { proxy in
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: 18) {
-                    Spacer(minLength: 16)
+                    Spacer(minLength: topPadding + 14)
                     
                     ForEach(Array(filteredProcedures.enumerated()), id: \.element.id) { index, item in
                         Button(action: {
@@ -276,13 +289,44 @@ public struct PreparationsView: View {
             .onChange(of: currentScrollIndex) { newIndex in
                 if newIndex >= 0 && newIndex < filteredProcedures.count {
                     withAnimation(.easeInOut(duration: 0.38)) {
-                        proxy.scrollTo(filteredProcedures[newIndex].id, anchor: .center)
+                        if newIndex == 0 {
+                            proxy.scrollTo(filteredProcedures[0].id, anchor: .top)
+                        } else {
+                            proxy.scrollTo(filteredProcedures[newIndex].id, anchor: .center)
+                        }
                     }
                 }
             }
         }
     }
     
+    // MARK: - Top Purple Fade Overlay along Top of Screen (Under search bar, over buttons)
+    @ViewBuilder
+    private func topPurpleFadeOverlay(height: CGFloat) -> some View {
+        let showTopFade = currentScrollIndex > 0
+
+        VStack {
+            LinearGradient(
+                colors: [
+                    AppTheme.primaryPurple,
+                    AppTheme.primaryPurple,
+                    AppTheme.primaryPurple.opacity(0.88),
+                    AppTheme.primaryPurple.opacity(0.55),
+                    AppTheme.primaryPurple.opacity(0.18),
+                    Color.clear
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .frame(height: height)
+            .allowsHitTesting(false)
+            
+            Spacer()
+        }
+        .opacity(showTopFade ? 1.0 : 0.0)
+        .animation(.easeInOut(duration: 0.35), value: showTopFade)
+    }
+
     // MARK: - Purple Fade Overlay along Bottom of Screen (Overlayed on buttons, under arrows - disappears at end of scroll)
     @ViewBuilder
     private func purpleFadeOverlay(height: CGFloat) -> some View {
@@ -311,7 +355,7 @@ public struct PreparationsView: View {
     
     // MARK: - Floating Arrow Buttons Overlay
     @ViewBuilder
-    private func arrowButtonsOverlay(screenHeight: CGFloat) -> some View {
+    private func arrowButtonsOverlay(screenHeight: CGFloat, topPadding: CGFloat = 68) -> some View {
         let maxIndex = max(filteredProcedures.count - 1, 0)
         let showUpArrow = currentScrollIndex > 0
         let showDownArrow = currentScrollIndex < maxIndex
@@ -364,7 +408,8 @@ public struct PreparationsView: View {
                     .frame(width: 46, height: 60)
             }
         }
-        .padding(.vertical, arrowMargin)
+        .padding(.top, topPadding)
+        .padding(.bottom, arrowMargin)
         .frame(maxHeight: .infinity)
         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: currentScrollIndex)
     }

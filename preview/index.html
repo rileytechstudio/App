@@ -608,11 +608,16 @@
     /* PREPARATIONS SCREEN STYLES                                */
     /* ========================================================= */
     .prep-search-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
       padding: 22px 0 16px 0;
       display: flex;
       justify-content: center;
       width: 100%;
-      flex-shrink: 0;
+      z-index: 25; /* On top of top fade (20) and buttons (1) */
+      pointer-events: none;
     }
 
     .prep-search-bar {
@@ -625,7 +630,8 @@
       width: 440px;
       max-width: 82%;
       height: 38px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 4px 14px rgba(28, 14, 56, 0.28), 0 1px 3px rgba(0, 0, 0, 0.12);
+      pointer-events: auto; /* Interactive & clickable */
     }
 
     .prep-search-bar input {
@@ -685,7 +691,7 @@
       overflow-y: auto;
       overflow-x: hidden;
       scroll-behavior: smooth;
-      padding: 24px 20px 85px;
+      padding: 92px 20px 85px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -771,6 +777,31 @@
       height: 100%;
       object-fit: contain;
       display: block;
+    }
+
+    /* Top Purple Fade Gradient (Between buttons and search bar - appears when buttons scroll under search bar) */
+    .prep-top-fade {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 160px;
+      background: linear-gradient(to bottom, 
+        rgba(89, 49, 186, 1) 0%, 
+        rgba(89, 49, 186, 1) 28%, 
+        rgba(89, 49, 186, 0.88) 48%, 
+        rgba(89, 49, 186, 0.55) 68%, 
+        rgba(89, 49, 186, 0.18) 88%, 
+        rgba(89, 49, 186, 0) 100%
+      );
+      pointer-events: none;
+      z-index: 20; /* Between buttons (1) and search bar (25) */
+      opacity: 0;
+      transition: opacity 0.35s ease;
+    }
+
+    .prep-top-fade.visible {
+      opacity: 1;
     }
 
     /* Bottom Purple Fade Gradient (Overlayed on top of buttons, under scroll down arrow - disappears at end of scroll) */
@@ -10907,24 +10938,7 @@
               </div>
             </header>
 
-            <!-- Search Bar -->
-            <div class="prep-search-wrapper">
-              <div class="prep-search-bar">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <circle cx="11" cy="11" r="8"></circle>
-                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-                <input type="text" id="prepSearchInput" placeholder="Search" oninput="filterProcedures(this.value)" />
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-                  <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                  <line x1="12" y1="19" x2="12" y2="23"></line>
-                  <line x1="8" y1="23" x2="16" y2="23"></line>
-                </svg>
-              </div>
-            </div>
-
-            <!-- Scrollable Procedure Cards Area with Up/Down Arrows -->
+            <!-- Scrollable Procedure Cards Area with Overlapping Search Bar, Fades & Arrows -->
             <div class="prep-scroll-container">
               <div id="prepViewport" class="prep-scroll-viewport" onscroll="handleScroll()">
                 
@@ -10953,6 +10967,26 @@
                   <img src="assets/ButtonPortAccess.png" alt="Port Access" />
                 </button>
 
+              </div>
+
+              <!-- Top Purple Fade overlay (Between buttons and search bar, appears when buttons scroll under search bar) -->
+              <div class="prep-top-fade" id="prepTopFade" aria-hidden="true"></div>
+
+              <!-- Search Bar (Overlaps buttons and top fade buffer) -->
+              <div class="prep-search-wrapper">
+                <div class="prep-search-bar">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                  <input type="text" id="prepSearchInput" placeholder="Search" oninput="filterProcedures(this.value)" />
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                    <line x1="12" y1="19" x2="12" y2="23"></line>
+                    <line x1="8" y1="23" x2="16" y2="23"></line>
+                  </svg>
+                </div>
               </div>
 
               <!-- Purple Fade overlay at bottom (Overlayed on top of buttons, under scroll down arrow - disappears at end of scroll) -->
@@ -21404,16 +21438,25 @@
       const viewport = document.getElementById('prepViewport');
       const el = document.getElementById(cardIds[index]);
       if (viewport && el) {
-        // Direct viewport scroll calculation to prevent ancestor scrolling
-        const viewportRect = viewport.getBoundingClientRect();
-        const elRect = el.getBoundingClientRect();
-        const currentScroll = viewport.scrollTop;
-        const targetScroll = currentScroll + (elRect.top - viewportRect.top) - (viewport.clientHeight - el.clientHeight) / 2;
-        
-        viewport.scrollTo({
-          top: Math.max(0, targetScroll),
-          behavior: 'smooth'
-        });
+        if (index === 0) {
+          viewport.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+          });
+        } else {
+          // Direct viewport scroll calculation to center card in visible area below search bar
+          const viewportRect = viewport.getBoundingClientRect();
+          const elRect = el.getBoundingClientRect();
+          const currentScroll = viewport.scrollTop;
+          const searchOffset = 76;
+          const visibleHeight = viewport.clientHeight - searchOffset;
+          const targetScroll = currentScroll + (elRect.top - (viewportRect.top + searchOffset)) - (visibleHeight - el.clientHeight) / 2;
+          
+          viewport.scrollTo({
+            top: Math.max(0, targetScroll),
+            behavior: 'smooth'
+          });
+        }
       }
       setTimeout(updateArrowStates, 320);
       setTimeout(updatePrepScrollFade, 320);
@@ -21424,9 +21467,10 @@
       const scrollTop = viewport.scrollTop;
       const maxScroll = viewport.scrollHeight - viewport.clientHeight;
 
-      // Update current card index based on scroll position
+      // Update current card index based on scroll position in visible area below search bar
       const cards = cardIds.map(id => document.getElementById(id));
-      const viewportCenter = viewport.getBoundingClientRect().top + viewport.clientHeight / 2;
+      const searchOffset = 76;
+      const viewportCenter = viewport.getBoundingClientRect().top + searchOffset + (viewport.clientHeight - searchOffset) / 2;
 
       let closestIdx = 0;
       let minDiff = Infinity;
@@ -21445,17 +21489,32 @@
       updatePrepScrollFade();
     }
 
-    // Scroll fade controller for Preparations Screen (Disappears at end of scroll, matches Games screen)
+    // Scroll fade controller for Preparations Screen (Disappears at end of scroll, top fade appears when scrolling under search bar)
     function updatePrepScrollFade() {
       const viewport = document.getElementById('prepViewport');
-      const fade = document.getElementById('prepBottomFade') || document.querySelector('.prep-bottom-fade');
-      if (!viewport || !fade) return;
+      const bottomFade = document.getElementById('prepBottomFade') || document.querySelector('.prep-bottom-fade');
+      const topFade = document.getElementById('prepTopFade') || document.querySelector('.prep-top-fade');
+      if (!viewport) return;
 
+      const scrollTop = viewport.scrollTop;
       const maxScroll = viewport.scrollHeight - viewport.clientHeight;
-      if (maxScroll <= 15 || viewport.scrollTop >= maxScroll - 20) {
-        fade.classList.add('hidden');
-      } else {
-        fade.classList.remove('hidden');
+
+      // Bottom Fade: disappears once there is nowhere left to scroll down
+      if (bottomFade) {
+        if (maxScroll <= 15 || scrollTop >= maxScroll - 20) {
+          bottomFade.classList.add('hidden');
+        } else {
+          bottomFade.classList.remove('hidden');
+        }
+      }
+
+      // Top Fade: appears when buttons scroll up under search bar (scrollTop > 15), hidden at rest at top
+      if (topFade) {
+        if (scrollTop > 15) {
+          topFade.classList.add('visible');
+        } else {
+          topFade.classList.remove('visible');
+        }
       }
     }
 
@@ -21677,14 +21736,21 @@
         maskWrapper.style.paddingBottom = '0px';
       }
 
-      // Arrow position scaling: up arrow distance to ribbon equals down arrow distance to bottom toolbar
+      // Arrow position scaling: up arrow distance to search bar equals down arrow distance to bottom toolbar
       const arrowControls = document.querySelector('.arrow-controls');
       const arrowMargin = isCompact ? 16 : 24;
       const arrowRight = Math.min(Math.max(w * 0.04, 12), 48);
       if (arrowControls) {
-        arrowControls.style.top = arrowMargin + 'px';
+        arrowControls.style.top = (76 + arrowMargin) + 'px';
         arrowControls.style.bottom = (barH + arrowMargin) + 'px';
         arrowControls.style.right = arrowRight + 'px';
+      }
+
+      // Top Purple Fade scaling: under search bar, over buttons
+      const topFade = document.getElementById('prepTopFade');
+      if (topFade) {
+        const topFadeH = isCompact ? Math.min(Math.max(h * 0.22, 130), 170) : Math.min(Math.max(h * 0.25, 150), 200);
+        topFade.style.height = topFadeH + 'px';
       }
 
       // Bottom Purple Fade scaling: overlayed over buttons, under scroll down arrow

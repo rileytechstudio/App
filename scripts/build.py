@@ -348,6 +348,36 @@ def build_distribution():
 
     .prep-search-wrapper {
       padding: 22px 0 16px 0 !important;
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      z-index: 25 !important;
+      pointer-events: none !important;
+      display: flex !important;
+      justify-content: center !important;
+      width: 100% !important;
+    }
+
+    .prep-search-bar {
+      pointer-events: auto !important;
+    }
+
+    .prep-top-fade {
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      z-index: 20 !important;
+      pointer-events: none !important;
+    }
+
+    .prep-top-fade.visible {
+      opacity: 1 !important;
+    }
+
+    .prep-scroll-viewport {
+      padding-top: 92px !important;
     }
 
     .prep-ribbon-wrapper {
