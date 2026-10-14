@@ -1,5 +1,5 @@
 // Riley PWA Service Worker
-const CACHE_NAME = 'riley-pwa-v228';
+const CACHE_NAME = 'riley-pwa-v229';
 const PRECACHE_ASSETS = [
   './',
   './index.html',
@@ -475,7 +475,7 @@ self.addEventListener('install', (event) => {
         const batch = PRECACHE_ASSETS.slice(i, i + batchSize);
         await Promise.allSettled(
           batch.map((asset) =>
-            fetch(asset, { cache: 'no-cache' }).then((res) => {
+            fetch(asset).then((res) => {
               if (res.ok) {
                 return cache.put(asset, res);
               }
@@ -522,19 +522,31 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Network-First for Navigation (HTML) requests so fresh deploys load immediately
+  // Instant Cache-First with Background Revalidation for Navigation (HTML) requests
   if (event.request.mode === 'navigate' || event.request.destination === 'document') {
     event.respondWith(
-      fetch(event.request, { cache: 'no-cache' }).then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200) {
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
+      caches.match(event.request).then((cachedResponse) => {
+        const revalidatePromise = fetch(event.request).then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache);
+              cache.put('./index.html', networkResponse.clone());
+            });
+          }
+          return networkResponse;
+        }).catch(() => null);
+
+        if (cachedResponse) {
+          return cachedResponse;
         }
-        return networkResponse;
-      }).catch(() => {
-        return caches.match('./index.html');
+
+        return caches.match('./index.html').then((fallbackResponse) => {
+          if (fallbackResponse) {
+            return fallbackResponse;
+          }
+          return revalidatePromise;
+        });
       })
     );
     return;

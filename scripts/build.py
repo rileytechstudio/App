@@ -656,7 +656,12 @@ def build_distribution():
       });
 
       let refreshing = false;
+      let hadController = Boolean(navigator.serviceWorker.controller);
       navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!hadController) {
+          hadController = true;
+          return;
+        }
         if (!refreshing) {
           refreshing = true;
           console.log('ServiceWorker controller changed, refreshing to activate new assets...');
