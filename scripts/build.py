@@ -570,6 +570,38 @@ def build_distribution():
       pointer-events: auto !important;
     }
 
+    /* Port Access Procedure Overrides */
+    #screenPortAccess {
+      background-color: #0b1a24 !important;
+    }
+
+    #screenPortAccess.active {
+      display: block !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      z-index: 10 !important;
+    }
+
+    #screenPortAccess.active .port-access-content {
+      position: relative !important;
+      display: block !important;
+      width: 100% !important;
+      height: 100% !important;
+      overflow: hidden !important;
+    }
+
+    #screenPortAccess.active .game-top-bar button,
+    #screenPortAccess.active .port-access-top-prompt-bar,
+    #screenPortAccess.active .port-access-stage-wrapper,
+    #screenPortAccess.active .port-access-stage,
+    #screenPortAccess.active .port-access-stage *,
+    #screenPortAccess.active .port-timer-modal,
+    #screenPortAccess.active .port-timer-modal *,
+    #screenPortAccess.active .port-victory-overlay,
+    #screenPortAccess.active .port-victory-overlay * {
+      pointer-events: auto !important;
+    }
+
     .bottom-bar-tabs {
       display: flex !important;
       width: 100% !important;
