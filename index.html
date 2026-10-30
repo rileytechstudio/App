@@ -4545,8 +4545,8 @@
     /* Chest Target Zone over Port */
     .port-chest-target-zone {
       position: absolute;
-      left: 45.9%;
-      top: 38.9%;
+      left: 42.53%;
+      top: 39.84%;
       width: 21.5%;
       aspect-ratio: 1 / 1;
       transform: translate(-50%, -50%);
@@ -4576,6 +4576,13 @@
       border-radius: 10px;
       white-space: nowrap;
       border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .port-chest-target-zone.accessed {
+      border: 3.5px solid rgba(52, 211, 153, 0.95) !important;
+      background: radial-gradient(circle, rgba(52, 211, 153, 0.28) 0%, transparent 75%) !important;
+      box-shadow: 0 0 28px rgba(52, 211, 153, 0.85), inset 0 0 16px rgba(52, 211, 153, 0.3) !important;
+      animation: none !important;
     }
 
     @keyframes portPortPulse {
@@ -4735,6 +4742,78 @@
       transition: opacity 0.45s ease;
     }
 
+    .port-clear-bandage-layer.removable {
+      pointer-events: auto !important;
+      cursor: pointer !important;
+    }
+
+    /* Tap Prompt for Removing Clear Bandage */
+    .port-bandage-tap-prompt {
+      position: absolute;
+      left: 46%;
+      top: 39%;
+      transform: translate(-50%, -50%);
+      background: rgba(15, 23, 42, 0.90);
+      border: 2px solid #38bdf8;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 800;
+      padding: 7px 16px;
+      border-radius: 22px;
+      cursor: pointer;
+      z-index: 25;
+      white-space: nowrap;
+      box-shadow: 0 4px 20px rgba(56, 189, 248, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.35);
+      animation: portPulseTapPrompt 1.4s infinite ease-in-out;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      user-select: none;
+      pointer-events: auto;
+    }
+
+    .port-bandage-tap-prompt:hover {
+      background: rgba(14, 165, 233, 0.95);
+      transform: translate(-50%, -50%) scale(1.05);
+    }
+
+    @keyframes portPulseTapPrompt {
+      0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 0 14px rgba(56, 189, 248, 0.5);
+      }
+      50% {
+        transform: translate(-50%, -50%) scale(1.07);
+        box-shadow: 0 0 26px rgba(56, 189, 248, 0.95), 0 0 10px rgba(255, 255, 255, 0.8);
+      }
+    }
+
+    /* Bandage Peel Animation */
+    .port-bandage-peel-animation {
+      animation: portPeelBandage 0.75s cubic-bezier(0.25, 0.1, 0.25, 1) forwards !important;
+      transform-origin: 60% 35%;
+      pointer-events: none !important;
+    }
+
+    @keyframes portPeelBandage {
+      0% {
+        opacity: 1;
+        transform: translate(0, 0) rotate(0deg) scale(1);
+      }
+      35% {
+        opacity: 0.88;
+        transform: translate(25px, -35px) rotate(6deg) scale(1.02);
+      }
+      70% {
+        opacity: 0.5;
+        transform: translate(75px, -90px) rotate(16deg) scale(0.96);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(140px, -160px) rotate(24deg) scale(0.85);
+      }
+    }
+
     /* Draggable Clear Bandage Item (appears on tray with radiant glow) */
     .port-bandage-item {
       position: absolute;
@@ -4831,7 +4910,396 @@
       filter: drop-shadow(0 3px 10px rgba(56, 189, 248, 0.65));
     }
 
-    /* 30-Minute Timer Popup Modal Centered in Space Under Prompt */
+    /* Tappable Floating Mask Item Centered in Middle of Screen with Radiant Contour Glow */
+    .port-mask-item {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 25%;
+      aspect-ratio: 442 / 278;
+      z-index: 26;
+      cursor: pointer;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      will-change: transform, opacity, filter;
+      transform: translate(-50%, -50%);
+      transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.2s ease;
+      animation: portMaskFloatGlow 2.2s infinite ease-in-out alternate;
+    }
+
+    .port-mask-item:hover {
+      transform: translate(-50%, -50%) scale(1.08);
+    }
+
+    .port-mask-item:active {
+      transform: translate(-50%, -50%) scale(0.96);
+    }
+
+    .port-mask-item.disappearing {
+      opacity: 0 !important;
+      transform: translate(-50%, -50%) scale(0.8) !important;
+      transition: opacity 0.18s ease, transform 0.18s ease !important;
+      pointer-events: none !important;
+    }
+
+    @keyframes portMaskFloatGlow {
+      0% {
+        transform: translate(-50%, -50%) translateY(0);
+        filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.85))
+                drop-shadow(0 0 24px rgba(56, 189, 248, 0.6))
+                drop-shadow(0 0 40px rgba(14, 165, 233, 0.4));
+      }
+      100% {
+        transform: translate(-50%, -50%) translateY(-8px) scale(1.03);
+        filter: drop-shadow(0 0 18px rgba(56, 189, 248, 1))
+                drop-shadow(0 0 34px rgba(56, 189, 248, 0.85))
+                drop-shadow(0 0 52px rgba(14, 165, 233, 0.65))
+                drop-shadow(0 0 14px rgba(255, 255, 255, 0.9));
+      }
+    }
+
+    .port-mask-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+    }
+
+    /* Draggable & Tappable Gauze Item on Tray to Wipe Port Area Dry */
+    .port-gauze-item {
+      position: absolute;
+      left: 63%;
+      top: 48%;
+      width: 19%;
+      aspect-ratio: 359 / 307;
+      z-index: 26;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      will-change: transform;
+    }
+
+    .port-gauze-item:active,
+    .port-gauze-item.dragging {
+      cursor: grabbing;
+    }
+
+    .port-gauze-item.dragging .port-gauze-visual {
+      animation: none !important;
+      filter: drop-shadow(0 6px 20px rgba(56, 189, 248, 0.95));
+    }
+
+    .port-gauze-item.spring-back {
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    }
+
+    .port-gauze-visual {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: portGauzeFloat 2.4s infinite ease-in-out alternate;
+      filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.95)) drop-shadow(0 0 32px rgba(14, 165, 233, 0.75));
+    }
+
+    @keyframes portGauzeFloat {
+      0% {
+        transform: translateY(0);
+        filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.9)) drop-shadow(0 0 30px rgba(14, 165, 233, 0.6));
+      }
+      100% {
+        transform: translateY(-6px);
+        filter: drop-shadow(0 0 28px rgba(56, 189, 248, 1)) drop-shadow(0 0 52px rgba(14, 165, 233, 0.85)) drop-shadow(0 0 14px rgba(255, 255, 255, 0.95));
+      }
+    }
+
+    .port-gauze-visual img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+    }
+
+    /* Draggable ChloraPrep Applicator on Tray */
+    .port-chloraprep-item {
+      position: absolute;
+      left: 63%;
+      top: 45%;
+      width: 14%;
+      aspect-ratio: 557 / 793;
+      z-index: 26;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      will-change: transform;
+    }
+
+    .port-chloraprep-item:active,
+    .port-chloraprep-item.dragging {
+      cursor: grabbing;
+    }
+
+    .port-chloraprep-item.dragging .port-chloraprep-visual {
+      animation: none !important;
+      filter: drop-shadow(0 8px 24px rgba(251, 146, 60, 0.95)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.8));
+    }
+
+    .port-chloraprep-item.spring-back {
+      transition: transform 0.42s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    }
+
+    .port-chloraprep-visual {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: portChloraprepFloat 2.4s infinite ease-in-out alternate;
+      filter: drop-shadow(0 0 16px rgba(251, 146, 60, 0.95)) drop-shadow(0 0 32px rgba(234, 88, 12, 0.65));
+    }
+
+    @keyframes portChloraprepFloat {
+      0% {
+        transform: translateY(0);
+        filter: drop-shadow(0 0 16px rgba(251, 146, 60, 0.9)) drop-shadow(0 0 28px rgba(234, 88, 12, 0.5));
+      }
+      100% {
+        transform: translateY(-6px);
+        filter: drop-shadow(0 0 28px rgba(251, 146, 60, 1)) drop-shadow(0 0 48px rgba(234, 88, 12, 0.8)) drop-shadow(0 0 14px rgba(255, 255, 255, 0.9));
+      }
+    }
+
+    .port-chloraprep-visual img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+    }
+
+    /* Dotted Square over Port Area for ChloraPrep disinfection */
+    .port-chloraprep-square {
+      position: absolute;
+      left: 42.53%;
+      top: 39.84%;
+      width: 24%;
+      aspect-ratio: 1 / 1;
+      transform: translate(-50%, -50%);
+      border-radius: 14px;
+      pointer-events: none;
+      z-index: 13;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3.5px dashed rgba(251, 146, 60, 0.9);
+      background: radial-gradient(circle, rgba(251, 146, 60, 0.08) 0%, transparent 80%);
+      animation: portSquarePulse 2.2s infinite ease-in-out;
+      transition: border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .port-chloraprep-square.hovered {
+      border-color: rgba(251, 146, 60, 1);
+      box-shadow: 0 0 22px rgba(251, 146, 60, 0.6), inset 0 0 18px rgba(251, 146, 60, 0.2);
+    }
+
+    .port-chloraprep-square.completed {
+      border: 3.5px solid rgba(52, 211, 153, 0.95) !important;
+      background: radial-gradient(circle, rgba(52, 211, 153, 0.25) 0%, transparent 75%) !important;
+      box-shadow: 0 0 30px rgba(52, 211, 153, 0.75), inset 0 0 20px rgba(52, 211, 153, 0.3) !important;
+      animation: none !important;
+    }
+
+    @keyframes portSquarePulse {
+      0%, 100% {
+        border-color: rgba(251, 146, 60, 0.85);
+        box-shadow: 0 0 12px rgba(251, 146, 60, 0.35);
+      }
+      50% {
+        border-color: rgba(254, 215, 170, 1);
+        box-shadow: 0 0 24px rgba(251, 146, 60, 0.7), 0 0 8px rgba(255, 255, 255, 0.6);
+      }
+    }
+
+    .port-chloraprep-square .port-target-label {
+      position: absolute;
+      bottom: -28px;
+      background: rgba(15, 23, 42, 0.86);
+      color: #fed7aa;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 10px;
+      white-space: nowrap;
+      border: 1px solid rgba(251, 146, 60, 0.4);
+      letter-spacing: 0.2px;
+    }
+
+    /* Draggable Port Huber Needle on Tray */
+    .port-needle-item {
+      position: absolute;
+      left: 63.5%;
+      top: 47%;
+      width: 14%;
+      aspect-ratio: 241 / 214;
+      z-index: 26;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      will-change: transform;
+    }
+
+    .port-needle-item:active,
+    .port-needle-item.dragging {
+      cursor: grabbing;
+    }
+
+    .port-needle-item.dragging {
+      width: 11.5%;
+      aspect-ratio: 258 / 114;
+    }
+
+    .port-needle-item.dragging .port-needle-visual {
+      animation: none !important;
+      filter: drop-shadow(0 10px 24px rgba(250, 204, 21, 0.95)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.85));
+    }
+
+    .port-needle-item.over-port .port-needle-visual {
+      filter: drop-shadow(0 0 30px rgba(52, 211, 153, 1)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.95)) !important;
+      transform: scale(1.08);
+    }
+
+    .port-needle-item.spring-back {
+      transition: transform 0.42s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    }
+
+    .port-needle-item.accessed {
+      left: 45.9% !important;
+      top: 38.9% !important;
+      transform: translate(-50%, -50%) scale(1) !important;
+      width: 11.5% !important;
+      aspect-ratio: 258 / 114 !important;
+      cursor: default !important;
+      pointer-events: none;
+      animation: portNeedleAccessedPulse 2.8s infinite ease-in-out;
+    }
+
+    @keyframes portNeedleAccessedPulse {
+      0%, 100% {
+        filter: drop-shadow(0 0 16px rgba(52, 211, 153, 0.85)) drop-shadow(0 0 28px rgba(16, 185, 129, 0.5));
+      }
+      50% {
+        filter: drop-shadow(0 0 26px rgba(52, 211, 153, 1)) drop-shadow(0 0 42px rgba(16, 185, 129, 0.75));
+      }
+    }
+
+    .port-needle-visual {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: portNeedleFloat 2.4s infinite ease-in-out alternate;
+      filter: drop-shadow(0 0 16px rgba(250, 204, 21, 0.9)) drop-shadow(0 0 28px rgba(234, 179, 8, 0.65));
+      transition: filter 0.25s ease, transform 0.25s ease;
+    }
+
+    @keyframes portNeedleFloat {
+      0% {
+        transform: translateY(0);
+        filter: drop-shadow(0 0 16px rgba(250, 204, 21, 0.85)) drop-shadow(0 0 24px rgba(234, 179, 8, 0.5));
+      }
+      100% {
+        transform: translateY(-6px);
+        filter: drop-shadow(0 0 26px rgba(250, 204, 21, 1)) drop-shadow(0 0 42px rgba(234, 179, 8, 0.8)) drop-shadow(0 0 14px rgba(255, 255, 255, 0.85));
+      }
+    }
+
+    .port-needle-visual img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+    }
+
+    /* Draggable Transparent Tegaderm Bandage on Tray */
+    .port-tegaderm-item {
+      position: absolute;
+      left: 63%;
+      top: 48%;
+      width: 15%;
+      aspect-ratio: 422 / 290;
+      z-index: 26;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      will-change: transform;
+    }
+
+    .port-tegaderm-item:active,
+    .port-tegaderm-item.dragging {
+      cursor: grabbing;
+    }
+
+    .port-tegaderm-item.dragging .port-tegaderm-visual {
+      animation: none !important;
+      filter: drop-shadow(0 10px 24px rgba(56, 189, 248, 0.95)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.85));
+    }
+
+    .port-tegaderm-item.over-port .port-tegaderm-visual {
+      filter: drop-shadow(0 0 30px rgba(52, 211, 153, 1)) drop-shadow(0 0 16px rgba(255, 255, 255, 0.95)) !important;
+      transform: scale(1.08);
+    }
+
+    .port-tegaderm-item.spring-back {
+      transition: transform 0.42s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    }
+
+    .port-tegaderm-visual {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: portTegadermFloat 2.4s infinite ease-in-out alternate;
+      filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.9)) drop-shadow(0 0 28px rgba(14, 165, 233, 0.65));
+      transition: filter 0.25s ease, transform 0.25s ease;
+    }
+
+    @keyframes portTegadermFloat {
+      0% {
+        transform: translateY(0);
+        filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.85)) drop-shadow(0 0 24px rgba(14, 165, 233, 0.5));
+      }
+      100% {
+        transform: translateY(-6px);
+        filter: drop-shadow(0 0 26px rgba(56, 189, 248, 1)) drop-shadow(0 0 42px rgba(14, 165, 233, 0.8)) drop-shadow(0 0 14px rgba(255, 255, 255, 0.85));
+      }
+    }
+
+    .port-tegaderm-visual img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+    }
     .port-timer-modal {
       position: absolute;
       inset: 0;
@@ -7802,7 +8270,23 @@
       pointer-events: auto;
     }
 
-    .mask-confetti-canvas {
+    /* All confetti canvases and particles permanently disabled */
+    .mask-confetti-canvas,
+    .game-confetti-canvas,
+    .mri-confetti-canvas,
+    .mri-still-confetti-canvas,
+    .ng-tube-final-confetti-canvas,
+    .puzzle-confetti-canvas,
+    .matching-confetti-canvas,
+    #ngTubeMazeConfettiCanvas,
+    .confetti-sparkle-star {
+      display: none !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
+
+    #portConfettiCanvas {
       position: absolute;
       inset: 0;
       width: 100%;
@@ -13158,16 +13642,39 @@
                     <span class="port-target-label">Port Area</span>
                   </div>
 
+                  <!-- Dotted Square over Port Area for ChloraPrep Disinfection -->
+                  <div id="portChloraprepSquare" class="port-chloraprep-square" style="display: none;" aria-hidden="true">
+                    <span class="port-target-pulse-ring"></span>
+                    <span class="port-target-label">Dotted Square Area</span>
+                  </div>
+
                   <!-- Layer 3: Dispensed Numbing Ointment Canvas over Port -->
                   <canvas id="portOintmentCanvas" class="port-ointment-canvas" width="1366" height="1024" style="display: none;"></canvas>
 
+                  <!-- Layer 3b: ChloraPrep Antiseptic Trail Canvas over Port Area -->
+                  <canvas id="portChloraprepCanvas" class="port-access-layer" width="1366" height="1024" style="display: none; z-index: 15; pointer-events: none;"></canvas>
+
                   <!-- Layer 4: Applied Clear Bandage Layer (Worn under gown wrapping body) -->
-                  <div id="portClearBandageLayer" class="port-clear-bandage-layer" style="opacity: 0; pointer-events: none; z-index: 18;">
+                  <div id="portClearBandageLayer" class="port-clear-bandage-layer" style="opacity: 0; pointer-events: none; z-index: 18;" onclick="removePortBandage(event)">
                     <img class="port-access-layer" src="assets/PortAccess/Clear Bandage.png" alt="Clear Bandage Film" draggable="false" loading="eager" decoding="sync" />
+                  </div>
+
+                  <!-- Tap Prompt to Remove Clear Bandage -->
+                  <div id="portBandageTapPrompt" class="port-bandage-tap-prompt" style="display: none;" onclick="removePortBandage(event)">
+                    <span>Tap to peel off!</span>
                   </div>
 
                   <!-- Layer 5: Hospital Gown Overlay (Gown lapels covering the sides of the bandage) -->
                   <img id="portChestGownOverlay" class="port-access-layer" src="assets/PortAccess/Chest Gown.png" alt="Hospital Gown Overlay" draggable="false" loading="eager" decoding="sync" style="z-index: 20; pointer-events: none;" />
+
+                  <!-- Layer 5b: Patient Wearing Mask Overlay (Appears on patient's face after glowing mask is tapped) -->
+                  <img id="portPatientMaskLayer" class="port-access-layer" src="assets/PortAccess/Mask On Pt.png" alt="Patient Wearing Mask" draggable="false" loading="eager" decoding="sync" style="display: none; z-index: 22; pointer-events: none;" />
+
+                  <!-- Layer 5c: Accessed Needle with Extension Tube Overlay (centered over port) -->
+                  <img id="portNeedleWithTubeLayer" class="port-access-layer" src="assets/PortAccess/Needle with tube 3.png" alt="Accessed Port Huber Needle with Tube" draggable="false" loading="eager" decoding="sync" style="display: none; z-index: 23; pointer-events: none;" />
+
+                  <!-- Layer 5d: Final Transparent Tegaderm Bandage Secured over Accessed Port -->
+                  <img id="portTegadermAppliedLayer" class="port-access-layer" src="assets/PortAccess/Transparent Tegaderm.png" alt="Transparent Tegaderm Bandage Applied" draggable="false" loading="eager" decoding="sync" style="display: none; z-index: 19; pointer-events: none;" />
 
                   <!-- Draggable Clear Bandage Item (Appears on tray with radiant glow) -->
                   <div id="portBandageItem" class="port-bandage-item" style="display: none;" onpointerdown="startDragPortBandage(event)">
@@ -13192,8 +13699,52 @@
                     </div>
                   </div>
 
+                  <!-- Layer 7: Glowing Mask Item in Middle of Screen (Tap to put on) -->
+                  <div id="portMaskItem" class="port-mask-item" style="display: none;" onclick="applyPortMask(event)">
+                    <img src="assets/PortAccess/Mask Cropped.png" alt="Surgical Mask" draggable="false" />
+                  </div>
+
+                  <!-- Layer 7b: Draggable & Tappable Gauze Item on Tray to Wipe Port Area Dry -->
+                  <div id="portGauzeItem" class="port-gauze-item" style="display: none;" onpointerdown="startDragPortGauze(event)" onclick="handlePortGauzeClick(event)">
+                    <div class="port-gauze-visual">
+                      <img src="assets/PortAccess/Gauze Cropped.png" alt="Sterile Gauze Pad" draggable="false" />
+                    </div>
+                    <div class="port-drag-hint-bubble" id="portGauzeDragHint">
+                      <span>Wipe Port Dry</span>
+                    </div>
+                  </div>
+
+                  <!-- Layer 7c: Draggable ChloraPrep Applicator on Tray to Disinfect Port Area -->
+                  <div id="portChloraprepItem" class="port-chloraprep-item" style="display: none;" onpointerdown="startDragPortChloraprep(event)" onclick="handlePortChloraprepClick(event)">
+                    <div class="port-chloraprep-visual">
+                      <img src="assets/PortAccess/Chloraprep Cropped.png" alt="ChloraPrep Applicator" draggable="false" />
+                    </div>
+                    <div class="port-drag-hint-bubble" id="portChloraprepDragHint">
+                      <span>Color in Square</span>
+                    </div>
+                  </div>
+
+                  <!-- Layer 7d: Draggable Port Huber Needle on Tray to Access Port -->
+                  <div id="portNeedleItem" class="port-needle-item" style="display: none;" onpointerdown="startDragPortNeedle(event)" onclick="handlePortNeedleClick(event)">
+                    <div id="portNeedleVisual" class="port-needle-visual">
+                      <img id="portNeedleImg" src="assets/PortAccess/Yellow Needle Only Cropped.png" alt="Port Huber Needle" draggable="false" />
+                    </div>
+                    <div class="port-drag-hint-bubble" id="portNeedleDragHint">
+                      <span>Access Port</span>
+                    </div>
+                  </div>
+
+                  <!-- Layer 7e: Draggable Transparent Tegaderm Bandage on Tray to Secure Accessed Port -->
+                  <div id="portTegadermItem" class="port-tegaderm-item" style="display: none;" onpointerdown="startDragPortTegaderm(event)" onclick="handlePortTegadermClick(event)">
+                    <div id="portTegadermVisual" class="port-tegaderm-visual">
+                      <img src="assets/PortAccess/Transparent Tegaderm Cropped.png" alt="Clear Tegaderm Bandage" draggable="false" />
+                    </div>
+                    <div class="port-drag-hint-bubble" id="portTegadermDragHint">
+                      <span>Place Bandage</span>
+                    </div>
+                  </div>
+
                   <!-- Confetti & Celebration Layer for Chest Stage -->
-                  <canvas id="portConfettiCanvas" class="mri-confetti-canvas" style="display: none;"></canvas>
                   <div id="portChestFXContainer" class="port-sparkle-fx-layer" style="pointer-events: none;"></div>
                 </div>
 
@@ -13209,24 +13760,19 @@
                 </div>
                 <div class="port-timer-info-badge">
                   <span class="port-timer-badge-time">30 Minutes</span>
-                  <span class="port-timer-badge-desc">Keeping your skin comfortable</span>
+                  <span class="port-timer-badge-desc">Numbing the port area</span>
                 </div>
               </div>
             </div>
 
-            <!-- Victory Modal Overlay (Centered in space under prompt) -->
-            <div id="portVictoryCard" class="port-victory-overlay" style="display: none;">
-              <div class="port-victory-card">
-                <div class="port-victory-star">
-                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
-                </div>
-                <h2 class="port-victory-title">You Did It!</h2>
-                <p class="port-victory-sub">You helped change our patient into her gown, applied the numbing cream and bandage, and waited 30 minutes so her skin is nice and numb for port access.</p>
-                <div class="port-victory-buttons">
-                  <button class="port-btn-primary" onclick="goToPreparations()">More Procedures</button>
-                  <button class="port-btn-secondary" onclick="handlePortAccessRestartClick()">Try Again</button>
+            <!-- Victory Celebration Overlay (Matching IV Prep "You Did It" Screen) -->
+            <div id="portVictoryCard" class="game-success-overlay" style="display: none;">
+              <canvas id="portConfettiCanvas" class="game-confetti-canvas"></canvas>
+              <div class="success-content">
+                <img class="game-you-did-it-img" src="assets/GameYouDidIt.png" alt="You Did It!" draggable="false" loading="lazy" decoding="async" />
+                <div style="display: flex; gap: 14px; justify-content: center; margin-top: 18px;">
+                  <button class="ng-tube-choice-btn ng-tube-btn-yes" onclick="goToPreparations()" style="padding: 10px 24px; font-size: 16px; border-radius: 24px;">Finished</button>
+                  <button class="game-btn-replay" onclick="handlePortAccessRestartClick()" style="margin: 0; padding: 10px 24px; font-size: 16px; border-radius: 24px;">Play Again</button>
                 </div>
               </div>
             </div>
@@ -14922,6 +15468,7 @@
       if (screenMatchingGame) screenMatchingGame.classList.remove('active');
       if (typeof stopPuzzleCelebration === 'function') stopPuzzleCelebration();
       if (typeof stopMatchingCelebration === 'function') stopMatchingCelebration();
+      if (typeof stopPortConfetti === 'function') stopPortConfetti();
 
       if (screenName === 'games') {
         clearAnatomyTimers();
@@ -17913,52 +18460,8 @@
     }
 
     function startPuzzleConfetti() {
-      const canvas = document.getElementById('puzzleConfettiCanvas');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-
-      const w = canvas.width = canvas.parentElement.clientWidth || 800;
-      const h = canvas.height = canvas.parentElement.clientHeight || 600;
-
-      const colors = ['#7B3FE4', '#5931ba', '#FFD54F', '#FF4081', '#00E676', '#00B0FF', '#FF9100'];
-      const particles = [];
-      for (let i = 0; i < 90; i++) {
-        particles.push({
-          x: Math.random() * w,
-          y: Math.random() * -h,
-          w: Math.random() * 12 + 6,
-          h: Math.random() * 8 + 4,
-          color: colors[Math.floor(Math.random() * colors.length)],
-          vy: Math.random() * 3 + 2.5,
-          vx: (Math.random() - 0.5) * 2,
-          rot: Math.random() * 360,
-          rotSpeed: (Math.random() - 0.5) * 8
-        });
-      }
-
-      function render() {
-        ctx.clearRect(0, 0, w, h);
-        particles.forEach(p => {
-          p.y += p.vy;
-          p.x += p.vx;
-          p.rot += p.rotSpeed;
-          if (p.y > h + 20) {
-            p.y = -20;
-            p.x = Math.random() * w;
-          }
-          ctx.save();
-          ctx.translate(p.x, p.y);
-          ctx.rotate((p.rot * Math.PI) / 180);
-          ctx.fillStyle = p.color;
-          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-          ctx.restore();
-        });
-        puzzleConfettiAnimationId = requestAnimationFrame(render);
-      }
-
-      if (puzzleConfettiAnimationId) cancelAnimationFrame(puzzleConfettiAnimationId);
-      puzzleConfettiAnimationId = requestAnimationFrame(render);
+      // Confetti completely removed
+      stopPuzzleConfetti();
     }
 
     function stopPuzzleConfetti() {
@@ -18352,52 +18855,8 @@
     }
 
     function startMatchingConfetti() {
-      const canvas = document.getElementById('matchingConfettiCanvas');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-
-      const w = canvas.width = canvas.parentElement.clientWidth || 800;
-      const h = canvas.height = canvas.parentElement.clientHeight || 600;
-
-      const colors = ['#7B3FE4', '#38bdf8', '#fbbf24', '#34d399', '#f43f5e', '#a855f7', '#ec4899'];
-      const particles = [];
-      for (let i = 0; i < 90; i++) {
-        particles.push({
-          x: Math.random() * w,
-          y: Math.random() * -h,
-          w: Math.random() * 10 + 6,
-          h: Math.random() * 7 + 4,
-          color: colors[Math.floor(Math.random() * colors.length)],
-          vy: Math.random() * 3 + 2.5,
-          vx: (Math.random() - 0.5) * 2.2,
-          rot: Math.random() * 360,
-          rotSpeed: (Math.random() - 0.5) * 9
-        });
-      }
-
-      function render() {
-        ctx.clearRect(0, 0, w, h);
-        particles.forEach(p => {
-          p.y += p.vy;
-          p.x += p.vx;
-          p.rot += p.rotSpeed;
-          if (p.y > h + 20) {
-            p.y = -20;
-            p.x = Math.random() * w;
-          }
-          ctx.save();
-          ctx.translate(p.x, p.y);
-          ctx.rotate((p.rot * Math.PI) / 180);
-          ctx.fillStyle = p.color;
-          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-          ctx.restore();
-        });
-        matchingConfettiId = requestAnimationFrame(render);
-      }
-
-      if (matchingConfettiId) cancelAnimationFrame(matchingConfettiId);
-      matchingConfettiId = requestAnimationFrame(render);
+      // Confetti completely removed
+      stopMatchingConfetti();
     }
 
     function stopMatchingConfetti() {
@@ -20462,89 +20921,8 @@
     }
 
     function startMaskConfetti() {
-      const canvas = document.getElementById('maskConfettiCanvas');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const w = 1366;
-      const h = 1024;
-      canvas.width = w;
-      canvas.height = h;
-
-      const particles = [];
-      const particleCount = 110;
-
-      for (let i = 0; i < particleCount; i++) {
-        const isBurst = i < 55;
-        const angle = isBurst ? Math.random() * Math.PI * 2 : 0;
-        const speed = isBurst ? Math.random() * 14 + 5 : 0;
-        particles.push({
-          x: isBurst ? w / 2 + (Math.random() - 0.5) * 220 : Math.random() * w,
-          y: isBurst ? h / 2 + (Math.random() - 0.5) * 90 : Math.random() * -h,
-          w: Math.random() * 12 + 10,
-          h: Math.random() * 20 + 12,
-          color: MASK_CONFETTI_COLORS[Math.floor(Math.random() * MASK_CONFETTI_COLORS.length)],
-          rotation: Math.random() * 360,
-          rotationSpeed: (Math.random() - 0.5) * 8,
-          vx: isBurst ? Math.cos(angle) * speed : (Math.random() - 0.5) * 2.5,
-          vy: isBurst ? Math.sin(angle) * speed - 2.5 : Math.random() * 3.2 + 2.5,
-          gravity: 0.18,
-          drag: isBurst ? 0.94 : 0.99,
-          wobble: Math.random() * Math.PI * 2,
-          wobbleSpeed: Math.random() * 0.09 + 0.03,
-          isCircle: Math.random() > 0.78
-        });
-      }
-
-      function render() {
-        ctx.clearRect(0, 0, w, h);
-
-        for (let i = 0; i < particles.length; i++) {
-          const p = particles[i];
-          p.vx *= p.drag;
-          p.vy = p.vy * p.drag + p.gravity;
-          p.x += p.vx + Math.sin(p.wobble) * 2;
-          p.y += p.vy;
-          p.rotation += p.rotationSpeed;
-          p.wobble += p.wobbleSpeed;
-
-          // Recycle when falling below stage
-          if (p.y > h + 40) {
-            p.y = -30;
-            p.x = Math.random() * w;
-            p.vy = Math.random() * 3.2 + 2.5;
-            p.vx = (Math.random() - 0.5) * 2.5;
-            p.drag = 0.99;
-          }
-
-          ctx.save();
-          ctx.translate(p.x, p.y);
-          ctx.rotate((p.rotation * Math.PI) / 180);
-          ctx.scale(Math.cos(p.wobble), 1);
-
-          ctx.fillStyle = p.color;
-          if (p.isCircle) {
-            ctx.beginPath();
-            ctx.arc(0, 0, p.w / 2, 0, Math.PI * 2);
-            ctx.fill();
-          } else {
-            ctx.beginPath();
-            const rw = p.w;
-            const rh = p.h;
-            if (ctx.roundRect) {
-              ctx.roundRect(-rw / 2, -rh / 2, rw, rh, 3);
-            } else {
-              ctx.rect(-rw / 2, -rh / 2, rw, rh);
-            }
-            ctx.fill();
-          }
-          ctx.restore();
-        }
-
-        maskConfettiAnimationId = requestAnimationFrame(render);
-      }
-
-      if (maskConfettiAnimationId) cancelAnimationFrame(maskConfettiAnimationId);
-      maskConfettiAnimationId = requestAnimationFrame(render);
+      // Confetti completely removed
+      stopMaskConfetti();
     }
 
     function stopMaskConfetti() {
@@ -22544,89 +22922,8 @@
     ];
 
     function startConfetti() {
-      const canvas = document.getElementById('gameConfettiCanvas');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const w = 1366;
-      const h = 1024;
-      canvas.width = w;
-      canvas.height = h;
-
-      const particles = [];
-      const particleCount = 110;
-
-      for (let i = 0; i < particleCount; i++) {
-        const isBurst = i < 55;
-        const angle = isBurst ? Math.random() * Math.PI * 2 : 0;
-        const speed = isBurst ? Math.random() * 14 + 5 : 0;
-        particles.push({
-          x: isBurst ? w / 2 + (Math.random() - 0.5) * 220 : Math.random() * w,
-          y: isBurst ? h / 2 + (Math.random() - 0.5) * 90 : Math.random() * -h,
-          w: Math.random() * 12 + 10,
-          h: Math.random() * 20 + 12,
-          color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
-          rotation: Math.random() * 360,
-          rotationSpeed: (Math.random() - 0.5) * 8,
-          vx: isBurst ? Math.cos(angle) * speed : (Math.random() - 0.5) * 2.5,
-          vy: isBurst ? Math.sin(angle) * speed - 2.5 : Math.random() * 3.2 + 2.5,
-          gravity: 0.18,
-          drag: isBurst ? 0.94 : 0.99,
-          wobble: Math.random() * Math.PI * 2,
-          wobbleSpeed: Math.random() * 0.09 + 0.03,
-          isCircle: Math.random() > 0.78
-        });
-      }
-
-      function render() {
-        ctx.clearRect(0, 0, w, h);
-
-        for (let i = 0; i < particles.length; i++) {
-          const p = particles[i];
-          p.vx *= p.drag;
-          p.vy = p.vy * p.drag + p.gravity;
-          p.x += p.vx + Math.sin(p.wobble) * 2;
-          p.y += p.vy;
-          p.rotation += p.rotationSpeed;
-          p.wobble += p.wobbleSpeed;
-
-          // Recycle when falling below stage
-          if (p.y > h + 40) {
-            p.y = -30;
-            p.x = Math.random() * w;
-            p.vy = Math.random() * 3.2 + 2.5;
-            p.vx = (Math.random() - 0.5) * 2.5;
-            p.drag = 0.99;
-          }
-
-          ctx.save();
-          ctx.translate(p.x, p.y);
-          ctx.rotate((p.rotation * Math.PI) / 180);
-          ctx.scale(Math.cos(p.wobble), 1);
-
-          ctx.fillStyle = p.color;
-          if (p.isCircle) {
-            ctx.beginPath();
-            ctx.arc(0, 0, p.w / 2, 0, Math.PI * 2);
-            ctx.fill();
-          } else {
-            ctx.beginPath();
-            const rw = p.w;
-            const rh = p.h;
-            if (ctx.roundRect) {
-              ctx.roundRect(-rw / 2, -rh / 2, rw, rh, 3);
-            } else {
-              ctx.rect(-rw / 2, -rh / 2, rw, rh);
-            }
-            ctx.fill();
-          }
-          ctx.restore();
-        }
-
-        confettiAnimationId = requestAnimationFrame(render);
-      }
-
-      if (confettiAnimationId) cancelAnimationFrame(confettiAnimationId);
-      confettiAnimationId = requestAnimationFrame(render);
+      // Confetti completely removed
+      stopConfetti();
     }
 
     function stopConfetti() {
@@ -23673,6 +23970,12 @@
       if (typeof stopNGTubeFinalConfetti === 'function') {
         stopNGTubeFinalConfetti();
       }
+      if (typeof stopClothWipeSound === 'function') {
+        stopClothWipeSound(true);
+      }
+      if (typeof stopClothWetWipeSound === 'function') {
+        stopClothWetWipeSound(true);
+      }
       if (ngTubeCurrentStep !== 'maze' && ngTubeCurrentStep !== 'maze_won') {
         const screenNGTube = document.getElementById('screenNGTube');
         if (screenNGTube) screenNGTube.classList.remove('maze-mode');
@@ -23688,6 +23991,8 @@
       clearNGTubeTimers();
       stopNGTubeMazeConfetti();
       if (typeof stopNGTubeFinalConfetti === 'function') stopNGTubeFinalConfetti();
+      if (typeof stopClothWipeSound === 'function') stopClothWipeSound(true);
+      if (typeof stopClothWetWipeSound === 'function') stopClothWetWipeSound(true);
       ngTubeCurrentStep = 'intro';
       isNGTubeMedicineDelivered = false;
       isDraggingNGTubeSyringe = false;
@@ -23895,9 +24200,6 @@
       if (decisionOverlay) {
         decisionOverlay.classList.add('active');
       }
-      if (typeof playClothWipeSound === 'function') {
-        playClothWipeSound();
-      }
     }
 
     function handleNGTubeMedicineDecision(wantsMedicine) {
@@ -23947,9 +24249,6 @@
           promptBar.classList.remove('highlight-advance');
           void promptBar.offsetWidth;
           promptBar.classList.add('highlight-advance');
-        }
-        if (typeof playClothWipeSound === 'function') {
-          playClothWipeSound();
         }
 
         // Prompt user to tap tabletop for drinks after brief pause (1.2s)
@@ -25070,82 +25369,8 @@
     }
 
     function startNGTubeMazeConfetti() {
-      const canvas = document.getElementById('ngTubeMazeConfettiCanvas');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const w = 1366;
-      const h = 1024;
-      canvas.width = w;
-      canvas.height = h;
-
-      const particles = [];
-      const particleCount = 100;
-      for (let i = 0; i < particleCount; i++) {
-        const isBurst = i < 50;
-        const angle = isBurst ? Math.random() * Math.PI * 2 : 0;
-        const speed = isBurst ? Math.random() * 14 + 5 : 0;
-        particles.push({
-          x: isBurst ? 1170 + (Math.random() - 0.5) * 160 : Math.random() * w,
-          y: isBurst ? 300 + (Math.random() - 0.5) * 160 : Math.random() * -h,
-          w: Math.random() * 12 + 10,
-          h: Math.random() * 20 + 12,
-          color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
-          rotation: Math.random() * 360,
-          rotationSpeed: (Math.random() - 0.5) * 8,
-          vx: isBurst ? Math.cos(angle) * speed : (Math.random() - 0.5) * 2.5,
-          vy: isBurst ? Math.sin(angle) * speed - 2.5 : Math.random() * 3.2 + 2.5,
-          gravity: 0.18,
-          drag: isBurst ? 0.94 : 0.99,
-          wobble: Math.random() * Math.PI * 2,
-          wobbleSpeed: Math.random() * 0.09 + 0.03,
-          isCircle: Math.random() > 0.78
-        });
-      }
-
-      function render() {
-        ctx.clearRect(0, 0, w, h);
-        for (let i = 0; i < particles.length; i++) {
-          const p = particles[i];
-          p.vx *= p.drag;
-          p.vy = p.vy * p.drag + p.gravity;
-          p.x += p.vx + Math.sin(p.wobble) * 2;
-          p.y += p.vy;
-          p.rotation += p.rotationSpeed;
-          p.wobble += p.wobbleSpeed;
-
-          if (p.y > h + 40) {
-            p.y = -30;
-            p.x = Math.random() * w;
-            p.vy = Math.random() * 3.2 + 2.5;
-            p.vx = (Math.random() - 0.5) * 2.5;
-            p.drag = 0.99;
-          }
-
-          ctx.save();
-          ctx.translate(p.x, p.y);
-          ctx.rotate((p.rotation * Math.PI) / 180);
-          ctx.scale(Math.cos(p.wobble), 1);
-          ctx.fillStyle = p.color;
-          if (p.isCircle) {
-            ctx.beginPath();
-            ctx.arc(0, 0, p.w / 2, 0, Math.PI * 2);
-            ctx.fill();
-          } else {
-            ctx.beginPath();
-            if (ctx.roundRect) {
-              ctx.roundRect(-p.w / 2, -p.h / 2, p.w, p.h, 3);
-            } else {
-              ctx.rect(-p.w / 2, -p.h / 2, p.w, p.h);
-            }
-            ctx.fill();
-          }
-          ctx.restore();
-        }
-        ngTubeConfettiAnimationId = requestAnimationFrame(render);
-      }
-
-      if (ngTubeConfettiAnimationId) cancelAnimationFrame(ngTubeConfettiAnimationId);
-      ngTubeConfettiAnimationId = requestAnimationFrame(render);
+      // Confetti completely removed
+      stopNGTubeMazeConfetti();
     }
 
     function stopNGTubeMazeConfetti() {
@@ -25805,82 +26030,8 @@
     let ngTubeFinalConfettiAnimationId = null;
 
     function startNGTubeFinalConfetti() {
-      const canvas = document.getElementById('ngTubeFinalConfettiCanvas');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const w = 1366;
-      const h = 1024;
-      canvas.width = w;
-      canvas.height = h;
-
-      const particles = [];
-      const particleCount = 120;
-      for (let i = 0; i < particleCount; i++) {
-        const isBurst = i < 60;
-        const angle = isBurst ? Math.random() * Math.PI * 2 : 0;
-        const speed = isBurst ? Math.random() * 16 + 6 : 0;
-        particles.push({
-          x: isBurst ? w / 2 + (Math.random() - 0.5) * 240 : Math.random() * w,
-          y: isBurst ? h / 2 + (Math.random() - 0.5) * 120 : Math.random() * -h,
-          w: Math.random() * 12 + 10,
-          h: Math.random() * 20 + 12,
-          color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
-          rotation: Math.random() * 360,
-          rotationSpeed: (Math.random() - 0.5) * 8,
-          vx: isBurst ? Math.cos(angle) * speed : (Math.random() - 0.5) * 2.5,
-          vy: isBurst ? Math.sin(angle) * speed - 2.5 : Math.random() * 3.2 + 2.5,
-          gravity: 0.18,
-          drag: isBurst ? 0.94 : 0.99,
-          wobble: Math.random() * Math.PI * 2,
-          wobbleSpeed: Math.random() * 0.09 + 0.03,
-          isCircle: Math.random() > 0.78
-        });
-      }
-
-      function render() {
-        ctx.clearRect(0, 0, w, h);
-        for (let i = 0; i < particles.length; i++) {
-          const p = particles[i];
-          p.vx *= p.drag;
-          p.vy = p.vy * p.drag + p.gravity;
-          p.x += p.vx + Math.sin(p.wobble) * 2;
-          p.y += p.vy;
-          p.rotation += p.rotationSpeed;
-          p.wobble += p.wobbleSpeed;
-
-          if (p.y > h + 40) {
-            p.y = -30;
-            p.x = Math.random() * w;
-            p.vy = Math.random() * 3.2 + 2.5;
-            p.vx = (Math.random() - 0.5) * 2.5;
-            p.drag = 0.99;
-          }
-
-          ctx.save();
-          ctx.translate(p.x, p.y);
-          ctx.rotate((p.rotation * Math.PI) / 180);
-          ctx.scale(Math.cos(p.wobble), 1);
-          ctx.fillStyle = p.color;
-          if (p.isCircle) {
-            ctx.beginPath();
-            ctx.arc(0, 0, p.w / 2, 0, Math.PI * 2);
-            ctx.fill();
-          } else {
-            ctx.beginPath();
-            if (ctx.roundRect) {
-              ctx.roundRect(-p.w / 2, -p.h / 2, p.w, p.h, 3);
-            } else {
-              ctx.rect(-p.w / 2, -p.h / 2, p.w, p.h);
-            }
-            ctx.fill();
-          }
-          ctx.restore();
-        }
-        ngTubeFinalConfettiAnimationId = requestAnimationFrame(render);
-      }
-
-      if (ngTubeFinalConfettiAnimationId) cancelAnimationFrame(ngTubeFinalConfettiAnimationId);
-      ngTubeFinalConfettiAnimationId = requestAnimationFrame(render);
+      // Confetti completely removed
+      stopNGTubeFinalConfetti();
     }
 
     function stopNGTubeFinalConfetti() {
@@ -25914,6 +26065,35 @@
 
     let isDraggingPortBandage = false;
     let portBandageDragOffset = { x: 0, y: 0 };
+    let isDraggingPortGauze = false;
+    const TOTAL_PORT_GAUZE_SWEEPS = 4;
+    let portGauzeSweepCount = 0;
+    let portGauzeLastSweepTime = 0;
+    let portGauzeCursorSide = null;
+    let portGauzeCursorSideY = null;
+    let portGauzeLastX = 0;
+    let portGauzeLastY = 0;
+    let portGauzeAccumDist = 0;
+    let isPortGauzeWipingComplete = false;
+    let isDraggingPortChloraprep = false;
+    let isPortChloraprepComplete = false;
+    let portChloraprepLastTipX = null;
+    let portChloraprepLastTipY = null;
+    let portChloraprepLastSoundTime = 0;
+    const CHLORAPREP_GRID_COLS = 12;
+    const CHLORAPREP_GRID_ROWS = 12;
+    let portChloraprepGrid = [];
+    const portChloraprepTrailImg = new Image();
+    portChloraprepTrailImg.src = 'assets/PortAccess/Chloraprep Trail.png';
+
+    let isDraggingPortNeedle = false;
+    let isPortNeedleAccessed = false;
+    let isNeedleOverPort = false;
+    let isDraggingPortTegaderm = false;
+    let isPortTegadermApplied = false;
+    let isTegadermOverPort = false;
+    const portNeedleBackImg = new Image();
+    portNeedleBackImg.src = 'assets/PortAccess/Yellow Needle Back Cropped.png';
     let portTimerFrameIndex = 0;
     let portTimerInterval = null;
     let portTickInterval = null;
@@ -25927,7 +26107,8 @@
       'assets/PortAccess/Timer5.png'
     ];
 
-    let portOintmentImgObj = null;
+    let portOintmentImgObj = new Image();
+    portOintmentImgObj.src = 'assets/PortAccess/Ointment.png';
     let portConfettiAnimId = null;
     let portTimerAnimId = null;
     let portTimerImg1 = null;
@@ -25939,6 +26120,44 @@
       if (portSqueezeAnimId) {
         cancelAnimationFrame(portSqueezeAnimId);
         portSqueezeAnimId = null;
+      }
+      if (window._activePortLMXCleanup) {
+        window._activePortLMXCleanup();
+      }
+      isDraggingPortLMX = false;
+      isPortOverPort = false;
+      isPortSqueezing = false;
+      portSqueezeProgress = 0;
+      const lmxTube = document.getElementById('portLMXTubeItem');
+      if (lmxTube) {
+        lmxTube.style.display = 'none';
+        lmxTube.style.left = '62%';
+        lmxTube.style.top = '52%';
+        lmxTube.style.opacity = '1';
+        lmxTube.style.transform = 'none';
+        lmxTube.style.transition = '';
+        lmxTube.classList.remove('dragging', 'squeezing', 'spring-back');
+      }
+      const circle = document.getElementById('portSqueezeCircle');
+      const pctText = document.getElementById('portSqueezePct');
+      if (circle) circle.style.strokeDashoffset = '113.1';
+      if (pctText) pctText.textContent = '0%';
+
+      const ointmentCanvas = document.getElementById('portOintmentCanvas');
+      if (ointmentCanvas) {
+        ointmentCanvas.style.display = 'none';
+        ointmentCanvas.style.opacity = '1';
+        ointmentCanvas.style.transition = 'none';
+        const ctx = ointmentCanvas.getContext('2d');
+        if (ctx) ctx.clearRect(0, 0, ointmentCanvas.width, ointmentCanvas.height);
+      }
+      const chestTarget = document.getElementById('portChestTargetZone');
+      if (chestTarget) {
+        chestTarget.style.display = 'flex';
+        chestTarget.style.opacity = '1';
+        chestTarget.classList.remove('hovered', 'accessed');
+        const lbl = chestTarget.querySelector('.port-target-label');
+        if (lbl) lbl.textContent = 'Port Area';
       }
       if (portTimerInterval) {
         clearInterval(portTimerInterval);
@@ -25957,8 +26176,131 @@
       }
       const victoryCard = document.getElementById('portVictoryCard');
       if (victoryCard) {
+        victoryCard.classList.remove('visible');
         victoryCard.style.display = 'none';
       }
+      const tapPrompt = document.getElementById('portBandageTapPrompt');
+      if (tapPrompt) {
+        tapPrompt.style.display = 'none';
+      }
+      const bandageLayer = document.getElementById('portClearBandageLayer');
+      if (bandageLayer) {
+        bandageLayer.classList.remove('port-bandage-peel-animation', 'removable');
+        bandageLayer.style.pointerEvents = 'none';
+        bandageLayer.style.cursor = 'default';
+        bandageLayer.style.transform = '';
+      }
+      const maskItem = document.getElementById('portMaskItem');
+      if (maskItem) {
+        maskItem.style.display = 'none';
+        maskItem.style.opacity = '1';
+        maskItem.style.transform = 'translate(-50%, -50%)';
+        maskItem.classList.remove('disappearing');
+      }
+      const maskLayer = document.getElementById('portPatientMaskLayer');
+      if (maskLayer) {
+        maskLayer.style.display = 'none';
+        maskLayer.style.opacity = '0';
+      }
+      const gauzeItem = document.getElementById('portGauzeItem');
+      if (gauzeItem) {
+        gauzeItem.style.display = 'none';
+        gauzeItem.style.opacity = '1';
+        gauzeItem.style.transform = '';
+        gauzeItem.classList.remove('wiping', 'dragging', 'spring-back');
+      }
+      isDraggingPortGauze = false;
+      portGauzeSweepCount = 0;
+      portGauzeLastSweepTime = 0;
+      portGauzeCursorSide = null;
+      portGauzeCursorSideY = null;
+      portGauzeLastX = 0;
+      portGauzeLastY = 0;
+      portGauzeAccumDist = 0;
+      isPortGauzeWipingComplete = false;
+      const gauzeHint = document.getElementById('portGauzeDragHint');
+      if (gauzeHint) gauzeHint.style.display = 'none';
+
+      isDraggingPortChloraprep = false;
+      isPortChloraprepComplete = false;
+      portChloraprepLastTipX = null;
+      portChloraprepLastTipY = null;
+      portChloraprepGrid = [];
+      const chloraItem = document.getElementById('portChloraprepItem');
+      if (chloraItem) {
+        chloraItem.style.display = 'none';
+        chloraItem.style.opacity = '1';
+        chloraItem.style.transform = '';
+        chloraItem.classList.remove('dragging', 'spring-back');
+      }
+      const chloraSquare = document.getElementById('portChloraprepSquare');
+      if (chloraSquare) {
+        chloraSquare.style.display = 'none';
+        chloraSquare.classList.remove('hovered', 'completed');
+        const label = chloraSquare.querySelector('.port-target-label');
+        if (label) label.textContent = "Dotted Square Area";
+      }
+      const chloraCanvas = document.getElementById('portChloraprepCanvas');
+      if (chloraCanvas) {
+        chloraCanvas.style.display = 'none';
+        chloraCanvas.style.opacity = '1';
+        chloraCanvas.style.transition = 'none';
+        const ctx = chloraCanvas.getContext('2d');
+        if (ctx) ctx.clearRect(0, 0, chloraCanvas.width, chloraCanvas.height);
+      }
+      const chloraHint = document.getElementById('portChloraprepDragHint');
+      if (chloraHint) chloraHint.style.display = 'none';
+
+      isDraggingPortNeedle = false;
+      isPortNeedleAccessed = false;
+      isNeedleOverPort = false;
+      const needleItem = document.getElementById('portNeedleItem');
+      if (needleItem) {
+        needleItem.style.display = 'none';
+        needleItem.style.opacity = '1';
+        needleItem.style.transform = 'none';
+        needleItem.style.left = '63.5%';
+        needleItem.style.top = '47%';
+        needleItem.style.width = '14%';
+        needleItem.style.aspectRatio = '241 / 214';
+        needleItem.classList.remove('dragging', 'spring-back', 'over-port', 'accessed');
+      }
+      const needleImg = document.getElementById('portNeedleImg');
+      if (needleImg) {
+        needleImg.src = 'assets/PortAccess/Yellow Needle Only Cropped.png';
+      }
+      const needleHint = document.getElementById('portNeedleDragHint');
+      if (needleHint) needleHint.style.display = 'none';
+
+      isDraggingPortTegaderm = false;
+      isPortTegadermApplied = false;
+      isTegadermOverPort = false;
+
+      const needleTubeLayer = document.getElementById('portNeedleWithTubeLayer');
+      if (needleTubeLayer) {
+        needleTubeLayer.style.display = 'none';
+        needleTubeLayer.style.opacity = '1';
+      }
+
+      const tegadermLayer = document.getElementById('portTegadermAppliedLayer');
+      if (tegadermLayer) {
+        tegadermLayer.style.display = 'none';
+        tegadermLayer.style.opacity = '1';
+      }
+
+      const tegadermItem = document.getElementById('portTegadermItem');
+      if (tegadermItem) {
+        tegadermItem.style.display = 'none';
+        tegadermItem.style.opacity = '1';
+        tegadermItem.style.transform = 'none';
+        tegadermItem.style.left = '63%';
+        tegadermItem.style.top = '48%';
+        tegadermItem.style.width = '15%';
+        tegadermItem.style.aspectRatio = '422 / 290';
+        tegadermItem.classList.remove('dragging', 'spring-back', 'over-port');
+      }
+      const tegadermHint = document.getElementById('portTegadermDragHint');
+      if (tegadermHint) tegadermHint.style.display = 'none';
     }
 
     function goToPortAccess() {
@@ -25991,6 +26333,8 @@
       const bandageItem = document.getElementById('portBandageItem');
       const bandageLayer = document.getElementById('portClearBandageLayer');
       const bandageHint = document.getElementById('portBandageDragHint');
+      const maskItem = document.getElementById('portMaskItem');
+      const maskLayer = document.getElementById('portPatientMaskLayer');
       const timerModal = document.getElementById('portTimerModal');
       const ointmentCanvas = document.getElementById('portOintmentCanvas');
       const victoryCard = document.getElementById('portVictoryCard');
@@ -26003,11 +26347,13 @@
         welcomePhase.style.display = 'block';
         welcomePhase.style.opacity = '1';
         welcomePhase.style.transform = 'none';
+        welcomePhase.style.transition = '';
       }
       if (chestPhase) {
         chestPhase.style.display = 'none';
         chestPhase.style.opacity = '0';
         chestPhase.style.transform = 'none';
+        chestPhase.style.transition = '';
       }
       if (patient) {
         patient.style.display = 'block';
@@ -26044,26 +26390,152 @@
         lmxTube.style.left = '62%';
         lmxTube.style.top = '52%';
         lmxTube.style.opacity = '1';
-        lmxTube.style.transform = '';
+        lmxTube.style.transform = 'none';
+        lmxTube.style.transition = '';
         lmxTube.classList.remove('dragging', 'squeezing', 'spring-back');
       }
       if (circle) circle.style.strokeDashoffset = '113.1';
       if (pctText) pctText.textContent = '0%';
       if (chestTarget) {
         chestTarget.style.display = 'flex';
-        chestTarget.classList.remove('hovered');
+        chestTarget.style.opacity = '1';
+        chestTarget.classList.remove('hovered', 'accessed');
+        const lbl = chestTarget.querySelector('.port-target-label');
+        if (lbl) lbl.textContent = 'Port Area';
       }
       if (bandageItem) {
         bandageItem.style.display = 'none';
         bandageItem.style.left = '63%';
         bandageItem.style.top = '50%';
         bandageItem.style.opacity = '1';
-        bandageItem.style.transform = '';
+        bandageItem.style.transform = 'none';
+        bandageItem.style.transition = '';
         bandageItem.classList.remove('dragging', 'spring-back');
       }
       if (bandageLayer) {
         bandageLayer.style.display = 'none';
         bandageLayer.style.opacity = '0';
+        bandageLayer.style.transition = '';
+        bandageLayer.classList.remove('port-bandage-peel-animation', 'removable');
+        bandageLayer.style.pointerEvents = 'none';
+        bandageLayer.style.cursor = 'default';
+        bandageLayer.style.transform = 'none';
+      }
+      if (maskItem) {
+        maskItem.style.display = 'none';
+        maskItem.style.left = '50%';
+        maskItem.style.top = '50%';
+        maskItem.style.opacity = '1';
+        maskItem.style.transform = 'translate(-50%, -50%)';
+        maskItem.classList.remove('disappearing');
+      }
+      if (maskLayer) {
+        maskLayer.style.display = 'none';
+        maskLayer.style.opacity = '0';
+      }
+      const gauzeItem = document.getElementById('portGauzeItem');
+      if (gauzeItem) {
+        gauzeItem.style.display = 'none';
+        gauzeItem.style.opacity = '1';
+        gauzeItem.style.transform = '';
+        gauzeItem.classList.remove('wiping', 'dragging', 'spring-back');
+      }
+      isDraggingPortGauze = false;
+      portGauzeSweepCount = 0;
+      portGauzeCursorSide = null;
+      portGauzeCursorSideY = null;
+      portGauzeLastX = 0;
+      portGauzeLastY = 0;
+      portGauzeAccumDist = 0;
+      isPortGauzeWipingComplete = false;
+      const gauzeHintEl = document.getElementById('portGauzeDragHint');
+      if (gauzeHintEl) gauzeHintEl.style.display = 'none';
+
+      isDraggingPortChloraprep = false;
+      isPortChloraprepComplete = false;
+      portChloraprepLastTipX = null;
+      portChloraprepLastTipY = null;
+      portChloraprepGrid = [];
+      const chloraItem = document.getElementById('portChloraprepItem');
+      if (chloraItem) {
+        chloraItem.style.display = 'none';
+        chloraItem.style.opacity = '1';
+        chloraItem.style.transform = '';
+        chloraItem.classList.remove('dragging', 'spring-back');
+      }
+      const chloraSquare = document.getElementById('portChloraprepSquare');
+      if (chloraSquare) {
+        chloraSquare.style.display = 'none';
+        chloraSquare.classList.remove('hovered', 'completed');
+        const label = chloraSquare.querySelector('.port-target-label');
+        if (label) label.textContent = "Dotted Square Area";
+      }
+      const chloraCanvas = document.getElementById('portChloraprepCanvas');
+      if (chloraCanvas) {
+        chloraCanvas.style.display = 'none';
+        chloraCanvas.style.opacity = '1';
+        chloraCanvas.style.transition = 'none';
+        const ctx = chloraCanvas.getContext('2d');
+        if (ctx) ctx.clearRect(0, 0, chloraCanvas.width, chloraCanvas.height);
+      }
+      const chloraHint = document.getElementById('portChloraprepDragHint');
+      if (chloraHint) chloraHint.style.display = 'none';
+
+      isDraggingPortNeedle = false;
+      isPortNeedleAccessed = false;
+      isNeedleOverPort = false;
+      const needleItem = document.getElementById('portNeedleItem');
+      if (needleItem) {
+        needleItem.style.display = 'none';
+        needleItem.style.opacity = '1';
+        needleItem.style.transform = 'none';
+        needleItem.style.left = '63.5%';
+        needleItem.style.top = '47%';
+        needleItem.style.width = '14%';
+        needleItem.style.aspectRatio = '241 / 214';
+        needleItem.classList.remove('dragging', 'spring-back', 'over-port', 'accessed');
+      }
+      const needleImg = document.getElementById('portNeedleImg');
+      if (needleImg) {
+        needleImg.src = 'assets/PortAccess/Yellow Needle Only Cropped.png';
+      }
+      const needleHint = document.getElementById('portNeedleDragHint');
+      if (needleHint) needleHint.style.display = 'none';
+
+      isDraggingPortTegaderm = false;
+      isPortTegadermApplied = false;
+      isTegadermOverPort = false;
+
+      const needleTubeLayer = document.getElementById('portNeedleWithTubeLayer');
+      if (needleTubeLayer) {
+        needleTubeLayer.style.display = 'none';
+        needleTubeLayer.style.opacity = '1';
+      }
+
+      const tegadermLayer = document.getElementById('portTegadermAppliedLayer');
+      if (tegadermLayer) {
+        tegadermLayer.style.display = 'none';
+        tegadermLayer.style.opacity = '1';
+      }
+
+      const tegadermItem = document.getElementById('portTegadermItem');
+      if (tegadermItem) {
+        tegadermItem.style.display = 'none';
+        tegadermItem.style.opacity = '1';
+        tegadermItem.style.transform = 'none';
+        tegadermItem.style.left = '63%';
+        tegadermItem.style.top = '48%';
+        tegadermItem.style.width = '15%';
+        tegadermItem.style.aspectRatio = '422 / 290';
+        tegadermItem.classList.remove('dragging', 'spring-back', 'over-port');
+      }
+      const tegadermHint = document.getElementById('portTegadermDragHint');
+      if (tegadermHint) tegadermHint.style.display = 'none';
+      const tapPromptEl = document.getElementById('portBandageTapPrompt');
+      if (tapPromptEl) {
+        tapPromptEl.style.display = 'none';
+        tapPromptEl.style.opacity = '1';
+        tapPromptEl.style.transform = 'translate(-50%, -50%)';
       }
       if (bandageHint) bandageHint.style.display = 'flex';
       if (timerModal) {
@@ -26077,10 +26549,16 @@
       }
       if (ointmentCanvas) {
         ointmentCanvas.style.display = 'none';
+        ointmentCanvas.style.opacity = '1';
+        ointmentCanvas.style.transition = 'none';
         const ctx = ointmentCanvas.getContext('2d');
         if (ctx) ctx.clearRect(0, 0, ointmentCanvas.width, ointmentCanvas.height);
       }
-      if (victoryCard) victoryCard.style.display = 'none';
+      if (victoryCard) {
+        victoryCard.classList.remove('visible');
+        victoryCard.style.display = 'none';
+      }
+      stopPortConfetti();
 
       setPortAccessPrompt("Welcome! Today we are helping our patient get ready for their first port access.");
 
@@ -26113,8 +26591,30 @@
       } else if (portAccessCurrentStep === 'gown_changed') {
         if (Date.now() - portGownChangeTime < 2500) return;
         transitionToPortChestScreen();
+      } else if (portAccessCurrentStep === 'lmx_ready' || portAccessCurrentStep === 'lmx_dragging' || portAccessCurrentStep === 'lmx_snapped') {
+        setPortAccessPrompt("Drag the numbing ointment over the chest port and hold to squeeze out some cream.");
       } else if (portAccessCurrentStep === 'bandage') {
         applyBandageToPort();
+      } else if (portAccessCurrentStep === 'bandage_remove') {
+        removePortBandage();
+      } else if (portAccessCurrentStep === 'mask_step') {
+        applyPortMask();
+      } else if (portAccessCurrentStep === 'gauze_ready' || portAccessCurrentStep === 'gauze_dragging') {
+        setPortAccessPrompt("Drag the gauze over the port and wipe back and forth to dry it!");
+      } else if (portAccessCurrentStep === 'chloraprep_ready' || portAccessCurrentStep === 'chloraprep_dragging') {
+        setPortAccessPrompt("Drag the ChloraPrep over the port and color in the dotted square!");
+      } else if (portAccessCurrentStep === 'needle_ready' || portAccessCurrentStep === 'needle_dragging') {
+        if (isNeedleOverPort) {
+          accessPortWithNeedle();
+        } else {
+          setPortAccessPrompt("Drag the needle over the port and tap to access!");
+        }
+      } else if (portAccessCurrentStep === 'tegaderm_ready' || portAccessCurrentStep === 'tegaderm_dragging') {
+        if (isTegadermOverPort) {
+          applyPortTegaderm();
+        } else {
+          setPortAccessPrompt("Drag the clear Tegaderm bandage over the port to keep it safe!");
+        }
       }
     }
 
@@ -26127,8 +26627,30 @@
         // Prevent click right after dropping gown from skipping the pause
         if (Date.now() - portGownChangeTime < 3000) return;
         transitionToPortChestScreen();
+      } else if (portAccessCurrentStep === 'lmx_ready' || portAccessCurrentStep === 'lmx_dragging' || portAccessCurrentStep === 'lmx_snapped') {
+        setPortAccessPrompt("Drag the numbing ointment over the chest port and hold to squeeze out some cream.");
       } else if (portAccessCurrentStep === 'bandage') {
         applyBandageToPort();
+      } else if (portAccessCurrentStep === 'bandage_remove') {
+        removePortBandage();
+      } else if (portAccessCurrentStep === 'mask_step') {
+        applyPortMask();
+      } else if (portAccessCurrentStep === 'gauze_ready' || portAccessCurrentStep === 'gauze_dragging') {
+        setPortAccessPrompt("Drag the gauze over the port and wipe back and forth to dry it!");
+      } else if (portAccessCurrentStep === 'chloraprep_ready' || portAccessCurrentStep === 'chloraprep_dragging') {
+        setPortAccessPrompt("Drag the ChloraPrep over the port and color in the dotted square!");
+      } else if (portAccessCurrentStep === 'needle_ready' || portAccessCurrentStep === 'needle_dragging') {
+        if (isNeedleOverPort) {
+          accessPortWithNeedle();
+        } else {
+          setPortAccessPrompt("Drag the needle over the port and tap to access!");
+        }
+      } else if (portAccessCurrentStep === 'tegaderm_ready' || portAccessCurrentStep === 'tegaderm_dragging') {
+        if (isTegadermOverPort) {
+          applyPortTegaderm();
+        } else {
+          setPortAccessPrompt("Drag the clear Tegaderm bandage over the port to keep it safe!");
+        }
       }
     }
 
@@ -26150,36 +26672,7 @@
     }
 
     function spawnPortSparkles(container, count = 16, customColors = null) {
-      if (!container) return;
-      const colors = customColors || ['#38bdf8', '#34d399', '#facc15', '#a855f7', '#ffffff'];
-      for (let i = 0; i < count; i++) {
-        const spark = document.createElement('div');
-        spark.className = 'confetti-sparkle-star';
-        const size = Math.floor(Math.random() * 14 + 10);
-        spark.style.width = size + 'px';
-        spark.style.height = size + 'px';
-        spark.style.position = 'absolute';
-        spark.style.left = (Math.random() * 80 + 10) + '%';
-        spark.style.top = (Math.random() * 80 + 10) + '%';
-        spark.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-        spark.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
-        spark.style.transform = `scale(0) rotate(${Math.random() * 360}deg)`;
-        spark.style.transition = 'all 0.6s cubic-bezier(0.2, 0.9, 0.3, 1)';
-        spark.style.pointerEvents = 'none';
-        spark.style.zIndex = '30';
-        container.appendChild(spark);
-
-        requestAnimationFrame(() => {
-          spark.style.transform = `scale(${Math.random() * 0.8 + 0.6}) translate(${(Math.random() - 0.5) * 80}px, ${(Math.random() - 0.5) * 80}px) rotate(${Math.random() * 360}deg)`;
-          spark.style.opacity = '1';
-        });
-
-        setTimeout(() => {
-          spark.style.opacity = '0';
-          spark.style.transform += ' scale(0.2)';
-          setTimeout(() => { if (spark.parentNode) spark.parentNode.removeChild(spark); }, 400);
-        }, 700 + Math.random() * 300);
-      }
+      // Confetti and confetti-sparkle-star particles completely removed
     }
 
     // Sequence 2: Folded Gown on Stool
@@ -26423,20 +26916,34 @@
       const chestTarget = document.getElementById('portChestTargetZone');
       const circle = document.getElementById('portSqueezeCircle');
       const pctText = document.getElementById('portSqueezePct');
+      const ointmentCanvas = document.getElementById('portOintmentCanvas');
+
       if (circle) circle.style.strokeDashoffset = '113.1';
       if (pctText) pctText.textContent = '0%';
+
+      if (ointmentCanvas) {
+        ointmentCanvas.style.display = 'none';
+        ointmentCanvas.style.opacity = '1';
+        ointmentCanvas.style.transition = 'none';
+        const ctx = ointmentCanvas.getContext('2d');
+        if (ctx) ctx.clearRect(0, 0, ointmentCanvas.width, ointmentCanvas.height);
+      }
 
       if (lmxTube) {
         lmxTube.style.display = 'block';
         lmxTube.style.left = '62%';
         lmxTube.style.top = '52%';
         lmxTube.style.opacity = '1';
-        lmxTube.style.transform = '';
+        lmxTube.style.transform = 'none';
+        lmxTube.style.transition = '';
         lmxTube.classList.remove('squeezing', 'dragging', 'spring-back');
       }
       if (chestTarget) {
         chestTarget.style.display = 'flex';
-        chestTarget.classList.remove('hovered');
+        chestTarget.style.opacity = '1';
+        chestTarget.classList.remove('hovered', 'accessed');
+        const lbl = chestTarget.querySelector('.port-target-label');
+        if (lbl) lbl.textContent = 'Port Area';
       }
 
       setPortAccessPrompt("Drag the numbing ointment over the chest port and hold to squeeze out some cream.");
@@ -26446,7 +26953,7 @@
     }
 
     function preloadPortOintmentImages() {
-      if (!portOintmentImgObj) {
+      if (!portOintmentImgObj || !portOintmentImgObj.src) {
         portOintmentImgObj = new Image();
         portOintmentImgObj.src = 'assets/PortAccess/Ointment.png';
       }
@@ -26465,6 +26972,10 @@
         gownPreload.src = 'assets/PortAccess/Chest Gown.png';
         const clPreload = new Image();
         clPreload.src = 'assets/PortAccess/Clear Bandage.png';
+        const maskPreload = new Image();
+        maskPreload.src = 'assets/PortAccess/Mask On Pt.png';
+        const maskCroppedPreload = new Image();
+        maskCroppedPreload.src = 'assets/PortAccess/Mask Cropped.png';
         portTimerFrames.forEach(src => {
           const tImg = new Image();
           tImg.src = src;
@@ -26485,6 +26996,10 @@
       const stage = document.getElementById('portAccessStage');
       const chestTarget = document.getElementById('portChestTargetZone');
       if (!item || !stage) return;
+
+      if (window._activePortLMXCleanup) {
+        window._activePortLMXCleanup();
+      }
 
       isDraggingPortLMX = true;
       portAccessCurrentStep = 'lmx_dragging';
@@ -26510,6 +27025,14 @@
       if (isPortOverPort) {
         startPortSqueezing();
       }
+
+      function cleanupLMXListeners() {
+        window.removeEventListener('pointermove', onPointerMove);
+        window.removeEventListener('pointerup', onPointerUp);
+        window.removeEventListener('pointercancel', onPointerUp);
+        window._activePortLMXCleanup = null;
+      }
+      window._activePortLMXCleanup = cleanupLMXListeners;
 
       function onPointerMove(ev) {
         if (!isDraggingPortLMX) return;
@@ -26555,9 +27078,11 @@
         isDraggingPortLMX = false;
         item.classList.remove('dragging');
 
-        window.removeEventListener('pointermove', onPointerMove);
-        window.removeEventListener('pointerup', onPointerUp);
-        window.removeEventListener('pointercancel', onPointerUp);
+        cleanupLMXListeners();
+
+        if (item && ev && ev.pointerId) {
+          try { item.releasePointerCapture(ev.pointerId); } catch (err) {}
+        }
 
         stopPortSqueezing();
 
@@ -26576,12 +27101,12 @@
           item.classList.add('spring-back');
           item.style.left = '62%';
           item.style.top = '52%';
-          setTimeout(() => {
+          portAccessTimers.push(setTimeout(() => {
             if (item) {
               item.classList.remove('spring-back');
               item.style.transition = '';
             }
-          }, 450);
+          }, 450));
           isPortOverPort = false;
           if (chestTarget) chestTarget.classList.remove('hovered');
           portAccessCurrentStep = 'lmx_ready';
@@ -26650,6 +27175,8 @@
       const canvas = document.getElementById('portOintmentCanvas');
       if (!canvas) return;
       canvas.style.display = 'block';
+      canvas.style.opacity = '1';
+      canvas.style.transition = 'none';
       const ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -26687,12 +27214,14 @@
         item.style.transition = 'all 0.5s cubic-bezier(0.2, 0.9, 0.3, 1)';
         item.style.transform = 'translateY(60px) scale(0.85)';
         item.style.opacity = '0';
-        setTimeout(() => { if (item) item.style.display = 'none'; }, 520);
+        portAccessTimers.push(setTimeout(() => { if (item) item.style.display = 'none'; }, 520));
       }
 
       // Draw full solid Ointment.png on canvas, centered directly over port area shrunk by 20%
       if (canvas && portOintmentImgObj) {
         canvas.style.display = 'block';
+        canvas.style.opacity = '1';
+        canvas.style.transition = 'none';
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         const s = 0.64;
@@ -26981,8 +27510,7 @@
     }
 
     function finishPortTimerAnimation() {
-      if (portAccessCurrentStep === 'completed') return;
-      portAccessCurrentStep = 'completed';
+      if (portAccessCurrentStep === 'completed' || portAccessCurrentStep === 'bandage_remove' || portAccessCurrentStep === 'bandage_peeling') return;
 
       if (portTimerAnimId) {
         cancelAnimationFrame(portTimerAnimId);
@@ -26994,10 +27522,8 @@
       }
 
       const modal = document.getElementById('portTimerModal');
-      const victoryCard = document.getElementById('portVictoryCard');
-
-      // Fanfare audio
-      playPortYouDidItSound();
+      const bandageLayer = document.getElementById('portClearBandageLayer');
+      const tapPrompt = document.getElementById('portBandageTapPrompt');
 
       // Dismiss modal with smooth fade
       if (modal) {
@@ -27007,12 +27533,1366 @@
         }, 450);
       }
 
-      setPortAccessPrompt("Awesome job! 30 minutes have passed and your skin is nice and numb. You're all ready for your port access!");
+      // 30 minutes are up! Advance to bandage removal step
+      portAccessCurrentStep = 'bandage_remove';
+      setPortAccessPrompt("30 minutes have passed! Tap the clear bandage to remove it.");
 
-      // Display Victory Modal Card
+      // Reveal tap prompt over clear bandage and make layer clickable
       portAccessTimers.push(setTimeout(() => {
-        if (victoryCard) victoryCard.style.display = 'flex';
-      }, 650));
+        if (portAccessCurrentStep !== 'bandage_remove') return;
+        if (tapPrompt) {
+          tapPrompt.style.display = 'flex';
+          tapPrompt.style.opacity = '0';
+          tapPrompt.style.transform = 'translate(-50%, -50%) scale(0.85)';
+          void tapPrompt.offsetWidth;
+          tapPrompt.style.transition = 'opacity 0.35s ease, transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+          tapPrompt.style.opacity = '1';
+          tapPrompt.style.transform = 'translate(-50%, -50%) scale(1)';
+        }
+        if (bandageLayer) {
+          bandageLayer.classList.add('removable');
+        }
+      }, 500));
+    }
+
+    function removePortBandage(e) {
+      if (portAccessCurrentStep !== 'bandage_remove') return;
+      portAccessCurrentStep = 'bandage_peeling';
+
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      playPortBandageSound();
+
+      const tapPrompt = document.getElementById('portBandageTapPrompt');
+      const bandageLayer = document.getElementById('portClearBandageLayer');
+      const ointmentCanvas = document.getElementById('portOintmentCanvas');
+
+      if (tapPrompt) {
+        tapPrompt.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+        tapPrompt.style.opacity = '0';
+        tapPrompt.style.transform = 'translate(-50%, -50%) scale(0.85)';
+        setTimeout(() => { if (tapPrompt) tapPrompt.style.display = 'none'; }, 260);
+      }
+
+      if (bandageLayer) {
+        bandageLayer.classList.remove('removable');
+        bandageLayer.classList.add('port-bandage-peel-animation');
+      }
+
+      // Cream disappears once the clear bandage is taken off
+      if (ointmentCanvas) {
+        ointmentCanvas.style.transition = 'opacity 0.5s ease-out';
+        ointmentCanvas.style.opacity = '0';
+        portAccessTimers.push(setTimeout(() => {
+          ointmentCanvas.style.display = 'none';
+          ointmentCanvas.style.opacity = '1';
+          ointmentCanvas.style.transition = 'none';
+          const ctx = ointmentCanvas.getContext('2d');
+          if (ctx) ctx.clearRect(0, 0, ointmentCanvas.width, ointmentCanvas.height);
+        }, 550));
+      }
+
+      setPortAccessPrompt("Awesome job! You peeled off the bandage.");
+
+      portAccessTimers.push(setTimeout(() => {
+        if (bandageLayer) {
+          bandageLayer.style.display = 'none';
+          bandageLayer.style.opacity = '0';
+          bandageLayer.classList.remove('port-bandage-peel-animation');
+          bandageLayer.style.pointerEvents = 'none';
+          bandageLayer.style.cursor = 'default';
+        }
+
+        // Transition to mask step
+        showPortMaskStep();
+      }, 750));
+    }
+
+    function showPortMaskStep() {
+      portAccessCurrentStep = 'mask_step';
+      setPortAccessPrompt("Tap the mask to keep you and your patient safe!");
+
+      const maskItem = document.getElementById('portMaskItem');
+      if (maskItem) {
+        maskItem.classList.remove('disappearing');
+        maskItem.style.display = 'block';
+        maskItem.style.opacity = '0';
+        maskItem.style.transform = 'translate(-50%, -50%) scale(0.85)';
+        void maskItem.offsetWidth;
+        maskItem.style.transition = 'opacity 0.35s ease, transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        maskItem.style.opacity = '1';
+        maskItem.style.transform = 'translate(-50%, -50%) scale(1)';
+      }
+    }
+
+    function applyPortMask(e) {
+      if (portAccessCurrentStep !== 'mask_step') return;
+      portAccessCurrentStep = 'mask_applying';
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      playPortMaskSound();
+
+      const maskItem = document.getElementById('portMaskItem');
+      const maskLayer = document.getElementById('portPatientMaskLayer');
+
+      // 1. Immediately disappear the mask from middle of screen
+      if (maskItem) {
+        maskItem.classList.add('disappearing');
+        maskItem.style.opacity = '0';
+        maskItem.style.transform = 'translate(-50%, -50%) scale(0.8)';
+        setTimeout(() => {
+          if (maskItem) maskItem.style.display = 'none';
+        }, 180);
+      }
+
+      // 2. Reappear directly on patient's face
+      if (maskLayer) {
+        maskLayer.style.display = 'block';
+        maskLayer.style.opacity = '0';
+        void maskLayer.offsetWidth;
+        maskLayer.style.transition = 'opacity 0.25s ease';
+        maskLayer.style.opacity = '1';
+      }
+
+      setPortAccessPrompt("Great job putting on your mask to stay safe!");
+
+      // Transition to gauze drying step after brief admire pause
+      portAccessTimers.push(setTimeout(() => {
+        showPortGauzeStep();
+      }, 850));
+    }
+
+    // Sequence 9: Gauze Pad Wipe to Ensure Port Area is Dry
+    function showPortGauzeStep() {
+      portAccessCurrentStep = 'gauze_ready';
+      portGauzeSweepCount = 0;
+      portGauzeCursorSide = null;
+      portGauzeCursorSideY = null;
+      portGauzeAccumDist = 0;
+      portGauzeLastX = 0;
+      portGauzeLastY = 0;
+      isPortGauzeWipingComplete = false;
+
+      setPortAccessPrompt("Drag the gauze over the port and wipe back and forth to dry it!");
+
+      const chestTarget = document.getElementById('portChestTargetZone');
+      if (chestTarget) {
+        chestTarget.style.display = 'flex';
+        chestTarget.classList.remove('hovered');
+        const label = chestTarget.querySelector('.port-target-label');
+        if (label) label.textContent = "Wipe here";
+      }
+
+      const gauzeItem = document.getElementById('portGauzeItem');
+      if (gauzeItem) {
+        gauzeItem.classList.remove('wiping', 'dragging', 'spring-back');
+        gauzeItem.style.display = 'block';
+        gauzeItem.style.opacity = '0';
+        gauzeItem.style.transform = 'translate3d(0, 0, 0) scale(0.85)';
+        void gauzeItem.offsetWidth;
+        gauzeItem.style.transition = 'opacity 0.35s ease, transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        gauzeItem.style.opacity = '1';
+        gauzeItem.style.transform = 'translate3d(0, 0, 0) scale(1)';
+      }
+
+      const gauzeHint = document.getElementById('portGauzeDragHint');
+      if (gauzeHint) gauzeHint.style.display = 'flex';
+    }
+
+    function handlePortGauzeClick(e) {
+      if (portAccessCurrentStep !== 'gauze_ready' && portAccessCurrentStep !== 'gauze_dragging') return;
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      setPortAccessPrompt("Drag the gauze over the port and wipe back and forth to dry it!");
+    }
+
+    function startDragPortGauze(e) {
+      if (portAccessCurrentStep !== 'gauze_ready' && portAccessCurrentStep !== 'gauze_dragging') return;
+      if (isPortGauzeWipingComplete) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      const item = document.getElementById('portGauzeItem');
+      const stage = document.getElementById('portAccessStage');
+      if (!item || !stage) return;
+
+      const hint = document.getElementById('portGauzeDragHint');
+      if (hint) hint.style.display = 'none';
+
+      isDraggingPortGauze = true;
+      portAccessCurrentStep = 'gauze_dragging';
+      item.classList.add('dragging');
+      item.classList.remove('spring-back');
+      item.style.transition = 'none';
+
+      const startClientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+      const startClientY = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
+      let lastMoveX = startClientX;
+      let deltaX = 0;
+      let deltaY = 0;
+      let pivotAngle = 0;
+
+      if (e.target.setPointerCapture && e.pointerId !== undefined) {
+        try { e.target.setPointerCapture(e.pointerId); } catch (err) {}
+      }
+
+      let rAFId = null;
+
+      function onPointerMove(ev) {
+        if (!isDraggingPortGauze) return;
+        ev.preventDefault();
+
+        const curX = (ev.touches && ev.touches[0]) ? ev.touches[0].clientX : ev.clientX;
+        const curY = (ev.touches && ev.touches[0]) ? ev.touches[0].clientY : ev.clientY;
+
+        deltaX = curX - startClientX;
+        deltaY = curY - startClientY;
+
+        const moveDx = curX - lastMoveX;
+        lastMoveX = curX;
+        const targetPivot = Math.max(-16, Math.min(16, moveDx * 2.2));
+        pivotAngle = pivotAngle * 0.45 + targetPivot * 0.55;
+
+        if (!rAFId) {
+          rAFId = requestAnimationFrame(() => {
+            rAFId = null;
+            if (!isDraggingPortGauze) return;
+            item.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0) scale(1.08) rotate(${pivotAngle.toFixed(1)}deg)`;
+          });
+        }
+
+        checkCursorOverPortGauzeWipe(curX, curY);
+      }
+
+      function onPointerUp(ev) {
+        if (!isDraggingPortGauze) return;
+        isDraggingPortGauze = false;
+        if (rAFId) {
+          cancelAnimationFrame(rAFId);
+          rAFId = null;
+        }
+
+        window.removeEventListener('pointermove', onPointerMove);
+        window.removeEventListener('pointerup', onPointerUp);
+        window.removeEventListener('pointercancel', onPointerUp);
+
+        if (item && ev && ev.pointerId !== undefined) {
+          try { item.releasePointerCapture(ev.pointerId); } catch (err) {}
+        }
+
+        item.classList.remove('dragging');
+
+        if (isPortGauzeWipingComplete) return;
+
+        // Reset tracking crossing states when lifting finger before completion
+        portGauzeCursorSide = null;
+        portGauzeCursorSideY = null;
+        portGauzeAccumDist = 0;
+        portGauzeLastX = 0;
+        portGauzeLastY = 0;
+
+        const chestTarget = document.getElementById('portChestTargetZone');
+        if (chestTarget) chestTarget.classList.remove('hovered');
+
+        // Spring gauze back to its starting tray position
+        const gauzeHint = document.getElementById('portGauzeDragHint');
+        if (gauzeHint) gauzeHint.style.display = 'flex';
+
+        item.classList.add('spring-back');
+        item.style.transform = 'translate3d(0, 0, 0)';
+        setTimeout(() => {
+          if (item) {
+            item.classList.remove('spring-back');
+            item.style.transform = '';
+          }
+        }, 420);
+        portAccessCurrentStep = 'gauze_ready';
+        setPortAccessPrompt("Drag the gauze over the port and wipe back and forth to dry it!");
+      }
+
+      window.addEventListener('pointermove', onPointerMove, { passive: false });
+      window.addEventListener('pointerup', onPointerUp);
+      window.addEventListener('pointercancel', onPointerUp);
+    }
+
+    function checkCursorOverPortGauzeWipe(cursorX, cursorY) {
+      if (isPortGauzeWipingComplete) return;
+
+      const stage = document.getElementById('portAccessStage');
+      const chestTarget = document.getElementById('portChestTargetZone');
+      if (!stage) return;
+
+      const stageRect = stage.getBoundingClientRect();
+      const portCenterX = stageRect.left + stageRect.width * 0.4253;
+      const portCenterY = stageRect.top + stageRect.height * 0.3984;
+
+      const horizDist = Math.abs(cursorX - portCenterX);
+      const vertDist = Math.abs(cursorY - portCenterY);
+      const maxHoriz = Math.max(stageRect.width * 0.16, 90);
+      const maxVert = Math.max(stageRect.height * 0.16, 80);
+
+      const isOver = (horizDist <= maxHoriz && vertDist <= maxVert);
+
+      if (chestTarget) {
+        if (isOver) {
+          chestTarget.classList.add('hovered');
+        } else {
+          chestTarget.classList.remove('hovered');
+        }
+      }
+
+      if (!isOver) {
+        portGauzeCursorSide = null;
+        portGauzeCursorSideY = null;
+        portGauzeAccumDist = 0;
+        portGauzeLastX = 0;
+        portGauzeLastY = 0;
+        return;
+      }
+
+      const deadbandX = Math.max(24, stageRect.width * 0.038);
+      const deadbandY = Math.max(24, stageRect.height * 0.038);
+
+      // 1. Horizontal crossing across port center
+      if (portGauzeCursorSide === null) {
+        if (cursorX < portCenterX - deadbandX) portGauzeCursorSide = 'left';
+        else if (cursorX > portCenterX + deadbandX) portGauzeCursorSide = 'right';
+      } else if (portGauzeCursorSide === 'left' && cursorX > portCenterX + deadbandX) {
+        portGauzeCursorSide = 'right';
+        registerPortGauzeSweep();
+      } else if (portGauzeCursorSide === 'right' && cursorX < portCenterX - deadbandX) {
+        portGauzeCursorSide = 'left';
+        registerPortGauzeSweep();
+      }
+
+      // 2. Vertical crossing across port center
+      if (portGauzeCursorSideY === null) {
+        if (cursorY < portCenterY - deadbandY) portGauzeCursorSideY = 'top';
+        else if (cursorY > portCenterY + deadbandY) portGauzeCursorSideY = 'bottom';
+      } else if (portGauzeCursorSideY === 'top' && cursorY > portCenterY + deadbandY) {
+        portGauzeCursorSideY = 'bottom';
+        registerPortGauzeSweep();
+      } else if (portGauzeCursorSideY === 'bottom' && cursorY < portCenterY - deadbandY) {
+        portGauzeCursorSideY = 'top';
+        registerPortGauzeSweep();
+      }
+
+      // 3. Cumulative scrub distance (for circular scrubbing in place)
+      if (portGauzeLastX !== 0 && portGauzeLastY !== 0) {
+        const stepDist = Math.hypot(cursorX - portGauzeLastX, cursorY - portGauzeLastY);
+        if (stepDist > 2 && stepDist < 120) {
+          portGauzeAccumDist += stepDist;
+          if (portGauzeAccumDist >= 240) {
+            portGauzeAccumDist = 0;
+            registerPortGauzeSweep();
+          }
+        }
+      }
+      portGauzeLastX = cursorX;
+      portGauzeLastY = cursorY;
+    }
+
+    function registerPortGauzeSweep() {
+      if (isPortGauzeWipingComplete || portGauzeSweepCount >= TOTAL_PORT_GAUZE_SWEEPS) return;
+      
+      const now = Date.now();
+      // Debounce sweeps by at least 400ms so a single quick pass cannot register more than 1 wipe!
+      if (now - portGauzeLastSweepTime < 400) return;
+      portGauzeLastSweepTime = now;
+      portGauzeSweepCount++;
+
+      playPortClothWipeSound();
+
+      const chestFX = document.getElementById('portChestFXContainer');
+      if (chestFX) spawnPortSparkles(chestFX, 6);
+
+      const chestTarget = document.getElementById('portChestTargetZone');
+      const label = chestTarget ? chestTarget.querySelector('.port-target-label') : null;
+      const pct = Math.min(100, Math.round((portGauzeSweepCount / TOTAL_PORT_GAUZE_SWEEPS) * 100));
+
+      if (label) {
+        label.textContent = `Wiping to dry... ${pct}%`;
+      }
+
+      if (portGauzeSweepCount === 1) {
+        setPortAccessPrompt("Good wipe! Wipe back again to dry the port.");
+      } else if (portGauzeSweepCount === 2) {
+        setPortAccessPrompt("Keep wiping back and forth to dry it completely!");
+      } else if (portGauzeSweepCount === 3) {
+        setPortAccessPrompt("One more wipe across the port!");
+      } else if (portGauzeSweepCount >= TOTAL_PORT_GAUZE_SWEEPS) {
+        isPortGauzeWipingComplete = true;
+        if (label) label.textContent = "Dry & Ready!";
+        setPortAccessPrompt("Great job! The port area is clean and dry.");
+        completePortGauzeStep();
+      }
+    }
+
+    function completePortGauzeStep() {
+      if (portAccessCurrentStep === 'chloraprep_ready' || portAccessCurrentStep === 'chloraprep_dragging' || portAccessCurrentStep === 'completed') return;
+      portAccessCurrentStep = 'gauze_completed';
+
+      const gauzeItem = document.getElementById('portGauzeItem');
+      const gauzeHint = document.getElementById('portGauzeDragHint');
+      const chestTarget = document.getElementById('portChestTargetZone');
+      const chestFX = document.getElementById('portChestFXContainer');
+
+      if (gauzeHint) gauzeHint.style.display = 'none';
+      if (chestTarget) {
+        chestTarget.style.display = 'none';
+        chestTarget.classList.remove('hovered');
+      }
+
+      if (gauzeItem) {
+        gauzeItem.classList.remove('dragging', 'spring-back');
+        gauzeItem.style.transition = 'opacity 0.4s ease, transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1)';
+        gauzeItem.style.opacity = '0';
+        gauzeItem.style.transform = 'scale(0.85)';
+        setTimeout(() => {
+          if (gauzeItem) gauzeItem.style.display = 'none';
+        }, 420);
+      }
+
+      if (chestFX) spawnPortSparkles(chestFX, 16);
+      playPortClothWipeSound();
+      setPortAccessPrompt("The port is dry! Next, let's prep the area with ChloraPrep to disinfect.");
+
+      portAccessTimers.push(setTimeout(() => {
+        showPortChloraprepStep();
+      }, 850));
+    }
+
+    // Sequence 10: ChloraPrep Antiseptic Disinfection (Color in dotted square over port)
+    function showPortChloraprepStep() {
+      portAccessCurrentStep = 'chloraprep_ready';
+      isDraggingPortChloraprep = false;
+      isPortChloraprepComplete = false;
+      portChloraprepLastTipX = null;
+      portChloraprepLastTipY = null;
+      portChloraprepGrid = new Array(CHLORAPREP_GRID_COLS * CHLORAPREP_GRID_ROWS).fill(false);
+
+      setPortAccessPrompt("Use the ChloraPrep to color in the whole dotted square over the port!");
+
+      const square = document.getElementById('portChloraprepSquare');
+      if (square) {
+        square.style.display = 'flex';
+        square.classList.remove('hovered', 'completed');
+        const label = square.querySelector('.port-target-label');
+        if (label) label.textContent = "Color in whole square";
+      }
+
+      const canvas = document.getElementById('portChloraprepCanvas');
+      if (canvas) {
+        canvas.style.display = 'block';
+        const ctx = canvas.getContext('2d');
+        if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+
+      const item = document.getElementById('portChloraprepItem');
+      if (item) {
+        item.classList.remove('dragging', 'spring-back');
+        item.style.display = 'block';
+        item.style.opacity = '0';
+        item.style.transform = 'translate3d(0, 0, 0) scale(0.85)';
+        void item.offsetWidth;
+        item.style.transition = 'opacity 0.35s ease, transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        item.style.opacity = '1';
+        item.style.transform = 'translate3d(0, 0, 0) scale(1)';
+      }
+
+      const hint = document.getElementById('portChloraprepDragHint');
+      if (hint) hint.style.display = 'flex';
+    }
+
+    function handlePortChloraprepClick(e) {
+      if (portAccessCurrentStep !== 'chloraprep_ready' && portAccessCurrentStep !== 'chloraprep_dragging') return;
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      setPortAccessPrompt("Drag the ChloraPrep over the port and color in the dotted square!");
+    }
+
+    function startDragPortChloraprep(e) {
+      if (portAccessCurrentStep !== 'chloraprep_ready' && portAccessCurrentStep !== 'chloraprep_dragging') return;
+      if (isPortChloraprepComplete) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      const item = document.getElementById('portChloraprepItem');
+      const stage = document.getElementById('portAccessStage');
+      if (!item || !stage) return;
+
+      const hint = document.getElementById('portChloraprepDragHint');
+      if (hint) hint.style.display = 'none';
+
+      isDraggingPortChloraprep = true;
+      portAccessCurrentStep = 'chloraprep_dragging';
+      item.classList.add('dragging');
+      item.classList.remove('spring-back');
+      item.style.transition = 'none';
+
+      const startClientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+      const startClientY = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
+      let lastMoveX = startClientX;
+      let deltaX = 0;
+      let deltaY = 0;
+      let pivotAngle = 0;
+
+      const itemRect0 = item.getBoundingClientRect();
+
+      if (e.target.setPointerCapture && e.pointerId !== undefined) {
+        try { e.target.setPointerCapture(e.pointerId); } catch (err) {}
+      }
+
+      let rAFId = null;
+
+      function onPointerMove(ev) {
+        if (!isDraggingPortChloraprep) return;
+        ev.preventDefault();
+
+        const curX = (ev.touches && ev.touches[0]) ? ev.touches[0].clientX : ev.clientX;
+        const curY = (ev.touches && ev.touches[0]) ? ev.touches[0].clientY : ev.clientY;
+
+        deltaX = curX - startClientX;
+        deltaY = curY - startClientY;
+
+        const moveDx = curX - lastMoveX;
+        lastMoveX = curX;
+        const targetPivot = Math.max(-14, Math.min(14, moveDx * 1.8));
+        pivotAngle = pivotAngle * 0.45 + targetPivot * 0.55;
+
+        if (!rAFId) {
+          rAFId = requestAnimationFrame(() => {
+            rAFId = null;
+            if (!isDraggingPortChloraprep) return;
+            item.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0) scale(1.08) rotate(${pivotAngle.toFixed(1)}deg)`;
+          });
+        }
+
+        // Calculate sponge tip location in 1366x1024 stage coordinates
+        // The sponge tip is at ~29.4% width, ~95.4% height of the applicator item
+        const stageRect = stage.getBoundingClientRect();
+        const curItemLeft = itemRect0.left + deltaX;
+        const curItemTop = itemRect0.top + deltaY;
+        const tipClientX = curItemLeft + itemRect0.width * 0.294;
+        const tipClientY = curItemTop + itemRect0.height * 0.954;
+
+        const tipStageX = ((tipClientX - stageRect.left) / stageRect.width) * 1366;
+        const tipStageY = ((tipClientY - stageRect.top) / stageRect.height) * 1024;
+
+        processChloraprepColoring(tipStageX, tipStageY);
+      }
+
+      function onPointerUp(ev) {
+        if (!isDraggingPortChloraprep) return;
+        isDraggingPortChloraprep = false;
+        if (rAFId) {
+          cancelAnimationFrame(rAFId);
+          rAFId = null;
+        }
+
+        window.removeEventListener('pointermove', onPointerMove);
+        window.removeEventListener('pointerup', onPointerUp);
+        window.removeEventListener('pointercancel', onPointerUp);
+
+        if (item && ev && ev.pointerId !== undefined) {
+          try { item.releasePointerCapture(ev.pointerId); } catch (err) {}
+        }
+
+        item.classList.remove('dragging');
+        portChloraprepLastTipX = null;
+        portChloraprepLastTipY = null;
+
+        if (isPortChloraprepComplete) return;
+
+        const square = document.getElementById('portChloraprepSquare');
+        if (square) square.classList.remove('hovered');
+
+        const hint = document.getElementById('portChloraprepDragHint');
+        if (hint) hint.style.display = 'flex';
+
+        item.classList.add('spring-back');
+        item.style.transform = 'translate3d(0, 0, 0)';
+        setTimeout(() => {
+          if (item) {
+            item.classList.remove('spring-back');
+            item.style.transform = '';
+          }
+        }, 420);
+        portAccessCurrentStep = 'chloraprep_ready';
+        setPortAccessPrompt("Keep coloring in the dotted square with ChloraPrep to disinfect!");
+      }
+
+      window.addEventListener('pointermove', onPointerMove, { passive: false });
+      window.addEventListener('pointerup', onPointerUp);
+      window.addEventListener('pointercancel', onPointerUp);
+    }
+
+    function processChloraprepColoring(tipX, tipY) {
+      if (isPortChloraprepComplete) return;
+
+      const square = document.getElementById('portChloraprepSquare');
+      const canvas = document.getElementById('portChloraprepCanvas');
+      if (!square || !canvas) return;
+
+      // Dotted square bounds in 1366x1024 stage coordinates
+      // Centered at x = 1366 * 0.4253 = 581, y = 1024 * 0.3984 = 408
+      // Width = 1366 * 0.24 = 328, Height = 328
+      const sqCenterX = 581;
+      const sqCenterY = 408;
+      const sqWidth = 328;
+      const sqHeight = 328;
+      const sqLeft = sqCenterX - sqWidth / 2; // 463
+      const sqRight = sqCenterX + sqWidth / 2; // 791
+      const sqTop = sqCenterY - sqHeight / 2; // 234
+      const sqBottom = sqCenterY + sqHeight / 2; // 562
+
+      const isInside = (tipX >= sqLeft && tipX <= sqRight && tipY >= sqTop && tipY <= sqBottom);
+
+      if (isInside) {
+        square.classList.add('hovered');
+      } else {
+        square.classList.remove('hovered');
+        portChloraprepLastTipX = null;
+        portChloraprepLastTipY = null;
+        return;
+      }
+
+      const prevX = (portChloraprepLastTipX !== null) ? portChloraprepLastTipX : tipX;
+      const prevY = (portChloraprepLastTipY !== null) ? portChloraprepLastTipY : tipY;
+      const dist = Math.hypot(tipX - prevX, tipY - prevY);
+
+      // Only draw if moved or starting point
+      if (portChloraprepLastTipX === null || dist >= 3) {
+        drawChloraprepTrailSegment(prevX, prevY, tipX, tipY, sqLeft, sqTop, sqWidth, sqHeight);
+        portChloraprepLastTipX = tipX;
+        portChloraprepLastTipY = tipY;
+
+        // Update grid coverage with larger brush radius
+        const cellW = sqWidth / CHLORAPREP_GRID_COLS;
+        const cellH = sqHeight / CHLORAPREP_GRID_ROWS;
+        const brushR = 56;
+
+        for (let r = 0; r < CHLORAPREP_GRID_ROWS; r++) {
+          for (let c = 0; c < CHLORAPREP_GRID_COLS; c++) {
+            const idx = r * CHLORAPREP_GRID_COLS + c;
+            if (!portChloraprepGrid[idx]) {
+              const cellCx = sqLeft + (c + 0.5) * cellW;
+              const cellCy = sqTop + (r + 0.5) * cellH;
+              if (Math.hypot(tipX - cellCx, tipY - cellCy) <= brushR) {
+                portChloraprepGrid[idx] = true;
+              }
+            }
+          }
+        }
+
+        // Sound & haptics throttled
+        const now = Date.now();
+        if (now - portChloraprepLastSoundTime > 190) {
+          portChloraprepLastSoundTime = now;
+          playPortWetWipeSound();
+          triggerHapticFeedback(false);
+          const chestFX = document.getElementById('portChestFXContainer');
+          if (chestFX && Math.random() < 0.35) spawnPortSparkles(chestFX, 2);
+        }
+
+        // Calculate percentage covered
+        const coveredCount = portChloraprepGrid.filter(Boolean).length;
+        const pct = Math.min(100, Math.round((coveredCount / portChloraprepGrid.length) * 100));
+
+        const label = square.querySelector('.port-target-label');
+        if (label) {
+          label.textContent = `Disinfecting... ${pct}%`;
+        }
+
+        // Require filling the whole area (>= 95% coverage) to complete!
+        if (pct >= 95) {
+          isPortChloraprepComplete = true;
+          if (label) label.textContent = "100% Fully Disinfected!";
+          setPortAccessPrompt("Great job! You completely filled in the whole area with ChloraPrep!");
+          completeChloraprepStep();
+        } else if (pct >= 85) {
+          setPortAccessPrompt("Almost done! Fill in all remaining spots in the square!");
+        } else if (pct >= 60) {
+          setPortAccessPrompt("Looking good! Keep coloring to fill the whole square!");
+        } else if (pct >= 30) {
+          setPortAccessPrompt("Color in the whole dotted square with ChloraPrep!");
+        }
+      }
+    }
+
+    function drawChloraprepTrailSegment(x0, y0, x1, y1, sqLeft, sqTop, sqWidth, sqHeight) {
+      const canvas = document.getElementById('portChloraprepCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      ctx.save();
+      ctx.beginPath();
+      if (typeof ctx.roundRect === 'function') {
+        ctx.roundRect(sqLeft, sqTop, sqWidth, sqHeight, 14);
+      } else {
+        ctx.rect(sqLeft, sqTop, sqWidth, sqHeight);
+      }
+      ctx.clip();
+
+      // Outer enlarged soft wash stroke
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x1, y1);
+      ctx.lineWidth = 110;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = 'rgba(238, 142, 102, 0.40)';
+      ctx.stroke();
+
+      // Core richer antiseptic stroke
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x1, y1);
+      ctx.lineWidth = 75;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = 'rgba(235, 128, 85, 0.32)';
+      ctx.stroke();
+
+      // Soft radial watercolor sponge dab at tip (enlarged)
+      const grad = ctx.createRadialGradient(x1, y1, 8, x1, y1, 60);
+      grad.addColorStop(0, 'rgba(235, 130, 88, 0.38)');
+      grad.addColorStop(0.65, 'rgba(240, 150, 110, 0.22)');
+      grad.addColorStop(1, 'rgba(240, 150, 110, 0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(x1, y1, 60, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Blend in the authentic texture of the enlarged ChloraPrep trail asset over painted strokes
+      if (portChloraprepTrailImg.complete && portChloraprepTrailImg.naturalWidth > 0) {
+        ctx.globalCompositeOperation = 'source-atop';
+        ctx.drawImage(portChloraprepTrailImg, 0, 0, canvas.width, canvas.height);
+        ctx.globalCompositeOperation = 'source-over';
+      }
+
+      ctx.restore();
+    }
+
+    function completeChloraprepStep() {
+      if (portAccessCurrentStep === 'chloraprep_drying' || portAccessCurrentStep === 'needle_ready' || portAccessCurrentStep === 'needle_dragging' || portAccessCurrentStep === 'completed') return;
+      portAccessCurrentStep = 'chloraprep_drying';
+
+      const square = document.getElementById('portChloraprepSquare');
+      const item = document.getElementById('portChloraprepItem');
+      const hint = document.getElementById('portChloraprepDragHint');
+      const canvas = document.getElementById('portChloraprepCanvas');
+
+      if (hint) hint.style.display = 'none';
+
+      if (square) {
+        square.classList.remove('hovered');
+        square.classList.add('completed');
+        const label = square.querySelector('.port-target-label');
+        if (label) label.textContent = "Disinfected & Clean!";
+        square.style.transition = 'opacity 1.2s ease';
+        setTimeout(() => {
+          if (square) square.style.opacity = '0';
+          setTimeout(() => {
+            if (square) square.style.display = 'none';
+          }, 1250);
+        }, 600);
+      }
+
+      if (item) {
+        item.classList.remove('dragging', 'spring-back');
+        item.style.transition = 'opacity 0.4s ease, transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1)';
+        item.style.opacity = '0';
+        item.style.transform = 'scale(0.85)';
+        setTimeout(() => {
+          if (item) item.style.display = 'none';
+        }, 420);
+      }
+
+      // Soften and fade the antiseptic color as it dries
+      if (canvas) {
+        canvas.style.transition = 'opacity 1.4s ease';
+        canvas.style.opacity = '0.35';
+      }
+
+      setPortAccessPrompt("Great job! Now let's let the antiseptic dry...");
+      playPortDryingSound();
+
+      portAccessTimers.push(setTimeout(() => {
+        showPortNeedleStep();
+      }, 1600));
+    }
+
+    function showPortNeedleStep() {
+      portAccessCurrentStep = 'needle_ready';
+      isDraggingPortNeedle = false;
+      isPortNeedleAccessed = false;
+      isNeedleOverPort = false;
+
+      const needleItem = document.getElementById('portNeedleItem');
+      const needleImg = document.getElementById('portNeedleImg');
+      const needleHint = document.getElementById('portNeedleDragHint');
+      const chestTarget = document.getElementById('portChestTargetZone');
+
+      if (needleImg) {
+        needleImg.src = 'assets/PortAccess/Yellow Needle Only Cropped.png';
+      }
+
+      if (needleItem) {
+        needleItem.style.display = 'block';
+        needleItem.style.left = '63.5%';
+        needleItem.style.top = '47%';
+        needleItem.style.width = '14%';
+        needleItem.style.aspectRatio = '241 / 214';
+        needleItem.style.transform = 'none';
+        needleItem.style.opacity = '0';
+        needleItem.style.transition = 'opacity 0.4s ease';
+        needleItem.classList.remove('dragging', 'spring-back', 'over-port', 'accessed');
+        requestAnimationFrame(() => {
+          if (needleItem) needleItem.style.opacity = '1';
+        });
+      }
+
+      if (needleHint) {
+        needleHint.style.display = 'flex';
+        const span = needleHint.querySelector('span');
+        if (span) span.textContent = 'Access Port';
+      }
+
+      if (chestTarget) {
+        chestTarget.style.display = 'flex';
+        chestTarget.style.opacity = '1';
+        chestTarget.classList.remove('hovered', 'accessed');
+        const lbl = chestTarget.querySelector('.port-target-label');
+        if (lbl) lbl.textContent = 'Port Target';
+      }
+
+      setPortAccessPrompt("Use the needle to access the port! Drag it over the port and tap to access.");
+      playPortBandageSound();
+    }
+
+    function handlePortNeedleClick(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      if (isPortNeedleAccessed) return;
+      if (isNeedleOverPort) {
+        accessPortWithNeedle();
+      } else {
+        setPortAccessPrompt("Drag the needle over the port and tap to access!");
+      }
+    }
+
+    function startDragPortNeedle(e) {
+      if (portAccessCurrentStep !== 'needle_ready' && portAccessCurrentStep !== 'needle_dragging') return;
+      if (isPortNeedleAccessed) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      const item = document.getElementById('portNeedleItem');
+      const img = document.getElementById('portNeedleImg');
+      const stage = document.getElementById('portAccessStage');
+      if (!item || !stage) return;
+
+      const hint = document.getElementById('portNeedleDragHint');
+      if (hint) hint.style.display = 'none';
+
+      // Switch to 90-degree back view when grabbed to orient directly to chest
+      if (img) {
+        img.src = 'assets/PortAccess/Yellow Needle Back Cropped.png';
+      }
+
+      isDraggingPortNeedle = true;
+      portAccessCurrentStep = 'needle_dragging';
+      item.classList.add('dragging');
+      item.classList.remove('spring-back');
+      item.style.transition = 'none';
+      item.style.width = '11.5%';
+      item.style.aspectRatio = '143 / 63';
+
+      const startClientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+      const startClientY = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
+      let deltaX = 0;
+      let deltaY = 0;
+
+      const itemRect0 = item.getBoundingClientRect();
+
+      if (e.target.setPointerCapture && e.pointerId !== undefined) {
+        try { e.target.setPointerCapture(e.pointerId); } catch (err) {}
+      }
+
+      let rAFId = null;
+
+      function onPointerMove(ev) {
+        if (!isDraggingPortNeedle) return;
+        ev.preventDefault();
+
+        const curX = (ev.touches && ev.touches[0]) ? ev.touches[0].clientX : ev.clientX;
+        const curY = (ev.touches && ev.touches[0]) ? ev.touches[0].clientY : ev.clientY;
+
+        deltaX = curX - startClientX;
+        deltaY = curY - startClientY;
+
+        if (!rAFId) {
+          rAFId = requestAnimationFrame(() => {
+            rAFId = null;
+            if (!isDraggingPortNeedle) return;
+            item.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0) scale(1.05)`;
+          });
+        }
+
+        // Check if needle center is over port target (Stage coords: 581, 408)
+        const stageRect = stage.getBoundingClientRect();
+        const curItemLeft = itemRect0.left + deltaX;
+        const curItemTop = itemRect0.top + deltaY;
+        const curItemW = itemRect0.width;
+        const curItemH = itemRect0.height;
+
+        const centerClientX = curItemLeft + curItemW / 2;
+        const centerClientY = curItemTop + curItemH / 2;
+
+        const stageCenterX = ((centerClientX - stageRect.left) / stageRect.width) * 1366;
+        const stageCenterY = ((centerClientY - stageRect.top) / stageRect.height) * 1024;
+
+        const dist = Math.hypot(stageCenterX - 581, stageCenterY - 408);
+        const chestTarget = document.getElementById('portChestTargetZone');
+
+        if (dist <= 105) {
+          isNeedleOverPort = true;
+          item.classList.add('over-port');
+          if (chestTarget) {
+            chestTarget.classList.add('hovered');
+            const lbl = chestTarget.querySelector('.port-target-label');
+            if (lbl) lbl.textContent = "Tap to Access!";
+          }
+          setPortAccessPrompt("Tap now to access the port with the needle!");
+        } else {
+          isNeedleOverPort = false;
+          item.classList.remove('over-port');
+          if (chestTarget) {
+            chestTarget.classList.remove('hovered');
+            const lbl = chestTarget.querySelector('.port-target-label');
+            if (lbl) lbl.textContent = "Port Target";
+          }
+          setPortAccessPrompt("Drag the needle over the port and tap to access!");
+        }
+      }
+
+      function onPointerUp(ev) {
+        if (!isDraggingPortNeedle) return;
+        isDraggingPortNeedle = false;
+        if (rAFId) {
+          cancelAnimationFrame(rAFId);
+          rAFId = null;
+        }
+
+        window.removeEventListener('pointermove', onPointerMove);
+        window.removeEventListener('pointerup', onPointerUp);
+        window.removeEventListener('pointercancel', onPointerUp);
+
+        if (item && ev && ev.pointerId !== undefined) {
+          try { item.releasePointerCapture(ev.pointerId); } catch (err) {}
+        }
+
+        if (isNeedleOverPort) {
+          accessPortWithNeedle();
+        } else {
+          portAccessCurrentStep = 'needle_ready';
+          item.classList.remove('dragging', 'over-port');
+          item.classList.add('spring-back');
+          item.style.width = '14%';
+          item.style.aspectRatio = '241 / 214';
+          item.style.transform = 'translate3d(0, 0, 0)';
+
+          setTimeout(() => {
+            if (portAccessCurrentStep === 'needle_ready') {
+              if (img) img.src = 'assets/PortAccess/Yellow Needle Only Cropped.png';
+              if (hint) hint.style.display = 'flex';
+            }
+          }, 320);
+
+          setPortAccessPrompt("Drag the needle over the port and tap to access!");
+        }
+      }
+
+      window.addEventListener('pointermove', onPointerMove, { passive: false });
+      window.addEventListener('pointerup', onPointerUp);
+      window.addEventListener('pointercancel', onPointerUp);
+    }
+
+    function accessPortWithNeedle() {
+      if (isPortNeedleAccessed) return;
+      isPortNeedleAccessed = true;
+      portAccessCurrentStep = 'needle_accessed';
+
+      const item = document.getElementById('portNeedleItem');
+      const hint = document.getElementById('portNeedleDragHint');
+      const chestTarget = document.getElementById('portChestTargetZone');
+
+      if (hint) hint.style.display = 'none';
+
+      if (item) {
+        item.style.display = 'none';
+        item.classList.remove('dragging', 'spring-back', 'over-port');
+      }
+
+      const needleTubeLayer = document.getElementById('portNeedleWithTubeLayer');
+      if (needleTubeLayer) {
+        needleTubeLayer.style.display = 'block';
+        needleTubeLayer.style.opacity = '0';
+        needleTubeLayer.style.transition = 'opacity 0.3s ease';
+        requestAnimationFrame(() => {
+          if (needleTubeLayer) needleTubeLayer.style.opacity = '1';
+        });
+      }
+
+      if (chestTarget) {
+        chestTarget.classList.remove('hovered');
+        chestTarget.classList.add('accessed');
+        const lbl = chestTarget.querySelector('.port-target-label');
+        if (lbl) lbl.textContent = "Port Accessed!";
+      }
+
+      playPortAccessClickSound();
+      triggerHapticFeedback(true);
+
+      setPortAccessPrompt("Awesome job! The port has been safely accessed!");
+
+      portAccessTimers.push(setTimeout(() => {
+        showPortTegadermStep();
+      }, 1400));
+    }
+
+    function showPortTegadermStep() {
+      portAccessCurrentStep = 'tegaderm_ready';
+      isDraggingPortTegaderm = false;
+      isPortTegadermApplied = false;
+      isTegadermOverPort = false;
+
+      const tegadermItem = document.getElementById('portTegadermItem');
+      const tegadermHint = document.getElementById('portTegadermDragHint');
+      const chestTarget = document.getElementById('portChestTargetZone');
+
+      if (tegadermItem) {
+        tegadermItem.style.display = 'block';
+        tegadermItem.style.left = '63%';
+        tegadermItem.style.top = '48%';
+        tegadermItem.style.width = '15%';
+        tegadermItem.style.aspectRatio = '422 / 290';
+        tegadermItem.style.transform = 'none';
+        tegadermItem.style.opacity = '0';
+        tegadermItem.style.transition = 'opacity 0.4s ease';
+        tegadermItem.classList.remove('dragging', 'spring-back', 'over-port');
+        requestAnimationFrame(() => {
+          if (tegadermItem) tegadermItem.style.opacity = '1';
+        });
+      }
+
+      if (tegadermHint) {
+        tegadermHint.style.display = 'flex';
+        const span = tegadermHint.querySelector('span');
+        if (span) span.textContent = 'Place Bandage';
+      }
+
+      if (chestTarget) {
+        chestTarget.style.display = 'flex';
+        chestTarget.style.opacity = '1';
+        chestTarget.classList.remove('hovered', 'accessed');
+        const lbl = chestTarget.querySelector('.port-target-label');
+        if (lbl) lbl.textContent = 'Bandage Area';
+      }
+
+      setPortAccessPrompt("Place the clear Tegaderm bandage over the port to keep everything safe!");
+      playPortBandageSound();
+    }
+
+    function handlePortTegadermClick(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      if (isPortTegadermApplied) return;
+      if (isTegadermOverPort) {
+        applyPortTegaderm();
+      } else {
+        setPortAccessPrompt("Drag the clear Tegaderm bandage over the port to secure it!");
+      }
+    }
+
+    function startDragPortTegaderm(e) {
+      if (portAccessCurrentStep !== 'tegaderm_ready' && portAccessCurrentStep !== 'tegaderm_dragging') return;
+      if (isPortTegadermApplied) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      const item = document.getElementById('portTegadermItem');
+      const stage = document.getElementById('portAccessStage');
+      if (!item || !stage) return;
+
+      const hint = document.getElementById('portTegadermDragHint');
+      if (hint) hint.style.display = 'none';
+
+      isDraggingPortTegaderm = true;
+      portAccessCurrentStep = 'tegaderm_dragging';
+      item.classList.add('dragging');
+      item.classList.remove('spring-back');
+      item.style.transition = 'none';
+
+      const startClientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+      const startClientY = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
+      let deltaX = 0;
+      let deltaY = 0;
+
+      const itemRect0 = item.getBoundingClientRect();
+
+      if (e.target.setPointerCapture && e.pointerId !== undefined) {
+        try { e.target.setPointerCapture(e.pointerId); } catch (err) {}
+      }
+
+      let rAFId = null;
+
+      function onPointerMove(ev) {
+        if (!isDraggingPortTegaderm) return;
+        ev.preventDefault();
+
+        const curX = (ev.touches && ev.touches[0]) ? ev.touches[0].clientX : ev.clientX;
+        const curY = (ev.touches && ev.touches[0]) ? ev.touches[0].clientY : ev.clientY;
+
+        deltaX = curX - startClientX;
+        deltaY = curY - startClientY;
+
+        if (!rAFId) {
+          rAFId = requestAnimationFrame(() => {
+            rAFId = null;
+            if (!isDraggingPortTegaderm) return;
+            item.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0) scale(1.05)`;
+          });
+        }
+
+        // Check if bandage center is over port target (Stage coords: 581, 408)
+        const stageRect = stage.getBoundingClientRect();
+        const curItemLeft = itemRect0.left + deltaX;
+        const curItemTop = itemRect0.top + deltaY;
+        const curItemW = itemRect0.width;
+        const curItemH = itemRect0.height;
+
+        const centerClientX = curItemLeft + curItemW / 2;
+        const centerClientY = curItemTop + curItemH / 2;
+
+        const stageCenterX = ((centerClientX - stageRect.left) / stageRect.width) * 1366;
+        const stageCenterY = ((centerClientY - stageRect.top) / stageRect.height) * 1024;
+
+        const dist = Math.hypot(stageCenterX - 581, stageCenterY - 408);
+        const chestTarget = document.getElementById('portChestTargetZone');
+
+        if (dist <= 110) {
+          isTegadermOverPort = true;
+          item.classList.add('over-port');
+          if (chestTarget) {
+            chestTarget.classList.add('hovered');
+            const lbl = chestTarget.querySelector('.port-target-label');
+            if (lbl) lbl.textContent = "Tap to Secure!";
+          }
+          setPortAccessPrompt("Tap now to place the clear bandage over the port!");
+        } else {
+          isTegadermOverPort = false;
+          item.classList.remove('over-port');
+          if (chestTarget) {
+            chestTarget.classList.remove('hovered');
+            const lbl = chestTarget.querySelector('.port-target-label');
+            if (lbl) lbl.textContent = "Bandage Area";
+          }
+          setPortAccessPrompt("Drag the clear Tegaderm bandage over the port and tap to secure it!");
+        }
+      }
+
+      function onPointerUp(ev) {
+        if (!isDraggingPortTegaderm) return;
+        isDraggingPortTegaderm = false;
+        if (rAFId) {
+          cancelAnimationFrame(rAFId);
+          rAFId = null;
+        }
+
+        window.removeEventListener('pointermove', onPointerMove);
+        window.removeEventListener('pointerup', onPointerUp);
+        window.removeEventListener('pointercancel', onPointerUp);
+
+        if (item && ev && ev.pointerId !== undefined) {
+          try { item.releasePointerCapture(ev.pointerId); } catch (err) {}
+        }
+
+        if (isTegadermOverPort) {
+          applyPortTegaderm();
+        } else {
+          portAccessCurrentStep = 'tegaderm_ready';
+          item.classList.remove('dragging', 'over-port');
+          item.classList.add('spring-back');
+          item.style.transform = 'translate3d(0, 0, 0)';
+
+          setTimeout(() => {
+            if (portAccessCurrentStep === 'tegaderm_ready') {
+              if (hint) hint.style.display = 'flex';
+            }
+          }, 320);
+
+          setPortAccessPrompt("Drag the clear Tegaderm bandage over the port and tap to secure it!");
+        }
+      }
+
+      window.addEventListener('pointermove', onPointerMove, { passive: false });
+      window.addEventListener('pointerup', onPointerUp);
+      window.addEventListener('pointercancel', onPointerUp);
+    }
+
+    function applyPortTegaderm() {
+      if (isPortTegadermApplied) return;
+      isPortTegadermApplied = true;
+      portAccessCurrentStep = 'completed';
+
+      const item = document.getElementById('portTegadermItem');
+      const hint = document.getElementById('portTegadermDragHint');
+      const chestTarget = document.getElementById('portChestTargetZone');
+      const victoryCard = document.getElementById('portVictoryCard');
+
+      if (hint) hint.style.display = 'none';
+
+      if (item) {
+        item.style.display = 'none';
+        item.classList.remove('dragging', 'spring-back', 'over-port');
+      }
+
+      const tegadermLayer = document.getElementById('portTegadermAppliedLayer');
+      if (tegadermLayer) {
+        tegadermLayer.style.display = 'block';
+        tegadermLayer.style.opacity = '0';
+        tegadermLayer.style.transition = 'opacity 0.35s ease';
+        requestAnimationFrame(() => {
+          if (tegadermLayer) tegadermLayer.style.opacity = '1';
+        });
+      }
+
+      if (chestTarget) {
+        chestTarget.style.display = 'none';
+        chestTarget.classList.remove('hovered', 'accessed');
+      }
+
+      playPortBandageSound();
+      triggerHapticFeedback(true);
+
+      setPortAccessPrompt("Wonderful job! The port is securely bandaged and safe!");
+
+      portAccessTimers.push(setTimeout(() => {
+        playPortYouDidItSound();
+      }, 400));
+
+      portAccessTimers.push(setTimeout(() => {
+        if (victoryCard) {
+          victoryCard.style.display = 'flex';
+          requestAnimationFrame(() => {
+            victoryCard.classList.add('visible');
+          });
+          startPortConfetti();
+        }
+      }, 1200));
+    }
+
+    function playPortAccessClickSound() {
+      if (isSoundMuted) return;
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = window._sharedAudioCtx || new AudioCtx();
+        window._sharedAudioCtx = ctx;
+
+        const now = ctx.currentTime;
+        const osc1 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        osc1.type = 'triangle';
+        osc1.frequency.setValueAtTime(1400, now);
+        osc1.frequency.exponentialRampToValueAtTime(320, now + 0.035);
+        gain1.gain.setValueAtTime(0.35, now);
+        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+        osc1.connect(gain1);
+        gain1.connect(ctx.destination);
+        osc1.start(now);
+        osc1.stop(now + 0.045);
+
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(950, now + 0.025);
+        osc2.frequency.exponentialRampToValueAtTime(220, now + 0.065);
+        gain2.gain.setValueAtTime(0.28, now + 0.025);
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.start(now + 0.025);
+        osc2.stop(now + 0.075);
+      } catch (e) {}
+    }
+
+    function playPortDryingSound() {
+      if (isSoundMuted) return;
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = window._sharedAudioCtx || new AudioCtx();
+        window._sharedAudioCtx = ctx;
+
+        const now = ctx.currentTime;
+        const notes = [783.99, 1046.50];
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+          osc.frequency.exponentialRampToValueAtTime(freq * 0.98, now + idx * 0.12 + 0.55);
+          gain.gain.setValueAtTime(0.14, now + idx * 0.12);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 0.55);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + idx * 0.12);
+          osc.stop(now + idx * 0.12 + 0.58);
+        });
+      } catch (e) {}
+    }
+
+    function playPortMaskSound() {
+      if (isSoundMuted) return;
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = window._sharedAudioCtx || new AudioCtx();
+        window._sharedAudioCtx = ctx;
+        // Sweet gentle chime notes (E5, A5, C#6)
+        const notes = [659.25, 880.00, 1108.73];
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          const start = ctx.currentTime + idx * 0.07;
+          gain.gain.setValueAtTime(0.18, start);
+          gain.gain.exponentialRampToValueAtTime(0.001, start + 0.5);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(start);
+          osc.stop(start + 0.52);
+        });
+      } catch (e) {}
     }
 
     // Audio Helpers for Port Access (Web Audio synth synthesis for 100% zero-asset reliability)
@@ -27212,21 +29092,21 @@
       if (!canvas) return;
       canvas.style.display = 'block';
       const ctx = canvas.getContext('2d');
-      const w = 1366;
-      const h = 1024;
+      if (!ctx) return;
+      const rect = canvas.getBoundingClientRect();
+      const w = Math.round(rect.width) || 1366;
+      const h = Math.round(rect.height) || 1024;
       canvas.width = w;
       canvas.height = h;
-
       const particles = [];
-      const particleCount = 110;
-      const colors = ['#38bdf8', '#a855f7', '#facc15', '#ffffff', '#34d399', '#f43f5e'];
-      for (let i = 0; i < particleCount; i++) {
+      const colors = ['#FF4D6D', '#FFB703', '#00C6FF', '#9D4EDD', '#06D6A0', '#FF9E00', '#48CAE4', '#38bdf8', '#34d399', '#f43f5e'];
+      for (let i = 0; i < 110; i++) {
         const isBurst = i < 50;
         const angle = isBurst ? Math.random() * Math.PI * 2 : 0;
         const speed = isBurst ? Math.random() * 16 + 6 : 0;
         particles.push({
-          x: isBurst ? 585 + (Math.random() - 0.5) * 160 : Math.random() * w,
-          y: isBurst ? 400 + (Math.random() - 0.5) * 160 : Math.random() * -h,
+          x: isBurst ? w / 2 + (Math.random() - 0.5) * 220 : Math.random() * w,
+          y: isBurst ? h / 2 + (Math.random() - 0.5) * 100 : Math.random() * -h,
           w: Math.random() * 12 + 8,
           h: Math.random() * 18 + 10,
           color: colors[Math.floor(Math.random() * colors.length)],
@@ -27240,7 +29120,6 @@
           wobbleSpeed: Math.random() * 0.09 + 0.03
         });
       }
-
       function render() {
         ctx.clearRect(0, 0, w, h);
         for (let i = 0; i < particles.length; i++) {
@@ -27251,7 +29130,6 @@
           p.y += p.vy;
           p.rotation += p.rotationSpeed;
           p.wobble += p.wobbleSpeed;
-
           if (p.y > h + 40) {
             p.y = -30;
             p.x = Math.random() * w;
@@ -27259,7 +29137,6 @@
             p.vx = (Math.random() - 0.5) * 2.5;
             p.drag = 0.99;
           }
-
           ctx.save();
           ctx.translate(p.x, p.y);
           ctx.rotate((p.rotation * Math.PI) / 180);
@@ -27270,7 +29147,6 @@
         }
         portConfettiAnimId = requestAnimationFrame(render);
       }
-
       if (portConfettiAnimId) cancelAnimationFrame(portConfettiAnimId);
       portConfettiAnimId = requestAnimationFrame(render);
     }
@@ -28858,79 +30734,8 @@
     }
 
     function startMRIStillConfetti() {
-      const canvas = document.getElementById('mriStillConfettiCanvas');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const w = 1366;
-      const h = 1024;
-      canvas.width = w;
-      canvas.height = h;
-
-      const particles = [];
-      const particleCount = 100;
-
-      for (let i = 0; i < particleCount; i++) {
-        const isBurst = i < 50;
-        const angle = isBurst ? Math.random() * Math.PI * 2 : 0;
-        const speed = isBurst ? Math.random() * 14 + 5 : 0;
-        particles.push({
-          x: isBurst ? w / 2 + (Math.random() - 0.5) * 220 : Math.random() * w,
-          y: isBurst ? h / 2 + (Math.random() - 0.5) * 90 : Math.random() * -h,
-          w: Math.random() * 12 + 10,
-          h: Math.random() * 20 + 12,
-          color: MASK_CONFETTI_COLORS[Math.floor(Math.random() * MASK_CONFETTI_COLORS.length)],
-          rotation: Math.random() * 360,
-          rotationSpeed: (Math.random() - 0.5) * 8,
-          vx: isBurst ? Math.cos(angle) * speed : (Math.random() - 0.5) * 2.5,
-          vy: isBurst ? Math.sin(angle) * speed - 2.5 : Math.random() * 3.2 + 2.5,
-          gravity: 0.18,
-          drag: isBurst ? 0.94 : 0.99,
-          wobble: Math.random() * Math.PI * 2,
-          wobbleSpeed: Math.random() * 0.09 + 0.03,
-          isCircle: Math.random() > 0.78
-        });
-      }
-
-      function render() {
-        ctx.clearRect(0, 0, w, h);
-
-        for (let i = 0; i < particles.length; i++) {
-          const p = particles[i];
-          p.vx *= p.drag;
-          p.vy = p.vy * p.drag + p.gravity;
-          p.x += p.vx + Math.sin(p.wobble) * 2;
-          p.y += p.vy;
-          p.rotation += p.rotationSpeed;
-          p.wobble += p.wobbleSpeed;
-
-          if (p.y > h + 40) {
-            p.y = -30;
-            p.x = Math.random() * w;
-            p.vy = Math.random() * 3.2 + 2.5;
-            p.vx = (Math.random() - 0.5) * 2.5;
-            p.drag = 0.99;
-          }
-
-          ctx.save();
-          ctx.translate(p.x, p.y);
-          ctx.rotate((p.rotation * Math.PI) / 180);
-          ctx.scale(Math.cos(p.wobble), 1);
-
-          ctx.fillStyle = p.color;
-          if (p.isCircle) {
-            ctx.beginPath();
-            ctx.arc(0, 0, p.w / 2, 0, Math.PI * 2);
-            ctx.fill();
-          } else {
-            ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-          }
-          ctx.restore();
-        }
-
-        mriStillConfettiAnimationId = requestAnimationFrame(render);
-      }
-
-      render();
+      // Confetti completely removed
+      stopMRIStillConfetti();
     }
 
     function stopMRIStillConfetti() {
@@ -29560,88 +31365,8 @@
     }
 
     function startMRIConfetti() {
-      const canvas = document.getElementById('mriConfettiCanvas');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const w = 1366;
-      const h = 1024;
-      canvas.width = w;
-      canvas.height = h;
-
-      const particles = [];
-      const particleCount = 110;
-
-      for (let i = 0; i < particleCount; i++) {
-        const isBurst = i < 55;
-        const angle = isBurst ? Math.random() * Math.PI * 2 : 0;
-        const speed = isBurst ? Math.random() * 14 + 5 : 0;
-        particles.push({
-          x: isBurst ? w / 2 + (Math.random() - 0.5) * 220 : Math.random() * w,
-          y: isBurst ? h / 2 + (Math.random() - 0.5) * 90 : Math.random() * -h,
-          w: Math.random() * 12 + 10,
-          h: Math.random() * 20 + 12,
-          color: MASK_CONFETTI_COLORS[Math.floor(Math.random() * MASK_CONFETTI_COLORS.length)],
-          rotation: Math.random() * 360,
-          rotationSpeed: (Math.random() - 0.5) * 8,
-          vx: isBurst ? Math.cos(angle) * speed : (Math.random() - 0.5) * 2.5,
-          vy: isBurst ? Math.sin(angle) * speed - 2.5 : Math.random() * 3.2 + 2.5,
-          gravity: 0.18,
-          drag: isBurst ? 0.94 : 0.99,
-          wobble: Math.random() * Math.PI * 2,
-          wobbleSpeed: Math.random() * 0.09 + 0.03,
-          isCircle: Math.random() > 0.78
-        });
-      }
-
-      function render() {
-        ctx.clearRect(0, 0, w, h);
-
-        for (let i = 0; i < particles.length; i++) {
-          const p = particles[i];
-          p.vx *= p.drag;
-          p.vy = p.vy * p.drag + p.gravity;
-          p.x += p.vx + Math.sin(p.wobble) * 2;
-          p.y += p.vy;
-          p.rotation += p.rotationSpeed;
-          p.wobble += p.wobbleSpeed;
-
-          if (p.y > h + 40) {
-            p.y = -30;
-            p.x = Math.random() * w;
-            p.vy = Math.random() * 3.2 + 2.5;
-            p.vx = (Math.random() - 0.5) * 2.5;
-            p.drag = 0.99;
-          }
-
-          ctx.save();
-          ctx.translate(p.x, p.y);
-          ctx.rotate((p.rotation * Math.PI) / 180);
-          ctx.scale(Math.cos(p.wobble), 1);
-
-          ctx.fillStyle = p.color;
-          if (p.isCircle) {
-            ctx.beginPath();
-            ctx.arc(0, 0, p.w / 2, 0, Math.PI * 2);
-            ctx.fill();
-          } else {
-            ctx.beginPath();
-            const rw = p.w;
-            const rh = p.h;
-            if (ctx.roundRect) {
-              ctx.roundRect(-rw / 2, -rh / 2, rw, rh, 3);
-            } else {
-              ctx.rect(-rw / 2, -rh / 2, rw, rh);
-            }
-            ctx.fill();
-          }
-          ctx.restore();
-        }
-
-        mriConfettiAnimationId = requestAnimationFrame(render);
-      }
-
-      if (mriConfettiAnimationId) cancelAnimationFrame(mriConfettiAnimationId);
-      mriConfettiAnimationId = requestAnimationFrame(render);
+      // Confetti completely removed
+      stopMRIConfetti();
     }
 
     function stopMRIConfetti() {
