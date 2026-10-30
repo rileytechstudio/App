@@ -572,7 +572,15 @@ def build_distribution():
 
     /* Port Access Procedure Overrides */
     #screenPortAccess {
-      background-color: #0b1a24 !important;
+      background: linear-gradient(180deg, #8e97a1 0%, #768492 100%) !important;
+    }
+
+    body:has(#screenPortAccess.active) {
+      background: #7d8b98 !important;
+    }
+
+    body:has(#screenPortAccess.active) .device-screen {
+      background: #7d8b98 !important;
     }
 
     #screenPortAccess.active {
