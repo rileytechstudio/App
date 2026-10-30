@@ -4732,25 +4732,30 @@
       touch-action: none;
       user-select: none;
       -webkit-user-select: none;
-      transition: transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1), filter 0.25s ease;
+      will-change: transform;
       filter: drop-shadow(0 0 16px rgba(168, 85, 247, 0.9)) drop-shadow(0 0 32px rgba(192, 132, 252, 0.6)) drop-shadow(0 6px 14px rgba(0,0,0,0.4));
-      animation: portLMXPopIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, portLMXGlow 2.4s infinite ease-in-out;
+      animation: portLMXGlow 2.4s infinite ease-in-out;
     }
 
     .port-lmx-tube-item.dragging {
       cursor: grabbing;
       z-index: 35;
-      transform: scale(1.08) rotate(-6deg);
-      animation: none;
-      transition: none;
+      transition: none !important;
+      will-change: transform;
       filter: drop-shadow(0 0 26px rgba(168, 85, 247, 1)) drop-shadow(0 0 44px rgba(192, 132, 252, 0.85)) drop-shadow(0 12px 22px rgba(0,0,0,0.5));
+    }
+
+    .port-lmx-tube-item.dragging img {
+      transform: scale(1.08) rotate(-6deg);
     }
 
     .port-lmx-tube-item.squeezing {
       cursor: grabbing;
-      transform: scale(0.92, 0.95) rotate(-5deg);
-      animation: portLMXSquish 0.28s infinite alternate ease-in-out;
       filter: drop-shadow(0 0 28px rgba(168, 85, 247, 1)) drop-shadow(0 0 46px rgba(192, 132, 252, 0.9)) drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+    }
+
+    .port-lmx-tube-item.squeezing img {
+      animation: portLMXSquish 0.28s infinite alternate ease-in-out;
     }
 
     .port-lmx-tube-item.spring-back {
@@ -4778,8 +4783,8 @@
     }
 
     @keyframes portLMXSquish {
-      0% { transform: scale(0.94, 0.97) rotate(-4deg); }
-      100% { transform: scale(0.89, 0.92) rotate(-7deg); }
+      0% { transform: scale(0.94, 0.97) rotate(-3deg); }
+      100% { transform: scale(0.89, 0.92) rotate(-6deg); }
     }
 
     .port-lmx-tube-item img {
@@ -4788,6 +4793,8 @@
       object-fit: contain;
       display: block;
       pointer-events: none;
+      transition: transform 0.18s cubic-bezier(0.2, 0.9, 0.3, 1);
+      animation: portLMXPopIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
     /* Hold to Squeeze Progress Indicator (compact pill matching IV prep) */
@@ -13287,7 +13294,7 @@
                   </div>
 
                   <!-- Layer 6: Draggable LMX Cream Tube (Matches IV Prep Ointment Tube Mechanics) -->
-                  <div id="portLMXTubeItem" class="port-lmx-tube-item" style="display: none;" onpointerdown="startDragPortLMX(event)" ontouchstart="startDragPortLMX(event)" onclick="handlePortLMXClick(event)">
+                  <div id="portLMXTubeItem" class="port-lmx-tube-item" style="display: none;" onpointerdown="startDragPortLMX(event)" onclick="handlePortLMXClick(event)">
                     <img src="assets/PortAccess/LMX Cropped.png" alt="LMX Numbing Cream Tube" draggable="false" loading="lazy" decoding="async" />
                     <!-- Squeeze Progress Indicator (compact pill matching IV prep) -->
                     <div class="port-squeeze-progress-wrap" id="portSqueezeProgressWrap">
@@ -25705,6 +25712,10 @@
       isPortOverPort = false;
       isPortSqueezing = false;
       portSqueezeProgress = 0;
+      portLMXDeltaX = 0;
+      portLMXDeltaY = 0;
+      portLMXBaseX = 0;
+      portLMXBaseY = 0;
       const lmxTube = document.getElementById('portLMXTubeItem');
       if (lmxTube) {
         lmxTube.style.display = 'none';
@@ -25899,6 +25910,10 @@
       isPortOverPort = false;
       isPortSqueezing = false;
       portSqueezeProgress = 0;
+      portLMXDeltaX = 0;
+      portLMXDeltaY = 0;
+      portLMXBaseX = 0;
+      portLMXBaseY = 0;
 
       const welcomePhase = document.getElementById('portWelcomePhase');
       const chestPhase = document.getElementById('portChestPhase');
@@ -26495,6 +26510,10 @@
       isPortOverPort = false;
       isPortSqueezing = false;
       portSqueezeProgress = 0;
+      portLMXDeltaX = 0;
+      portLMXDeltaY = 0;
+      portLMXBaseX = 0;
+      portLMXBaseY = 0;
       playPortBandageSound();
 
       const lmxTube = document.getElementById('portLMXTubeItem');
@@ -26568,50 +26587,55 @@
       } catch (e) {}
     }
 
-    // Drag LMX Tube & Squeeze Interaction (Matches IV Prep Ointment Mechanics)
     // Drag LMX Tube & Squeeze Interaction (Matches IV Prep Ointment Mechanics with full iPad touch support)
-    let portLMXCurrentDx = 0;
-    let portLMXCurrentDy = 0;
-    let lastPortLMXGestureTime = 0;
+    let portLMXDeltaX = 0;
+    let portLMXDeltaY = 0;
+    let portLMXBaseX = 0;
+    let portLMXBaseY = 0;
+    let lastPortLMXTapTime = 0;
 
-    function snapLMXToPort() {
-      if (portAccessCurrentStep !== 'lmx_ready' && portAccessCurrentStep !== 'lmx_snapped') return;
+    function snapLMXToPort(autoSqueeze = true) {
+      if (portAccessCurrentStep !== 'lmx_ready' && portAccessCurrentStep !== 'lmx_dragging' && portAccessCurrentStep !== 'lmx_snapped') return;
       const item = document.getElementById('portLMXTubeItem');
       const stage = document.getElementById('portAccessStage');
       const chestTarget = document.getElementById('portChestTargetZone');
-      if (!item || !stage) return;
+      if (!item || !stage || !chestTarget) return;
 
       const stageRect = stage.getBoundingClientRect();
-      const snapDx = -stageRect.width * 0.1796;
-      const snapDy = -stageRect.height * 0.1489;
-      portLMXCurrentDx = snapDx;
-      portLMXCurrentDy = snapDy;
+      const snapDx = -stageRect.width * 0.2236;
+      const snapDy = -stageRect.height * 0.1509;
 
-      item.style.left = '62%';
-      item.style.top = '52%';
+      portLMXDeltaX = snapDx;
+      portLMXDeltaY = snapDy;
+      portLMXBaseX = snapDx;
+      portLMXBaseY = snapDy;
+
       item.classList.remove('dragging', 'spring-back');
       item.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-      item.style.transform = `translate3d(${snapDx.toFixed(1)}px, ${snapDy.toFixed(1)}px, 0) scale(1.02) rotate(-5deg)`;
+      item.style.transform = `translate3d(${snapDx.toFixed(1)}px, ${snapDy.toFixed(1)}px, 0)`;
 
       isPortOverPort = true;
       portAccessCurrentStep = 'lmx_snapped';
-      if (chestTarget) chestTarget.classList.add('hovered');
+      chestTarget.classList.add('hovered');
       setPortAccessPrompt("Tap or hold the tube to squeeze out the cream!");
       playPortSwooshSound();
 
-      portAccessTimers.push(setTimeout(() => {
-        if (portAccessCurrentStep === 'lmx_snapped' && portSqueezeProgress < 100) {
-          startPortSqueezing();
-        }
-      }, 350));
+      if (autoSqueeze) {
+        portAccessTimers.push(setTimeout(() => {
+          if (portAccessCurrentStep === 'lmx_snapped' && portSqueezeProgress < 100) {
+            startPortSqueezing();
+          }
+        }, 380));
+      }
     }
 
     function handlePortLMXClick(e) {
       if (e) {
         try { e.stopPropagation(); } catch (err) {}
       }
+      if (Date.now() - lastPortLMXTapTime < 250) return;
       if (portAccessCurrentStep === 'lmx_ready') {
-        snapLMXToPort();
+        snapLMXToPort(true);
       } else if (portAccessCurrentStep === 'lmx_snapped') {
         if (!isPortSqueezing && portSqueezeProgress < 100) {
           startPortSqueezing();
@@ -26619,23 +26643,65 @@
       }
     }
 
+    function checkPortLMXCollision() {
+      const item = document.getElementById('portLMXTubeItem');
+      const chestTarget = document.getElementById('portChestTargetZone');
+      if (!item || !chestTarget) return false;
+
+      const tubeRect = item.getBoundingClientRect();
+      const targetRect = chestTarget.getBoundingClientRect();
+
+      // Nozzle is at upper-left of tube (~15% width, ~12% height)
+      const nozzleX = tubeRect.left + tubeRect.width * 0.15;
+      const nozzleY = tubeRect.top + tubeRect.height * 0.12;
+
+      // Generous buffer around target zone for easy touch on tablet
+      const buffer = Math.max(50, targetRect.width * 0.5);
+      const isInside = (
+        nozzleX >= targetRect.left - buffer &&
+        nozzleX <= targetRect.right + buffer &&
+        nozzleY >= targetRect.top - buffer &&
+        nozzleY <= targetRect.bottom + buffer
+      );
+
+      // Overlap of bounding rectangles with buffer
+      const isOverlap = !(
+        tubeRect.right < targetRect.left - 25 ||
+        tubeRect.left > targetRect.right + 25 ||
+        tubeRect.bottom < targetRect.top - 25 ||
+        tubeRect.top > targetRect.bottom + 25
+      );
+
+      const isHit = isInside || isOverlap;
+
+      if (isHit) {
+        if (!isPortOverPort) {
+          isPortOverPort = true;
+          chestTarget.classList.add('hovered');
+          setPortAccessPrompt("Hold down to squeeze out the cream!");
+          startPortSqueezing();
+        }
+      } else {
+        if (isPortOverPort) {
+          isPortOverPort = false;
+          chestTarget.classList.remove('hovered');
+          setPortAccessPrompt("Drag the numbing ointment over the chest port and hold to squeeze out some cream.");
+          stopPortSqueezing();
+        }
+      }
+      return isHit;
+    }
+
     function startDragPortLMX(e) {
       if (portAccessCurrentStep !== 'lmx_ready' && portAccessCurrentStep !== 'lmx_dragging' && portAccessCurrentStep !== 'lmx_snapped') return;
       if (portSqueezeProgress >= 100) return;
 
-      const now = Date.now();
-      if (now - lastPortLMXGestureTime < 80) return;
-      lastPortLMXGestureTime = now;
-
-      try {
-        if (e.cancelable) e.preventDefault();
-        e.stopPropagation();
-      } catch (err) {}
+      e.preventDefault();
+      e.stopPropagation();
 
       const item = document.getElementById('portLMXTubeItem');
-      const stage = document.getElementById('portAccessStage');
       const chestTarget = document.getElementById('portChestTargetZone');
-      if (!item || !stage) return;
+      if (!item) return;
 
       if (window._activePortLMXCleanup) {
         window._activePortLMXCleanup();
@@ -26647,97 +26713,52 @@
       item.classList.add('dragging');
       item.style.transition = 'none';
 
-      // Keep resting position styles stable so translate3d handles all offsets smoothly
-      item.style.left = '62%';
-      item.style.top = '52%';
+      const clientX = e.clientX ?? (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+      const clientY = e.clientY ?? (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+      portLMXStartX = clientX;
+      portLMXStartY = clientY;
 
-      const stageRect = stage.getBoundingClientRect();
-      const startClientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : (e.clientX ?? 0);
-      const startClientY = (e.touches && e.touches[0]) ? e.touches[0].clientY : (e.clientY ?? 0);
-
-      // Resting nozzle position in screen coordinates
-      const restingNozzleX = stageRect.left + stageRect.width * 0.6393;
-      const restingNozzleY = stageRect.top + stageRect.height * 0.5395;
-      const portTargetX = stageRect.left + stageRect.width * 0.4597;
-      const portTargetY = stageRect.top + stageRect.height * 0.3906;
-
-      // Base offset if already snapped
-      const baseDx = isPortOverPort ? portLMXCurrentDx : 0;
-      const baseDy = isPortOverPort ? portLMXCurrentDy : 0;
-
-      let rAFId = null;
+      // When starting a new drag, base offset is where the tube currently is
+      portLMXBaseX = portLMXDeltaX;
+      portLMXBaseY = portLMXDeltaY;
 
       if (e.pointerId !== undefined && item.setPointerCapture) {
         try { item.setPointerCapture(e.pointerId); } catch (err) {}
       }
 
-      // If already positioned over the port (e.g. user resumed pressing), start squeezing immediately!
-      if (isPortOverPort) {
-        startPortSqueezing();
-      }
-
       function cleanupLMXListeners() {
-        window.removeEventListener('pointermove', onMove);
-        window.removeEventListener('touchmove', onMove);
-        window.removeEventListener('pointerup', onEnd);
-        window.removeEventListener('touchend', onEnd);
-        window.removeEventListener('pointercancel', onEnd);
-        window.removeEventListener('touchcancel', onEnd);
+        window.removeEventListener('pointermove', onPointerMove);
+        window.removeEventListener('pointerup', onPointerUp);
+        window.removeEventListener('pointercancel', onPointerUp);
         window._activePortLMXCleanup = null;
       }
       window._activePortLMXCleanup = cleanupLMXListeners;
 
-      function onMove(ev) {
-        if (!isDraggingPortLMX) return;
-        try { if (ev.cancelable) ev.preventDefault(); } catch (err) {}
-
-        const curX = (ev.touches && ev.touches[0]) ? ev.touches[0].clientX : (ev.clientX ?? 0);
-        const curY = (ev.touches && ev.touches[0]) ? ev.touches[0].clientY : (ev.clientY ?? 0);
-
-        const deltaX = baseDx + (curX - startClientX);
-        const deltaY = baseDy + (curY - startClientY);
-        portLMXCurrentDx = deltaX;
-        portLMXCurrentDy = deltaY;
-
-        if (!rAFId) {
-          rAFId = requestAnimationFrame(() => {
-            rAFId = null;
-            if (!isDraggingPortLMX) return;
-            item.style.transform = `translate3d(${deltaX.toFixed(1)}px, ${deltaY.toFixed(1)}px, 0) scale(1.08) rotate(-6deg)`;
-          });
-        }
-
-        // Check proximity of purple nozzle tip to port center
-        const curNozzleX = restingNozzleX + deltaX;
-        const curNozzleY = restingNozzleY + deltaY;
-        const dist = Math.hypot(curNozzleX - portTargetX, curNozzleY - portTargetY);
-        const hitRadius = stageRect.width * 0.22;
-
-        if (dist < hitRadius) {
-          if (!isPortOverPort) {
-            isPortOverPort = true;
-            if (chestTarget) chestTarget.classList.add('hovered');
-            setPortAccessPrompt("Hold down to squeeze out the cream!");
-            startPortSqueezing();
-          }
-        } else {
-          if (isPortOverPort) {
-            isPortOverPort = false;
-            if (chestTarget) chestTarget.classList.remove('hovered');
-            setPortAccessPrompt("Drag the numbing ointment over the chest port and hold to squeeze out some cream.");
-            stopPortSqueezing();
-          }
-        }
+      // If already positioned over the port, start squeezing immediately upon press
+      if (isPortOverPort) {
+        startPortSqueezing();
       }
 
-      function onEnd(ev) {
+      function onPointerMove(ev) {
+        if (!isDraggingPortLMX) return;
+        ev.preventDefault();
+
+        const curX = ev.clientX ?? (ev.touches && ev.touches[0] ? ev.touches[0].clientX : 0);
+        const curY = ev.clientY ?? (ev.touches && ev.touches[0] ? ev.touches[0].clientY : 0);
+
+        portLMXDeltaX = portLMXBaseX + (curX - portLMXStartX);
+        portLMXDeltaY = portLMXBaseY + (curY - portLMXStartY);
+
+        item.style.transform = `translate3d(${portLMXDeltaX.toFixed(1)}px, ${portLMXDeltaY.toFixed(1)}px, 0)`;
+
+        checkPortLMXCollision();
+      }
+
+      function onPointerUp(ev) {
         if (!isDraggingPortLMX) return;
         isDraggingPortLMX = false;
-        if (rAFId) {
-          cancelAnimationFrame(rAFId);
-          rAFId = null;
-        }
         item.classList.remove('dragging');
+
         cleanupLMXListeners();
 
         if (item && ev && ev.pointerId !== undefined && item.releasePointerCapture) {
@@ -26746,44 +26767,45 @@
 
         stopPortSqueezing();
 
+        const distMoved = Math.hypot(portLMXDeltaX - portLMXBaseX, portLMXDeltaY - portLMXBaseY);
+        if (distMoved < 15 && !isPortOverPort) {
+          // Tap detected!
+          lastPortLMXTapTime = Date.now();
+          snapLMXToPort(true);
+          return;
+        }
+
         if (portSqueezeProgress >= 100) {
           finishPortSqueeze();
         } else if (isPortOverPort) {
-          // Stay snapped over port with nozzle tip pointing into target zone
-          const snapDx = -stageRect.width * 0.1796;
-          const snapDy = -stageRect.height * 0.1489;
-          portLMXCurrentDx = snapDx;
-          portLMXCurrentDy = snapDy;
-          item.style.transition = 'transform 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-          item.style.transform = `translate3d(${snapDx.toFixed(1)}px, ${snapDy.toFixed(1)}px, 0) scale(1.02) rotate(-5deg)`;
-          portAccessCurrentStep = 'lmx_snapped';
-          if (chestTarget) chestTarget.classList.add('hovered');
-          setPortAccessPrompt("Press & hold to finish squeezing!");
+          // Stay snapped directly over the port target
+          snapLMXToPort(false);
+          setPortAccessPrompt("Press & hold or tap to finish squeezing!");
         } else {
-          // Spring back to resting position on right
-          portLMXCurrentDx = 0;
-          portLMXCurrentDy = 0;
+          // Spring back smoothly to the tray on the right
           item.classList.add('spring-back');
+          item.style.transition = 'transform 0.42s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
           item.style.transform = 'translate3d(0, 0, 0)';
-          portAccessTimers.push(setTimeout(() => {
-            if (item) {
-              item.classList.remove('spring-back');
-              item.style.transition = '';
-            }
-          }, 450));
+          portLMXDeltaX = 0;
+          portLMXDeltaY = 0;
+          portLMXBaseX = 0;
+          portLMXBaseY = 0;
           isPortOverPort = false;
           if (chestTarget) chestTarget.classList.remove('hovered');
           portAccessCurrentStep = 'lmx_ready';
           setPortAccessPrompt("Drag the numbing ointment over the chest port and hold to squeeze out some cream.");
+          setTimeout(() => {
+            if (item) {
+              item.classList.remove('spring-back');
+              item.style.transition = '';
+            }
+          }, 450);
         }
       }
 
-      window.addEventListener('pointermove', onMove, { passive: false });
-      window.addEventListener('touchmove', onMove, { passive: false });
-      window.addEventListener('pointerup', onEnd);
-      window.addEventListener('touchend', onEnd);
-      window.addEventListener('pointercancel', onEnd);
-      window.addEventListener('touchcancel', onEnd);
+      window.addEventListener('pointermove', onPointerMove, { passive: false });
+      window.addEventListener('pointerup', onPointerUp);
+      window.addEventListener('pointercancel', onPointerUp);
     }
 
     // Squeeze Logic (Matches IV Prep Ointment Dispense)
@@ -26879,7 +26901,7 @@
       if (item) {
         item.classList.remove('squeezing', 'dragging', 'spring-back');
         item.style.transition = 'all 0.5s cubic-bezier(0.2, 0.9, 0.3, 1)';
-        item.style.transform = `translate3d(${portLMXCurrentDx.toFixed(1)}px, ${(portLMXCurrentDy + 60).toFixed(1)}px, 0) scale(0.85)`;
+        item.style.transform = `translate3d(${portLMXDeltaX.toFixed(1)}px, ${(portLMXDeltaY + 60).toFixed(1)}px, 0) scale(0.85)`;
         item.style.opacity = '0';
         portAccessTimers.push(setTimeout(() => { if (item) item.style.display = 'none'; }, 520));
       }

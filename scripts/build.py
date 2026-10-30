@@ -13,6 +13,26 @@ SRC_HTML_PATH = os.path.join(BASE_DIR, "preview", "index.html")
 SRC_ASSETS_DIR = os.path.join(BASE_DIR, "preview", "assets")
 DIST_HTML_PATH = os.path.join(BASE_DIR, "index.html")
 DIST_ASSETS_DIR = os.path.join(BASE_DIR, "assets")
+SW_PATH = os.path.join(BASE_DIR, "sw.js")
+
+def bump_service_worker():
+    if not os.path.exists(SW_PATH):
+        return
+    with open(SW_PATH, "r", encoding="utf-8") as f:
+        sw_content = f.read()
+    
+    def repl(m):
+        prefix = m.group(1)
+        ver = int(m.group(2)) + 1
+        return f"{prefix}{ver}';"
+
+    new_sw_content = re.sub(r"(const CACHE_NAME = 'riley-pwa-v)(\d+)';", repl, sw_content)
+    if new_sw_content != sw_content:
+        with open(SW_PATH, "w", encoding="utf-8") as f:
+            f.write(new_sw_content)
+        m = re.search(r"const CACHE_NAME = '([^']+)';", new_sw_content)
+        if m:
+            print(f"Bumped Service Worker cache version to: {m.group(1)}")
 
 def sync_assets():
     print("Synchronizing assets from preview/assets to assets/...")
@@ -750,5 +770,6 @@ def build_distribution():
     print(f"Successfully compiled distribution: {DIST_HTML_PATH} ({len(dist_html)} bytes)")
 
 if __name__ == "__main__":
+    bump_service_worker()
     sync_assets()
     build_distribution()
