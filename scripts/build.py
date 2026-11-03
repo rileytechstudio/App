@@ -162,6 +162,29 @@ def build_distribution():
       display: none !important;
     }
 
+    /* Preparations Screen Full-Bleed #f4f4f4 Backdrop & Safe Area Layout */
+    #screenPreparations {
+      background: #f4f4f4 !important;
+      background-color: #f4f4f4 !important;
+      background-image: none !important;
+    }
+
+    body:has(#screenPreparations.active) {
+      background: #f4f4f4 !important;
+      background-color: #f4f4f4 !important;
+      background-image: none !important;
+    }
+    body:has(#screenPreparations.active) .device-screen {
+      background: #f4f4f4 !important;
+      background-color: #f4f4f4 !important;
+      background-image: none !important;
+    }
+
+    #screenPreparations .home-bg-layer,
+    #screenPreparations .home-bg-overlay {
+      display: none !important;
+    }
+
     /* Home Custom Header: Always respect iOS Tablet Status Bar (Time and Battery) */
     .home-custom-header {
       padding-top: calc(env(safe-area-inset-top, 0px) + 16px) !important;
@@ -240,8 +263,31 @@ def build_distribution():
       box-shadow: 0 8px 24px rgba(28, 14, 56, 0.24), 0 3px 8px rgba(0, 0, 0, 0.10), inset 0 1.5px 1px 0 #ffffff !important;
     }
 
+    /* Rebranded Berry Liquid Glass Settings Button */
+    .header-glass-btn.home-setting-btn {
+      background: linear-gradient(145deg, rgba(148, 18, 98, 0.92) 0%, rgba(123, 3, 80, 0.90) 50%, rgba(99, 2, 64, 0.94) 100%) !important;
+      backdrop-filter: blur(24px) saturate(190%) !important;
+      -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.40) !important;
+      box-shadow: 0 6px 18px rgba(78, 4, 52, 0.40), 0 2px 6px rgba(0, 0, 0, 0.16), inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.55), inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.35) !important;
+    }
+
     .header-glass-btn.home-setting-btn:hover {
+      background: linear-gradient(145deg, rgba(170, 25, 114, 0.95) 0%, rgba(142, 6, 92, 0.94) 50%, rgba(114, 3, 74, 0.96) 100%) !important;
+      border-color: rgba(255, 255, 255, 0.65) !important;
       transform: scale(1.08) rotate(12deg) !important;
+      box-shadow: 0 8px 24px rgba(78, 4, 52, 0.50), 0 3px 8px rgba(0, 0, 0, 0.22), inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.75), inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.35) !important;
+    }
+
+    .header-glass-btn.home-setting-btn:active {
+      background: linear-gradient(145deg, rgba(110, 2, 72, 0.95) 0%, rgba(88, 2, 58, 0.96) 100%) !important;
+      transform: scale(0.94) !important;
+      box-shadow: 0 3px 10px rgba(78, 4, 52, 0.30), inset 0 1px 1px 0 rgba(255, 255, 255, 0.40) !important;
+    }
+
+    .header-glass-btn.home-setting-btn svg {
+      fill: #ffffff !important;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35)) !important;
     }
 
     .header-glass-btn:active {
@@ -321,11 +367,11 @@ def build_distribution():
     }
 
     .pill-btn {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.74) 100%) !important;
+      background: linear-gradient(145deg, rgba(142, 26, 98, 0.92) 0%, rgba(119, 30, 82, 0.90) 50%, rgba(96, 20, 66, 0.94) 100%) !important;
       backdrop-filter: blur(24px) saturate(190%) !important;
       -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
-      border: 1.5px solid rgba(255, 255, 255, 0.75) !important;
-      box-shadow: 0 6px 18px rgba(28, 14, 56, 0.18), 0 2px 6px rgba(0, 0, 0, 0.08), inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.95), inset 0 -1px 2px 0 rgba(255, 255, 255, 0.35) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.38) !important;
+      box-shadow: 0 8px 22px rgba(68, 12, 48, 0.38), 0 2px 6px rgba(0, 0, 0, 0.16), inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.55), inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.32) !important;
       border-radius: 9999px !important;
       overflow: hidden !important;
       display: inline-flex !important;
@@ -339,26 +385,28 @@ def build_distribution():
     }
 
     .pill-btn:hover {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.82) 100%) !important;
+      background: linear-gradient(145deg, rgba(165, 34, 114, 0.95) 0%, rgba(138, 32, 96, 0.94) 50%, rgba(112, 22, 78, 0.96) 100%) !important;
+      border-color: rgba(255, 255, 255, 0.62) !important;
       transform: translateY(-2px) scale(1.035) !important;
-      box-shadow: 0 8px 24px rgba(28, 14, 56, 0.24), 0 3px 8px rgba(0, 0, 0, 0.10), inset 0 1.5px 1px 0 #ffffff !important;
+      box-shadow: 0 10px 28px rgba(68, 12, 48, 0.48), 0 3px 8px rgba(0, 0, 0, 0.22), inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.75), inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.32) !important;
     }
 
     .pill-btn:active {
+      background: linear-gradient(145deg, rgba(105, 24, 72, 0.95) 0%, rgba(85, 16, 58, 0.96) 100%) !important;
       transform: translateY(1px) scale(0.96) !important;
-      box-shadow: 0 3px 10px rgba(28, 14, 56, 0.15), inset 0 1px 1px 0 rgba(255, 255, 255, 0.8) !important;
+      box-shadow: 0 4px 12px rgba(68, 12, 48, 0.28), inset 0 1px 1px 0 rgba(255, 255, 255, 0.38) !important;
     }
 
     .pill-btn-text {
-      color: #4c33aa !important;
+      color: #ffffff !important;
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "Nunito", system-ui, sans-serif !important;
       font-weight: 900 !important;
-      letter-spacing: 0.8px !important;
+      letter-spacing: 1.2px !important;
       text-transform: uppercase !important;
       pointer-events: none !important;
       user-select: none !important;
       line-height: 1 !important;
-      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.40) !important;
     }
 
     #screenHome .screen-content {
@@ -404,7 +452,13 @@ def build_distribution():
       display: none !important;
     }
 
-    /* Bottom Bar - Liquid Glass Frosted Toolbar matching Top Header */
+    /* Arrow Controls (No Drop Shadow) */
+    .arrow-btn,
+    .arrow-btn:hover {
+      filter: none !important;
+    }
+
+    /* Bottom Bar - Light Translucent Liquid Glass Toolbar matching original brand color */
     .prep-bottom-bar, .game-bottom-bar, .games-bottom-bar {
       position: absolute !important;
       bottom: 0 !important;
@@ -413,12 +467,12 @@ def build_distribution():
       width: 100% !important;
       margin: 0 !important;
       padding: 0 !important;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0.08) 100%),
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.15) 100%),
                   url('assets/Bottom_Toolbar_Background.png') center bottom / 100% 100% no-repeat !important;
-      backdrop-filter: blur(20px) !important;
-      -webkit-backdrop-filter: blur(20px) !important;
-      border-top: 1px solid rgba(255, 255, 255, 0.35) !important;
-      box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.08) !important;
+      backdrop-filter: blur(24px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+      border-top: 1px solid rgba(255, 255, 255, 0.75) !important;
+      box-shadow: 0 -3px 14px rgba(0, 0, 0, 0.05), inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.90) !important;
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
