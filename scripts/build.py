@@ -116,9 +116,9 @@ def build_distribution():
       top: 0;
       left: 0;
       right: 0;
-      bottom: calc(-1 * (env(safe-area-inset-bottom, 20px) + env(safe-area-inset-top, 24px) + 20px)) !important;
-      height: calc(100% + env(safe-area-inset-bottom, 20px) + env(safe-area-inset-top, 24px) + 20px) !important;
-      min-height: calc(100% + env(safe-area-inset-bottom, 20px) + env(safe-area-inset-top, 24px) + 20px) !important;
+      bottom: calc(-1 * max(env(safe-area-inset-bottom, 0px), 24px)) !important;
+      height: calc(100% + max(env(safe-area-inset-bottom, 0px), 24px)) !important;
+      min-height: calc(100% + max(env(safe-area-inset-bottom, 0px), 24px)) !important;
     }
 
     /* Edge-to-Edge Responsive Canvas Across All Devices (iPad, Desktop & Mobile) */
@@ -134,9 +134,9 @@ def build_distribution():
       top: 0 !important;
       left: 0 !important;
       right: 0 !important;
-      bottom: calc(-1 * (env(safe-area-inset-bottom, 20px) + env(safe-area-inset-top, 24px) + 20px)) !important;
-      height: calc(100% + env(safe-area-inset-bottom, 20px) + env(safe-area-inset-top, 24px) + 20px) !important;
-      min-height: calc(100% + env(safe-area-inset-bottom, 20px) + env(safe-area-inset-top, 24px) + 20px) !important;
+      bottom: calc(-1 * max(env(safe-area-inset-bottom, 0px), 24px)) !important;
+      height: calc(100% + max(env(safe-area-inset-bottom, 0px), 24px)) !important;
+      min-height: calc(100% + max(env(safe-area-inset-bottom, 0px), 24px)) !important;
       display: flex;
       flex-direction: column;
     }
@@ -165,10 +165,10 @@ def build_distribution():
       top: 0 !important;
       left: 0 !important;
       right: 0 !important;
-      bottom: calc(-1 * (env(safe-area-inset-bottom, 20px) + env(safe-area-inset-top, 24px) + 20px)) !important;
+      bottom: calc(-1 * max(env(safe-area-inset-bottom, 0px), 24px)) !important;
       width: 100% !important;
-      height: calc(100% + env(safe-area-inset-bottom, 20px) + env(safe-area-inset-top, 24px) + 20px) !important;
-      min-height: calc(100% + env(safe-area-inset-bottom, 20px) + env(safe-area-inset-top, 24px) + 20px) !important;
+      height: calc(100% + max(env(safe-area-inset-bottom, 0px), 24px)) !important;
+      min-height: calc(100% + max(env(safe-area-inset-bottom, 0px), 24px)) !important;
       background-image: url('assets/HomeScreenBG.png') !important;
       background-size: cover !important;
       background-position: center bottom !important;
@@ -179,19 +179,15 @@ def build_distribution():
 
     #screenHome .home-bg-layer {
       position: absolute !important;
-      top: -5% !important;
-      left: -5% !important;
-      right: -5% !important;
-      bottom: -5% !important;
-      width: 110% !important;
-      height: 110% !important;
-      min-height: 110% !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      min-height: 100% !important;
       background-image: url('assets/HomeScreenBG.png') !important;
       background-size: cover !important;
       background-position: center bottom !important;
       background-repeat: no-repeat !important;
-      transform: scale(1.06) !important;
-      transform-origin: center bottom !important;
+      transform: none !important;
       z-index: 1 !important;
       pointer-events: none !important;
     }
