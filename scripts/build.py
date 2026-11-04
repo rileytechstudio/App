@@ -86,11 +86,22 @@ def build_distribution():
     }
 
     /* Base Full-Screen & Safe-Area Styles (Edge-to-edge true bleed on iOS PWA/Safari) */
-    html, body {
+    html {
       width: 100%;
       height: 100%;
       min-height: 100%;
-      min-height: 100vh;
+      min-height: calc(100% + env(safe-area-inset-top, 0px) + env(safe-area-inset-bottom, 0px));
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #d4d7db;
+      background-color: #d4d7db;
+    }
+
+    body {
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
       margin: 0;
       padding: 0;
       overflow: hidden;
@@ -102,7 +113,12 @@ def build_distribution():
       -webkit-tap-highlight-color: transparent;
       touch-action: pan-x pan-y;
       position: fixed;
-      inset: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: calc(-1 * (env(safe-area-inset-bottom, 20px) + env(safe-area-inset-top, 24px) + 20px)) !important;
+      height: calc(100% + env(safe-area-inset-bottom, 20px) + env(safe-area-inset-top, 24px) + 20px) !important;
+      min-height: calc(100% + env(safe-area-inset-bottom, 20px) + env(safe-area-inset-top, 24px) + 20px) !important;
     }
 
     /* Edge-to-Edge Responsive Canvas Across All Devices (iPad, Desktop & Mobile) */
@@ -114,16 +130,18 @@ def build_distribution():
       overflow: hidden;
       width: 100% !important;
       width: 100vw !important;
-      height: 100% !important;
-      min-height: 100% !important;
-      min-height: 100vh !important;
       position: absolute !important;
-      inset: 0 !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: calc(-1 * (env(safe-area-inset-bottom, 20px) + env(safe-area-inset-top, 24px) + 20px)) !important;
+      height: calc(100% + env(safe-area-inset-bottom, 20px) + env(safe-area-inset-top, 24px) + 20px) !important;
+      min-height: calc(100% + env(safe-area-inset-bottom, 20px) + env(safe-area-inset-top, 24px) + 20px) !important;
       display: flex;
       flex-direction: column;
     }
 
-    /* Home Screen Full-Bleed Backdrop & Safe Area Layout (Zero bar or gap on iOS) */
+    /* Home Screen Full-Bleed Backdrop & Safe Area Layout (Eliminates iOS WebKit chin gap completely) */
     html.home-active,
     body.home-active,
     body:has(#screenHome.active) {
@@ -144,10 +162,13 @@ def build_distribution():
 
     #screenHome {
       position: absolute !important;
-      inset: 0 !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: calc(-1 * (env(safe-area-inset-bottom, 20px) + env(safe-area-inset-top, 24px) + 20px)) !important;
       width: 100% !important;
-      height: 100% !important;
-      min-height: 100% !important;
+      height: calc(100% + env(safe-area-inset-bottom, 20px) + env(safe-area-inset-top, 24px) + 20px) !important;
+      min-height: calc(100% + env(safe-area-inset-bottom, 20px) + env(safe-area-inset-top, 24px) + 20px) !important;
       background-image: url('assets/HomeScreenBG.png') !important;
       background-size: cover !important;
       background-position: center bottom !important;
@@ -158,10 +179,13 @@ def build_distribution():
 
     #screenHome .home-bg-layer {
       position: absolute !important;
-      inset: -5% !important;
+      top: -5% !important;
+      left: -5% !important;
+      right: -5% !important;
+      bottom: -5% !important;
       width: 110% !important;
       height: 110% !important;
-      min-height: 100% !important;
+      min-height: 110% !important;
       background-image: url('assets/HomeScreenBG.png') !important;
       background-size: cover !important;
       background-position: center bottom !important;
@@ -428,8 +452,18 @@ def build_distribution():
     }
 
     #screenHome .screen-content {
-      padding-bottom: env(safe-area-inset-bottom, 0px);
-      box-sizing: border-box;
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      height: 100vh !important;
+      max-height: 100vh !important;
+      padding-bottom: max(16px, env(safe-area-inset-bottom, 20px)) !important;
+      box-sizing: border-box !important;
+      overflow: hidden !important;
+      display: flex !important;
+      flex-direction: column !important;
+      z-index: 10 !important;
     }
 
     #screenHome .home-body {
