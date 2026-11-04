@@ -102,6 +102,7 @@ def build_distribution():
       width: 100%;
       height: 100%;
       min-height: 100%;
+      min-height: 100vh;
       margin: 0;
       padding: 0;
       overflow: hidden;
@@ -113,12 +114,7 @@ def build_distribution():
       -webkit-tap-highlight-color: transparent;
       touch-action: pan-x pan-y;
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: calc(-1 * max(env(safe-area-inset-bottom, 0px), 24px)) !important;
-      height: calc(100% + max(env(safe-area-inset-bottom, 0px), 24px)) !important;
-      min-height: calc(100% + max(env(safe-area-inset-bottom, 0px), 24px)) !important;
+      inset: 0;
     }
 
     /* Edge-to-Edge Responsive Canvas Across All Devices (iPad, Desktop & Mobile) */
@@ -130,18 +126,16 @@ def build_distribution():
       overflow: hidden;
       width: 100% !important;
       width: 100vw !important;
+      height: 100% !important;
+      min-height: 100% !important;
+      min-height: 100vh !important;
       position: absolute !important;
-      top: 0 !important;
-      left: 0 !important;
-      right: 0 !important;
-      bottom: calc(-1 * max(env(safe-area-inset-bottom, 0px), 24px)) !important;
-      height: calc(100% + max(env(safe-area-inset-bottom, 0px), 24px)) !important;
-      min-height: calc(100% + max(env(safe-area-inset-bottom, 0px), 24px)) !important;
+      inset: 0 !important;
       display: flex;
       flex-direction: column;
     }
 
-    /* Home Screen Full-Bleed Backdrop & Safe Area Layout (Eliminates iOS WebKit chin gap completely) */
+    /* Home Screen Full-Bleed Backdrop & Safe Area Layout (Zero chin gap on iOS) */
     html.home-active,
     body.home-active,
     body:has(#screenHome.active) {
@@ -162,13 +156,10 @@ def build_distribution():
 
     #screenHome {
       position: absolute !important;
-      top: 0 !important;
-      left: 0 !important;
-      right: 0 !important;
-      bottom: calc(-1 * max(env(safe-area-inset-bottom, 0px), 24px)) !important;
+      inset: 0 !important;
       width: 100% !important;
-      height: calc(100% + max(env(safe-area-inset-bottom, 0px), 24px)) !important;
-      min-height: calc(100% + max(env(safe-area-inset-bottom, 0px), 24px)) !important;
+      height: 100% !important;
+      min-height: 100% !important;
       background-image: url('assets/HomeScreenBG.png') !important;
       background-size: cover !important;
       background-position: center bottom !important;
@@ -448,12 +439,9 @@ def build_distribution():
     }
 
     #screenHome .screen-content {
-      position: absolute !important;
-      top: 0 !important;
-      left: 0 !important;
-      right: 0 !important;
-      height: 100vh !important;
-      max-height: 100vh !important;
+      position: relative !important;
+      width: 100% !important;
+      height: 100% !important;
       padding-bottom: max(16px, env(safe-area-inset-bottom, 20px)) !important;
       box-sizing: border-box !important;
       overflow: hidden !important;
