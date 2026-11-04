@@ -88,13 +88,15 @@ def build_distribution():
 
     /* Base Full-Screen & Safe-Area Styles */
     html, body {
-      width: 100vw;
-      height: 100vh;
-      height: 100dvh;
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
+      min-height: 100dvh;
+      min-height: -webkit-fill-available;
       margin: 0;
       padding: 0;
       overflow: hidden;
-      background: var(--riley-dark-purple, #411e8c);
+      background: #d4d7db;
       color: #e2e8f0;
       overscroll-behavior: none;
       -webkit-touch-callout: none;
@@ -106,55 +108,67 @@ def build_distribution():
 
     /* Edge-to-Edge Responsive Canvas Across All Devices (iPad, Desktop & Mobile) */
     .device-screen {
-      background: var(--riley-purple);
+      background: #d4d7db;
       border-radius: 0 !important;
       box-shadow: none !important;
       overflow: hidden;
+      width: 100% !important;
       width: 100vw !important;
-      height: 100vh !important;
-      height: 100dvh !important;
-      position: relative;
+      height: 100% !important;
+      min-height: 100% !important;
+      min-height: -webkit-fill-available !important;
+      position: absolute !important;
+      inset: 0 !important;
       display: flex;
       flex-direction: column;
     }
 
-    .app-header {
-      padding-top: env(safe-area-inset-top, 0px);
-    }
-
     /* Home Screen Full-Bleed Backdrop & Safe Area Layout (Zero white or purple bleed on tablet) */
     #screenHome {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      min-height: 100% !important;
       background-image: url('assets/HomeScreenBG.png') !important;
       background-size: cover !important;
       background-position: center bottom !important;
       background-repeat: no-repeat !important;
-      background-color: transparent !important;
+      background-color: #d4d7db !important;
     }
 
+    body.home-active,
     body:has(#screenHome.active) {
       background-image: url('assets/HomeScreenBG.png') !important;
       background-size: cover !important;
       background-position: center bottom !important;
       background-repeat: no-repeat !important;
-      background-color: transparent !important;
+      background-color: #d4d7db !important;
     }
+    body.home-active .device-screen,
     body:has(#screenHome.active) .device-screen {
       background-image: url('assets/HomeScreenBG.png') !important;
       background-size: cover !important;
       background-position: center bottom !important;
       background-repeat: no-repeat !important;
-      background-color: transparent !important;
+      background-color: #d4d7db !important;
     }
 
     #screenHome .home-bg-layer {
       position: absolute !important;
-      inset: 0 !important;
-      width: 100% !important;
-      height: 100% !important;
+      top: -2% !important;
+      left: -2% !important;
+      right: -2% !important;
+      bottom: calc(-1 * env(safe-area-inset-bottom, 34px) - 40px) !important;
+      width: 104% !important;
+      height: calc(100% + env(safe-area-inset-bottom, 34px) + 50px) !important;
+      min-height: 100% !important;
       background-image: url('assets/HomeScreenBG.png') !important;
       background-size: cover !important;
       background-position: center bottom !important;
       background-repeat: no-repeat !important;
+      transform: scale(1.02);
+      transform-origin: center bottom;
       z-index: 1 !important;
     }
 
@@ -207,6 +221,8 @@ def build_distribution():
       align-items: center !important;
       z-index: 5 !important;
       min-width: 56px !important;
+      height: 44px !important;
+      min-height: 44px !important;
     }
 
     .home-header-right {
@@ -217,7 +233,7 @@ def build_distribution():
     .home-header-center {
       position: absolute !important;
       left: 50% !important;
-      top: 50% !important;
+      top: calc(env(safe-area-inset-top, 0px) + 38px) !important;
       transform: translate(-50%, -50%) !important;
       display: flex !important;
       align-items: center !important;
@@ -336,6 +352,8 @@ def build_distribution():
       display: flex !important;
       align-items: center !important;
       min-width: 56px !important;
+      height: 44px !important;
+      min-height: 44px !important;
     }
 
     .app-header .header-right, .about-header .header-right {
@@ -346,7 +364,7 @@ def build_distribution():
     .app-header .header-center, .about-header .header-center {
       position: absolute !important;
       left: 50% !important;
-      top: 50% !important;
+      top: calc(env(safe-area-inset-top, 0px) + 38px) !important;
       transform: translate(-50%, -50%) !important;
       display: flex !important;
       align-items: center !important;
@@ -796,7 +814,7 @@ def build_distribution():
   
   <!-- PWA & Mobile Web App Meta Tags -->
   <link rel="manifest" href="./manifest.webmanifest" />
-  <meta name="theme-color" content="#411e8c" />
+  <meta name="theme-color" content="#d4d7db" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Riley" />
@@ -808,7 +826,7 @@ def build_distribution():
 {css.strip()}
   </style>
 </head>
-<body>
+<body class="home-active">
   {device_screen_block}
 
   <script>

@@ -23,10 +23,15 @@ public struct HomeScreenView: View {
     
     public var body: some View {
         ZStack {
-            // Full-bleed background photo edge-to-edge across entire physical display (zero white border)
+            // Neutral pavement background matching bottom of HomeScreenBG (guarantees zero purple bleed)
+            Color(red: 212/255, green: 215/255, blue: 219/255)
+                .ignoresSafeArea(.all)
+            
+            // Full-bleed background photo edge-to-edge across entire physical display (zero white or purple border)
             Image("HomeScreenBG")
                 .resizable()
                 .aspectRatio(contentMode: .fill)
+                .scaleEffect(1.03)
                 .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
                 .ignoresSafeArea(.all)
             
