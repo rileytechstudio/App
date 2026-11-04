@@ -187,27 +187,60 @@ def build_distribution():
       display: none !important;
     }
 
-    /* Preparations Screen Full-Bleed #f4f4f4 Backdrop & Safe Area Layout */
-    #screenPreparations {
+    /* Preparations & Games Screen Full-Bleed #f4f4f4 Backdrop & Safe Area Layout */
+    #screenPreparations,
+    #screenGames {
       background: #f4f4f4 !important;
       background-color: #f4f4f4 !important;
       background-image: none !important;
     }
 
-    body:has(#screenPreparations.active) {
+    body:has(#screenPreparations.active),
+    body:has(#screenGames.active) {
       background: #f4f4f4 !important;
       background-color: #f4f4f4 !important;
       background-image: none !important;
     }
-    body:has(#screenPreparations.active) .device-screen {
+    body:has(#screenPreparations.active) .device-screen,
+    body:has(#screenGames.active) .device-screen {
       background: #f4f4f4 !important;
       background-color: #f4f4f4 !important;
       background-image: none !important;
     }
 
     #screenPreparations .home-bg-layer,
-    #screenPreparations .home-bg-overlay {
+    #screenPreparations .home-bg-overlay,
+    #screenGames .home-bg-layer,
+    #screenGames .home-bg-overlay {
       display: none !important;
+    }
+
+    /* Matching Memory Game Screen Full-Bleed Rebranded Berry Backdrop & Safe Area Layout */
+    #screenMatchingGame {
+      background: #651b46 !important;
+      background-color: #651b46 !important;
+      background-image: url('assets/MatchingGameBG.png') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+    }
+
+    body:has(#screenMatchingGame.active) {
+      background: #651b46 !important;
+      background-color: #651b46 !important;
+      background-image: url('assets/MatchingGameBG.png') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+    }
+
+    body:has(#screenMatchingGame.active) .device-screen {
+      background: #651b46 !important;
+      background-color: #651b46 !important;
+      background-image: url('assets/MatchingGameBG.png') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
     }
 
     /* Home Custom Header: Always respect iOS Tablet Status Bar (Time and Battery) */
@@ -264,17 +297,18 @@ def build_distribution():
       filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.09)) !important;
     }
 
+    /* Rebranded Berry Liquid Glass Header Buttons (Back, Home, Settings) */
     .header-glass-btn {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.74) 100%) !important;
+      background: linear-gradient(145deg, rgba(148, 18, 98, 0.92) 0%, rgba(123, 3, 80, 0.90) 50%, rgba(99, 2, 64, 0.94) 100%) !important;
       backdrop-filter: blur(24px) saturate(190%) !important;
       -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
-      border: 1.5px solid rgba(255, 255, 255, 0.75) !important;
-      box-shadow: 0 6px 18px rgba(28, 14, 56, 0.18), 0 2px 6px rgba(0, 0, 0, 0.08), inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.95), inset 0 -1px 2px 0 rgba(255, 255, 255, 0.35) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.40) !important;
+      box-shadow: 0 6px 18px rgba(78, 4, 52, 0.40), 0 2px 6px rgba(0, 0, 0, 0.16), inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.55), inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.35) !important;
       border-radius: 50% !important;
       display: inline-flex !important;
       align-items: center !important;
       justify-content: center !important;
-      transition: transform 0.20s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.18s ease, box-shadow 0.18s ease !important;
+      transition: transform 0.20s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease !important;
       box-sizing: border-box !important;
       flex-shrink: 0 !important;
       cursor: pointer !important;
@@ -285,50 +319,130 @@ def build_distribution():
     }
 
     .header-glass-btn:hover {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.82) 100%) !important;
-      transform: scale(1.08) !important;
-      box-shadow: 0 8px 24px rgba(28, 14, 56, 0.24), 0 3px 8px rgba(0, 0, 0, 0.10), inset 0 1.5px 1px 0 #ffffff !important;
-    }
-
-    /* Rebranded Berry Liquid Glass Settings Button */
-    .header-glass-btn.home-setting-btn {
-      background: linear-gradient(145deg, rgba(148, 18, 98, 0.92) 0%, rgba(123, 3, 80, 0.90) 50%, rgba(99, 2, 64, 0.94) 100%) !important;
-      backdrop-filter: blur(24px) saturate(190%) !important;
-      -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
-      border: 1.5px solid rgba(255, 255, 255, 0.40) !important;
-      box-shadow: 0 6px 18px rgba(78, 4, 52, 0.40), 0 2px 6px rgba(0, 0, 0, 0.16), inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.55), inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.35) !important;
-    }
-
-    .header-glass-btn.home-setting-btn:hover {
       background: linear-gradient(145deg, rgba(170, 25, 114, 0.95) 0%, rgba(142, 6, 92, 0.94) 50%, rgba(114, 3, 74, 0.96) 100%) !important;
       border-color: rgba(255, 255, 255, 0.65) !important;
-      transform: scale(1.08) rotate(12deg) !important;
+      transform: scale(1.08) !important;
       box-shadow: 0 8px 24px rgba(78, 4, 52, 0.50), 0 3px 8px rgba(0, 0, 0, 0.22), inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.75), inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.35) !important;
     }
 
+    .header-glass-btn.home-setting-btn:hover {
+      transform: scale(1.08) rotate(12deg) !important;
+    }
+
+    .header-glass-btn:active,
     .header-glass-btn.home-setting-btn:active {
       background: linear-gradient(145deg, rgba(110, 2, 72, 0.95) 0%, rgba(88, 2, 58, 0.96) 100%) !important;
       transform: scale(0.94) !important;
       box-shadow: 0 3px 10px rgba(78, 4, 52, 0.30), inset 0 1px 1px 0 rgba(255, 255, 255, 0.40) !important;
     }
 
-    .header-glass-btn.home-setting-btn svg {
-      fill: #ffffff !important;
-      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35)) !important;
-    }
-
-    .header-glass-btn:active {
-      transform: scale(0.94) !important;
-      box-shadow: 0 3px 10px rgba(28, 14, 56, 0.15), inset 0 1px 1px 0 rgba(255, 255, 255, 0.8) !important;
-    }
-
     .header-glass-btn svg {
       width: 52% !important;
       height: 52% !important;
-      fill: #39373b !important;
+      fill: #ffffff !important;
+      color: #ffffff !important;
       display: block !important;
       pointer-events: none !important;
-      filter: drop-shadow(0 1px 1px rgba(255, 255, 255, 0.4)) !important;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35)) !important;
+    }
+
+    .header-glass-btn svg path {
+      fill: #ffffff !important;
+    }
+
+    /* Game and Procedure Header Navigation Buttons (Berry Liquid Glass) */
+    .game-top-btn {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      background: linear-gradient(145deg, rgba(148, 18, 98, 0.92) 0%, rgba(123, 3, 80, 0.90) 50%, rgba(99, 2, 64, 0.94) 100%) !important;
+      backdrop-filter: blur(24px) saturate(190%) !important;
+      -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.40) !important;
+      box-shadow: 0 4px 14px rgba(78, 4, 52, 0.35), inset 0 1px 1px 0 rgba(255, 255, 255, 0.55), inset 0 -1px 2px 0 rgba(0, 0, 0, 0.35) !important;
+      color: #ffffff !important;
+      font-size: 14px !important;
+      font-weight: 700 !important;
+      padding: 6px 14px !important;
+      border-radius: 20px !important;
+      cursor: pointer !important;
+      transition: background 0.18s ease, transform 0.20s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, border-color 0.18s ease !important;
+    }
+
+    .game-top-btn:hover {
+      background: linear-gradient(145deg, rgba(170, 25, 114, 0.95) 0%, rgba(142, 6, 92, 0.94) 50%, rgba(114, 3, 74, 0.96) 100%) !important;
+      border-color: rgba(255, 255, 255, 0.65) !important;
+      transform: scale(1.05) !important;
+      box-shadow: 0 6px 18px rgba(78, 4, 52, 0.45), inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.70) !important;
+    }
+
+    .game-top-btn:active {
+      background: linear-gradient(145deg, rgba(110, 2, 72, 0.95) 0%, rgba(88, 2, 58, 0.96) 100%) !important;
+      transform: scale(0.95) !important;
+      box-shadow: 0 2px 8px rgba(78, 4, 52, 0.30), inset 0 1px 1px 0 rgba(255, 255, 255, 0.40) !important;
+    }
+
+    .game-top-btn-icon {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      width: 36px !important;
+      height: 36px !important;
+      background: linear-gradient(145deg, rgba(148, 18, 98, 0.92) 0%, rgba(123, 3, 80, 0.90) 50%, rgba(99, 2, 64, 0.94) 100%) !important;
+      backdrop-filter: blur(24px) saturate(190%) !important;
+      -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.40) !important;
+      box-shadow: 0 4px 14px rgba(78, 4, 52, 0.35), inset 0 1px 1px 0 rgba(255, 255, 255, 0.55), inset 0 -1px 2px 0 rgba(0, 0, 0, 0.35) !important;
+      color: #ffffff !important;
+      border-radius: 50% !important;
+      cursor: pointer !important;
+      transition: background 0.18s ease, transform 0.20s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, border-color 0.18s ease !important;
+    }
+
+    .game-top-actions {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+    }
+
+    .game-top-btn-icon:hover {
+      background: linear-gradient(145deg, rgba(170, 25, 114, 0.95) 0%, rgba(142, 6, 92, 0.94) 50%, rgba(114, 3, 74, 0.96) 100%) !important;
+      border-color: rgba(255, 255, 255, 0.65) !important;
+      transform: scale(1.08) !important;
+      box-shadow: 0 6px 18px rgba(78, 4, 52, 0.45), inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.70) !important;
+    }
+
+    .game-top-btn-icon:active {
+      background: linear-gradient(145deg, rgba(110, 2, 72, 0.95) 0%, rgba(88, 2, 58, 0.96) 100%) !important;
+      transform: scale(0.94) !important;
+      box-shadow: 0 2px 8px rgba(78, 4, 52, 0.30), inset 0 1px 1px 0 rgba(255, 255, 255, 0.40) !important;
+    }
+
+    .game-top-btn-icon svg {
+      color: #ffffff !important;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35)) !important;
+    }
+
+    .game-restart-btn:hover {
+      transform: scale(1.08) rotate(45deg) !important;
+    }
+
+    #screenNGTube.maze-mode .game-top-btn {
+      color: #ffffff !important;
+      background: linear-gradient(145deg, rgba(148, 18, 98, 0.92) 0%, rgba(123, 3, 80, 0.90) 50%, rgba(99, 2, 64, 0.94) 100%) !important;
+      backdrop-filter: blur(24px) saturate(190%) !important;
+      -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.40) !important;
+      box-shadow: 0 4px 16px rgba(78, 4, 52, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.55) !important;
+    }
+
+    #screenNGTube.maze-mode .game-top-btn-icon {
+      color: #ffffff !important;
+      background: linear-gradient(145deg, rgba(148, 18, 98, 0.92) 0%, rgba(123, 3, 80, 0.90) 50%, rgba(99, 2, 64, 0.94) 100%) !important;
+      backdrop-filter: blur(24px) saturate(190%) !important;
+      -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.40) !important;
+      box-shadow: 0 4px 16px rgba(78, 4, 52, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.55) !important;
     }
 
     /* Consistent Navigation Header Across All Screens - Transparent floating header matching Home */
@@ -541,13 +655,34 @@ def build_distribution():
     /* Games Screen: Edge-to-edge animated scrolling canvas with header pinned strictly to top */
     #screenGames {
       display: none;
-      background-color: var(--riley-purple, #5931ba) !important;
-      color: #ffffff !important;
+      background-color: #f4f4f4 !important;
+      background: #f4f4f4 !important;
+      color: #39373b !important;
       overflow: hidden !important;
       position: absolute !important;
       inset: 0 !important;
       width: 100% !important;
       height: 100% !important;
+    }
+
+    .games-bottom-fade {
+      position: absolute !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      height: 215px !important;
+      background: linear-gradient(to top, 
+        rgba(244, 244, 244, 1) 0%, 
+        rgba(244, 244, 244, 1) 28%, 
+        rgba(244, 244, 244, 0.88) 48%, 
+        rgba(244, 244, 244, 0.55) 68%, 
+        rgba(244, 244, 244, 0.18) 88%, 
+        rgba(244, 244, 244, 0) 100%
+      ) !important;
+      pointer-events: none !important;
+      z-index: 24 !important;
+      opacity: 1 !important;
+      transition: opacity 0.35s ease !important;
     }
 
     #screenGames.active {
@@ -633,11 +768,15 @@ def build_distribution():
       inset: 0 !important;
       width: 100% !important;
       height: 100% !important;
-      background-image: url('assets/MatchingPurpleBG.png') !important;
+      background-image: url('assets/MatchingGameBG.png') !important;
       background-size: cover !important;
       background-position: center !important;
       background-repeat: no-repeat !important;
-      background-color: var(--riley-purple, #5931ba) !important;
+      background-color: #651b46 !important;
+    }
+
+    #screenMatchingGame .matching-controls-group .puzzle-diff-btn.active {
+      color: #7b0350 !important;
     }
 
     #screenMatchingGame.active {
@@ -657,6 +796,147 @@ def build_distribution():
       pointer-events: auto !important;
       flex-shrink: 0 !important;
       width: 100% !important;
+    }
+
+    /* Rebranded Liquid Glass White Top Navigation Buttons on Card Match Game */
+    #screenMatchingGame .game-top-btn {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.78) 100%) !important;
+      backdrop-filter: blur(20px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.90) !important;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.20), inset 0 1px 1px 0 rgba(255, 255, 255, 0.95), inset 0 -1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+      color: #7b0350 !important;
+      font-size: 14px !important;
+      font-weight: 800 !important;
+      padding: 7px 16px !important;
+      border-radius: 999px !important;
+      cursor: pointer !important;
+      transition: background 0.18s ease, transform 0.20s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, border-color 0.18s ease, color 0.18s ease !important;
+    }
+
+    #screenMatchingGame .game-top-btn:hover {
+      background: rgba(255, 255, 255, 0.98) !important;
+      border-color: #ffffff !important;
+      color: #5d023c !important;
+      transform: scale(1.05) !important;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25), inset 0 1.5px 1px 0 #ffffff !important;
+    }
+
+    #screenMatchingGame .game-top-btn:active {
+      background: rgba(255, 255, 255, 0.82) !important;
+      transform: scale(0.95) !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 2px 0 rgba(0, 0, 0, 0.08) !important;
+    }
+
+    #screenMatchingGame .game-top-btn svg {
+      color: #7b0350 !important;
+      stroke: #7b0350 !important;
+      filter: none !important;
+    }
+
+    #screenMatchingGame .game-top-btn:hover svg {
+      color: #5d023c !important;
+      stroke: #5d023c !important;
+    }
+
+    #screenMatchingGame .game-top-btn-icon {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.78) 100%) !important;
+      backdrop-filter: blur(20px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.90) !important;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.20), inset 0 1px 1px 0 rgba(255, 255, 255, 0.95), inset 0 -1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+      color: #7b0350 !important;
+      width: 36px !important;
+      height: 36px !important;
+      border-radius: 50% !important;
+      cursor: pointer !important;
+      transition: background 0.18s ease, transform 0.20s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, border-color 0.18s ease, color 0.18s ease !important;
+    }
+
+    #screenMatchingGame .game-top-btn-icon:hover {
+      background: rgba(255, 255, 255, 0.98) !important;
+      border-color: #ffffff !important;
+      color: #5d023c !important;
+      transform: scale(1.08) !important;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25), inset 0 1.5px 1px 0 #ffffff !important;
+    }
+
+    #screenMatchingGame .game-top-btn-icon:active {
+      background: rgba(255, 255, 255, 0.82) !important;
+      transform: scale(0.94) !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 2px 0 rgba(0, 0, 0, 0.08) !important;
+    }
+
+    #screenMatchingGame .game-top-btn-icon svg {
+      color: #7b0350 !important;
+      filter: none !important;
+    }
+
+    #screenMatchingGame .game-top-btn-icon:hover svg {
+      color: #5d023c !important;
+    }
+
+    #screenMatchingGame .game-top-btn-icon svg path,
+    #screenMatchingGame .game-top-btn-icon svg polygon,
+    #screenMatchingGame .game-top-btn-icon svg line {
+      stroke: inherit;
+      fill: inherit;
+    }
+
+    #screenMatchingGame .game-top-btn-icon svg[fill="currentColor"] {
+      fill: #7b0350 !important;
+    }
+
+    #screenMatchingGame .game-top-btn-icon:hover svg[fill="currentColor"] {
+      fill: #5d023c !important;
+    }
+
+    #screenMatchingGame .game-top-btn-icon svg[fill="currentColor"] path {
+      fill: #7b0350 !important;
+    }
+
+    #screenMatchingGame .game-top-btn-icon:hover svg[fill="currentColor"] path {
+      fill: #5d023c !important;
+    }
+
+    #screenMatchingGame .sound-toggle-btn.muted {
+      background: linear-gradient(135deg, rgba(255, 235, 240, 0.94) 0%, rgba(255, 220, 230, 0.85) 100%) !important;
+      color: #b91c1c !important;
+      border-color: rgba(239, 68, 68, 0.50) !important;
+    }
+
+    #screenMatchingGame .sound-toggle-btn.muted svg {
+      color: #b91c1c !important;
+      stroke: #b91c1c !important;
+    }
+
+    #screenMatchingGame .puzzle-difficulty-selector {
+      background: rgba(255, 255, 255, 0.18) !important;
+      border: 1px solid rgba(255, 255, 255, 0.35) !important;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.20) !important;
+    }
+
+    #screenMatchingGame .puzzle-diff-btn.active {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.88) 100%) !important;
+      color: #7b0350 !important;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25), inset 0 1px 1px #ffffff !important;
+    }
+
+    .matching-btn-primary {
+      background: linear-gradient(135deg, #6bb5a3 0%, #5fa08f 48%, #478b7b 100%) !important;
+      color: #ffffff !important;
+      box-shadow: 0 4px 14px rgba(71, 139, 123, 0.40) !important;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.16) !important;
+    }
+
+    .matching-btn-primary:hover {
+      background: linear-gradient(135deg, #78bfae 0%, #5fa08f 48%, #4f9686 100%) !important;
+      box-shadow: 0 6px 18px rgba(71, 139, 123, 0.50) !important;
+    }
+
+    .matching-btn-primary:active {
+      transform: scale(0.96) !important;
+      box-shadow: 0 2px 8px rgba(71, 139, 123, 0.35) !important;
     }
 
     #screenMatchingGame.active .matching-game-stage,
@@ -755,6 +1035,7 @@ def build_distribution():
       border: none !important;
       padding: 2px 0 !important;
       cursor: pointer !important;
+      position: relative !important;
     }
 
     .bottom-tab-btn img {
@@ -762,6 +1043,21 @@ def build_distribution():
       height: 100% !important;
       object-fit: fill !important;
       display: block !important;
+      transition: filter 0.22s ease, transform 0.20s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    }
+
+    .bottom-tab-btn.active img {
+      filter: drop-shadow(0 4px 12px rgba(120, 8, 78, 0.40)) drop-shadow(0 1px 3px rgba(0, 0, 0, 0.15)) !important;
+    }
+
+    .bottom-tab-btn:hover img {
+      filter: drop-shadow(0 4px 14px rgba(120, 8, 78, 0.35)) brightness(1.05) !important;
+      transform: scale(1.015) !important;
+    }
+
+    .bottom-tab-btn:active img {
+      transform: scale(0.985) !important;
+      filter: drop-shadow(0 2px 6px rgba(120, 8, 78, 0.25)) !important;
     }
     """
     css += dist_css_overrides

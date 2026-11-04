@@ -263,28 +263,61 @@
       display: none !important;
     }
 
-    /* Preparations Screen Full-Bleed #f4f4f4 Backdrop & Safe Area Layout */
-    #screenPreparations {
+    /* Preparations & Games Screen Full-Bleed #f4f4f4 Backdrop & Safe Area Layout */
+    #screenPreparations,
+    #screenGames {
       background: #f4f4f4 !important;
       background-color: #f4f4f4 !important;
       background-image: none !important;
     }
 
     #screenPreparations .home-bg-layer,
-    #screenPreparations .home-bg-overlay {
+    #screenPreparations .home-bg-overlay,
+    #screenGames .home-bg-layer,
+    #screenGames .home-bg-overlay {
       display: none !important;
     }
 
-    body:has(#screenPreparations.active) {
+    body:has(#screenPreparations.active),
+    body:has(#screenGames.active) {
       background: #f4f4f4 !important;
       background-color: #f4f4f4 !important;
       background-image: none !important;
     }
 
-    body:has(#screenPreparations.active) .device-screen {
+    body:has(#screenPreparations.active) .device-screen,
+    body:has(#screenGames.active) .device-screen {
       background: #f4f4f4 !important;
       background-color: #f4f4f4 !important;
       background-image: none !important;
+    }
+
+    /* Matching Memory Game Screen Full-Bleed Rebranded Berry Backdrop & Safe Area Layout */
+    #screenMatchingGame {
+      background: #651b46 !important;
+      background-color: #651b46 !important;
+      background-image: url('assets/MatchingGameBG.png') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+    }
+
+    body:has(#screenMatchingGame.active) {
+      background: #651b46 !important;
+      background-color: #651b46 !important;
+      background-image: url('assets/MatchingGameBG.png') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+    }
+
+    body:has(#screenMatchingGame.active) .device-screen {
+      background: #651b46 !important;
+      background-color: #651b46 !important;
+      background-image: url('assets/MatchingGameBG.png') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
     }
 
     /* Home Custom Transparent Header - Respects iOS Tablet Safe Area */
@@ -341,13 +374,13 @@
       filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.09));
     }
 
-    /* Universal Apple Liquid Glass Header Button */
+    /* Universal Apple Liquid Glass Header Button - Rebranded Berry Liquid Glass */
     .header-glass-btn {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.74) 100%) !important;
+      background: linear-gradient(145deg, rgba(148, 18, 98, 0.92) 0%, rgba(123, 3, 80, 0.90) 50%, rgba(99, 2, 64, 0.94) 100%) !important;
       backdrop-filter: blur(24px) saturate(190%) !important;
       -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
-      border: 1.5px solid rgba(255, 255, 255, 0.75) !important;
-      box-shadow: 0 6px 18px rgba(28, 14, 56, 0.18), 0 2px 6px rgba(0, 0, 0, 0.08), inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.95), inset 0 -1px 2px 0 rgba(255, 255, 255, 0.35) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.40) !important;
+      box-shadow: 0 6px 18px rgba(78, 4, 52, 0.40), 0 2px 6px rgba(0, 0, 0, 0.16), inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.55), inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.35) !important;
       border-radius: 50% !important;
       cursor: pointer !important;
       padding: 0 !important;
@@ -355,57 +388,45 @@
       display: inline-flex !important;
       align-items: center !important;
       justify-content: center !important;
-      transition: transform 0.20s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.18s ease, box-shadow 0.18s ease !important;
+      transition: transform 0.20s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease !important;
       box-sizing: border-box !important;
       flex-shrink: 0 !important;
-      width: 44px;
-      height: 44px;
+      width: 44px !important;
+      height: 44px !important;
+      min-width: 44px !important;
+      min-height: 44px !important;
     }
 
     .header-glass-btn:hover {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.82) 100%) !important;
-      transform: scale(1.08) !important;
-      box-shadow: 0 8px 24px rgba(28, 14, 56, 0.24), 0 3px 8px rgba(0, 0, 0, 0.10), inset 0 1.5px 1px 0 #ffffff !important;
-    }
-
-    .header-glass-btn.home-setting-btn {
-      background: linear-gradient(145deg, rgba(148, 18, 98, 0.92) 0%, rgba(123, 3, 80, 0.90) 50%, rgba(99, 2, 64, 0.94) 100%) !important;
-      backdrop-filter: blur(24px) saturate(190%) !important;
-      -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
-      border: 1.5px solid rgba(255, 255, 255, 0.40) !important;
-      box-shadow: 0 6px 18px rgba(78, 4, 52, 0.40), 0 2px 6px rgba(0, 0, 0, 0.16), inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.55), inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.35) !important;
-    }
-
-    .header-glass-btn.home-setting-btn:hover {
       background: linear-gradient(145deg, rgba(170, 25, 114, 0.95) 0%, rgba(142, 6, 92, 0.94) 50%, rgba(114, 3, 74, 0.96) 100%) !important;
       border-color: rgba(255, 255, 255, 0.65) !important;
-      transform: scale(1.08) rotate(12deg) !important;
+      transform: scale(1.08) !important;
       box-shadow: 0 8px 24px rgba(78, 4, 52, 0.50), 0 3px 8px rgba(0, 0, 0, 0.22), inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.75), inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.35) !important;
     }
 
+    .header-glass-btn.home-setting-btn:hover {
+      transform: scale(1.08) rotate(12deg) !important;
+    }
+
+    .header-glass-btn:active,
     .header-glass-btn.home-setting-btn:active {
       background: linear-gradient(145deg, rgba(110, 2, 72, 0.95) 0%, rgba(88, 2, 58, 0.96) 100%) !important;
       transform: scale(0.94) !important;
       box-shadow: 0 3px 10px rgba(78, 4, 52, 0.30), inset 0 1px 1px 0 rgba(255, 255, 255, 0.40) !important;
     }
 
-    .header-glass-btn.home-setting-btn svg {
-      fill: #ffffff !important;
-      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35)) !important;
-    }
-
-    .header-glass-btn:active {
-      transform: scale(0.94) !important;
-      box-shadow: 0 3px 10px rgba(28, 14, 56, 0.15), inset 0 1px 1px 0 rgba(255, 255, 255, 0.8) !important;
-    }
-
     .header-glass-btn svg {
       width: 52% !important;
       height: 52% !important;
-      fill: #39373b !important;
+      fill: #ffffff !important;
+      color: #ffffff !important;
       display: block !important;
       pointer-events: none !important;
-      filter: drop-shadow(0 1px 1px rgba(255, 255, 255, 0.4)) !important;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35)) !important;
+    }
+
+    .header-glass-btn svg path {
+      fill: #ffffff !important;
     }
 
     .screen-content {
@@ -960,6 +981,7 @@
       border: none;
       padding: 2px 0;
       cursor: pointer;
+      position: relative;
     }
 
     .bottom-tab-btn img {
@@ -967,6 +989,21 @@
       height: 100%;
       object-fit: fill;
       display: block;
+      transition: filter 0.22s ease, transform 0.20s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .bottom-tab-btn.active img {
+      filter: drop-shadow(0 4px 12px rgba(120, 8, 78, 0.40)) drop-shadow(0 1px 3px rgba(0, 0, 0, 0.15));
+    }
+
+    .bottom-tab-btn:hover img {
+      filter: drop-shadow(0 4px 14px rgba(120, 8, 78, 0.35)) brightness(1.05);
+      transform: scale(1.015);
+    }
+
+    .bottom-tab-btn:active img {
+      transform: scale(0.985);
+      filter: drop-shadow(0 2px 6px rgba(120, 8, 78, 0.25));
     }
 
     /* Modal Navigation Sheet */
@@ -2721,41 +2758,41 @@
 
     #screenNGTube.maze-mode .game-top-btn {
       color: #ffffff !important;
-      background: rgba(15, 23, 42, 0.58) !important;
-      backdrop-filter: blur(14px) saturate(160%) !important;
-      -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
-      border: 1px solid rgba(255, 255, 255, 0.24) !important;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22), inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
-      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+      background: linear-gradient(145deg, rgba(148, 18, 98, 0.92) 0%, rgba(123, 3, 80, 0.90) 50%, rgba(99, 2, 64, 0.94) 100%) !important;
+      backdrop-filter: blur(24px) saturate(190%) !important;
+      -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.40) !important;
+      box-shadow: 0 4px 16px rgba(78, 4, 52, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.55) !important;
+      transition: background 0.18s, border-color 0.18s, transform 0.15s;
     }
 
     #screenNGTube.maze-mode .game-top-btn:hover {
-      background: rgba(15, 23, 42, 0.72) !important;
-      border-color: rgba(255, 255, 255, 0.35) !important;
+      background: linear-gradient(145deg, rgba(170, 25, 114, 0.95) 0%, rgba(142, 6, 92, 0.94) 50%, rgba(114, 3, 74, 0.96) 100%) !important;
+      border-color: rgba(255, 255, 255, 0.65) !important;
     }
 
     #screenNGTube.maze-mode .game-top-btn:active {
-      background: rgba(15, 23, 42, 0.85) !important;
+      background: linear-gradient(145deg, rgba(110, 2, 72, 0.95) 0%, rgba(88, 2, 58, 0.96) 100%) !important;
       transform: scale(0.96);
     }
 
     #screenNGTube.maze-mode .game-top-btn-icon {
       color: #ffffff !important;
-      background: rgba(15, 23, 42, 0.58) !important;
-      backdrop-filter: blur(14px) saturate(160%) !important;
-      -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
-      border: 1px solid rgba(255, 255, 255, 0.24) !important;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22), inset 0 1px 1px rgba(255, 255, 255, 0.22) !important;
-      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+      background: linear-gradient(145deg, rgba(148, 18, 98, 0.92) 0%, rgba(123, 3, 80, 0.90) 50%, rgba(99, 2, 64, 0.94) 100%) !important;
+      backdrop-filter: blur(24px) saturate(190%) !important;
+      -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.40) !important;
+      box-shadow: 0 4px 16px rgba(78, 4, 52, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.55) !important;
+      transition: background 0.18s, border-color 0.18s, transform 0.15s;
     }
 
     #screenNGTube.maze-mode .game-top-btn-icon:hover {
-      background: rgba(15, 23, 42, 0.72) !important;
-      border-color: rgba(255, 255, 255, 0.35) !important;
+      background: linear-gradient(145deg, rgba(170, 25, 114, 0.95) 0%, rgba(142, 6, 92, 0.94) 50%, rgba(114, 3, 74, 0.96) 100%) !important;
+      border-color: rgba(255, 255, 255, 0.65) !important;
     }
 
     #screenNGTube.maze-mode .game-top-btn-icon:active {
-      background: rgba(15, 23, 42, 0.85) !important;
+      background: linear-gradient(145deg, rgba(110, 2, 72, 0.95) 0%, rgba(88, 2, 58, 0.96) 100%) !important;
       transform: scale(0.96);
     }
 
@@ -5788,33 +5825,48 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: rgba(255, 255, 255, 0.18);
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      color: #ffffff;
+      background: linear-gradient(145deg, rgba(148, 18, 98, 0.92) 0%, rgba(123, 3, 80, 0.90) 50%, rgba(99, 2, 64, 0.94) 100%) !important;
+      backdrop-filter: blur(24px) saturate(190%) !important;
+      -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.40) !important;
+      box-shadow: 0 4px 14px rgba(78, 4, 52, 0.35), inset 0 1px 1px 0 rgba(255, 255, 255, 0.55), inset 0 -1px 2px 0 rgba(0, 0, 0, 0.35) !important;
+      color: #ffffff !important;
       font-size: 14px;
       font-weight: 700;
       padding: 6px 14px;
       border-radius: 20px;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: background 0.18s ease, transform 0.20s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, border-color 0.18s ease !important;
     }
 
     .game-top-btn:hover {
-      background: rgba(255, 255, 255, 0.28);
+      background: linear-gradient(145deg, rgba(170, 25, 114, 0.95) 0%, rgba(142, 6, 92, 0.94) 50%, rgba(114, 3, 74, 0.96) 100%) !important;
+      border-color: rgba(255, 255, 255, 0.65) !important;
+      transform: scale(1.05) !important;
+      box-shadow: 0 6px 18px rgba(78, 4, 52, 0.45), inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.70) !important;
+    }
+
+    .game-top-btn:active {
+      background: linear-gradient(145deg, rgba(110, 2, 72, 0.95) 0%, rgba(88, 2, 58, 0.96) 100%) !important;
+      transform: scale(0.95) !important;
+      box-shadow: 0 2px 8px rgba(78, 4, 52, 0.30), inset 0 1px 1px 0 rgba(255, 255, 255, 0.40) !important;
     }
 
     .game-top-btn-icon {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 34px;
-      height: 34px;
-      background: rgba(255, 255, 255, 0.18);
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      color: #ffffff;
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(145deg, rgba(148, 18, 98, 0.92) 0%, rgba(123, 3, 80, 0.90) 50%, rgba(99, 2, 64, 0.94) 100%) !important;
+      backdrop-filter: blur(24px) saturate(190%) !important;
+      -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.40) !important;
+      box-shadow: 0 4px 14px rgba(78, 4, 52, 0.35), inset 0 1px 1px 0 rgba(255, 255, 255, 0.55), inset 0 -1px 2px 0 rgba(0, 0, 0, 0.35) !important;
+      color: #ffffff !important;
       border-radius: 50%;
       cursor: pointer;
-      transition: background 0.2s, transform 0.2s;
+      transition: background 0.18s ease, transform 0.20s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, border-color 0.18s ease !important;
     }
 
     .game-top-actions {
@@ -5824,12 +5876,25 @@
     }
 
     .game-top-btn-icon:hover {
-      background: rgba(255, 255, 255, 0.28);
-      transform: scale(1.08);
+      background: linear-gradient(145deg, rgba(170, 25, 114, 0.95) 0%, rgba(142, 6, 92, 0.94) 50%, rgba(114, 3, 74, 0.96) 100%) !important;
+      border-color: rgba(255, 255, 255, 0.65) !important;
+      transform: scale(1.08) !important;
+      box-shadow: 0 6px 18px rgba(78, 4, 52, 0.45), inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.70) !important;
+    }
+
+    .game-top-btn-icon:active {
+      background: linear-gradient(145deg, rgba(110, 2, 72, 0.95) 0%, rgba(88, 2, 58, 0.96) 100%) !important;
+      transform: scale(0.94) !important;
+      box-shadow: 0 2px 8px rgba(78, 4, 52, 0.30), inset 0 1px 1px 0 rgba(255, 255, 255, 0.40) !important;
+    }
+
+    .game-top-btn-icon svg {
+      color: #ffffff !important;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35)) !important;
     }
 
     .game-restart-btn:hover {
-      transform: rotate(45deg);
+      transform: scale(1.08) rotate(45deg) !important;
     }
 
     .sound-toggle-btn.muted {
@@ -9376,8 +9441,9 @@
     /* ========================================================= */
     #screenGames {
       display: none;
-      background-color: var(--riley-purple, #5931ba) !important;
-      color: #ffffff;
+      background-color: #f4f4f4 !important;
+      background: #f4f4f4 !important;
+      color: #39373b !important;
       overflow: hidden !important;
       position: absolute !important;
       inset: 0 !important;
@@ -9968,8 +10034,8 @@
     /* SCREEN 10: MATCHING MEMORY GAME                           */
     /* ========================================================= */
     #screenMatchingGame {
-      background-color: var(--riley-purple, #5931ba) !important;
-      background-image: url('assets/MatchingPurpleBG.png') !important;
+      background-color: #651b46 !important;
+      background-image: url('assets/MatchingGameBG.png') !important;
       background-size: cover !important;
       background-position: center !important;
       background-repeat: no-repeat !important;
@@ -9993,6 +10059,10 @@
       display: flex !important;
     }
 
+    #screenMatchingGame .matching-controls-group .puzzle-diff-btn.active {
+      color: #7b0350 !important;
+    }
+
     #screenMatchingGame #matchingTopBar {
       position: relative;
       pointer-events: auto !important;
@@ -10004,6 +10074,130 @@
       padding: 10px 20px 4px;
       z-index: 30;
       box-sizing: border-box;
+    }
+
+    /* Rebranded Liquid Glass White Top Navigation Buttons on Card Match Game */
+    #screenMatchingGame .game-top-btn {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.78) 100%) !important;
+      backdrop-filter: blur(20px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.90) !important;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.20), inset 0 1px 1px 0 rgba(255, 255, 255, 0.95), inset 0 -1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+      color: #7b0350 !important;
+      font-size: 14px !important;
+      font-weight: 800 !important;
+      padding: 7px 16px !important;
+      border-radius: 999px !important;
+      cursor: pointer !important;
+      transition: background 0.18s ease, transform 0.20s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, border-color 0.18s ease, color 0.18s ease !important;
+    }
+
+    #screenMatchingGame .game-top-btn:hover {
+      background: rgba(255, 255, 255, 0.98) !important;
+      border-color: #ffffff !important;
+      color: #5d023c !important;
+      transform: scale(1.05) !important;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25), inset 0 1.5px 1px 0 #ffffff !important;
+    }
+
+    #screenMatchingGame .game-top-btn:active {
+      background: rgba(255, 255, 255, 0.82) !important;
+      transform: scale(0.95) !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 2px 0 rgba(0, 0, 0, 0.08) !important;
+    }
+
+    #screenMatchingGame .game-top-btn svg {
+      color: #7b0350 !important;
+      stroke: #7b0350 !important;
+      filter: none !important;
+    }
+
+    #screenMatchingGame .game-top-btn:hover svg {
+      color: #5d023c !important;
+      stroke: #5d023c !important;
+    }
+
+    #screenMatchingGame .game-top-btn-icon {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.78) 100%) !important;
+      backdrop-filter: blur(20px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.90) !important;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.20), inset 0 1px 1px 0 rgba(255, 255, 255, 0.95), inset 0 -1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+      color: #7b0350 !important;
+      width: 36px !important;
+      height: 36px !important;
+      border-radius: 50% !important;
+      cursor: pointer !important;
+      transition: background 0.18s ease, transform 0.20s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, border-color 0.18s ease, color 0.18s ease !important;
+    }
+
+    #screenMatchingGame .game-top-btn-icon:hover {
+      background: rgba(255, 255, 255, 0.98) !important;
+      border-color: #ffffff !important;
+      color: #5d023c !important;
+      transform: scale(1.08) !important;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25), inset 0 1.5px 1px 0 #ffffff !important;
+    }
+
+    #screenMatchingGame .game-top-btn-icon:active {
+      background: rgba(255, 255, 255, 0.82) !important;
+      transform: scale(0.94) !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 2px 0 rgba(0, 0, 0, 0.08) !important;
+    }
+
+    #screenMatchingGame .game-top-btn-icon svg {
+      color: #7b0350 !important;
+      filter: none !important;
+    }
+
+    #screenMatchingGame .game-top-btn-icon:hover svg {
+      color: #5d023c !important;
+    }
+
+    #screenMatchingGame .game-top-btn-icon svg path,
+    #screenMatchingGame .game-top-btn-icon svg polygon,
+    #screenMatchingGame .game-top-btn-icon svg line {
+      stroke: inherit;
+      fill: inherit;
+    }
+
+    #screenMatchingGame .game-top-btn-icon svg[fill="currentColor"] {
+      fill: #7b0350 !important;
+    }
+
+    #screenMatchingGame .game-top-btn-icon:hover svg[fill="currentColor"] {
+      fill: #5d023c !important;
+    }
+
+    #screenMatchingGame .game-top-btn-icon svg[fill="currentColor"] path {
+      fill: #7b0350 !important;
+    }
+
+    #screenMatchingGame .game-top-btn-icon:hover svg[fill="currentColor"] path {
+      fill: #5d023c !important;
+    }
+
+    #screenMatchingGame .sound-toggle-btn.muted {
+      background: linear-gradient(135deg, rgba(255, 235, 240, 0.94) 0%, rgba(255, 220, 230, 0.85) 100%) !important;
+      color: #b91c1c !important;
+      border-color: rgba(239, 68, 68, 0.50) !important;
+    }
+
+    #screenMatchingGame .sound-toggle-btn.muted svg {
+      color: #b91c1c !important;
+      stroke: #b91c1c !important;
+    }
+
+    #screenMatchingGame .puzzle-difficulty-selector {
+      background: rgba(255, 255, 255, 0.18) !important;
+      border: 1px solid rgba(255, 255, 255, 0.35) !important;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.20) !important;
+    }
+
+    #screenMatchingGame .puzzle-diff-btn.active {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.88) 100%) !important;
+      color: #7b0350 !important;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25), inset 0 1px 1px #ffffff !important;
     }
 
     @media (max-width: 600px) {
@@ -10061,7 +10255,7 @@
     }
 
     .matching-top-prompt-bar.highlight-advance {
-      background: linear-gradient(180deg, rgba(56, 26, 118, 0.40) 0%, rgba(72, 32, 148, 0.48) 100%);
+      background: linear-gradient(180deg, rgba(110, 16, 72, 0.40) 0%, rgba(135, 18, 88, 0.48) 100%);
       border-color: rgba(251, 191, 36, 0.85);
       box-shadow: 0 4px 20px rgba(251, 191, 36, 0.30);
     }
@@ -10109,7 +10303,7 @@
       }
     }
 
-    /* Bottom Purple Fade Gradient for Games Screen (Disappears at end of scroll) */
+    /* Bottom Fade Gradient for Games Screen (Disappears at end of scroll) */
     .games-bottom-fade {
       position: absolute;
       bottom: 0;
@@ -10117,13 +10311,13 @@
       right: 0;
       height: 215px;
       background: linear-gradient(to top, 
-        rgba(89, 49, 186, 1) 0%, 
-        rgba(89, 49, 186, 1) 28%, 
-        rgba(89, 49, 186, 0.88) 48%, 
-        rgba(89, 49, 186, 0.55) 68%, 
-        rgba(89, 49, 186, 0.18) 88%, 
-        rgba(89, 49, 186, 0) 100%
-      ), url('assets/PurpleFade.png') bottom center / 100% 100% no-repeat;
+        rgba(244, 244, 244, 1) 0%, 
+        rgba(244, 244, 244, 1) 28%, 
+        rgba(244, 244, 244, 0.88) 48%, 
+        rgba(244, 244, 244, 0.55) 68%, 
+        rgba(244, 244, 244, 0.18) 88%, 
+        rgba(244, 244, 244, 0) 100%
+      );
       pointer-events: none;
       z-index: 24;
       opacity: 1;
@@ -10476,7 +10670,7 @@
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "Nunito", system-ui, sans-serif;
       font-size: 26px;
       font-weight: 900;
-      color: #5931ba;
+      color: #7b0350;
       margin: 0;
     }
 
@@ -10496,7 +10690,7 @@
     }
 
     .matching-btn-primary {
-      background: linear-gradient(135deg, #7B3FE4 0%, #5931ba 100%);
+      background: linear-gradient(135deg, #6bb5a3 0%, #5fa08f 48%, #478b7b 100%);
       color: #ffffff;
       border: none;
       border-radius: 999px;
@@ -10504,18 +10698,26 @@
       font-size: 16px;
       font-weight: 800;
       cursor: pointer;
-      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
-      box-shadow: 0 4px 14px rgba(123, 63, 228, 0.4);
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s, background 0.2s;
+      box-shadow: 0 4px 14px rgba(71, 139, 123, 0.40);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
+    }
+
+    .matching-btn-primary:hover {
+      background: linear-gradient(135deg, #78bfae 0%, #5fa08f 48%, #4f9686 100%);
+      box-shadow: 0 6px 18px rgba(71, 139, 123, 0.50);
+      transform: translateY(-1px) scale(1.02);
     }
 
     .matching-btn-primary:active {
       transform: scale(0.96);
+      box-shadow: 0 2px 8px rgba(71, 139, 123, 0.35);
     }
 
     .matching-btn-outline {
       background: transparent;
-      color: #5931ba;
-      border: 2px solid #5931ba;
+      color: #7b0350;
+      border: 2px solid #7b0350;
       border-radius: 999px;
       padding: 11px 24px;
       font-size: 15px;
@@ -10525,7 +10727,7 @@
     }
 
     .matching-btn-outline:hover {
-      background: #f1ecfc;
+      background: rgba(123, 3, 80, 0.08);
     }
 
     .matching-btn-outline:active {
@@ -14417,7 +14619,7 @@
                 </button>
               </div>
 
-              <!-- Purple Fade overlay at bottom (Prompts scroll, disappears at end of scroll) -->
+              <!-- Bottom fade overlay (Prompts scroll, disappears at end of scroll) -->
               <div class="games-bottom-fade" id="gamesBottomFade" aria-hidden="true"></div>
             </div>
           </div>
