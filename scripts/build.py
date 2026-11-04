@@ -74,7 +74,6 @@ def build_distribution():
       display: flex !important;
       flex-direction: column !important;
       overflow: hidden !important;
-      background-color: var(--riley-purple) !important;
       opacity: 0 !important;
       pointer-events: none !important;
       transition: opacity 0.28s ease !important;
@@ -86,17 +85,17 @@ def build_distribution():
       z-index: 10 !important;
     }
 
-    /* Base Full-Screen & Safe-Area Styles */
+    /* Base Full-Screen & Safe-Area Styles (Edge-to-edge true bleed on iOS PWA/Safari) */
     html, body {
       width: 100%;
       height: 100%;
       min-height: 100%;
       min-height: 100dvh;
-      min-height: -webkit-fill-available;
       margin: 0;
       padding: 0;
       overflow: hidden;
       background: #d4d7db;
+      background-color: #d4d7db;
       color: #e2e8f0;
       overscroll-behavior: none;
       -webkit-touch-callout: none;
@@ -109,6 +108,7 @@ def build_distribution():
     /* Edge-to-Edge Responsive Canvas Across All Devices (iPad, Desktop & Mobile) */
     .device-screen {
       background: #d4d7db;
+      background-color: #d4d7db;
       border-radius: 0 !important;
       box-shadow: none !important;
       overflow: hidden;
@@ -116,27 +116,15 @@ def build_distribution():
       width: 100vw !important;
       height: 100% !important;
       min-height: 100% !important;
-      min-height: -webkit-fill-available !important;
+      min-height: 100dvh !important;
       position: absolute !important;
       inset: 0 !important;
       display: flex;
       flex-direction: column;
     }
 
-    /* Home Screen Full-Bleed Backdrop & Safe Area Layout (Zero white or purple bleed on tablet) */
-    #screenHome {
-      position: absolute !important;
-      inset: 0 !important;
-      width: 100% !important;
-      height: 100% !important;
-      min-height: 100% !important;
-      background-image: url('assets/HomeScreenBG.png') !important;
-      background-size: cover !important;
-      background-position: center bottom !important;
-      background-repeat: no-repeat !important;
-      background-color: #d4d7db !important;
-    }
-
+    /* Home Screen Full-Bleed Backdrop & Safe Area Layout (Zero bar or gap on iOS) */
+    html.home-active,
     body.home-active,
     body:has(#screenHome.active) {
       background-image: url('assets/HomeScreenBG.png') !important;
@@ -154,22 +142,34 @@ def build_distribution():
       background-color: #d4d7db !important;
     }
 
-    #screenHome .home-bg-layer {
+    #screenHome {
       position: absolute !important;
-      top: -2% !important;
-      left: -2% !important;
-      right: -2% !important;
-      bottom: calc(-1 * env(safe-area-inset-bottom, 34px) - 40px) !important;
-      width: 104% !important;
-      height: calc(100% + env(safe-area-inset-bottom, 34px) + 50px) !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
       min-height: 100% !important;
       background-image: url('assets/HomeScreenBG.png') !important;
       background-size: cover !important;
       background-position: center bottom !important;
       background-repeat: no-repeat !important;
-      transform: scale(1.02);
-      transform-origin: center bottom;
+      background-color: #d4d7db !important;
+      overflow: hidden !important;
+    }
+
+    #screenHome .home-bg-layer {
+      position: absolute !important;
+      inset: -5% !important;
+      width: 110% !important;
+      height: 110% !important;
+      min-height: 100% !important;
+      background-image: url('assets/HomeScreenBG.png') !important;
+      background-size: cover !important;
+      background-position: center bottom !important;
+      background-repeat: no-repeat !important;
+      transform: scale(1.06) !important;
+      transform-origin: center bottom !important;
       z-index: 1 !important;
+      pointer-events: none !important;
     }
 
     #screenHome .home-bg-overlay {
@@ -430,6 +430,16 @@ def build_distribution():
     #screenHome .screen-content {
       padding-bottom: env(safe-area-inset-bottom, 0px);
       box-sizing: border-box;
+    }
+
+    #screenHome .home-body {
+      scrollbar-width: none !important;
+      -ms-overflow-style: none !important;
+    }
+    #screenHome .home-body::-webkit-scrollbar {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
     }
 
     .prep-search-wrapper {

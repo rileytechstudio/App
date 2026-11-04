@@ -181,7 +181,6 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      background-color: var(--riley-purple);
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.28s ease;
@@ -202,9 +201,9 @@
     .home-bg-layer {
       position: absolute;
       inset: 0;
-      background-image: url('assets/Background.jpg');
+      background-image: url('assets/HomeScreenBG.png');
       background-size: cover;
-      background-position: center;
+      background-position: center bottom;
       z-index: 1;
     }
 
@@ -240,20 +239,18 @@
 
     #screenHome .home-bg-layer {
       position: absolute !important;
-      top: -2% !important;
-      left: -2% !important;
-      right: -2% !important;
-      bottom: calc(-1 * env(safe-area-inset-bottom, 34px) - 40px) !important;
-      width: 104% !important;
-      height: calc(100% + env(safe-area-inset-bottom, 34px) + 50px) !important;
+      inset: -5% !important;
+      width: 110% !important;
+      height: 110% !important;
       min-height: 100% !important;
       background-image: url('assets/HomeScreenBG.png') !important;
       background-size: cover !important;
       background-position: center bottom !important;
       background-repeat: no-repeat !important;
-      transform: scale(1.02);
-      transform-origin: center bottom;
+      transform: scale(1.06) !important;
+      transform-origin: center bottom !important;
       z-index: 1 !important;
+      pointer-events: none !important;
     }
 
     #screenHome .home-bg-overlay {
