@@ -76,13 +76,27 @@ def build_distribution():
       overflow: hidden !important;
       opacity: 0 !important;
       pointer-events: none !important;
-      transition: opacity 0.28s ease !important;
+      z-index: 1 !important;
+      will-change: opacity !important;
+    }
+
+    .app-screen:not(.active),
+    .app-screen:not(.active) * {
+      pointer-events: none !important;
+    }
+
+    .app-screen.outgoing {
+      opacity: 1 !important;
+      pointer-events: none !important;
+      z-index: 5 !important;
+      transition: none !important;
     }
 
     .app-screen.active {
       opacity: 1 !important;
       pointer-events: auto !important;
       z-index: 10 !important;
+      transition: opacity 0.22s cubic-bezier(0.25, 1, 0.5, 1) !important;
     }
 
     /* Base Full-Screen & Safe-Area Styles (Edge-to-edge true bleed on iOS PWA/Safari) */
@@ -195,12 +209,16 @@ def build_distribution():
       background-image: none !important;
     }
 
+    body.preparations-active,
+    body.games-active,
     body:has(#screenPreparations.active),
     body:has(#screenGames.active) {
       background: #f4f4f4 !important;
       background-color: #f4f4f4 !important;
       background-image: none !important;
     }
+    body.preparations-active .device-screen,
+    body.games-active .device-screen,
     body:has(#screenPreparations.active) .device-screen,
     body:has(#screenGames.active) .device-screen {
       background: #f4f4f4 !important;
@@ -241,6 +259,38 @@ def build_distribution():
       background-size: cover !important;
       background-position: center !important;
       background-repeat: no-repeat !important;
+    }
+
+    /* Child Life Zone Jigsaw Puzzle Screen Full-Bleed Rebranded Berry Backdrop & Safe Area Layout */
+    #screenCLZPuzzle {
+      background: #591a3f !important;
+      background-color: #591a3f !important;
+      background-image: url('assets/PuzzleGameBG.png') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+    }
+
+    body:has(#screenCLZPuzzle.active) {
+      background: #591a3f !important;
+      background-color: #591a3f !important;
+      background-image: url('assets/PuzzleGameBG.png') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+    }
+
+    body:has(#screenCLZPuzzle.active) .device-screen {
+      background: #591a3f !important;
+      background-color: #591a3f !important;
+      background-image: url('assets/PuzzleGameBG.png') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+    }
+
+    #screenCLZPuzzle .puzzle-table-texture {
+      display: none !important;
     }
 
     /* Home Custom Header: Always respect iOS Tablet Status Bar (Time and Battery) */
@@ -542,14 +592,14 @@ def build_distribution():
 
     .pill-btn-text {
       color: #ffffff !important;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "Nunito", system-ui, sans-serif !important;
-      font-weight: 900 !important;
-      letter-spacing: 1.2px !important;
-      text-transform: uppercase !important;
+      font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+      font-weight: 400 !important;
+      letter-spacing: 0.5px !important;
+      text-transform: none !important;
       pointer-events: none !important;
       user-select: none !important;
       line-height: 1 !important;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.40) !important;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35) !important;
     }
 
     #screenHome .screen-content {
@@ -654,7 +704,6 @@ def build_distribution():
 
     /* Games Screen: Edge-to-edge animated scrolling canvas with header pinned strictly to top */
     #screenGames {
-      display: none;
       background-color: #f4f4f4 !important;
       background: #f4f4f4 !important;
       color: #39373b !important;
@@ -663,6 +712,30 @@ def build_distribution():
       inset: 0 !important;
       width: 100% !important;
       height: 100% !important;
+    }
+
+    .games-top-fade {
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      height: 150px !important;
+      background: linear-gradient(to bottom, 
+        rgba(244, 244, 244, 1) 0%, 
+        rgba(244, 244, 244, 1) 28%, 
+        rgba(244, 244, 244, 0.88) 48%, 
+        rgba(244, 244, 244, 0.55) 68%, 
+        rgba(244, 244, 244, 0.18) 88%, 
+        rgba(244, 244, 244, 0) 100%
+      ) !important;
+      pointer-events: none !important;
+      z-index: 24 !important;
+      opacity: 0 !important;
+      transition: opacity 0.35s ease !important;
+    }
+
+    .games-top-fade.visible {
+      opacity: 1 !important;
     }
 
     .games-bottom-fade {
@@ -685,18 +758,7 @@ def build_distribution():
       transition: opacity 0.35s ease !important;
     }
 
-    #screenGames.active {
-      display: block !important;
-    }
-
-    #screenGames:not(.active),
-    #screenGames:not(.active) * {
-      display: none !important;
-      pointer-events: none !important;
-      visibility: hidden !important;
-    }
-
-    #screenGames.active .screen-content {
+    #screenGames .screen-content {
       position: absolute !important;
       top: 0 !important;
       left: 0 !important;
@@ -712,17 +774,19 @@ def build_distribution():
       z-index: 25 !important;
     }
 
-    #screenGames.active #gamesHeader {
+    #screenGames #gamesHeader {
       pointer-events: auto !important;
       flex-shrink: 0 !important;
       width: 100% !important;
+      position: relative !important;
+      z-index: 30 !important;
     }
 
-    #screenGames.active .games-scroll-container {
+    #screenGames .games-scroll-container {
       pointer-events: auto !important;
     }
 
-    #screenGames.active .games-scroll-viewport {
+    #screenGames .games-scroll-viewport {
       pointer-events: auto !important;
     }
 
@@ -733,6 +797,12 @@ def build_distribution():
       inset: 0 !important;
       width: 100% !important;
       height: 100% !important;
+      background: #591a3f !important;
+      background-color: #591a3f !important;
+      background-image: url('assets/PuzzleGameBG.png') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
     }
 
     #screenCLZPuzzle.active {
@@ -798,7 +868,8 @@ def build_distribution():
       width: 100% !important;
     }
 
-    /* Rebranded Liquid Glass White Top Navigation Buttons on Card Match Game */
+    /* Rebranded Liquid Glass White Top Navigation Buttons on Card Match & Puzzle Games */
+    #screenCLZPuzzle .game-top-btn,
     #screenMatchingGame .game-top-btn {
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.78) 100%) !important;
       backdrop-filter: blur(20px) saturate(180%) !important;
@@ -814,6 +885,7 @@ def build_distribution():
       transition: background 0.18s ease, transform 0.20s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, border-color 0.18s ease, color 0.18s ease !important;
     }
 
+    #screenCLZPuzzle .game-top-btn:hover,
     #screenMatchingGame .game-top-btn:hover {
       background: rgba(255, 255, 255, 0.98) !important;
       border-color: #ffffff !important;
@@ -822,23 +894,27 @@ def build_distribution():
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25), inset 0 1.5px 1px 0 #ffffff !important;
     }
 
+    #screenCLZPuzzle .game-top-btn:active,
     #screenMatchingGame .game-top-btn:active {
       background: rgba(255, 255, 255, 0.82) !important;
       transform: scale(0.95) !important;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 2px 0 rgba(0, 0, 0, 0.08) !important;
     }
 
+    #screenCLZPuzzle .game-top-btn svg,
     #screenMatchingGame .game-top-btn svg {
       color: #7b0350 !important;
       stroke: #7b0350 !important;
       filter: none !important;
     }
 
+    #screenCLZPuzzle .game-top-btn:hover svg,
     #screenMatchingGame .game-top-btn:hover svg {
       color: #5d023c !important;
       stroke: #5d023c !important;
     }
 
+    #screenCLZPuzzle .game-top-btn-icon,
     #screenMatchingGame .game-top-btn-icon {
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.78) 100%) !important;
       backdrop-filter: blur(20px) saturate(180%) !important;
@@ -853,6 +929,7 @@ def build_distribution():
       transition: background 0.18s ease, transform 0.20s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, border-color 0.18s ease, color 0.18s ease !important;
     }
 
+    #screenCLZPuzzle .game-top-btn-icon:hover,
     #screenMatchingGame .game-top-btn-icon:hover {
       background: rgba(255, 255, 255, 0.98) !important;
       border-color: #ffffff !important;
@@ -861,21 +938,27 @@ def build_distribution():
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25), inset 0 1.5px 1px 0 #ffffff !important;
     }
 
+    #screenCLZPuzzle .game-top-btn-icon:active,
     #screenMatchingGame .game-top-btn-icon:active {
       background: rgba(255, 255, 255, 0.82) !important;
       transform: scale(0.94) !important;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 2px 0 rgba(0, 0, 0, 0.08) !important;
     }
 
+    #screenCLZPuzzle .game-top-btn-icon svg,
     #screenMatchingGame .game-top-btn-icon svg {
       color: #7b0350 !important;
       filter: none !important;
     }
 
+    #screenCLZPuzzle .game-top-btn-icon:hover svg,
     #screenMatchingGame .game-top-btn-icon:hover svg {
       color: #5d023c !important;
     }
 
+    #screenCLZPuzzle .game-top-btn-icon svg path,
+    #screenCLZPuzzle .game-top-btn-icon svg polygon,
+    #screenCLZPuzzle .game-top-btn-icon svg line,
     #screenMatchingGame .game-top-btn-icon svg path,
     #screenMatchingGame .game-top-btn-icon svg polygon,
     #screenMatchingGame .game-top-btn-icon svg line {
@@ -883,42 +966,81 @@ def build_distribution():
       fill: inherit;
     }
 
+    #screenCLZPuzzle .game-top-btn-icon svg[fill="currentColor"],
     #screenMatchingGame .game-top-btn-icon svg[fill="currentColor"] {
       fill: #7b0350 !important;
     }
 
+    #screenCLZPuzzle .game-top-btn-icon:hover svg[fill="currentColor"],
     #screenMatchingGame .game-top-btn-icon:hover svg[fill="currentColor"] {
       fill: #5d023c !important;
     }
 
+    #screenCLZPuzzle .game-top-btn-icon svg[fill="currentColor"] path,
     #screenMatchingGame .game-top-btn-icon svg[fill="currentColor"] path {
       fill: #7b0350 !important;
     }
 
+    #screenCLZPuzzle .game-top-btn-icon:hover svg[fill="currentColor"] path,
     #screenMatchingGame .game-top-btn-icon:hover svg[fill="currentColor"] path {
       fill: #5d023c !important;
     }
 
+    #screenCLZPuzzle .sound-toggle-btn.muted,
     #screenMatchingGame .sound-toggle-btn.muted {
       background: linear-gradient(135deg, rgba(255, 235, 240, 0.94) 0%, rgba(255, 220, 230, 0.85) 100%) !important;
       color: #b91c1c !important;
       border-color: rgba(239, 68, 68, 0.50) !important;
     }
 
+    #screenCLZPuzzle .sound-toggle-btn.muted svg,
     #screenMatchingGame .sound-toggle-btn.muted svg {
       color: #b91c1c !important;
       stroke: #b91c1c !important;
     }
 
+    #screenCLZPuzzle .puzzle-difficulty-selector,
     #screenMatchingGame .puzzle-difficulty-selector {
       background: rgba(255, 255, 255, 0.18) !important;
       border: 1px solid rgba(255, 255, 255, 0.35) !important;
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.20) !important;
     }
 
+    #screenCLZPuzzle .puzzle-diff-btn.active,
     #screenMatchingGame .puzzle-diff-btn.active {
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.88) 100%) !important;
       color: #7b0350 !important;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25), inset 0 1px 1px #ffffff !important;
+    }
+
+    #screenCLZPuzzle .puzzle-tool-btn {
+      background: rgba(255, 255, 255, 0.18) !important;
+      border: 1px solid rgba(255, 255, 255, 0.35) !important;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.20) !important;
+      color: rgba(255, 255, 255, 0.90) !important;
+      font-size: 13.5px !important;
+      font-weight: 800 !important;
+      padding: 6px 16px !important;
+      border-radius: 999px !important;
+      cursor: pointer !important;
+      transition: background 0.18s ease, transform 0.20s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, border-color 0.18s ease, color 0.18s ease !important;
+    }
+
+    #screenCLZPuzzle .puzzle-tool-btn:hover {
+      background: rgba(255, 255, 255, 0.28) !important;
+      border-color: rgba(255, 255, 255, 0.55) !important;
+      color: #ffffff !important;
+      transform: scale(1.04) !important;
+    }
+
+    #screenCLZPuzzle .puzzle-tool-btn:active {
+      transform: scale(0.96) !important;
+    }
+
+    #screenCLZPuzzle .puzzle-tool-btn.active {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.88) 100%) !important;
+      color: #7b0350 !important;
+      border: 1px solid rgba(255, 255, 255, 0.90) !important;
       box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25), inset 0 1px 1px #ffffff !important;
     }
 
@@ -937,6 +1059,20 @@ def build_distribution():
     .matching-btn-primary:active {
       transform: scale(0.96) !important;
       box-shadow: 0 2px 8px rgba(71, 139, 123, 0.35) !important;
+    }
+
+    /* Matching Game Completion Celebration Card Typography - Clean Neutral */
+    #screenMatchingGame .matching-success-desc {
+      color: #222222 !important;
+    }
+
+    #screenMatchingGame .matching-btn-outline {
+      color: #000000 !important;
+      border: 2px solid #000000 !important;
+    }
+
+    #screenMatchingGame .matching-btn-outline:hover {
+      background: rgba(0, 0, 0, 0.06) !important;
     }
 
     #screenMatchingGame.active .matching-game-stage,
@@ -1047,17 +1183,17 @@ def build_distribution():
     }
 
     .bottom-tab-btn.active img {
-      filter: drop-shadow(0 4px 12px rgba(120, 8, 78, 0.40)) drop-shadow(0 1px 3px rgba(0, 0, 0, 0.15)) !important;
+      filter: drop-shadow(0 4px 12px rgba(71, 139, 123, 0.40)) drop-shadow(0 1px 3px rgba(0, 0, 0, 0.15)) !important;
     }
 
     .bottom-tab-btn:hover img {
-      filter: drop-shadow(0 4px 14px rgba(120, 8, 78, 0.35)) brightness(1.05) !important;
+      filter: drop-shadow(0 4px 14px rgba(71, 139, 123, 0.35)) brightness(1.05) !important;
       transform: scale(1.015) !important;
     }
 
     .bottom-tab-btn:active img {
       transform: scale(0.985) !important;
-      filter: drop-shadow(0 2px 6px rgba(120, 8, 78, 0.25)) !important;
+      filter: drop-shadow(0 2px 6px rgba(71, 139, 123, 0.25)) !important;
     }
     """
     css += dist_css_overrides
@@ -1146,6 +1282,11 @@ def build_distribution():
   <link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./assets/icons/icon-192.png" />
   <link rel="icon" type="image/png" sizes="512x512" href="./assets/icons/icon-512.png" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
 
   <style>
 {css.strip()}

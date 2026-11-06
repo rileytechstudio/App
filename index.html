@@ -15,8 +15,15 @@
   <link rel="icon" type="image/png" sizes="192x192" href="./assets/icons/icon-192.png" />
   <link rel="icon" type="image/png" sizes="512x512" href="./assets/icons/icon-512.png" />
 
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+
   <style>
-:root {
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+    :root {
       --riley-purple: #5931ba;
       --riley-dark-purple: #411e8c;
       --riley-header-orange: #f7b16a;
@@ -83,7 +90,8 @@
       overflow: hidden;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.28s ease;
+      z-index: 1;
+      will-change: opacity;
     }
 
     .app-screen:not(.active),
@@ -91,10 +99,18 @@
       pointer-events: none !important;
     }
 
+    .app-screen.outgoing {
+      opacity: 1 !important;
+      pointer-events: none !important;
+      z-index: 5 !important;
+      transition: none !important;
+    }
+
     .app-screen.active {
-      opacity: 1;
-      pointer-events: auto;
-      z-index: 10;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      z-index: 10 !important;
+      transition: opacity 0.22s cubic-bezier(0.25, 1, 0.5, 1) !important;
     }
 
     /* Background Layers */
@@ -152,12 +168,6 @@
       z-index: 1 !important;
       pointer-events: none !important;
     }
-      background-repeat: no-repeat !important;
-      transform: scale(1.06) !important;
-      transform-origin: center bottom !important;
-      z-index: 1 !important;
-      pointer-events: none !important;
-    }
 
     #screenHome .home-bg-overlay {
       display: none !important;
@@ -178,15 +188,23 @@
       display: none !important;
     }
 
+    body.preparations-active,
+    body.games-active,
     body:has(#screenPreparations.active),
-    body:has(#screenGames.active) {
+    body:has(#screenGames.active),
+    body:has(#screenPreparations.outgoing),
+    body:has(#screenGames.outgoing) {
       background: #f4f4f4 !important;
       background-color: #f4f4f4 !important;
       background-image: none !important;
     }
 
+    body.preparations-active .device-screen,
+    body.games-active .device-screen,
     body:has(#screenPreparations.active) .device-screen,
-    body:has(#screenGames.active) .device-screen {
+    body:has(#screenGames.active) .device-screen,
+    body:has(#screenPreparations.outgoing) .device-screen,
+    body:has(#screenGames.outgoing) .device-screen {
       background: #f4f4f4 !important;
       background-color: #f4f4f4 !important;
       background-image: none !important;
@@ -447,23 +465,31 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
       width: 100%;
-      overflow-y: auto;
-      overflow-x: hidden;
-      padding: 24px 24px 20px 24px;
+      overflow: hidden !important;
+      scrollbar-width: none !important;
+      -ms-overflow-style: none !important;
+      padding: 16px 24px;
       box-sizing: border-box;
+    }
+
+    .home-body::-webkit-scrollbar {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
     }
 
     .cards-container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
       width: 100%;
       height: 100%;
       max-width: 1320px;
       flex: 1;
+      margin: auto;
     }
 
     .home-main-cards {
@@ -473,8 +499,9 @@
       justify-content: center;
       width: 100%;
       gap: 24px;
-      margin-top: auto;
-      margin-bottom: auto;
+      margin: auto 0;
+      /* Counteract the asymmetric 10px / 421px drop shadow baked into card PNGs to align to screen midline */
+      transform: translateX(8px);
     }
 
     .card-btn {
@@ -486,6 +513,10 @@
       display: block;
       max-width: 420px;
       width: 100%;
+      padding: 0 !important;
+      margin: 0 !important;
+      box-sizing: border-box !important;
+      line-height: 0 !important;
     }
 
     .card-btn:hover {
@@ -503,6 +534,8 @@
       height: auto;
       display: block;
       pointer-events: none;
+      margin: 0;
+      padding: 0;
     }
 
     .pill-btn {
@@ -540,14 +573,14 @@
 
     .pill-btn-text {
       color: #ffffff !important;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "Nunito", system-ui, sans-serif !important;
-      font-weight: 900 !important;
-      letter-spacing: 1.2px !important;
-      text-transform: uppercase !important;
+      font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+      font-weight: 400 !important;
+      letter-spacing: 0.5px !important;
+      text-transform: none !important;
       pointer-events: none !important;
       user-select: none !important;
       line-height: 1 !important;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.40) !important;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35) !important;
     }
 
     .grid-row-top, .grid-row-mid {
@@ -556,17 +589,20 @@
       align-items: center;
       gap: 28px;
       width: 100%;
+      margin: 0;
+      padding: 0;
+      flex-shrink: 0;
     }
 
     .grid-row-bottom {
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 24px;
+      gap: 28px;
       width: 100%;
-      margin-top: 0;
-      padding-top: 16px;
-      padding-bottom: 12px;
+      margin: 0;
+      padding-top: 18px;
+      padding-bottom: 24px;
       flex-shrink: 0;
     }
 
@@ -574,12 +610,13 @@
       display: none;
       flex-direction: column;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
       width: 100%;
       height: 100%;
       flex: 1;
-      padding-top: 24px;
-      padding-bottom: 16px;
+      margin: auto;
+      padding: 16px 20px;
+      box-sizing: border-box;
     }
 
     .portrait-grid-cards {
@@ -589,8 +626,8 @@
       justify-content: center;
       width: 100%;
       gap: 14px;
-      margin-top: auto;
-      margin-bottom: auto;
+      margin: auto 0;
+      transform: translateX(3px);
     }
 
     .portrait-grid-row {
@@ -599,12 +636,20 @@
       align-items: center;
       gap: 14px;
       width: 100%;
+      margin: 0;
+      padding: 0;
+      flex-shrink: 0;
     }
 
     .portrait-grid-bottom {
-      margin-top: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      margin: 0;
       padding-top: 16px;
-      padding-bottom: 8px;
+      padding-bottom: 14px;
       flex-shrink: 0;
     }
 
@@ -893,17 +938,17 @@
     }
 
     .bottom-tab-btn.active img {
-      filter: drop-shadow(0 4px 12px rgba(120, 8, 78, 0.40)) drop-shadow(0 1px 3px rgba(0, 0, 0, 0.15));
+      filter: drop-shadow(0 4px 12px rgba(71, 139, 123, 0.40)) drop-shadow(0 1px 3px rgba(0, 0, 0, 0.15));
     }
 
     .bottom-tab-btn:hover img {
-      filter: drop-shadow(0 4px 14px rgba(120, 8, 78, 0.35)) brightness(1.05);
+      filter: drop-shadow(0 4px 14px rgba(71, 139, 123, 0.35)) brightness(1.05);
       transform: scale(1.015);
     }
 
     .bottom-tab-btn:active img {
       transform: scale(0.985);
-      filter: drop-shadow(0 2px 6px rgba(120, 8, 78, 0.25));
+      filter: drop-shadow(0 2px 6px rgba(71, 139, 123, 0.25));
     }
 
     /* Modal Navigation Sheet */
@@ -960,7 +1005,7 @@
     .sheet-title {
       font-size: 24px;
       font-weight: 800;
-      color: var(--riley-purple);
+      color: #325b72;
     }
 
     .sheet-close-btn {
@@ -9340,7 +9385,6 @@
     /* SCREEN 8: GAMES SCREEN                                    */
     /* ========================================================= */
     #screenGames {
-      display: none;
       background-color: #f4f4f4 !important;
       background: #f4f4f4 !important;
       color: #39373b !important;
@@ -9349,17 +9393,6 @@
       inset: 0 !important;
       width: 100% !important;
       height: 100% !important;
-    }
-
-    #screenGames.active {
-      display: block !important;
-    }
-
-    #screenGames:not(.active),
-    #screenGames:not(.active) * {
-      display: none !important;
-      pointer-events: none !important;
-      visibility: hidden !important;
     }
 
     #screenGames .screen-content {
@@ -9382,6 +9415,8 @@
       pointer-events: auto !important;
       flex-shrink: 0 !important;
       width: 100% !important;
+      position: relative !important;
+      z-index: 30 !important;
     }
 
     #screenGames .games-bottom-bar {
@@ -9468,15 +9503,15 @@
       inset: 0;
       background-image: url('assets/GamesBackgroundPattern.png');
       background-repeat: repeat;
-      background-size: 1366px 1024px;
+      background-size: 780px 780px;
       pointer-events: none;
       z-index: 1;
       opacity: 0.95;
-      animation: scrollGamesBg 74s linear infinite;
+      animation: scrollGamesBg 42s linear infinite;
       will-change: background-position;
     }
 
-    #screenGames:not(.active) .games-bg-pattern-layer {
+    #screenGames:not(.active):not(.outgoing) .games-bg-pattern-layer {
       animation-play-state: paused;
     }
 
@@ -9485,13 +9520,13 @@
         background-position: 0 0;
       }
       100% {
-        background-position: -1366px 1024px;
+        background-position: -780px 780px;
       }
     }
 
     @media (prefers-reduced-motion: reduce) {
       .games-bg-pattern-layer {
-        animation-duration: 296s;
+        animation-duration: 168s;
       }
     }
 
@@ -9499,8 +9534,8 @@
     /* SCREEN 9: CHILD LIFE ZONE JIGSAW PUZZLE                   */
     /* ========================================================= */
     #screenCLZPuzzle {
-      background-color: #5931bb !important;
-      background-image: url('assets/PurpleBG.png') !important;
+      background-color: #591a3f !important;
+      background-image: url('assets/PuzzleGameBG.png') !important;
       background-size: cover !important;
       background-position: center !important;
       background-repeat: no-repeat !important;
@@ -9531,16 +9566,7 @@
     }
 
     .puzzle-table-texture {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      background-image: url('assets/TableTexture.png');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      pointer-events: none;
-      z-index: 1;
+      display: none !important;
     }
 
     .puzzle-top-bar {
@@ -9598,22 +9624,22 @@
     }
 
     .puzzle-diff-btn.active {
-      background: #ffffff !important;
-      color: #5931ba !important;
-      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.88) 100%) !important;
+      color: #7b0350 !important;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25), inset 0 1px 1px #ffffff !important;
       transform: scale(1.03);
     }
 
     .puzzle-tool-btn {
-      border: 1px solid rgba(255, 255, 255, 0.24);
-      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.18);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      color: #ffffff;
+      color: rgba(255, 255, 255, 0.90);
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "Nunito", system-ui, sans-serif;
       font-size: 13.5px;
-      font-weight: 700;
-      padding: 6.5px 16px;
+      font-weight: 800;
+      padding: 6px 16px;
       border-radius: 999px;
       cursor: pointer;
       transition: all 0.18s ease;
@@ -9621,11 +9647,14 @@
       align-items: center;
       justify-content: center;
       -webkit-tap-highlight-color: transparent;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.20);
     }
 
     .puzzle-tool-btn:hover {
-      background: rgba(255, 255, 255, 0.24);
-      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.28);
+      border-color: rgba(255, 255, 255, 0.55);
+      color: #ffffff;
+      transform: scale(1.04);
     }
 
     .puzzle-tool-btn:active {
@@ -9633,10 +9662,10 @@
     }
 
     .puzzle-tool-btn.active {
-      background: #fbc02d;
-      color: #2d1800;
-      border-color: #ffd54f;
-      box-shadow: 0 0 14px rgba(251, 192, 45, 0.65);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.88) 100%) !important;
+      color: #7b0350 !important;
+      border: 1px solid rgba(255, 255, 255, 0.90) !important;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25), inset 0 1px 1px #ffffff !important;
     }
 
     .puzzle-main-stage {
@@ -9976,7 +10005,8 @@
       box-sizing: border-box;
     }
 
-    /* Rebranded Liquid Glass White Top Navigation Buttons on Card Match Game */
+    /* Rebranded Liquid Glass White Top Navigation Buttons on Card Match & Puzzle Games */
+    #screenCLZPuzzle .game-top-btn,
     #screenMatchingGame .game-top-btn {
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.78) 100%) !important;
       backdrop-filter: blur(20px) saturate(180%) !important;
@@ -9992,6 +10022,7 @@
       transition: background 0.18s ease, transform 0.20s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, border-color 0.18s ease, color 0.18s ease !important;
     }
 
+    #screenCLZPuzzle .game-top-btn:hover,
     #screenMatchingGame .game-top-btn:hover {
       background: rgba(255, 255, 255, 0.98) !important;
       border-color: #ffffff !important;
@@ -10000,23 +10031,27 @@
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25), inset 0 1.5px 1px 0 #ffffff !important;
     }
 
+    #screenCLZPuzzle .game-top-btn:active,
     #screenMatchingGame .game-top-btn:active {
       background: rgba(255, 255, 255, 0.82) !important;
       transform: scale(0.95) !important;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 2px 0 rgba(0, 0, 0, 0.08) !important;
     }
 
+    #screenCLZPuzzle .game-top-btn svg,
     #screenMatchingGame .game-top-btn svg {
       color: #7b0350 !important;
       stroke: #7b0350 !important;
       filter: none !important;
     }
 
+    #screenCLZPuzzle .game-top-btn:hover svg,
     #screenMatchingGame .game-top-btn:hover svg {
       color: #5d023c !important;
       stroke: #5d023c !important;
     }
 
+    #screenCLZPuzzle .game-top-btn-icon,
     #screenMatchingGame .game-top-btn-icon {
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.78) 100%) !important;
       backdrop-filter: blur(20px) saturate(180%) !important;
@@ -10031,6 +10066,7 @@
       transition: background 0.18s ease, transform 0.20s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, border-color 0.18s ease, color 0.18s ease !important;
     }
 
+    #screenCLZPuzzle .game-top-btn-icon:hover,
     #screenMatchingGame .game-top-btn-icon:hover {
       background: rgba(255, 255, 255, 0.98) !important;
       border-color: #ffffff !important;
@@ -10039,21 +10075,27 @@
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25), inset 0 1.5px 1px 0 #ffffff !important;
     }
 
+    #screenCLZPuzzle .game-top-btn-icon:active,
     #screenMatchingGame .game-top-btn-icon:active {
       background: rgba(255, 255, 255, 0.82) !important;
       transform: scale(0.94) !important;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 2px 0 rgba(0, 0, 0, 0.08) !important;
     }
 
+    #screenCLZPuzzle .game-top-btn-icon svg,
     #screenMatchingGame .game-top-btn-icon svg {
       color: #7b0350 !important;
       filter: none !important;
     }
 
+    #screenCLZPuzzle .game-top-btn-icon:hover svg,
     #screenMatchingGame .game-top-btn-icon:hover svg {
       color: #5d023c !important;
     }
 
+    #screenCLZPuzzle .game-top-btn-icon svg path,
+    #screenCLZPuzzle .game-top-btn-icon svg polygon,
+    #screenCLZPuzzle .game-top-btn-icon svg line,
     #screenMatchingGame .game-top-btn-icon svg path,
     #screenMatchingGame .game-top-btn-icon svg polygon,
     #screenMatchingGame .game-top-btn-icon svg line {
@@ -10061,42 +10103,81 @@
       fill: inherit;
     }
 
+    #screenCLZPuzzle .game-top-btn-icon svg[fill="currentColor"],
     #screenMatchingGame .game-top-btn-icon svg[fill="currentColor"] {
       fill: #7b0350 !important;
     }
 
+    #screenCLZPuzzle .game-top-btn-icon:hover svg[fill="currentColor"],
     #screenMatchingGame .game-top-btn-icon:hover svg[fill="currentColor"] {
       fill: #5d023c !important;
     }
 
+    #screenCLZPuzzle .game-top-btn-icon svg[fill="currentColor"] path,
     #screenMatchingGame .game-top-btn-icon svg[fill="currentColor"] path {
       fill: #7b0350 !important;
     }
 
+    #screenCLZPuzzle .game-top-btn-icon:hover svg[fill="currentColor"] path,
     #screenMatchingGame .game-top-btn-icon:hover svg[fill="currentColor"] path {
       fill: #5d023c !important;
     }
 
+    #screenCLZPuzzle .sound-toggle-btn.muted,
     #screenMatchingGame .sound-toggle-btn.muted {
       background: linear-gradient(135deg, rgba(255, 235, 240, 0.94) 0%, rgba(255, 220, 230, 0.85) 100%) !important;
       color: #b91c1c !important;
       border-color: rgba(239, 68, 68, 0.50) !important;
     }
 
+    #screenCLZPuzzle .sound-toggle-btn.muted svg,
     #screenMatchingGame .sound-toggle-btn.muted svg {
       color: #b91c1c !important;
       stroke: #b91c1c !important;
     }
 
+    #screenCLZPuzzle .puzzle-difficulty-selector,
     #screenMatchingGame .puzzle-difficulty-selector {
       background: rgba(255, 255, 255, 0.18) !important;
       border: 1px solid rgba(255, 255, 255, 0.35) !important;
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.20) !important;
     }
 
+    #screenCLZPuzzle .puzzle-diff-btn.active,
     #screenMatchingGame .puzzle-diff-btn.active {
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.88) 100%) !important;
       color: #7b0350 !important;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25), inset 0 1px 1px #ffffff !important;
+    }
+
+    #screenCLZPuzzle .puzzle-tool-btn {
+      background: rgba(255, 255, 255, 0.18) !important;
+      border: 1px solid rgba(255, 255, 255, 0.35) !important;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.20) !important;
+      color: rgba(255, 255, 255, 0.90) !important;
+      font-size: 13.5px !important;
+      font-weight: 800 !important;
+      padding: 6px 16px !important;
+      border-radius: 999px !important;
+      cursor: pointer !important;
+      transition: background 0.18s ease, transform 0.20s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, border-color 0.18s ease, color 0.18s ease !important;
+    }
+
+    #screenCLZPuzzle .puzzle-tool-btn:hover {
+      background: rgba(255, 255, 255, 0.28) !important;
+      border-color: rgba(255, 255, 255, 0.55) !important;
+      color: #ffffff !important;
+      transform: scale(1.04) !important;
+    }
+
+    #screenCLZPuzzle .puzzle-tool-btn:active {
+      transform: scale(0.96) !important;
+    }
+
+    #screenCLZPuzzle .puzzle-tool-btn.active {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.88) 100%) !important;
+      color: #7b0350 !important;
+      border: 1px solid rgba(255, 255, 255, 0.90) !important;
       box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25), inset 0 1px 1px #ffffff !important;
     }
 
@@ -10201,6 +10282,31 @@
       .matching-game-stage {
         padding: 42px 10px calc(14px + env(safe-area-inset-bottom, 12px));
       }
+    }
+
+    /* Top Fade Gradient for Games Screen (Appears when space to scroll up, exact match to bottom fade) */
+    .games-top-fade {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 150px;
+      background: linear-gradient(to bottom, 
+        rgba(244, 244, 244, 1) 0%, 
+        rgba(244, 244, 244, 1) 28%, 
+        rgba(244, 244, 244, 0.88) 48%, 
+        rgba(244, 244, 244, 0.55) 68%, 
+        rgba(244, 244, 244, 0.18) 88%, 
+        rgba(244, 244, 244, 0) 100%
+      );
+      pointer-events: none;
+      z-index: 24;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+    }
+
+    .games-top-fade.visible {
+      opacity: 1;
     }
 
     /* Bottom Fade Gradient for Games Screen (Disappears at end of scroll) */
@@ -10576,7 +10682,7 @@
 
     .matching-success-desc {
       font-size: 15px;
-      color: #555566;
+      color: #222222;
       margin: 0;
       line-height: 1.4;
     }
@@ -10616,8 +10722,8 @@
 
     .matching-btn-outline {
       background: transparent;
-      color: #7b0350;
-      border: 2px solid #7b0350;
+      color: #000000;
+      border: 2px solid #000000;
       border-radius: 999px;
       padding: 11px 24px;
       font-size: 15px;
@@ -10627,7 +10733,7 @@
     }
 
     .matching-btn-outline:hover {
-      background: rgba(123, 3, 80, 0.08);
+      background: rgba(0, 0, 0, 0.06);
     }
 
     .matching-btn-outline:active {
@@ -12377,13 +12483,27 @@
       overflow: hidden !important;
       opacity: 0 !important;
       pointer-events: none !important;
-      transition: opacity 0.28s ease !important;
+      z-index: 1 !important;
+      will-change: opacity !important;
+    }
+
+    .app-screen:not(.active),
+    .app-screen:not(.active) * {
+      pointer-events: none !important;
+    }
+
+    .app-screen.outgoing {
+      opacity: 1 !important;
+      pointer-events: none !important;
+      z-index: 5 !important;
+      transition: none !important;
     }
 
     .app-screen.active {
       opacity: 1 !important;
       pointer-events: auto !important;
       z-index: 10 !important;
+      transition: opacity 0.22s cubic-bezier(0.25, 1, 0.5, 1) !important;
     }
 
     /* Base Full-Screen & Safe-Area Styles (Edge-to-edge true bleed on iOS PWA/Safari) */
@@ -12496,12 +12616,16 @@
       background-image: none !important;
     }
 
+    body.preparations-active,
+    body.games-active,
     body:has(#screenPreparations.active),
     body:has(#screenGames.active) {
       background: #f4f4f4 !important;
       background-color: #f4f4f4 !important;
       background-image: none !important;
     }
+    body.preparations-active .device-screen,
+    body.games-active .device-screen,
     body:has(#screenPreparations.active) .device-screen,
     body:has(#screenGames.active) .device-screen {
       background: #f4f4f4 !important;
@@ -12542,6 +12666,38 @@
       background-size: cover !important;
       background-position: center !important;
       background-repeat: no-repeat !important;
+    }
+
+    /* Child Life Zone Jigsaw Puzzle Screen Full-Bleed Rebranded Berry Backdrop & Safe Area Layout */
+    #screenCLZPuzzle {
+      background: #591a3f !important;
+      background-color: #591a3f !important;
+      background-image: url('assets/PuzzleGameBG.png') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+    }
+
+    body:has(#screenCLZPuzzle.active) {
+      background: #591a3f !important;
+      background-color: #591a3f !important;
+      background-image: url('assets/PuzzleGameBG.png') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+    }
+
+    body:has(#screenCLZPuzzle.active) .device-screen {
+      background: #591a3f !important;
+      background-color: #591a3f !important;
+      background-image: url('assets/PuzzleGameBG.png') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+    }
+
+    #screenCLZPuzzle .puzzle-table-texture {
+      display: none !important;
     }
 
     /* Home Custom Header: Always respect iOS Tablet Status Bar (Time and Battery) */
@@ -12843,14 +12999,14 @@
 
     .pill-btn-text {
       color: #ffffff !important;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "Nunito", system-ui, sans-serif !important;
-      font-weight: 900 !important;
-      letter-spacing: 1.2px !important;
-      text-transform: uppercase !important;
+      font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+      font-weight: 400 !important;
+      letter-spacing: 0.5px !important;
+      text-transform: none !important;
       pointer-events: none !important;
       user-select: none !important;
       line-height: 1 !important;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.40) !important;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35) !important;
     }
 
     #screenHome .screen-content {
@@ -12955,7 +13111,6 @@
 
     /* Games Screen: Edge-to-edge animated scrolling canvas with header pinned strictly to top */
     #screenGames {
-      display: none;
       background-color: #f4f4f4 !important;
       background: #f4f4f4 !important;
       color: #39373b !important;
@@ -12964,6 +13119,30 @@
       inset: 0 !important;
       width: 100% !important;
       height: 100% !important;
+    }
+
+    .games-top-fade {
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      height: 150px !important;
+      background: linear-gradient(to bottom, 
+        rgba(244, 244, 244, 1) 0%, 
+        rgba(244, 244, 244, 1) 28%, 
+        rgba(244, 244, 244, 0.88) 48%, 
+        rgba(244, 244, 244, 0.55) 68%, 
+        rgba(244, 244, 244, 0.18) 88%, 
+        rgba(244, 244, 244, 0) 100%
+      ) !important;
+      pointer-events: none !important;
+      z-index: 24 !important;
+      opacity: 0 !important;
+      transition: opacity 0.35s ease !important;
+    }
+
+    .games-top-fade.visible {
+      opacity: 1 !important;
     }
 
     .games-bottom-fade {
@@ -12986,18 +13165,7 @@
       transition: opacity 0.35s ease !important;
     }
 
-    #screenGames.active {
-      display: block !important;
-    }
-
-    #screenGames:not(.active),
-    #screenGames:not(.active) * {
-      display: none !important;
-      pointer-events: none !important;
-      visibility: hidden !important;
-    }
-
-    #screenGames.active .screen-content {
+    #screenGames .screen-content {
       position: absolute !important;
       top: 0 !important;
       left: 0 !important;
@@ -13013,17 +13181,19 @@
       z-index: 25 !important;
     }
 
-    #screenGames.active #gamesHeader {
+    #screenGames #gamesHeader {
       pointer-events: auto !important;
       flex-shrink: 0 !important;
       width: 100% !important;
+      position: relative !important;
+      z-index: 30 !important;
     }
 
-    #screenGames.active .games-scroll-container {
+    #screenGames .games-scroll-container {
       pointer-events: auto !important;
     }
 
-    #screenGames.active .games-scroll-viewport {
+    #screenGames .games-scroll-viewport {
       pointer-events: auto !important;
     }
 
@@ -13034,6 +13204,12 @@
       inset: 0 !important;
       width: 100% !important;
       height: 100% !important;
+      background: #591a3f !important;
+      background-color: #591a3f !important;
+      background-image: url('assets/PuzzleGameBG.png') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
     }
 
     #screenCLZPuzzle.active {
@@ -13099,7 +13275,8 @@
       width: 100% !important;
     }
 
-    /* Rebranded Liquid Glass White Top Navigation Buttons on Card Match Game */
+    /* Rebranded Liquid Glass White Top Navigation Buttons on Card Match & Puzzle Games */
+    #screenCLZPuzzle .game-top-btn,
     #screenMatchingGame .game-top-btn {
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.78) 100%) !important;
       backdrop-filter: blur(20px) saturate(180%) !important;
@@ -13115,6 +13292,7 @@
       transition: background 0.18s ease, transform 0.20s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, border-color 0.18s ease, color 0.18s ease !important;
     }
 
+    #screenCLZPuzzle .game-top-btn:hover,
     #screenMatchingGame .game-top-btn:hover {
       background: rgba(255, 255, 255, 0.98) !important;
       border-color: #ffffff !important;
@@ -13123,23 +13301,27 @@
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25), inset 0 1.5px 1px 0 #ffffff !important;
     }
 
+    #screenCLZPuzzle .game-top-btn:active,
     #screenMatchingGame .game-top-btn:active {
       background: rgba(255, 255, 255, 0.82) !important;
       transform: scale(0.95) !important;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 2px 0 rgba(0, 0, 0, 0.08) !important;
     }
 
+    #screenCLZPuzzle .game-top-btn svg,
     #screenMatchingGame .game-top-btn svg {
       color: #7b0350 !important;
       stroke: #7b0350 !important;
       filter: none !important;
     }
 
+    #screenCLZPuzzle .game-top-btn:hover svg,
     #screenMatchingGame .game-top-btn:hover svg {
       color: #5d023c !important;
       stroke: #5d023c !important;
     }
 
+    #screenCLZPuzzle .game-top-btn-icon,
     #screenMatchingGame .game-top-btn-icon {
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.78) 100%) !important;
       backdrop-filter: blur(20px) saturate(180%) !important;
@@ -13154,6 +13336,7 @@
       transition: background 0.18s ease, transform 0.20s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, border-color 0.18s ease, color 0.18s ease !important;
     }
 
+    #screenCLZPuzzle .game-top-btn-icon:hover,
     #screenMatchingGame .game-top-btn-icon:hover {
       background: rgba(255, 255, 255, 0.98) !important;
       border-color: #ffffff !important;
@@ -13162,21 +13345,27 @@
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25), inset 0 1.5px 1px 0 #ffffff !important;
     }
 
+    #screenCLZPuzzle .game-top-btn-icon:active,
     #screenMatchingGame .game-top-btn-icon:active {
       background: rgba(255, 255, 255, 0.82) !important;
       transform: scale(0.94) !important;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 2px 0 rgba(0, 0, 0, 0.08) !important;
     }
 
+    #screenCLZPuzzle .game-top-btn-icon svg,
     #screenMatchingGame .game-top-btn-icon svg {
       color: #7b0350 !important;
       filter: none !important;
     }
 
+    #screenCLZPuzzle .game-top-btn-icon:hover svg,
     #screenMatchingGame .game-top-btn-icon:hover svg {
       color: #5d023c !important;
     }
 
+    #screenCLZPuzzle .game-top-btn-icon svg path,
+    #screenCLZPuzzle .game-top-btn-icon svg polygon,
+    #screenCLZPuzzle .game-top-btn-icon svg line,
     #screenMatchingGame .game-top-btn-icon svg path,
     #screenMatchingGame .game-top-btn-icon svg polygon,
     #screenMatchingGame .game-top-btn-icon svg line {
@@ -13184,42 +13373,81 @@
       fill: inherit;
     }
 
+    #screenCLZPuzzle .game-top-btn-icon svg[fill="currentColor"],
     #screenMatchingGame .game-top-btn-icon svg[fill="currentColor"] {
       fill: #7b0350 !important;
     }
 
+    #screenCLZPuzzle .game-top-btn-icon:hover svg[fill="currentColor"],
     #screenMatchingGame .game-top-btn-icon:hover svg[fill="currentColor"] {
       fill: #5d023c !important;
     }
 
+    #screenCLZPuzzle .game-top-btn-icon svg[fill="currentColor"] path,
     #screenMatchingGame .game-top-btn-icon svg[fill="currentColor"] path {
       fill: #7b0350 !important;
     }
 
+    #screenCLZPuzzle .game-top-btn-icon:hover svg[fill="currentColor"] path,
     #screenMatchingGame .game-top-btn-icon:hover svg[fill="currentColor"] path {
       fill: #5d023c !important;
     }
 
+    #screenCLZPuzzle .sound-toggle-btn.muted,
     #screenMatchingGame .sound-toggle-btn.muted {
       background: linear-gradient(135deg, rgba(255, 235, 240, 0.94) 0%, rgba(255, 220, 230, 0.85) 100%) !important;
       color: #b91c1c !important;
       border-color: rgba(239, 68, 68, 0.50) !important;
     }
 
+    #screenCLZPuzzle .sound-toggle-btn.muted svg,
     #screenMatchingGame .sound-toggle-btn.muted svg {
       color: #b91c1c !important;
       stroke: #b91c1c !important;
     }
 
+    #screenCLZPuzzle .puzzle-difficulty-selector,
     #screenMatchingGame .puzzle-difficulty-selector {
       background: rgba(255, 255, 255, 0.18) !important;
       border: 1px solid rgba(255, 255, 255, 0.35) !important;
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.20) !important;
     }
 
+    #screenCLZPuzzle .puzzle-diff-btn.active,
     #screenMatchingGame .puzzle-diff-btn.active {
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.88) 100%) !important;
       color: #7b0350 !important;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25), inset 0 1px 1px #ffffff !important;
+    }
+
+    #screenCLZPuzzle .puzzle-tool-btn {
+      background: rgba(255, 255, 255, 0.18) !important;
+      border: 1px solid rgba(255, 255, 255, 0.35) !important;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.20) !important;
+      color: rgba(255, 255, 255, 0.90) !important;
+      font-size: 13.5px !important;
+      font-weight: 800 !important;
+      padding: 6px 16px !important;
+      border-radius: 999px !important;
+      cursor: pointer !important;
+      transition: background 0.18s ease, transform 0.20s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s ease, border-color 0.18s ease, color 0.18s ease !important;
+    }
+
+    #screenCLZPuzzle .puzzle-tool-btn:hover {
+      background: rgba(255, 255, 255, 0.28) !important;
+      border-color: rgba(255, 255, 255, 0.55) !important;
+      color: #ffffff !important;
+      transform: scale(1.04) !important;
+    }
+
+    #screenCLZPuzzle .puzzle-tool-btn:active {
+      transform: scale(0.96) !important;
+    }
+
+    #screenCLZPuzzle .puzzle-tool-btn.active {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.88) 100%) !important;
+      color: #7b0350 !important;
+      border: 1px solid rgba(255, 255, 255, 0.90) !important;
       box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25), inset 0 1px 1px #ffffff !important;
     }
 
@@ -13238,6 +13466,20 @@
     .matching-btn-primary:active {
       transform: scale(0.96) !important;
       box-shadow: 0 2px 8px rgba(71, 139, 123, 0.35) !important;
+    }
+
+    /* Matching Game Completion Celebration Card Typography - Clean Neutral */
+    #screenMatchingGame .matching-success-desc {
+      color: #222222 !important;
+    }
+
+    #screenMatchingGame .matching-btn-outline {
+      color: #000000 !important;
+      border: 2px solid #000000 !important;
+    }
+
+    #screenMatchingGame .matching-btn-outline:hover {
+      background: rgba(0, 0, 0, 0.06) !important;
     }
 
     #screenMatchingGame.active .matching-game-stage,
@@ -13348,17 +13590,17 @@
     }
 
     .bottom-tab-btn.active img {
-      filter: drop-shadow(0 4px 12px rgba(120, 8, 78, 0.40)) drop-shadow(0 1px 3px rgba(0, 0, 0, 0.15)) !important;
+      filter: drop-shadow(0 4px 12px rgba(71, 139, 123, 0.40)) drop-shadow(0 1px 3px rgba(0, 0, 0, 0.15)) !important;
     }
 
     .bottom-tab-btn:hover img {
-      filter: drop-shadow(0 4px 14px rgba(120, 8, 78, 0.35)) brightness(1.05) !important;
+      filter: drop-shadow(0 4px 14px rgba(71, 139, 123, 0.35)) brightness(1.05) !important;
       transform: scale(1.015) !important;
     }
 
     .bottom-tab-btn:active img {
       transform: scale(0.985) !important;
-      filter: drop-shadow(0 2px 6px rgba(120, 8, 78, 0.25)) !important;
+      filter: drop-shadow(0 2px 6px rgba(71, 139, 123, 0.25)) !important;
     }
   </style>
 </head>
@@ -13411,10 +13653,10 @@
 
                 <div class="grid-row-bottom">
                   <button class="pill-btn" onclick="goToAbout()" style="width: 220px; height: 55px;" aria-label="About">
-                    <span class="pill-btn-text">ABOUT</span>
+                    <span class="pill-btn-text">About</span>
                   </button>
                   <button class="pill-btn" onclick="openSheet('Legal')" style="width: 220px; height: 55px;" aria-label="Legal">
-                    <span class="pill-btn-text">LEGAL</span>
+                    <span class="pill-btn-text">Legal</span>
                   </button>
                 </div>
               </div>
@@ -13439,12 +13681,12 @@
                     </button>
                   </div>
                 </div>
-                <div class="portrait-grid-row portrait-grid-bottom">
+                <div class="portrait-grid-bottom">
                   <button class="pill-btn" onclick="goToAbout()" style="width: 120px;" aria-label="About">
-                    <span class="pill-btn-text">ABOUT</span>
+                    <span class="pill-btn-text">About</span>
                   </button>
                   <button class="pill-btn" onclick="openSheet('Legal')" style="width: 120px;" aria-label="Legal">
-                    <span class="pill-btn-text">LEGAL</span>
+                    <span class="pill-btn-text">Legal</span>
                   </button>
                 </div>
               </div>
@@ -15405,6 +15647,9 @@
 
           <!-- Screen Content (matches Preparations Screen) -->
           <div class="screen-content">
+            <!-- Top fade overlay (Starts at top: 0, covers behind header, and fades into scroll container) -->
+            <div class="games-top-fade" id="gamesTopFade" aria-hidden="true"></div>
+
             <!-- Top Apple Glass Navigation Bar -->
             <header class="home-custom-header app-header" id="gamesHeader">
               <div class="home-header-left header-left">
@@ -15638,7 +15883,6 @@
             <canvas id="matchingConfettiCanvas" class="matching-confetti-canvas"></canvas>
             <div class="matching-success-card" onclick="event.stopPropagation()">
               <img class="matching-you-did-it-img" src="assets/YouDidIt2Cropped.png" alt="You Did It!" draggable="false" loading="lazy" decoding="async" />
-              <h3 class="matching-success-title">Matching Complete!</h3>
               <p class="matching-success-desc" id="matchingSuccessDesc">Amazing job! You found all 4 matching pairs!</p>
               <div class="matching-success-actions">
                 <button class="matching-btn-primary" onclick="resetMatchingGame()">
@@ -16178,20 +16422,61 @@
         else previousScreen = 'home';
       }
 
-      // Deactivate all screens
-      screenHome.classList.remove('active');
-      screenPrep.classList.remove('active');
-      if (screenGame) screenGame.classList.remove('active');
-      if (screenMask) screenMask.classList.remove('active');
-      if (screenAbout) screenAbout.classList.remove('active');
-      if (screenSettings) screenSettings.classList.remove('active');
-      if (screenAnatomy) screenAnatomy.classList.remove('active');
-      if (screenMRI) screenMRI.classList.remove('active');
-      if (screenNGTube) screenNGTube.classList.remove('active');
-      if (screenPortAccess) screenPortAccess.classList.remove('active');
-      if (screenGames) screenGames.classList.remove('active');
-      if (screenCLZPuzzle) screenCLZPuzzle.classList.remove('active');
-      if (screenMatchingGame) screenMatchingGame.classList.remove('active');
+      // Identify target screen and currently active screen
+      const screenMap = {
+        'home': screenHome,
+        'preparations': screenPrep,
+        'iv-start': screenGame,
+        'mask-game': screenMask,
+        'about': screenAbout,
+        'settings': screenSettings,
+        'anatomy-explorer': screenAnatomy,
+        'mri': screenMRI,
+        'ng-tube': screenNGTube,
+        'port-access': screenPortAccess,
+        'games': screenGames,
+        'clz-puzzle': screenCLZPuzzle,
+        'matching-game': screenMatchingGame
+      };
+      const targetScreen = screenMap[screenName] || screenHome;
+      if (targetScreen && targetScreen.classList.contains('active')) {
+        return;
+      }
+
+      // Smooth zero-blink crossfade:
+      // Hold currently active screen solid at opacity: 1 (z-index: 5 via .outgoing)
+      // while targetScreen smoothly fades in on top at z-index: 10 (opacity: 0 -> 1 over 0.22s).
+      const currentActive = document.querySelector('.app-screen.active');
+      if (window._screenTransitionTimer) {
+        clearTimeout(window._screenTransitionTimer);
+        window._screenTransitionTimer = null;
+      }
+      document.querySelectorAll('.app-screen.outgoing').forEach(el => el.classList.remove('outgoing'));
+
+      if (currentActive && currentActive !== targetScreen) {
+        currentActive.classList.remove('active');
+        currentActive.classList.add('outgoing');
+        window._screenTransitionTimer = setTimeout(() => {
+          currentActive.classList.remove('outgoing');
+          window._screenTransitionTimer = null;
+        }, 240);
+      }
+
+      // Deactivate other screens immediately
+      const allScreens = [
+        screenHome, screenPrep, screenGame, screenMask, screenAbout, screenSettings,
+        screenAnatomy, screenMRI, screenNGTube, screenPortAccess, screenGames,
+        screenCLZPuzzle, screenMatchingGame
+      ];
+      allScreens.forEach(s => {
+        if (s && s !== currentActive && s !== targetScreen) {
+          s.classList.remove('active', 'outgoing');
+        }
+      });
+      if (targetScreen) {
+        targetScreen.classList.remove('outgoing');
+      }
+
       if (typeof stopPuzzleCelebration === 'function') stopPuzzleCelebration();
       if (typeof stopMatchingCelebration === 'function') stopMatchingCelebration();
       if (typeof stopPortConfetti === 'function') stopPortConfetti();
@@ -16416,15 +16701,21 @@
         document.body.style.backgroundColor = "#d4d7db";
         document.documentElement.style.backgroundColor = "#d4d7db";
         if (themeColorMeta) themeColorMeta.setAttribute('content', '#d4d7db');
-      } else if (screenName === 'preparations') {
-        document.body.classList.add('preparations-active');
+      } else if (screenName === 'preparations' || screenName === 'games') {
         document.body.classList.remove('home-active');
+        if (screenName === 'preparations') {
+          document.body.classList.add('preparations-active');
+          document.body.classList.remove('games-active');
+        } else {
+          document.body.classList.add('games-active');
+          document.body.classList.remove('preparations-active');
+        }
         document.body.style.backgroundImage = "none";
         document.body.style.backgroundColor = "#f4f4f4";
         document.documentElement.style.backgroundColor = "#f4f4f4";
         if (themeColorMeta) themeColorMeta.setAttribute('content', '#f4f4f4');
       } else {
-        document.body.classList.remove('home-active', 'preparations-active');
+        document.body.classList.remove('home-active', 'preparations-active', 'games-active');
         document.body.style.backgroundImage = "";
         document.body.style.backgroundSize = "";
         document.body.style.backgroundPosition = "";
@@ -19549,17 +19840,32 @@
       }, 900);
     }
 
-    // Scroll fade controller for Games Screen
+    // Scroll fade controller for Games Screen (Disappears at end of scroll, top fade appears when space to scroll up)
     function updateGamesScrollFade() {
       const viewport = document.getElementById('gamesViewport');
-      const fade = document.getElementById('gamesBottomFade');
-      if (!viewport || !fade) return;
+      const bottomFade = document.getElementById('gamesBottomFade');
+      const topFade = document.getElementById('gamesTopFade') || document.querySelector('.games-top-fade');
+      if (!viewport) return;
 
+      const scrollTop = viewport.scrollTop;
       const maxScroll = viewport.scrollHeight - viewport.clientHeight;
-      if (maxScroll <= 12 || viewport.scrollTop >= maxScroll - 20) {
-        fade.classList.add('hidden');
-      } else {
-        fade.classList.remove('hidden');
+
+      // Bottom Fade: disappears once there is nowhere left to scroll down
+      if (bottomFade) {
+        if (maxScroll <= 12 || scrollTop >= maxScroll - 20) {
+          bottomFade.classList.add('hidden');
+        } else {
+          bottomFade.classList.remove('hidden');
+        }
+      }
+
+      // Top Fade: appears when there is space to scroll up (scrollTop > 15), hidden at rest at top
+      if (topFade) {
+        if (scrollTop > 15) {
+          topFade.classList.add('visible');
+        } else {
+          topFade.classList.remove('visible');
+        }
       }
     }
 
@@ -24259,8 +24565,8 @@
         landscapeGrid.style.display = 'none';
         portraitGrid.style.display = 'flex';
         const cardW = Math.round(Math.min(Math.max((w - 56) / 2, 124), 152) * 0.95);
-        document.querySelectorAll('#portraitGrid .card-btn').forEach(btn => {
-          btn.style.width = cardW + 'px';
+        document.querySelectorAll('#portraitGrid .card-btn').forEach(el => {
+          el.style.width = cardW + 'px';
         });
         const pillW = Math.min(Math.max(cardW * 0.78, 95), 120);
         const pillH = Math.round(pillW * 0.29);
@@ -24271,6 +24577,20 @@
         document.querySelectorAll('#portraitGrid .pill-btn-text').forEach(txt => {
           txt.style.fontSize = Math.max(Math.round(pillH * 0.36), 11) + 'px';
         });
+        document.querySelectorAll('#portraitGrid .portrait-grid-row').forEach(row => {
+          row.style.gap = '14px';
+        });
+        const portraitCards = document.querySelector('.portrait-grid-cards');
+        if (portraitCards) {
+          portraitCards.style.gap = '14px';
+          // Counteract the 10px / 421px asymmetric drop-shadow in the PNG assets:
+          const shadowOffset = Math.round(cardW * (10 / 421));
+          portraitCards.style.transform = 'translateX(' + shadowOffset + 'px)';
+        }
+        const portraitBottom = document.querySelector('.portrait-grid-bottom');
+        if (portraitBottom) {
+          portraitBottom.style.gap = '14px';
+        }
       } else {
         portraitGrid.style.display = 'none';
         landscapeGrid.style.display = 'flex';
@@ -24292,8 +24612,8 @@
         const maxAllowedWidth = isLandscape ? 360 : 310;
         const cardW = Math.round(Math.min(maxCardByWidth, maxCardByHeight, maxAllowedWidth) * 0.96);
         
-        document.querySelectorAll('#landscapeGrid .card-btn').forEach(btn => {
-          btn.style.width = cardW + 'px';
+        document.querySelectorAll('#landscapeGrid .card-btn').forEach(el => {
+          el.style.width = cardW + 'px';
         });
 
         const pillW = Math.round(Math.min(cardW * 0.60, 220));
@@ -24313,18 +24633,21 @@
 
         const mainCards = document.querySelector('.home-main-cards');
         if (mainCards) {
-          const vRowGap = Math.min(Math.max(availH * 0.04, 18), 32);
+          const vRowGap = Math.min(Math.max(availH * 0.045, 18), 32);
           mainCards.style.gap = vRowGap + 'px';
+          // Counteract the 10px / 421px asymmetric drop-shadow in the PNG assets so visible card bodies center on true screen midline
+          const shadowOffset = Math.round(cardW * (10 / 421));
+          mainCards.style.transform = 'translateX(' + shadowOffset + 'px)';
         }
 
         const bottomRow = document.querySelector('.grid-row-bottom');
         if (bottomRow) {
-          const pillGap = isLandscape
-            ? Math.min(Math.max(w * 0.08, 48), 120)
-            : Math.min(Math.max(w * 0.05, 24), 48);
+          const pillGap = isLandscape ? 32 : 20;
           bottomRow.style.gap = pillGap + 'px';
-          // About and Legal buttons anchored closer to the bottom
-          const bottomMargin = Math.min(Math.max(availH * 0.035, 12), 28);
+          // Anchor About and Legal closer together and further down from the main 4 cards
+          const bottomMargin = Math.min(Math.max(availH * 0.045, 16), 36);
+          const topMargin = Math.min(Math.max(availH * 0.035, 14), 28);
+          bottomRow.style.paddingTop = topMargin + 'px';
           bottomRow.style.paddingBottom = bottomMargin + 'px';
         }
       }
@@ -24376,6 +24699,12 @@
         const fadeH = isCompact ? Math.min(Math.max(h * 0.25, 130), 170) : Math.min(Math.max(h * 0.30, 180), 230);
         bottomFade.style.height = fadeH + 'px';
         updatePrepScrollFade();
+      }
+
+      const gamesTopFade = document.getElementById('gamesTopFade') || document.querySelector('.games-top-fade');
+      if (gamesTopFade) {
+        const topFadeH = isCompact ? 130 : 155;
+        gamesTopFade.style.height = topFadeH + 'px';
       }
 
       const gamesFade = document.getElementById('gamesBottomFade');
@@ -24512,7 +24841,8 @@
       },
       'Glossary': { title: 'Medical Glossary', content: '<p>Hospital words made simple for kids and families.</p>' },
       'Anatomy Explorer': { title: 'Anatomy Explorer', content: '<p>Explore how the human body works with kid-friendly interactive models.</p>' },
-      'Gallery': { title: 'Patient Gallery', content: '<p>Inspiring art and stories from patients and families at Riley.</p>' },
+      'Gallery': { title: 'Hospital Gallery', titleColor: '#325b72', content: '<p>Images of our spaces and equipment coming soon.</p>' },
+      'Hospital Gallery': { title: 'Hospital Gallery', titleColor: '#325b72', content: '<p>Images of our spaces and equipment coming soon.</p>' },
       'Games': { title: 'Games & Activities', content: '<p>Play fun, calming games during your hospital stay.</p>' },
       'Child Life Zone Puzzle': {
         title: 'Child Life Zone Puzzle',
@@ -24558,7 +24888,8 @@
           <p style="margin-top: 16px;"><a href="https://www.joyinchildhoodfoundation.org" target="_blank" rel="noopener noreferrer" style="color: var(--riley-purple, #5931ba); font-weight: 700; text-decoration: underline;">Visit joyinchildhoodfoundation.org &rarr;</a></p>
         `
       },
-      'Legal': { title: 'Legal & Medical Disclaimer', content: '<p>This application is for educational purposes and does not substitute for medical advice.</p>' },
+      'Legal': { title: 'Legal & Medical Disclaimer', content: '<p>Pending feedback from Legal for appropriate verbage.</p>' },
+      'Legal & Medical Disclaimer': { title: 'Legal & Medical Disclaimer', content: '<p>Pending feedback from Legal for appropriate verbage.</p>' },
       'Settings': { title: 'Settings', content: '<p>Preferences, audio controls, and accessibility options.</p>' },
       'Home': { title: 'Home', content: '<p>Return to the main dashboard.</p>' }
     };
@@ -32354,7 +32685,9 @@
         return;
       }
       const details = sheetDetails[key] || { title: key, content: 'Details coming soon.' };
-      document.getElementById('sheetTitle').textContent = details.title;
+      const titleEl = document.getElementById('sheetTitle');
+      titleEl.textContent = details.title;
+      titleEl.style.color = details.titleColor || '#325b72';
       document.getElementById('sheetContent').innerHTML = details.content;
       document.getElementById('modalOverlay').classList.add('open');
     }
