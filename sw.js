@@ -1,5 +1,5 @@
 // Riley PWA Service Worker
-const CACHE_NAME = 'riley-pwa-v279';
+const CACHE_NAME = 'riley-pwa-v280';
 const PRECACHE_ASSETS = [
   './',
   './index.html',
@@ -316,6 +316,22 @@ const PRECACHE_ASSETS = [
   './assets/ButtonCLZPuzzle.png',
   './assets/ButtonMatchingGame.png',
   './assets/CLZPuzzleImage.png',
+  './assets/Isolated_Preparations_Selected.png?v=5fa08f',
+  './assets/Isolated_Preparations_Selected.png',
+  './assets/Isolated_Preparations_Not_Selected.png?v=5fa08f',
+  './assets/Isolated_Preparations_Not_Selected.png',
+  './assets/Isolated_Games_Selected.png?v=5fa08f',
+  './assets/Isolated_Games_Selected.png',
+  './assets/Isolated_Games_Not_Selected.png?v=5fa08f',
+  './assets/Isolated_Games_Not_Selected.png',
+  './assets/Isolated_Anat_Explorer_Selected.png?v=5fa08f',
+  './assets/Isolated_Anat_Explorer_Selected.png',
+  './assets/Isolated_Anat_Explorer_Not_Selected.png?v=5fa08f',
+  './assets/Isolated_Anat_Explorer_Not_Selected.png',
+  './assets/Isolated_Gallery_Selected.png?v=5fa08f',
+  './assets/Isolated_Gallery_Selected.png',
+  './assets/Isolated_Gallery_Not_Selected.png?v=5fa08f',
+  './assets/Isolated_Gallery_Not_Selected.png',
   './assets/PurpleBG.png',
   './assets/PuzzleGameBG.png',
   './assets/Purple BG.png',
@@ -554,21 +570,26 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache-First for static assets
+  // Cache-First for static assets with query-ignoring fallback
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
         return cachedResponse;
       }
-      return fetch(event.request).then((networkResponse) => {
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-          return networkResponse;
+      return caches.match(event.request, { ignoreSearch: true }).then((fallbackCached) => {
+        if (fallbackCached) {
+          return fallbackCached;
         }
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
+        return fetch(event.request).then((networkResponse) => {
+          if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+            return networkResponse;
+          }
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+          return networkResponse;
         });
-        return networkResponse;
       });
     })
   );
