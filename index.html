@@ -10782,7 +10782,7 @@
       align-items: center;
       justify-content: center;
       overflow: hidden;
-      background: #080b18;
+      background: #1b3162;
     }
 
     .anatomy-stage-frame {
@@ -10791,6 +10791,13 @@
       height: 100%;
       max-width: 100%;
       max-height: 100%;
+      transform: translateY(42px);
+    }
+
+    @media (max-width: 768px) {
+      .anatomy-stage-frame {
+        transform: translateY(30px);
+      }
     }
 
     .anatomy-stage-bg {
@@ -11040,13 +11047,14 @@
       pointer-events: none;
     }
 
-    /* Centered Confirmed Character (+5% adjusted to 90.3%, grounded on stage platform) */
+    /* Centered Confirmed Character - Grounded on stage platform with clear headroom below header */
     .anatomy-exploration-char-container {
       position: absolute;
-      bottom: 5%;
+      bottom: 13.5%;
       left: 50%;
       transform: translateX(-50%);
-      height: 90.3%;
+      height: 73%;
+      max-height: calc(100% - var(--anatomy-header-h, 78px) - 13.5% - 16px);
       width: auto;
       display: flex;
       align-items: flex-end;
@@ -11055,12 +11063,20 @@
       z-index: 10;
     }
 
+    @media (max-width: 768px) {
+      .anatomy-exploration-char-container {
+        height: 73%;
+        bottom: 13.5%;
+        max-height: calc(100% - var(--anatomy-header-h, 70px) - 13.5% - 14px);
+      }
+    }
+
     .anatomy-exploration-char-img {
       height: 100%;
       width: auto;
       max-height: 100%;
       object-fit: contain;
-      filter: drop-shadow(0 0 16px rgba(0, 0, 0, 0.35));
+      filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.45)) drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
     }
 
     /* Dynamic Character Skin Tone Tint Overlay Layer */
@@ -11081,7 +11097,7 @@
       opacity: 0;
       transition: opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.05s linear;
       pointer-events: none;
-      filter: drop-shadow(0 0 16px rgba(0, 0, 0, 0.35));
+      filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.45)) drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
       z-index: 2;
     }
 
@@ -11255,16 +11271,16 @@
       pointer-events: none !important;
     }
 
-    /* Studio Top Navigation Bar (Floating Overlay) */
+    /* Studio Top Navigation Bar (Floating Overlay positioned beneath top ribbon) */
     .anatomy-studio-nav {
       position: absolute;
-      top: 0;
+      top: calc(env(safe-area-inset-top, 0px) + var(--anatomy-header-h, 78px) + 48px);
       left: 0;
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 14px 24px;
+      padding: 10px 24px;
       box-sizing: border-box;
       z-index: 20;
       pointer-events: none;
@@ -11706,16 +11722,16 @@
       opacity: 1;
     }
 
-    /* Right Top: System Selection Card (Equivalent Area to Skin Tone Picker: ~48,300 px²) */
+    /* Right Top: System Selection Card (Positioned comfortably beneath top ribbon) */
     .anatomy-system-card-wrapper {
       position: absolute;
       right: 17%;
-      top: 23%;
+      top: 30%;
       transform: translate(50%, -50%);
       width: 22%;
       max-width: 235px;
-      height: 28%;
-      max-height: 225px;
+      height: 27%;
+      max-height: 220px;
       z-index: 30;
       display: flex;
       align-items: center;
@@ -11852,16 +11868,16 @@
       transform: scale(1);
     }
 
-    /* Right Bottom: Interactive Skin Tone Picker Card (Equivalent Area: ~48,300 px²) */
+    /* Right Bottom: Interactive Skin Tone Picker Card */
     .anatomy-skintone-picker-wrapper {
       position: absolute;
       right: 17%;
-      top: 66%;
+      top: 67%;
       transform: translate(50%, -50%);
       width: 12.8%;
       max-width: 138px;
-      height: 48%;
-      max-height: 380px;
+      height: 44%;
+      max-height: 350px;
       z-index: 30;
       display: flex;
       align-items: center;
@@ -12077,73 +12093,125 @@
       display: none;
     }
 
-    /* Bottom Character Selection Prompt Banner (Full-Width Horizontal Banner) */
-    .anatomy-bottom-prompt-bar {
+    /* Top Character Selection Prompt Ribbon (Slim, Low-Profile Ribbon) */
+    .anatomy-top-prompt-bar,
+    .anatomy-bottom-prompt-bar:not(.mri-bottom-prompt-bar) {
       position: absolute;
-      bottom: 0;
+      top: calc(env(safe-area-inset-top, 0px) + var(--anatomy-header-h, 74px));
+      bottom: auto;
       left: 0;
       right: 0;
       width: 100%;
-      height: calc(52px + env(safe-area-inset-bottom, 0px));
-      min-height: 52px;
-      padding-bottom: env(safe-area-inset-bottom, 0px);
-      box-sizing: border-box;
-      z-index: 60;
-      pointer-events: none;
-      user-select: none;
-      -webkit-user-select: none;
+      min-height: 28px;
+      padding: 3px 18px;
+      border-radius: 0;
+      z-index: 35;
       display: flex;
       justify-content: center;
       align-items: center;
-      background: linear-gradient(180deg, rgba(16, 8, 34, 0.65) 0%, rgba(24, 12, 48, 0.72) 100%);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-top: 1px solid rgba(255, 255, 255, 0.16);
-      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.32);
+      background: linear-gradient(180deg, rgba(16, 8, 34, 0.28) 0%, rgba(24, 12, 48, 0.38) 100%);
+      backdrop-filter: blur(8px) saturate(140%);
+      -webkit-backdrop-filter: blur(8px) saturate(140%);
+      border-top: 1px solid rgba(255, 255, 255, 0.10);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      border-left: none;
+      border-right: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
       opacity: 0;
-      transform: translateY(100%);
-      transition: opacity 0.65s ease, transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+      transform: translateY(-6px);
+      transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+      cursor: default;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-select: none;
+      box-sizing: border-box;
     }
 
-    .anatomy-bottom-prompt-bar.visible {
+    @media (max-width: 768px) {
+      .anatomy-top-prompt-bar,
+      .anatomy-bottom-prompt-bar:not(.mri-bottom-prompt-bar) {
+        top: calc(env(safe-area-inset-top, 0px) + var(--anatomy-header-h, 68px));
+        padding: 3px 12px;
+        min-height: 26px;
+      }
+    }
+
+    .anatomy-top-prompt-bar.visible,
+    .anatomy-bottom-prompt-bar:not(.mri-bottom-prompt-bar).visible {
       opacity: 1;
       transform: translateY(0);
+      pointer-events: auto;
     }
 
-    .anatomy-bottom-prompt-bar.can-confirm {
+    .anatomy-top-prompt-bar.can-confirm,
+    .anatomy-bottom-prompt-bar:not(.mri-bottom-prompt-bar).can-confirm {
       cursor: pointer;
       pointer-events: auto;
-      background: linear-gradient(180deg, rgba(26, 13, 50, 0.78) 0%, rgba(38, 18, 72, 0.86) 100%);
-      border-top: 1px solid rgba(255, 215, 0, 0.38);
+      background: linear-gradient(180deg, rgba(46, 20, 84, 0.44) 0%, rgba(64, 26, 114, 0.52) 100%);
+      border-bottom: 1px solid rgba(251, 191, 36, 0.85);
+      box-shadow: 0 2px 14px rgba(251, 191, 36, 0.22);
     }
 
-    .anatomy-bottom-prompt-bar.is-confirmed {
-      background: linear-gradient(180deg, rgba(14, 46, 32, 0.85) 0%, rgba(20, 68, 46, 0.92) 100%);
-      border-top: 1px solid rgba(52, 211, 153, 0.55);
-    }
-
-    .anatomy-bottom-prompt-bar.organ-prompt-active {
-      opacity: 1 !important;
-      transform: translateY(0) !important;
-      pointer-events: auto !important;
-      cursor: pointer;
-      background: linear-gradient(180deg, rgba(26, 14, 52, 0.90) 0%, rgba(42, 20, 80, 0.96) 100%) !important;
-      border-top: 1.5px solid rgba(255, 215, 0, 0.75) !important;
-      box-shadow: 0 -4px 24px rgba(255, 215, 0, 0.32) !important;
-    }
-
-    .anatomy-bottom-prompt-bar.studio-prompt-active {
-      opacity: 1 !important;
-      transform: translateY(0) !important;
-      pointer-events: auto !important;
-      cursor: default;
-      background: linear-gradient(180deg, rgba(26, 14, 52, 0.92) 0%, rgba(42, 20, 80, 0.98) 100%) !important;
-      border-top: 1.5px solid rgba(255, 215, 0, 0.85) !important;
-      box-shadow: 0 -4px 24px rgba(255, 215, 0, 0.35) !important;
-    }
-
-    .anatomy-bottom-prompt-bar.prompt-pulse {
+    .anatomy-top-prompt-bar.prompt-pulse,
+    .anatomy-bottom-prompt-bar:not(.mri-bottom-prompt-bar).prompt-pulse {
       animation: promptBarPulse 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .anatomy-top-prompt-bar .step-instruction-card,
+    .anatomy-bottom-prompt-bar:not(.mri-bottom-prompt-bar) .step-instruction-card {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      max-width: 900px;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      padding: 0;
+    }
+
+    .anatomy-top-prompt-bar .step-instruction-dot,
+    .anatomy-bottom-prompt-bar:not(.mri-bottom-prompt-bar) .step-instruction-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.7);
+      box-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
+      flex-shrink: 0;
+    }
+
+    .anatomy-top-prompt-bar .step-instruction-text,
+    .anatomy-bottom-prompt-bar:not(.mri-bottom-prompt-bar) .step-instruction-text {
+      white-space: normal;
+      font-size: 13.5px;
+      line-height: 1.25;
+      text-align: center;
+      color: #ffffff;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+      max-width: 100%;
+    }
+
+    @media (max-width: 768px) {
+      .anatomy-top-prompt-bar .step-instruction-text,
+      .anatomy-bottom-prompt-bar:not(.mri-bottom-prompt-bar) .step-instruction-text {
+        font-size: 12.5px;
+      }
+    }
+
+    /* Never show text ribbon in the exploration view or drawing studio */
+    .anatomy-screen-container:has(.anatomy-exploration-view.active) .anatomy-top-prompt-bar,
+    .anatomy-screen-container:has(.anatomy-studio-view.active) .anatomy-top-prompt-bar,
+    .anatomy-screen-container:has(.anatomy-exploration-view.active) .anatomy-bottom-prompt-bar:not(.mri-bottom-prompt-bar),
+    .anatomy-screen-container:has(.anatomy-studio-view.active) .anatomy-bottom-prompt-bar:not(.mri-bottom-prompt-bar),
+    .anatomy-top-prompt-bar.exploration-hidden,
+    .anatomy-bottom-prompt-bar:not(.mri-bottom-prompt-bar).exploration-hidden {
+      display: none !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
     }
 
     @keyframes promptBarPulse {
@@ -15349,6 +15417,14 @@
               </div>
             </header>
 
+            <!-- Top Character Selection Prompt Ribbon (Slim, Low-Profile Ribbon) -->
+            <div class="anatomy-top-prompt-bar anatomy-bottom-prompt-bar" id="anatomyBottomPromptBar" role="status" aria-live="polite" onclick="handleAnatomyPromptBarTap()">
+              <div class="step-instruction-card">
+                <span class="step-instruction-dot" id="anatomyPromptDot" aria-hidden="true"></span>
+                <span class="step-instruction-text" id="anatomyPromptText">Tap to pick a character!</span>
+              </div>
+            </div>
+
             <!-- Theatrical Stage Viewport -->
             <div class="anatomy-theatrical-viewport">
               
@@ -15623,14 +15699,6 @@
                   </div>
                 </div>
 
-              </div>
-
-              <!-- Bottom Character Selection Prompt Bar (Revealed with Stage Scene) -->
-              <div class="anatomy-bottom-prompt-bar" id="anatomyBottomPromptBar" role="status" aria-live="polite" onclick="handleAnatomyPromptBarTap()">
-                <div class="step-instruction-card">
-                  <span class="step-instruction-dot" id="anatomyPromptDot" aria-hidden="true"></span>
-                  <span class="step-instruction-text" id="anatomyPromptText">Pick a character to start!</span>
-                </div>
               </div>
 
             </div>
@@ -16821,9 +16889,10 @@
 
       const promptBar = document.getElementById('anatomyBottomPromptBar');
       if (promptBar) {
-        promptBar.classList.remove('visible', 'can-confirm', 'is-confirmed');
+        promptBar.style.display = '';
+        promptBar.classList.remove('visible', 'can-confirm', 'is-confirmed', 'exploration-hidden');
         const pt = document.getElementById('anatomyPromptText');
-        if (pt) pt.textContent = 'Pick a character to start!';
+        if (pt) pt.textContent = 'Tap to pick a character!';
         const pd = document.getElementById('anatomyPromptDot');
         if (pd) pd.className = 'step-instruction-dot';
       }
@@ -17046,7 +17115,7 @@
         promptDot.className = 'step-instruction-dot confirm-pulse';
       }
       if (promptText) {
-        promptText.textContent = 'Tap again to start!';
+        promptText.textContent = 'Tap again to confirm!';
       }
 
       if (isHapticsEnabled) {
@@ -17284,18 +17353,20 @@
         }
       });
 
-      const promptBar = document.getElementById('anatomyBottomPromptBar');
-      const promptText = document.getElementById('anatomyPromptText');
-      const promptDot = document.getElementById('anatomyPromptDot');
-      if (promptBar) {
-        promptBar.classList.add('visible', 'can-confirm', 'organ-prompt-active');
-        promptBar.classList.remove('is-confirmed');
-      }
-      if (promptDot) {
-        promptDot.className = 'step-instruction-dot confirm-pulse';
-      }
-      if (promptText) {
-        promptText.innerHTML = `<strong>${bone.name}</strong> - Tap again to see and draw!`;
+      if (!isAnatomyInExploration) {
+        const promptBar = document.getElementById('anatomyBottomPromptBar');
+        const promptText = document.getElementById('anatomyPromptText');
+        const promptDot = document.getElementById('anatomyPromptDot');
+        if (promptBar) {
+          promptBar.classList.add('visible', 'can-confirm', 'organ-prompt-active');
+          promptBar.classList.remove('is-confirmed');
+        }
+        if (promptDot) {
+          promptDot.className = 'step-instruction-dot confirm-pulse';
+        }
+        if (promptText) {
+          promptText.innerHTML = `<strong>${bone.name}</strong> - Tap again to see and draw!`;
+        }
       }
 
       if (isHapticsEnabled) triggerHapticFeedback(14);
@@ -17310,14 +17381,16 @@
         el.classList.add('is-speaking');
       }
 
-      const promptBar = document.getElementById('anatomyBottomPromptBar');
-      const promptText = document.getElementById('anatomyPromptText');
-      if (promptBar) {
-        promptBar.classList.add('visible', 'can-confirm', 'organ-prompt-active');
-        promptBar.classList.remove('is-confirmed');
-      }
-      if (promptText) {
-        promptText.innerHTML = `<strong>${bone.name}</strong> - Tap again to see and draw!`;
+      if (!isAnatomyInExploration) {
+        const promptBar = document.getElementById('anatomyBottomPromptBar');
+        const promptText = document.getElementById('anatomyPromptText');
+        if (promptBar) {
+          promptBar.classList.add('visible', 'can-confirm', 'organ-prompt-active');
+          promptBar.classList.remove('is-confirmed');
+        }
+        if (promptText) {
+          promptText.innerHTML = `<strong>${bone.name}</strong> - Tap again to see and draw!`;
+        }
       }
 
       if ('speechSynthesis' in window) {
@@ -17519,18 +17592,20 @@
         }
       });
 
-      const promptBar = document.getElementById('anatomyBottomPromptBar');
-      const promptText = document.getElementById('anatomyPromptText');
-      const promptDot = document.getElementById('anatomyPromptDot');
-      if (promptBar) {
-        promptBar.classList.add('visible', 'can-confirm', 'organ-prompt-active');
-        promptBar.classList.remove('is-confirmed');
-      }
-      if (promptDot) {
-        promptDot.className = 'step-instruction-dot confirm-pulse';
-      }
-      if (promptText) {
-        promptText.innerHTML = `<strong>${organ.name}</strong> - Tap again to see and draw!`;
+      if (!isAnatomyInExploration) {
+        const promptBar = document.getElementById('anatomyBottomPromptBar');
+        const promptText = document.getElementById('anatomyPromptText');
+        const promptDot = document.getElementById('anatomyPromptDot');
+        if (promptBar) {
+          promptBar.classList.add('visible', 'can-confirm', 'organ-prompt-active');
+          promptBar.classList.remove('is-confirmed');
+        }
+        if (promptDot) {
+          promptDot.className = 'step-instruction-dot confirm-pulse';
+        }
+        if (promptText) {
+          promptText.innerHTML = `<strong>${organ.name}</strong> - Tap again to see and draw!`;
+        }
       }
 
       if (isHapticsEnabled) triggerHapticFeedback(14);
@@ -17549,14 +17624,16 @@
       }
 
       // Keep the prior text prompt up even after the tap to voice
-      const promptBar = document.getElementById('anatomyBottomPromptBar');
-      const promptText = document.getElementById('anatomyPromptText');
-      if (promptBar) {
-        promptBar.classList.add('visible', 'can-confirm', 'organ-prompt-active');
-        promptBar.classList.remove('is-confirmed');
-      }
-      if (promptText) {
-        promptText.innerHTML = `<strong>${organ.name}</strong> - Tap again to see and draw!`;
+      if (!isAnatomyInExploration) {
+        const promptBar = document.getElementById('anatomyBottomPromptBar');
+        const promptText = document.getElementById('anatomyPromptText');
+        if (promptBar) {
+          promptBar.classList.add('visible', 'can-confirm', 'organ-prompt-active');
+          promptBar.classList.remove('is-confirmed');
+        }
+        if (promptText) {
+          promptText.innerHTML = `<strong>${organ.name}</strong> - Tap again to see and draw!`;
+        }
       }
 
       if ('speechSynthesis' in window) {
@@ -17581,18 +17658,20 @@
       const titleEl = document.getElementById('anatomyStudioTitle');
       if (titleEl) titleEl.textContent = def.name;
 
-      const promptBar = document.getElementById('anatomyBottomPromptBar');
-      const promptText = document.getElementById('anatomyPromptText');
-      const promptDot = document.getElementById('anatomyPromptDot');
-      if (promptBar) {
-        promptBar.classList.add('visible', 'organ-prompt-active', 'studio-prompt-active');
-        promptBar.classList.remove('can-confirm');
-      }
-      if (promptDot) {
-        promptDot.className = 'step-instruction-dot confirm-pulse';
-      }
-      if (promptText) {
-        promptText.textContent = 'Pick a tool and color, then draw with your finger!';
+      if (!isAnatomyInExploration) {
+        const promptBar = document.getElementById('anatomyBottomPromptBar');
+        const promptText = document.getElementById('anatomyPromptText');
+        const promptDot = document.getElementById('anatomyPromptDot');
+        if (promptBar) {
+          promptBar.classList.add('visible', 'organ-prompt-active', 'studio-prompt-active');
+          promptBar.classList.remove('can-confirm');
+        }
+        if (promptDot) {
+          promptDot.className = 'step-instruction-dot confirm-pulse';
+        }
+        if (promptText) {
+          promptText.textContent = 'Pick a tool and color, then draw with your finger!';
+        }
       }
 
       const illusContainer = document.getElementById('anatomyStudioIllustrations');
@@ -17642,10 +17721,10 @@
       if (studioView) {
         studioView.classList.remove('active');
       }
-      const promptBar = document.getElementById('anatomyBottomPromptBar');
-      const promptText = document.getElementById('anatomyPromptText');
-      const promptDot = document.getElementById('anatomyPromptDot');
-      if (currentStudioOrganId) {
+      if (!isAnatomyInExploration && currentStudioOrganId) {
+        const promptBar = document.getElementById('anatomyBottomPromptBar');
+        const promptText = document.getElementById('anatomyPromptText');
+        const promptDot = document.getElementById('anatomyPromptDot');
         let itemName = currentStudioOrganId;
         const bone = BONE_DEFINITIONS.find(b => b.id === currentStudioOrganId);
         if (bone) {
@@ -17919,28 +17998,12 @@
     }
 
     function updateAnatomyExplorationPrompt() {
-      if (!isAnatomyInExploration) return;
-      if (currentStudioOrganId) return;
-      if (selectedOrganId) return;
-      if (selectedBoneId) return;
-
+      // There does not need to be a text ribbon in the exploration scene
       const promptBar = document.getElementById('anatomyBottomPromptBar');
-      const promptText = document.getElementById('anatomyPromptText');
-      const promptDot = document.getElementById('anatomyPromptDot');
-
       if (promptBar) {
-        promptBar.classList.add('visible', 'is-confirmed');
-        promptBar.classList.remove('can-confirm', 'organ-prompt-active', 'studio-prompt-active');
-      }
-      if (promptDot) {
-        promptDot.className = 'step-instruction-dot';
-      }
-      if (!promptText) return;
-
-      if (!selectedAnatomySystemId) {
-        promptText.textContent = 'Select a skin tone and body system to start!';
-      } else {
-        promptText.textContent = 'Use the magnifying glass to explore!';
+        promptBar.classList.add('exploration-hidden');
+        promptBar.classList.remove('visible', 'can-confirm', 'is-confirmed', 'organ-prompt-active', 'studio-prompt-active');
+        promptBar.style.display = 'none';
       }
     }
 
@@ -18099,11 +18162,12 @@
       }
 
       if (promptBar) {
+        promptBar.style.display = '';
+        promptBar.classList.remove('exploration-hidden', 'is-confirmed', 'organ-prompt-active', 'can-confirm');
         promptBar.classList.add('visible');
-        promptBar.classList.remove('is-confirmed', 'organ-prompt-active', 'can-confirm');
       }
       if (promptDot) promptDot.className = 'step-instruction-dot';
-      if (promptText) promptText.textContent = 'Pick a character to start!';
+      if (promptText) promptText.textContent = 'Tap to pick a character!';
 
       if (navTitle) navTitle.textContent = 'Anatomy Explorer';
       if (navSubtitle) navSubtitle.style.display = 'none';
@@ -24543,6 +24607,7 @@
       document.querySelectorAll('.app-header, .about-header, .home-custom-header').forEach(hdr => {
         hdr.style.height = headerH + 'px';
       });
+      document.documentElement.style.setProperty('--anatomy-header-h', headerH + 'px');
       
       const iconSize = 44;
       document.querySelectorAll('.header-glass-btn, .header-icon-btn, .about-header-icon-btn, .about-back-btn, .home-setting-btn').forEach(btn => {
