@@ -151,15 +151,63 @@ public struct AboutView: View {
                         .font(.custom("Arial", size: isIPad ? 17 : 14.5))
                         .fontWeight(.semibold)
                         .foregroundColor(.white)
-                        .padding(.horizontal, isIPad ? 30 : 22)
-                        .padding(.vertical, isIPad ? 13 : 9)
-                        .background(Color(hex: "7a1526"))
-                        .cornerRadius(10)
-                        .shadow(color: Color.black.opacity(0.15), radius: 5, x: 0, y: 2)
+                        .shadow(color: Color.black.opacity(0.35), radius: 1, x: 0, y: 1)
+                        .padding(.horizontal, isIPad ? 32 : 24)
+                        .padding(.vertical, isIPad ? 13 : 10)
+                        .background(liquidGlassButtonBackground)
                 }
+                .buttonStyle(PlainButtonStyle())
                 Spacer()
             }
         }
+    }
+    
+    private var liquidGlassButtonBackground: some View {
+        ZStack {
+            // Rich multi-stop maroon gradient base
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(hex: "a2223a"),
+                    Color(hex: "7a1526"),
+                    Color(hex: "5e0c1c"),
+                    Color(hex: "731122")
+                ]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            
+            // Upper curved specular liquid reflection
+            VStack(spacing: 0) {
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color.white.opacity(0.40),
+                        Color.white.opacity(0.06)
+                    ]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(maxHeight: .infinity)
+                Spacer()
+            }
+            
+            // Crisp glass refraction bevel border
+            RoundedRectangle(cornerRadius: 12)
+                .strokeBorder(
+                    LinearGradient(
+                        gradient: Gradient(colors: [
+                            Color.white.opacity(0.75),
+                            Color.white.opacity(0.35),
+                            Color.black.opacity(0.30)
+                        ]),
+                        startPoint: .top,
+                        endPoint: .bottom
+                    ),
+                    lineWidth: 1.2
+                )
+        }
+        .cornerRadius(12)
+        .shadow(color: Color(hex: "7a1526").opacity(0.40), radius: 8, x: 0, y: 4)
+        .shadow(color: Color.black.opacity(0.18), radius: 3, x: 0, y: 2)
     }
     
     private var childsPlayCard: some View {
