@@ -8966,7 +8966,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: clamp(24px, 3.5vh, 52px) clamp(24px, 4.5vw, 72px);
+      padding: 24px 40px;
       box-sizing: border-box;
     }
 
@@ -8975,15 +8975,15 @@
       flex-direction: row;
       align-items: center;
       justify-content: center;
-      gap: clamp(32px, 4.5vw, 68px);
+      gap: 44px;
       width: 100%;
-      max-width: min(94%, 1240px);
+      max-width: 940px;
       margin: 0 auto;
     }
 
     .about-plate-col {
-      flex: 0 0 44%;
-      max-width: clamp(360px, 44vw, 540px);
+      flex: 0 0 42%;
+      max-width: 400px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -8992,15 +8992,15 @@
     .about-wagon-img {
       width: 100%;
       height: auto;
-      max-height: clamp(220px, 30vh, 360px);
+      max-height: 270px;
       object-fit: contain;
       filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.12));
       display: block;
     }
 
     .about-info-col {
-      flex: 1 1 auto;
-      max-width: clamp(480px, 52vw, 720px);
+      flex: 1 1 56%;
+      max-width: 500px;
       display: flex;
       flex-direction: column;
       align-items: flex-start;
@@ -9009,31 +9009,31 @@
 
     .about-main-heading {
       font-family: 'Roboto', sans-serif;
-      font-size: clamp(28px, 3.2vw, 42px);
+      font-size: 34px;
       font-weight: 400;
       color: #325b72;
       letter-spacing: -0.2px;
-      margin: 0 0 clamp(10px, 1.4vh, 18px) 0;
+      margin: 0 0 14px 0;
       line-height: 1.25;
     }
 
     .about-sub-heading {
       font-family: Arial, sans-serif;
-      font-size: clamp(16px, 1.6vw, 22px);
+      font-size: 18px;
       font-weight: 400;
       color: #718096;
-      margin: 0 0 clamp(12px, 1.6vh, 20px) 0;
+      margin: 0 0 14px 0;
       line-height: 1.35;
     }
 
     .about-description {
       width: 100%;
       font-family: Arial, sans-serif;
-      font-size: clamp(15.5px, 1.7vw, 21px);
+      font-size: 18px;
       font-weight: 400;
-      line-height: 1.65;
+      line-height: 1.6;
       color: #4a5568;
-      margin: 0 0 clamp(24px, 3.4vh, 44px) 0;
+      margin: 0 0 26px 0;
     }
 
     .about-website-btn {
@@ -9044,10 +9044,10 @@
       background: #7a1526;
       color: #ffffff;
       font-family: Arial, sans-serif;
-      font-size: clamp(15px, 1.45vw, 19px);
+      font-size: 17px;
       font-weight: 600;
-      padding: clamp(11px, 1.3vh, 16px) clamp(26px, 3vw, 42px);
-      border-radius: 9px;
+      padding: 13px 30px;
+      border-radius: 10px;
       border: none;
       text-decoration: none;
       cursor: pointer;
@@ -9075,7 +9075,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: clamp(20px, 3vh, 44px) clamp(24px, 4vw, 64px);
+      padding: 24px 40px;
       box-sizing: border-box;
     }
 
@@ -9084,23 +9084,24 @@
       flex-direction: row;
       align-items: center;
       justify-content: center;
-      gap: clamp(32px, 5vw, 72px);
+      gap: 44px;
       width: 100%;
-      max-width: min(94%, 1200px);
+      max-width: 900px;
       margin: 0 auto;
     }
 
     .about-partner-card {
-      flex: 1 1 48%;
-      max-width: clamp(360px, 45vw, 540px);
+      flex: 1 1 0;
+      min-width: 0;
+      max-width: 420px;
       aspect-ratio: 2 / 1;
       border: none;
       background: transparent;
-      border-radius: clamp(16px, 1.8vw, 24px);
+      border-radius: 18px;
       overflow: hidden;
       cursor: pointer;
       padding: 0;
-      box-shadow: 0 8px 26px rgba(28, 67, 92, 0.20);
+      box-shadow: 0 8px 24px rgba(28, 67, 92, 0.20);
       transition: transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.24s ease;
       outline: none;
       display: block;
@@ -9123,8 +9124,60 @@
       transform: scale(0.97);
     }
 
-    /* Responsive Compact Styles for Mobile Screens (< 680px) */
-    @media (max-width: 680px) {
+    /* Portrait Mode for Simulator Shell */
+    .device-shell.is-portrait .about-top-container,
+    .device-shell.is-phone .about-top-container {
+      flex-direction: column;
+      gap: 18px;
+      text-align: center;
+    }
+
+    .device-shell.is-portrait .about-plate-col,
+    .device-shell.is-phone .about-plate-col {
+      flex: 0 0 auto;
+      width: 60%;
+      max-width: 320px;
+    }
+
+    .device-shell.is-portrait .about-info-col,
+    .device-shell.is-phone .about-info-col {
+      align-items: center;
+      max-width: 580px;
+    }
+
+    .device-shell.is-portrait .about-main-heading,
+    .device-shell.is-phone .about-main-heading {
+      font-size: 28px;
+    }
+
+    .device-shell.is-portrait .about-description,
+    .device-shell.is-phone .about-description {
+      font-size: 15.5px;
+      margin-bottom: 20px;
+    }
+
+    .device-shell.is-portrait .about-partners-container {
+      gap: 24px;
+      max-width: 680px;
+    }
+
+    .device-shell.is-portrait .about-partner-card {
+      max-width: 320px;
+    }
+
+    .device-shell.is-phone .about-partners-container {
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .device-shell.is-phone .about-partner-card {
+      flex: 0 0 auto;
+      width: 100%;
+      max-width: 340px;
+    }
+
+    /* Standard Responsive Media Queries for Standalone PWA (< 640px) */
+    @media (max-width: 640px) {
       .about-top-container {
         flex-direction: column;
         gap: 16px;
@@ -9133,12 +9186,21 @@
 
       .about-plate-col {
         flex: 0 0 auto;
-        width: 75%;
+        width: 60%;
         max-width: 280px;
       }
 
       .about-info-col {
         align-items: center;
+      }
+
+      .about-main-heading {
+        font-size: 26px;
+      }
+
+      .about-description {
+        font-size: 14.5px;
+        margin-bottom: 18px;
       }
 
       .about-partners-container {
@@ -9149,36 +9211,7 @@
       .about-partner-card {
         flex: 0 0 auto;
         width: 100%;
-        max-width: 380px;
-      }
-    }
-
-    /* Tablet Portrait Adjustments (681px to 920px) */
-    @media (min-width: 681px) and (max-width: 920px) and (orientation: portrait) {
-      .about-top-container {
-        flex-direction: column;
-        gap: 20px;
-        text-align: center;
-      }
-
-      .about-plate-col {
-        flex: 0 0 auto;
-        width: 60%;
-        max-width: 380px;
-      }
-
-      .about-info-col {
-        align-items: center;
-        max-width: 640px;
-      }
-
-      .about-partners-container {
-        flex-direction: row;
-        gap: 28px;
-      }
-
-      .about-partner-card {
-        max-width: 360px;
+        max-width: 340px;
       }
     }
 
@@ -24608,6 +24641,8 @@
       shell.style.width = spec.w + 'px';
       shell.style.height = spec.h + 'px';
       shell.classList.toggle('is-phone', spec.phone);
+      shell.classList.toggle('is-portrait', spec.w < spec.h);
+      shell.classList.toggle('is-landscape', spec.w >= spec.h);
       
       document.getElementById('screenDimensions').textContent = 
         `Current Screen: ${spec.w} × ${spec.h} pt (${spec.name})`;
@@ -24623,6 +24658,8 @@
       shell.style.height = curW + 'px';
       
       const isLandscapeNow = curH > curW;
+      shell.classList.toggle('is-portrait', !isLandscapeNow);
+      shell.classList.toggle('is-landscape', isLandscapeNow);
       document.getElementById('screenDimensions').textContent = 
         `Current Screen: ${curH} × ${curW} pt (${isLandscapeNow ? 'Landscape' : 'Portrait'})`;
       
