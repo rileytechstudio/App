@@ -14731,7 +14731,7 @@
             <div class="ng-tube-top-prompt-bar port-access-top-prompt-bar visible can-confirm" id="portAccessPromptBar" role="status" aria-live="polite" onclick="handlePortAccessPromptBarTap()">
               <div class="step-instruction-card">
                 <span class="step-instruction-dot confirm-pulse" id="portAccessPromptDot" aria-hidden="true"></span>
-                <span class="step-instruction-text" id="portAccessPromptText">Welcome! Today we are helping our patient get ready for their first port access.</span>
+                <span class="step-instruction-text" id="portAccessPromptText">Drag the hospital gown to our patient to help her change for easier port access.</span>
               </div>
             </div>
 
@@ -27841,14 +27841,9 @@
       }
       stopPortConfetti();
 
-      setPortAccessPrompt("Welcome! Today we are helping our patient get ready for their first port access.");
+      showPortFoldedGown(false);
 
       setTimeout(updateResponsiveLayout, 20);
-
-      // Schedule gown appearance after gentle intro
-      portAccessTimers.push(setTimeout(() => {
-        showPortFoldedGown();
-      }, 2400));
     }
 
     function setPortAccessPrompt(text, pulse = true) {
@@ -27961,11 +27956,11 @@
     }
 
     // Sequence 2: Folded Gown on Stool
-    function showPortFoldedGown() {
-      if (portAccessCurrentStep !== 'welcome') return;
+    function showPortFoldedGown(playSound = true) {
+      if (portAccessCurrentStep !== 'welcome' && portAccessCurrentStep !== 'gown_ready') return;
       portAccessCurrentStep = 'gown_ready';
 
-      playPortBandageSound();
+      if (playSound) playPortBandageSound();
       const foldedGown = document.getElementById('portFoldedGownItem');
       const hint = document.getElementById('portGownDragHint');
       if (foldedGown) {
