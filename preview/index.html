@@ -336,6 +336,34 @@
       background-repeat: no-repeat !important;
     }
 
+    /* Settings Screen Full-Bleed Rebranded Berry Backdrop & Safe Area Layout */
+    #screenSettings {
+      background: #651b46 !important;
+      background-color: #651b46 !important;
+      background-image: url('assets/PurpleBG.png') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+    }
+
+    body:has(#screenSettings.active) {
+      background: #651b46 !important;
+      background-color: #651b46 !important;
+      background-image: url('assets/PurpleBG.png') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+    }
+
+    body:has(#screenSettings.active) .device-screen {
+      background: #651b46 !important;
+      background-color: #651b46 !important;
+      background-image: url('assets/PurpleBG.png') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+    }
+
     /* Home Custom Transparent Header - Respects iOS Tablet Safe Area */
     .home-custom-header {
       width: 100%;
@@ -9327,7 +9355,12 @@
     /* SCREEN 6: SETTINGS SCREEN                                 */
     /* ========================================================= */
     #screenSettings {
-      background-color: var(--riley-purple, #5931ba) !important;
+      background: #651b46 !important;
+      background-color: #651b46 !important;
+      background-image: url('assets/PurpleBG.png') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
       color: #1e293b;
       overflow: hidden !important;
       position: absolute !important;

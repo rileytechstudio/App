@@ -26,9 +26,18 @@ public struct SettingsView: View {
         GeometryReader { proxy in
             let isLandscape = proxy.size.width > proxy.size.height
             ZStack(alignment: .top) {
-                // Base background color
-                AppTheme.primaryPurple
+                // Base rebranded background color & gradient backdrop
+                Color(hex: "651b46")
                     .ignoresSafeArea()
+                
+                if let purpleBg = UIImage(named: "PurpleBG") {
+                    Image(uiImage: purpleBg)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: proxy.size.width, height: proxy.size.height)
+                        .clipped()
+                        .ignoresSafeArea()
+                }
                 
                 // Animated Scrolling Gear Background Pattern carried up to top of screen
                 scrollingPatternLayer(size: proxy.size)

@@ -261,6 +261,34 @@ def build_distribution():
       background-repeat: no-repeat !important;
     }
 
+    /* Settings Screen Full-Bleed Rebranded Berry Backdrop & Safe Area Layout */
+    #screenSettings {
+      background: #651b46 !important;
+      background-color: #651b46 !important;
+      background-image: url('assets/PurpleBG.png') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+    }
+
+    body:has(#screenSettings.active) {
+      background: #651b46 !important;
+      background-color: #651b46 !important;
+      background-image: url('assets/PurpleBG.png') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+    }
+
+    body:has(#screenSettings.active) .device-screen {
+      background: #651b46 !important;
+      background-color: #651b46 !important;
+      background-image: url('assets/PurpleBG.png') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+    }
+
     /* Child Life Zone Jigsaw Puzzle Screen Full-Bleed Rebranded Berry Backdrop & Safe Area Layout */
     #screenCLZPuzzle {
       background: #591a3f !important;
