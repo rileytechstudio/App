@@ -1303,13 +1303,16 @@ def build_distribution():
   
   <!-- PWA & Mobile Web App Meta Tags -->
   <link rel="manifest" href="./manifest.webmanifest" />
-  <meta name="theme-color" content="#d4d7db" />
+  <meta name="theme-color" content="#651b46" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Riley" />
   <link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./assets/icons/apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="./assets/icons/icon-192.png" />
   <link rel="icon" type="image/png" sizes="512x512" href="./assets/icons/icon-512.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./assets/icons/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="./assets/icons/favicon-16x16.png" />
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />

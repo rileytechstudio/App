@@ -1,10 +1,17 @@
 // Riley PWA Service Worker
-const CACHE_NAME = 'riley-pwa-v299';
+const CACHE_NAME = 'riley-pwa-v300';
 const PRECACHE_ASSETS = [
   './',
   './index.html',
   './manifest.webmanifest',
   './manifest.json',
+  './assets/icons/apple-touch-icon.png',
+  './assets/icons/icon-192.png',
+  './assets/icons/icon-512.png',
+  './assets/icons/icon-maskable-192.png',
+  './assets/icons/icon-maskable-512.png',
+  './assets/icons/favicon-32x32.png',
+  './assets/icons/favicon-16x16.png',
   './assets/Character_OlderBoy_Solo.png',
   './assets/Character_OlderGirl_Solo.png',
   './assets/Character_YoungerBoy_Solo.png',
