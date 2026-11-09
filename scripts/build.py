@@ -261,32 +261,23 @@ def build_distribution():
       background-repeat: no-repeat !important;
     }
 
-    /* Settings Screen Full-Bleed Rebranded Berry Backdrop & Safe Area Layout */
+    /* Settings Screen Full-Bleed #f5f7f7 Backdrop & Safe Area Layout */
     #screenSettings {
-      background: #651b46 !important;
-      background-color: #651b46 !important;
-      background-image: url('assets/PurpleBG.png') !important;
-      background-size: cover !important;
-      background-position: center !important;
-      background-repeat: no-repeat !important;
+      background: #f5f7f7 !important;
+      background-color: #f5f7f7 !important;
+      background-image: none !important;
     }
 
     body:has(#screenSettings.active) {
-      background: #651b46 !important;
-      background-color: #651b46 !important;
-      background-image: url('assets/PurpleBG.png') !important;
-      background-size: cover !important;
-      background-position: center !important;
-      background-repeat: no-repeat !important;
+      background: #f5f7f7 !important;
+      background-color: #f5f7f7 !important;
+      background-image: none !important;
     }
 
     body:has(#screenSettings.active) .device-screen {
-      background: #651b46 !important;
-      background-color: #651b46 !important;
-      background-image: url('assets/PurpleBG.png') !important;
-      background-size: cover !important;
-      background-position: center !important;
-      background-repeat: no-repeat !important;
+      background: #f5f7f7 !important;
+      background-color: #f5f7f7 !important;
+      background-image: none !important;
     }
 
     /* Child Life Zone Jigsaw Puzzle Screen Full-Bleed Rebranded Berry Backdrop & Safe Area Layout */
