@@ -148,13 +148,13 @@ public struct AboutView: View {
                 Spacer()
                 Link(destination: URL(string: "https://www.rileychildrens.org")!) {
                     Text("Visit Our Website")
-                        .font(.custom("Arial", size: isIPad ? 17 : 14.5))
-                        .fontWeight(.semibold)
+                        .font(.custom("Roboto-Regular", size: isIPad ? 17 : 15))
                         .foregroundColor(.white)
+                        .tracking(0.5)
                         .shadow(color: Color.black.opacity(0.35), radius: 1, x: 0, y: 1)
-                        .padding(.horizontal, isIPad ? 32 : 24)
-                        .padding(.vertical, isIPad ? 13 : 10)
-                        .background(liquidGlassButtonBackground)
+                        .padding(.horizontal, isIPad ? 32 : 26)
+                        .padding(.vertical, isIPad ? 13 : 11)
+                        .background(pillButtonBackground)
                 }
                 .buttonStyle(PlainButtonStyle())
                 Spacer()
@@ -162,52 +162,35 @@ public struct AboutView: View {
         }
     }
     
-    private var liquidGlassButtonBackground: some View {
-        ZStack {
-            // Rich multi-stop maroon gradient base
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    Color(hex: "a2223a"),
-                    Color(hex: "7a1526"),
-                    Color(hex: "5e0c1c"),
-                    Color(hex: "731122")
-                ]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            
-            // Upper curved specular liquid reflection
-            VStack(spacing: 0) {
+    private var pillButtonBackground: some View {
+        Capsule()
+            .fill(
                 LinearGradient(
                     gradient: Gradient(colors: [
-                        Color.white.opacity(0.40),
-                        Color.white.opacity(0.06)
+                        Color(hex: "921a30"),
+                        Color(hex: "7a1526"),
+                        Color(hex: "620c1c")
                     ]),
-                    startPoint: .top,
-                    endPoint: .bottom
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
                 )
-                .frame(maxHeight: .infinity)
-                Spacer()
-            }
-            
-            // Crisp glass refraction bevel border
-            RoundedRectangle(cornerRadius: 12)
-                .strokeBorder(
-                    LinearGradient(
-                        gradient: Gradient(colors: [
-                            Color.white.opacity(0.75),
-                            Color.white.opacity(0.35),
-                            Color.black.opacity(0.30)
-                        ]),
-                        startPoint: .top,
-                        endPoint: .bottom
-                    ),
-                    lineWidth: 1.2
-                )
-        }
-        .cornerRadius(12)
-        .shadow(color: Color(hex: "7a1526").opacity(0.40), radius: 8, x: 0, y: 4)
-        .shadow(color: Color.black.opacity(0.18), radius: 3, x: 0, y: 2)
+            )
+            .overlay(
+                Capsule()
+                    .strokeBorder(
+                        LinearGradient(
+                            gradient: Gradient(colors: [
+                                Color.white.opacity(0.55),
+                                Color.white.opacity(0.20)
+                            ]),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1.5
+                    )
+            )
+            .shadow(color: Color(hex: "620c1c").opacity(0.36), radius: 8, x: 0, y: 4)
+            .shadow(color: Color.black.opacity(0.16), radius: 3, x: 0, y: 2)
     }
     
     private var childsPlayCard: some View {
