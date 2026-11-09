@@ -89,7 +89,13 @@ public struct AboutView: View {
                             }
                         }
                         .frame(maxWidth: .infinity)
-                        .background(AppTheme.primaryPurple)
+                        .background(
+                            LinearGradient(
+                                gradient: Gradient(colors: [Color(hex: "fdeea2"), Color(hex: "f8a862")]),
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
                     }
                 }
             }
@@ -121,26 +127,31 @@ public struct AboutView: View {
     }
     
     private var infoTextView: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
             Text("About Riley")
-                .font(.system(size: 26, weight: .heavy, design: .rounded))
-                .foregroundColor(Color(hex: "2d3748"))
+                .font(.custom("Roboto-Regular", size: 28.6))
+                .foregroundColor(Color(hex: "325b72"))
             
             Text("Riley Children’s Health is Indiana’s largest pediatric healthcare system, with over 50 locations across the state. Our expert doctors, caring nurses, and scientists work together to deliver world-class care and innovative research—helping every child heal, feel supported, and thrive.")
-                .font(.system(size: 14))
+                .font(.custom("Arial", size: 15.4))
                 .foregroundColor(Color(hex: "4a5568"))
                 .lineSpacing(4)
                 .padding(.bottom, 8)
             
-            Link(destination: URL(string: "https://www.rileychildrens.org")!) {
-                Text("Visit Our Website")
-                    .font(.system(size: 14, weight: .semibold, design: .rounded))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 22)
-                    .padding(.vertical, 10)
-                    .background(Color(hex: "474749"))
-                    .cornerRadius(8)
-                    .shadow(color: Color.black.opacity(0.15), radius: 4, x: 0, y: 2)
+            HStack {
+                Spacer()
+                Link(destination: URL(string: "https://www.rileychildrens.org")!) {
+                    Text("Visit Our Website")
+                        .font(.custom("Arial", size: 15.4))
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 10)
+                        .background(Color(hex: "7a1526"))
+                        .cornerRadius(8)
+                        .shadow(color: Color.black.opacity(0.15), radius: 4, x: 0, y: 2)
+                }
+                Spacer()
             }
         }
     }
