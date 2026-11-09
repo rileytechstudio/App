@@ -167,9 +167,9 @@ public struct AboutView: View {
             .fill(
                 LinearGradient(
                     gradient: Gradient(colors: [
-                        Color(hex: "921a30"),
-                        Color(hex: "7a1526"),
-                        Color(hex: "620c1c")
+                        Color(hex: "941262"),
+                        Color(hex: "7b0350"),
+                        Color(hex: "630240")
                     ]),
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
@@ -189,7 +189,7 @@ public struct AboutView: View {
                         lineWidth: 1.5
                     )
             )
-            .shadow(color: Color(hex: "620c1c").opacity(0.36), radius: 8, x: 0, y: 4)
+            .shadow(color: Color(hex: "4e0434").opacity(0.40), radius: 8, x: 0, y: 4)
             .shadow(color: Color.black.opacity(0.16), radius: 3, x: 0, y: 2)
     }
     
