@@ -95,7 +95,7 @@ public struct GamesView: View {
                     .resizable(resizingMode: .tile)
                     .frame(width: size.width + 1366, height: size.height + 1024)
                     .offset(x: patternOffset.x, y: patternOffset.y)
-                    .opacity(0.95)
+                    .opacity(0.475)
                     .allowsHitTesting(false)
             }
         }
