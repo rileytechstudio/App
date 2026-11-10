@@ -4967,44 +4967,79 @@
       cursor: pointer !important;
     }
 
-    /* Tap Prompt for Removing Clear Bandage (matching IV preparation tap prompt styling) */
+    /* Tap Cue for Removing Clear Bandage: Outstretched Pointer Hand Visual Cue */
     .port-bandage-tap-prompt {
       position: absolute;
       left: 46%;
       top: 39%;
       transform: translate(-50%, -50%);
-      background: rgba(0, 0, 0, 0.80);
-      border: 2px solid #00e5ff;
-      color: #ffffff;
-      font-size: 12px;
-      font-weight: 800;
-      padding: 6px 14px;
-      border-radius: 20px;
+      width: 60px;
+      height: 60px;
       cursor: pointer;
       z-index: 25;
-      white-space: nowrap;
-      box-shadow: 0 4px 18px rgba(0, 229, 255, 0.6);
-      animation: portPulseTapPrompt 1.4s infinite ease-in-out;
-      display: flex;
-      align-items: center;
-      gap: 6px;
       user-select: none;
       pointer-events: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle, rgba(0, 229, 255, 0.28) 0%, rgba(15, 23, 42, 0.75) 55%, transparent 100%);
+      border-radius: 50%;
+      border: 2px solid rgba(0, 229, 255, 0.75);
+      box-shadow: 0 0 20px rgba(0, 229, 255, 0.6), inset 0 0 10px rgba(0, 229, 255, 0.3);
+      animation: portPulseTapPrompt 1.4s infinite ease-in-out;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
     }
 
     .port-bandage-tap-prompt:hover {
-      background: rgba(14, 165, 233, 0.95);
-      transform: translate(-50%, -50%) scale(1.05);
+      transform: translate(-50%, -50%) scale(1.12);
+      box-shadow: 0 0 28px rgba(0, 229, 255, 0.95), inset 0 0 14px rgba(0, 229, 255, 0.5);
+    }
+
+    .port-bandage-tap-prompt:active {
+      transform: translate(-50%, -50%) scale(0.92);
+    }
+
+    .port-tap-hand-icon {
+      width: 34px;
+      height: 34px;
+      color: #ffffff;
+      transform: rotate(-14deg);
+      filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.7)) drop-shadow(0 0 10px rgba(0, 229, 255, 0.85));
+      pointer-events: none;
+    }
+
+    .port-tap-ripple-ring {
+      position: absolute;
+      top: 13px;
+      left: 23px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid rgba(0, 229, 255, 0.9);
+      transform: translate(-50%, -50%);
+      animation: portTapRipple 1.4s infinite ease-out;
+      pointer-events: none;
+    }
+
+    @keyframes portTapRipple {
+      0% {
+        transform: translate(-50%, -50%) scale(0.3);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(2.2);
+        opacity: 0;
+      }
     }
 
     @keyframes portPulseTapPrompt {
       0%, 100% {
         transform: translate(-50%, -50%) scale(1);
-        box-shadow: 0 0 14px rgba(56, 189, 248, 0.5);
+        box-shadow: 0 0 16px rgba(0, 229, 255, 0.5), inset 0 0 8px rgba(0, 229, 255, 0.25);
       }
       50% {
-        transform: translate(-50%, -50%) scale(1.07);
-        box-shadow: 0 0 26px rgba(56, 189, 248, 0.95), 0 0 10px rgba(255, 255, 255, 0.8);
+        transform: translate(-50%, -50%) scale(1.10);
+        box-shadow: 0 0 26px rgba(0, 229, 255, 0.9), 0 0 38px rgba(125, 211, 252, 0.65), inset 0 0 14px rgba(0, 229, 255, 0.45);
       }
     }
 
@@ -14841,9 +14876,12 @@
                     <img class="port-access-layer" src="assets/PortAccess/Clear Bandage.png" alt="Clear Bandage Film" draggable="false" loading="eager" decoding="sync" />
                   </div>
 
-                  <!-- Tap Prompt to Remove Clear Bandage -->
-                  <div id="portBandageTapPrompt" class="port-bandage-tap-prompt" style="display: none;" onclick="removePortBandage(event)">
-                    <span>Tap to peel off!</span>
+                  <!-- Tap Cue to Remove Clear Bandage: Outstretched Pointer Hand Icon -->
+                  <div id="portBandageTapPrompt" class="port-bandage-tap-prompt" style="display: none;" onclick="removePortBandage(event)" role="button" aria-label="Tap to peel off clear bandage">
+                    <span class="port-tap-ripple-ring" aria-hidden="true"></span>
+                    <svg class="port-tap-hand-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M19.48 12.82l-5.06-2.53v-5.8c0-1.38-1.12-2.5-2.5-2.5s-2.5 1.12-2.5 2.5v9.84l-3.37-.73c-.15-.03-.31-.05-.47-.05-.62 0-1.18.25-1.59.66l-.74.74 5.37 5.37c.45.45 1.07.7 1.71.7h7.24c1.15 0 2.11-.82 2.29-1.96l.82-5.4c.02-.12.03-.23.03-.34 0-.82-.5-1.54-1.23-1.8z"/>
+                    </svg>
                   </div>
 
                   <!-- Layer 5: Hospital Gown Overlay (Gown lapels covering the sides of the bandage) -->
