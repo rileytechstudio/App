@@ -27242,7 +27242,7 @@
         if (lbl) lbl.textContent = 'Port Area';
       }
 
-      setPortAccessPrompt("Drag the numbing ointment over the chest port and hold to squeeze out some cream.");
+      setPortAccessPrompt("Drag the numbing cream to the patient's chest and hold to squeeze some out.");
 
       // Preload ointment images for wipe canvas
       preloadPortOintmentImages();
@@ -27377,7 +27377,7 @@
         if (isPortOverPort) {
           isPortOverPort = false;
           chestTarget.classList.remove('hovered');
-          setPortAccessPrompt("Drag the numbing ointment over the chest port and hold to squeeze out some cream.");
+          setPortAccessPrompt("Drag the numbing cream to the patient's chest and hold to squeeze some out.");
           stopPortSqueezing();
         }
       }
@@ -27485,7 +27485,7 @@
           isPortOverPort = false;
           if (chestTarget) chestTarget.classList.remove('hovered');
           portAccessCurrentStep = 'lmx_ready';
-          setPortAccessPrompt("Drag the numbing ointment over the chest port and hold to squeeze out some cream.");
+          setPortAccessPrompt("Drag the numbing cream to the patient's chest and hold to squeeze some out.");
           setTimeout(() => {
             if (item) {
               item.classList.remove('spring-back');
