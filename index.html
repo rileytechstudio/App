@@ -14901,9 +14901,6 @@
                     <div class="port-bandage-visual">
                       <img class="port-bandage-film-img" src="assets/PortAccess/Clear Bandage Cropped.png" alt="Clear Bandage Film" draggable="false" />
                     </div>
-                    <div class="port-drag-hint-bubble" id="portBandageDragHint">
-                      <span>Place over Ointment</span>
-                    </div>
                   </div>
 
                   <!-- Layer 6: Draggable LMX Cream Tube (Matches IV Prep Ointment Tube Mechanics) -->
@@ -27680,7 +27677,6 @@
       const lmxTube = document.getElementById('portLMXTubeItem');
       const bandageItem = document.getElementById('portBandageItem');
       const bandageLayer = document.getElementById('portClearBandageLayer');
-      const bandageHint = document.getElementById('portBandageDragHint');
       const maskItem = document.getElementById('portMaskItem');
       const maskLayer = document.getElementById('portPatientMaskLayer');
       const timerModal = document.getElementById('portTimerModal');
@@ -27890,7 +27886,6 @@
         tapPromptEl.style.opacity = '1';
         tapPromptEl.style.transform = 'translate(-50%, -50%)';
       }
-      if (bandageHint) bandageHint.style.display = 'flex';
       if (timerModal) {
         timerModal.classList.remove('visible');
         timerModal.style.display = 'none';
