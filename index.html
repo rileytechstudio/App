@@ -5788,6 +5788,25 @@
       flex-shrink: 0;
     }
 
+    #screenIVGame .game-top-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: transparent !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      border: none !important;
+      box-shadow: none !important;
+      z-index: 30;
+      pointer-events: none;
+      padding: max(10px, env(safe-area-inset-top, 10px)) 20px 4px;
+    }
+
+    #screenIVGame .game-top-bar button {
+      pointer-events: auto;
+    }
+
     .game-top-btn {
       display: inline-flex;
       align-items: center;
@@ -14945,7 +14964,7 @@
         <div id="screenIVGame" class="app-screen">
           <div class="game-content">
             <!-- Top Navigation Header -->
-            <div class="game-top-bar">
+            <div class="mri-top-bar game-top-bar iv-top-bar">
               <button class="game-top-btn" onclick="goToPreparations()">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
                 <span>Procedures</span>
@@ -14962,9 +14981,22 @@
                     <line x1="17" y1="9" x2="23" y2="15"></line>
                   </svg>
                 </button>
-                <button class="game-top-btn-icon game-restart-btn" onclick="resetGame()" title="Restart Game" aria-label="Restart Game">
+                <button class="game-top-btn-icon game-restart-btn" onclick="resetGame()" title="Restart Preparation" aria-label="Restart Preparation">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
                 </button>
+                <button class="game-top-btn-icon" onclick="goToHome()" title="Home" aria-label="Home">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Top Transparent Instruction & Prompt Bar (Matching NG Tube & Port Access Format) -->
+            <div class="ng-tube-top-prompt-bar iv-top-prompt-bar visible can-confirm" id="gameStepBadge" role="status" aria-live="polite" aria-atomic="true">
+              <div class="step-instruction-card">
+                <span class="step-instruction-dot confirm-pulse" id="ivPromptDot" aria-hidden="true"></span>
+                <span class="step-instruction-text" id="gameStepBadgeText">Step 1: Apply Numbing Ointment</span>
               </div>
             </div>
 
@@ -15080,14 +15112,6 @@
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-
-            <!-- Accessible High-Contrast Step Instruction Text at Bottom of Preparation -->
-            <div class="game-bottom-instruction-bar" id="gameStepBadge" role="status" aria-live="polite" aria-atomic="true">
-              <div class="step-instruction-card">
-                <span class="step-instruction-dot" aria-hidden="true"></span>
-                <span class="step-instruction-text" id="gameStepBadgeText">Step 1: Apply Numbing Ointment</span>
               </div>
             </div>
 

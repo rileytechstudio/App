@@ -571,8 +571,11 @@ public struct IVGameView: View {
     @State private var introStepText: String? = "Getting Supplies Ready..."
     @State private var isStepHighlighting: Bool = false
     
-    public init(onDismiss: (() -> Void)? = nil) {
+    public var onBackToHome: (() -> Void)?
+    
+    public init(onDismiss: (() -> Void)? = nil, onBackToHome: (() -> Void)? = nil) {
         self.onDismiss = onDismiss
+        self.onBackToHome = onBackToHome
     }
     
     public var body: some View {
@@ -601,6 +604,9 @@ public struct IVGameView: View {
                     // Top Navigation Header
                     topGameHeader(screenSize: screenSize)
                     
+                    // Top Transparent Instruction & Prompt Bar
+                    topStepInstructionBar
+                    
                     Spacer(minLength: 0)
                     
                     // Game Canvas
@@ -608,11 +614,6 @@ public struct IVGameView: View {
                         .frame(width: stageSize.width, height: stageSize.height)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                
-                // MARK: - Accessible Bottom Step Instruction Banner (Full-Width Horizontal Banner)
-                bottomStepInstructionBar
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-                    .allowsHitTesting(false)
                 
                 // MARK: - Success Modal Celebration Overlay
                 if showSuccessModal {
@@ -667,7 +668,7 @@ public struct IVGameView: View {
             
             Spacer()
             
-            // Top Right Action Buttons: Sound Toggle & Reset
+            // Top Right Action Buttons: Sound Toggle, Reset & Home
             HStack(spacing: 8) {
                 Button(action: {
                     isSoundMuted.toggle()
@@ -694,6 +695,26 @@ public struct IVGameView: View {
                         .clipShape(Circle())
                 }
                 .accessibilityLabel("Reset Preparation")
+                
+                Button(action: {
+                    HapticManager.shared.buttonTap()
+                    IVAudioManager.shared.stopBackgroundMusic()
+                    if let onBackToHome = onBackToHome {
+                        onBackToHome()
+                    } else if let onDismiss = onDismiss {
+                        onDismiss()
+                    } else {
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                }) {
+                    Image(systemName: "house.fill")
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(9)
+                        .background(Color.white.opacity(0.18))
+                        .clipShape(Circle())
+                }
+                .accessibilityLabel("Home")
             }
         }
         .padding(.horizontal, 20)
@@ -701,49 +722,46 @@ public struct IVGameView: View {
         .padding(.bottom, 6)
     }
     
-    // MARK: - Accessible Bottom Step Instruction Banner (Spanning Horizontal Screen Length, Semi-transparent)
+    // MARK: - Top Transparent Instruction & Prompt Bar (Matching NG Tube & Port Access Format)
     @ViewBuilder
-    private var bottomStepInstructionBar: some View {
-        HStack(spacing: 9) {
-            // Accessible Status Indicator Dot (visual confirmation that this is an active status readout)
+    private var topStepInstructionBar: some View {
+        HStack(spacing: 10) {
             Circle()
-                .fill(isStepHighlighting ? Color(red: 0.98, green: 0.75, blue: 0.14) : Color(red: 0.98, green: 0.75, blue: 0.14, opacity: 0.85))
+                .fill(Color(red: 251/255, green: 191/255, blue: 36/255))
                 .frame(width: 8, height: 8)
+                .shadow(color: Color(red: 251/255, green: 191/255, blue: 36/255).opacity(0.8), radius: 4)
                 .scaleEffect(isStepHighlighting ? 1.35 : 1.0)
             
             Text(headerBadgeTitle)
-                .font(.system(size: 15.5, weight: .bold, design: .rounded))
+                .font(.system(size: 15, weight: .bold, design: .rounded))
                 .foregroundColor(isStepHighlighting ? Color(red: 1.0, green: 0.98, blue: 0.92) : .white)
-                .lineLimit(1)
-                .minimumScaleFactor(0.85)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 52)
+        .padding(.horizontal, 24)
+        .padding(.vertical, 9)
         .background(
-            LinearGradient(
-                colors: isStepHighlighting
-                ? [Color(red: 0.19, green: 0.09, blue: 0.35, opacity: 0.84), Color(red: 0.30, green: 0.14, blue: 0.52, opacity: 0.88)]
-                : [Color(red: 0.06, green: 0.03, blue: 0.13, opacity: 0.65), Color(red: 0.09, green: 0.05, blue: 0.19, opacity: 0.72)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .background(.ultraThinMaterial)
-        )
-        .overlay(
             Rectangle()
                 .fill(
                     isStepHighlighting
-                    ? Color(red: 0.98, green: 0.75, blue: 0.14, opacity: 0.95)
-                    : Color.white.opacity(0.16)
+                    ? Color(red: 0.19, green: 0.09, blue: 0.35, opacity: 0.84)
+                    : Color(red: 14/255, green: 28/255, blue: 32/255).opacity(0.16)
                 )
-                .frame(height: isStepHighlighting ? 2.0 : 1.0),
-            alignment: .top
+                .background(.ultraThinMaterial.opacity(0.65), in: Rectangle())
+        )
+        .overlay(
+            VStack {
+                Divider().background(Color.white.opacity(0.12))
+                Spacer()
+                Divider().background(Color.white.opacity(0.08))
+            }
         )
         .shadow(
-            color: isStepHighlighting ? Color(red: 0.98, green: 0.75, blue: 0.14, opacity: 0.45) : Color.black.opacity(0.32),
-            radius: isStepHighlighting ? 12 : 8,
+            color: isStepHighlighting ? Color(red: 0.98, green: 0.75, blue: 0.14, opacity: 0.45) : Color.black.opacity(0.16),
+            radius: isStepHighlighting ? 12 : 4,
             x: 0,
-            y: -3
+            y: 2
         )
         .animation(.spring(response: 0.35, dampingFraction: 0.65), value: isStepHighlighting)
         .accessibilityElement(children: .combine)

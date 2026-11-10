@@ -192,6 +192,13 @@ public struct PreparationsView: View {
             .fullScreenCover(isPresented: $isShowingIVGame) {
                 IVGameView(onDismiss: {
                     isShowingIVGame = false
+                }, onBackToHome: {
+                    isShowingIVGame = false
+                    if let onBackToHome = onBackToHome {
+                        onBackToHome()
+                    } else {
+                        presentationMode.wrappedValue.dismiss()
+                    }
                 })
             }
             .fullScreenCover(isPresented: $isShowingMRIScreen) {
