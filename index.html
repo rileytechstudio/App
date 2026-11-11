@@ -266,7 +266,7 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      padding-top: calc(env(safe-area-inset-top, 0px) + 16px);
+      padding-top: calc(env(safe-area-inset-top, 0px) + 24px);
       padding-left: max(24px, env(safe-area-inset-left, 0px));
       padding-right: max(24px, env(safe-area-inset-right, 0px));
       padding-bottom: 0;
@@ -294,7 +294,7 @@
     .home-header-center {
       position: absolute;
       left: 50%;
-      top: calc(env(safe-area-inset-top, 0px) + 38px);
+      top: calc(env(safe-area-inset-top, 0px) + 46px);
       transform: translate(-50%, -50%);
       display: flex;
       align-items: center;
@@ -307,8 +307,8 @@
     }
 
     .home-logo-banner {
-      height: 76px;
-      max-height: 84px;
+      height: 92px;
+      max-height: 101px;
       max-width: 100%;
       object-fit: contain;
       filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.09));
@@ -385,7 +385,7 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      padding-top: calc(env(safe-area-inset-top, 0px) + 16px);
+      padding-top: calc(env(safe-area-inset-top, 0px) + 24px);
       padding-left: max(24px, env(safe-area-inset-left, 0px));
       padding-right: max(24px, env(safe-area-inset-right, 0px));
       padding-bottom: 0;
@@ -423,7 +423,7 @@
     .app-header .header-center, .about-header .header-center {
       position: absolute;
       left: 50%;
-      top: calc(env(safe-area-inset-top, 0px) + 38px);
+      top: calc(env(safe-area-inset-top, 0px) + 46px);
       transform: translate(-50%, -50%);
       display: flex;
       align-items: center;
@@ -436,8 +436,8 @@
     }
 
     .consistent-header-banner {
-      height: 76px;
-      max-height: 84px;
+      height: 92px;
+      max-height: 101px;
       max-width: 100%;
       object-fit: contain;
       filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.09));
@@ -24777,10 +24777,10 @@
       const isLandscape = w > h;
       const isCompact = w < 580 && !isLandscape;
 
-      // Header Sizing - Sleek Apple Glass Navigation Bar
+      // Header Sizing - Sleek Apple Glass Navigation Bar (+20% size increase to fit banner)
       const headerH = isLandscape 
-        ? Math.min(Math.max(Math.round(h * 0.11), 78), 96) 
-        : Math.min(Math.max(Math.round(h * 0.095), 70), 84);
+        ? Math.min(Math.max(Math.round(h * 0.13), 94), 116) 
+        : Math.min(Math.max(Math.round(h * 0.114), 84), 102);
       document.querySelectorAll('.app-header, .about-header, .home-custom-header').forEach(hdr => {
         hdr.style.height = headerH + 'px';
       });
@@ -24792,12 +24792,22 @@
         btn.style.height = '44px';
       });
 
-      // Header Banner Sizing - Prominent and readable Riley logo matching Home screen exactly
-      const bannerH = isLandscape ? 78 : (isCompact ? 56 : 70);
-      const maxBannerW = isCompact ? Math.max(w - 140, 150) : Math.max(w - 180, 220);
+      // Header Banner Sizing - Prominent and readable Riley logo matching Home screen exactly (+20% size increase)
+      const bannerH = isLandscape ? 94 : (isCompact ? 67 : 84);
+      const maxBannerW = isCompact ? Math.max(w - 140, 150) : Math.max(w - 160, 220);
       document.querySelectorAll('.consistent-header-banner, .home-logo-banner').forEach(img => {
         img.style.setProperty('height', bannerH + 'px', 'important');
         img.style.setProperty('max-width', maxBannerW + 'px', 'important');
+      });
+
+      // Perfectly center and align header buttons with the 20% larger banner
+      const centerTop = Math.round(bannerH / 2);
+      document.querySelectorAll('.home-header-center, .header-center').forEach(el => {
+        el.style.top = `calc(env(safe-area-inset-top, 0px) + ${centerTop}px)`;
+      });
+      const btnPadTop = Math.max(0, centerTop - 22);
+      document.querySelectorAll('.home-custom-header, .app-header, .about-header').forEach(hdr => {
+        hdr.style.paddingTop = `calc(env(safe-area-inset-top, 0px) + ${btnPadTop}px)`;
       });
 
       // Home Screen Layout
