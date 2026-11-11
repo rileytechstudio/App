@@ -5646,43 +5646,6 @@
       -webkit-user-drag: none;
     }
 
-    .port-timer-info-badge {
-      margin-top: 18px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 2px solid rgba(56, 189, 248, 0.6);
-      border-radius: 24px;
-      padding: 10px 24px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-      animation: portBadgePulse 2.2s infinite ease-in-out;
-    }
-
-    .port-timer-badge-time {
-      color: #38bdf8;
-      font-size: 22px;
-      font-weight: 800;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-    }
-
-    .port-timer-badge-desc {
-      color: #e2e8f0;
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    @keyframes portBadgePulse {
-      0%, 100% {
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 14px rgba(56, 189, 248, 0.35);
-      }
-      50% {
-        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5), 0 0 24px rgba(56, 189, 248, 0.7);
-      }
-    }
-
     /* Victory Modal Card Centered in Space Under Prompt */
     .port-victory-overlay {
       position: absolute;
@@ -14974,10 +14937,6 @@
               <div class="port-timer-popup-card">
                 <div class="port-clock-rocker" id="portClockRocker">
                   <canvas id="portTimerCanvas" class="port-timer-clock-img" width="368" height="415"></canvas>
-                </div>
-                <div class="port-timer-info-badge">
-                  <span class="port-timer-badge-time">30 Minutes</span>
-                  <span class="port-timer-badge-desc">Numbing the port area</span>
                 </div>
               </div>
             </div>
@@ -28881,7 +28840,7 @@
     // Sequence 8: 30-Minute Timer Popup & Fluid Green Sweep Animation
     function startPortTimerAnimation() {
       portAccessCurrentStep = 'timer_running';
-      setPortAccessPrompt("Keep the ointment on for 30 minutes so your skin stays nice and numb for your port access.");
+      setPortAccessPrompt("Keep this on for 30 minutes to numb the port area.");
 
       const modal = document.getElementById('portTimerModal');
       const canvas = document.getElementById('portTimerCanvas');
