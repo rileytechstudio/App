@@ -482,6 +482,23 @@
     /* ========================================================= */
     /* HOME SCREEN STYLES                                        */
     /* ========================================================= */
+    .home-main-heading {
+      font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-weight: 400; /* Roboto Regular */
+      font-style: normal;
+      color: #325b72;
+      font-size: clamp(22px, 3.2vw, 34px);
+      letter-spacing: -0.2px;
+      line-height: 1.2;
+      text-align: center;
+      margin: 0 0 10px 0;
+      padding: 0 16px;
+      flex-shrink: 0;
+      user-select: none;
+      pointer-events: none;
+      text-shadow: 0 1px 3px rgba(255, 255, 255, 0.85);
+    }
+
     .home-body {
       flex: 1;
       display: flex;
@@ -13817,6 +13834,7 @@
             </header>
 
             <div id="homeBody" class="home-body">
+              <h1 class="home-main-heading" id="homeMainHeading">Riley Child Life</h1>
               <div id="landscapeGrid" class="cards-container">
                 <div class="home-main-cards">
                   <div class="grid-row-top">
@@ -24848,7 +24866,9 @@
         landscapeGrid.style.display = 'flex';
         const homeHeaderEl = document.getElementById('homeHeader');
         const homeH = homeHeaderEl ? homeHeaderEl.offsetHeight : headerH;
-        const availH = h - homeH;
+        const headingEl = document.getElementById('homeMainHeading');
+        const headingH = (headingEl && headingEl.offsetHeight) ? headingEl.offsetHeight : 0;
+        const availH = h - homeH - headingH;
         
         // Responsive card spacing and width for tablet and desktop:
         const horizontalPadding = isLandscape 
