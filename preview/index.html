@@ -15199,6 +15199,7 @@
       if (isSoundMuted) {
         if (ivBgMusic) ivBgMusic.pause();
         if (maskBgMusic) maskBgMusic.pause();
+        if (portBgMusic) portBgMusic.pause();
         stopClothWipeSound(true);
         stopClothWetWipeSound(true);
         if (typeof pauseChapstickRubbingSound === 'function') pauseChapstickRubbingSound(0);
@@ -15209,10 +15210,13 @@
         unlockGameAudioSystem();
         const screenGame = document.getElementById('screenIVGame');
         const screenMask = document.getElementById('screenMaskGame');
+        const screenPort = document.getElementById('screenPortAccess');
         if (screenGame && screenGame.classList.contains('active')) {
           playIVBackgroundMusic();
         } else if (screenMask && screenMask.classList.contains('active')) {
           playMaskBackgroundMusic();
+        } else if (screenPort && screenPort.classList.contains('active')) {
+          playPortBackgroundMusic();
         }
       }
     }
@@ -15323,6 +15327,13 @@
           } catch (e) {}
         }
       }
+
+      if (!isSoundMuted) {
+        const screenPort = document.getElementById('screenPortAccess');
+        if (screenPort && screenPort.classList.contains('active')) {
+          playPortBackgroundMusic();
+        }
+      }
     }
 
     window.addEventListener('pointerdown', unlockGameAudioSystem, { once: true, passive: true });
@@ -15398,6 +15409,40 @@
         try {
           ivBgMusic.pause();
           ivBgMusic.currentTime = 0;
+        } catch (e) {}
+      }
+    }
+
+    // Background Music for Port Access Preparation: Music BG 9 (Looped, Quiet Volume 0.16)
+    let portBgMusic = null;
+
+    function playPortBackgroundMusic() {
+      if (isSoundMuted) return;
+      const screenPort = document.getElementById('screenPortAccess');
+      if (screenPort && !screenPort.classList.contains('active')) return;
+      if (!portBgMusic) {
+        portBgMusic = new Audio('assets/MusicBG9.mp3');
+        portBgMusic.loop = true;
+        portBgMusic.volume = 0.16;
+        portBgMusic.onerror = function() {
+          if (portBgMusic && !portBgMusic.src.includes('Music%20BG%209.mp3')) {
+            portBgMusic.src = 'assets/Music%20BG%209.mp3';
+            portBgMusic.play().catch(function() {});
+          }
+        };
+      }
+      if (portBgMusic) {
+        portBgMusic.play().catch(err => {
+          console.log('Port background music waiting for user gesture:', err);
+        });
+      }
+    }
+
+    function stopPortBackgroundMusic() {
+      if (portBgMusic) {
+        try {
+          portBgMusic.pause();
+          portBgMusic.currentTime = 0;
         } catch (e) {}
       }
     }
@@ -15726,6 +15771,7 @@
         clearIVIntroTimers();
         stopIVBackgroundMusic();
         stopMaskBackgroundMusic();
+        stopPortBackgroundMusic();
         resetMaskScene();
         stopClothWipeSound(true);
         stopClothWetWipeSound(true);
@@ -15742,6 +15788,7 @@
         clearIVIntroTimers();
         stopIVBackgroundMusic();
         stopMaskBackgroundMusic();
+        stopPortBackgroundMusic();
         resetMaskScene();
         stopClothWipeSound(true);
         stopClothWetWipeSound(true);
@@ -15759,6 +15806,7 @@
         clearIVIntroTimers();
         stopIVBackgroundMusic();
         stopMaskBackgroundMusic();
+        stopPortBackgroundMusic();
         resetMaskScene();
         stopClothWipeSound(true);
         stopClothWetWipeSound(true);
@@ -15782,6 +15830,7 @@
         }
         clearIVIntroTimers();
         stopIVBackgroundMusic();
+        stopPortBackgroundMusic();
         stopClothWipeSound(true);
         stopClothWetWipeSound(true);
         stopYouDidItSound(true);
@@ -15795,6 +15844,7 @@
         if (select) select.value = 'iv-start';
         if (statusSpan) statusSpan.textContent = 'IV Start Procedure Active • Complete interactive steps';
         stopMaskBackgroundMusic();
+        stopPortBackgroundMusic();
         resetMaskScene();
         if (typeof stopYouDidItChimeSound === 'function') stopYouDidItChimeSound(true);
         if (typeof stopMaskConfetti === 'function') stopMaskConfetti();
@@ -15806,6 +15856,7 @@
         clearIVIntroTimers();
         stopIVBackgroundMusic();
         stopMaskBackgroundMusic();
+        stopPortBackgroundMusic();
         resetMaskScene();
         stopClothWipeSound(true);
         stopClothWetWipeSound(true);
@@ -15821,6 +15872,7 @@
         clearIVIntroTimers();
         stopIVBackgroundMusic();
         stopMaskBackgroundMusic();
+        stopPortBackgroundMusic();
         resetMaskScene();
         stopClothWipeSound(true);
         stopClothWetWipeSound(true);
@@ -15836,6 +15888,7 @@
         clearIVIntroTimers();
         stopIVBackgroundMusic();
         stopMaskBackgroundMusic();
+        stopPortBackgroundMusic();
         resetMaskScene();
         stopClothWipeSound(true);
         stopClothWetWipeSound(true);
@@ -15852,6 +15905,7 @@
         clearMRITimers();
         stopIVBackgroundMusic();
         stopMaskBackgroundMusic();
+        stopPortBackgroundMusic();
         resetMaskScene();
         stopClothWipeSound(true);
         stopClothWetWipeSound(true);
@@ -15870,6 +15924,7 @@
           clearNGTubeTimers();
           stopIVBackgroundMusic();
           stopMaskBackgroundMusic();
+          stopPortBackgroundMusic();
           resetMaskScene();
           stopClothWipeSound(true);
           stopClothWetWipeSound(true);
@@ -15913,6 +15968,7 @@
         clearNGTubeTimers();
         stopIVBackgroundMusic();
         stopMaskBackgroundMusic();
+        stopPortBackgroundMusic();
         resetMaskScene();
         stopClothWipeSound(true);
         stopClothWetWipeSound(true);
@@ -26642,6 +26698,7 @@
 
     function initPortAccess() {
       clearPortAccessTimers();
+      playPortBackgroundMusic();
       portAccessCurrentStep = 'welcome';
       isDraggingPortGown = false;
       isDraggingPortLMX = false;
