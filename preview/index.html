@@ -5068,79 +5068,45 @@
       cursor: pointer !important;
     }
 
-    /* Tap Cue for Removing Clear Bandage: Outstretched Pointer Hand Visual Cue */
+    /* Tap Cue for Removing Clear Bandage: Custom Tap Icon Graphic */
     .port-bandage-tap-prompt {
       position: absolute;
-      left: 46%;
-      top: 39%;
-      transform: translate(-50%, -50%);
-      width: 60px;
-      height: 60px;
+      inset: 0;
+      width: 100%;
+      height: 100%;
       cursor: pointer;
       z-index: 25;
       user-select: none;
       pointer-events: auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: radial-gradient(circle, rgba(0, 229, 255, 0.28) 0%, rgba(15, 23, 42, 0.75) 55%, transparent 100%);
-      border-radius: 50%;
-      border: 2px solid rgba(0, 229, 255, 0.75);
-      box-shadow: 0 0 20px rgba(0, 229, 255, 0.6), inset 0 0 10px rgba(0, 229, 255, 0.3);
-      animation: portPulseTapPrompt 1.4s infinite ease-in-out;
-      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      transform-origin: 52.5% 53.8%;
+      transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
     }
 
-    .port-bandage-tap-prompt:hover {
-      transform: translate(-50%, -50%) scale(1.12);
-      box-shadow: 0 0 28px rgba(0, 229, 255, 0.95), inset 0 0 14px rgba(0, 229, 255, 0.5);
-    }
-
-    .port-bandage-tap-prompt:active {
-      transform: translate(-50%, -50%) scale(0.92);
-    }
-
-    .port-tap-hand-icon {
-      width: 34px;
-      height: 34px;
-      color: #ffffff;
-      transform: rotate(-14deg);
-      filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.7)) drop-shadow(0 0 10px rgba(0, 229, 255, 0.85));
-      pointer-events: none;
-    }
-
-    .port-tap-ripple-ring {
+    .port-tap-icon-img {
       position: absolute;
-      top: 13px;
-      left: 23px;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      border: 2px solid rgba(0, 229, 255, 0.9);
-      transform: translate(-50%, -50%);
-      animation: portTapRipple 1.4s infinite ease-out;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: fill;
+      transform-origin: 52.5% 53.8%;
+      animation: portPulseTapIcon 1.5s infinite ease-in-out;
       pointer-events: none;
+      filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.55));
+      transition: filter 0.2s ease;
     }
 
-    @keyframes portTapRipple {
-      0% {
-        transform: translate(-50%, -50%) scale(0.3);
-        opacity: 1;
-      }
-      100% {
-        transform: translate(-50%, -50%) scale(2.2);
-        opacity: 0;
-      }
+    .port-bandage-tap-prompt:hover .port-tap-icon-img {
+      filter: drop-shadow(0 0 22px rgba(0, 229, 255, 0.95)) drop-shadow(0 0 36px rgba(125, 211, 252, 0.75));
     }
 
-    @keyframes portPulseTapPrompt {
+    @keyframes portPulseTapIcon {
       0%, 100% {
-        transform: translate(-50%, -50%) scale(1);
-        box-shadow: 0 0 16px rgba(0, 229, 255, 0.5), inset 0 0 8px rgba(0, 229, 255, 0.25);
+        transform: scale(1);
+        filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.55));
       }
       50% {
-        transform: translate(-50%, -50%) scale(1.10);
-        box-shadow: 0 0 26px rgba(0, 229, 255, 0.9), 0 0 38px rgba(125, 211, 252, 0.65), inset 0 0 14px rgba(0, 229, 255, 0.45);
+        transform: scale(1.07);
+        filter: drop-shadow(0 0 24px rgba(0, 229, 255, 0.95)) drop-shadow(0 0 40px rgba(125, 211, 252, 0.8));
       }
     }
 
@@ -13852,12 +13818,9 @@
                     <img class="port-access-layer" src="assets/PortAccess/Clear Bandage.png" alt="Clear Bandage Film" draggable="false" loading="eager" decoding="sync" />
                   </div>
 
-                  <!-- Tap Cue to Remove Clear Bandage: Outstretched Pointer Hand Icon -->
+                  <!-- Tap Cue to Remove Clear Bandage: Custom Tap Icon -->
                   <div id="portBandageTapPrompt" class="port-bandage-tap-prompt" style="display: none;" onclick="removePortBandage(event)" role="button" aria-label="Tap to peel off clear bandage">
-                    <span class="port-tap-ripple-ring" aria-hidden="true"></span>
-                    <svg class="port-tap-hand-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                      <path d="M19.48 12.82l-5.06-2.53v-5.8c0-1.38-1.12-2.5-2.5-2.5s-2.5 1.12-2.5 2.5v9.84l-3.37-.73c-.15-.03-.31-.05-.47-.05-.62 0-1.18.25-1.59.66l-.74.74 5.37 5.37c.45.45 1.07.7 1.71.7h7.24c1.15 0 2.11-.82 2.29-1.96l.82-5.4c.02-.12.03-.23.03-.34 0-.82-.5-1.54-1.23-1.8z"/>
-                    </svg>
+                    <img class="port-access-layer port-tap-icon-img" src="assets/PortAccess/Tap Icon.png" alt="Tap to peel off clear bandage" draggable="false" loading="eager" decoding="sync" onerror="if(!this.src.includes('TapIcon.png')){this.src='assets/PortAccess/TapIcon.png';}" />
                   </div>
 
                   <!-- Layer 5: Hospital Gown Overlay (Gown lapels covering the sides of the bandage) -->
@@ -26886,7 +26849,7 @@
       if (tapPromptEl) {
         tapPromptEl.style.display = 'none';
         tapPromptEl.style.opacity = '1';
-        tapPromptEl.style.transform = 'translate(-50%, -50%)';
+        tapPromptEl.style.transform = 'none';
       }
       if (timerModal) {
         timerModal.classList.remove('visible');
@@ -27979,13 +27942,13 @@
       portAccessTimers.push(setTimeout(() => {
         if (portAccessCurrentStep !== 'bandage_remove') return;
         if (tapPrompt) {
-          tapPrompt.style.display = 'flex';
+          tapPrompt.style.display = 'block';
           tapPrompt.style.opacity = '0';
-          tapPrompt.style.transform = 'translate(-50%, -50%) scale(0.85)';
+          tapPrompt.style.transform = 'scale(0.85)';
           void tapPrompt.offsetWidth;
           tapPrompt.style.transition = 'opacity 0.35s ease, transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
           tapPrompt.style.opacity = '1';
-          tapPrompt.style.transform = 'translate(-50%, -50%) scale(1)';
+          tapPrompt.style.transform = 'scale(1)';
         }
         if (bandageLayer) {
           bandageLayer.classList.add('removable');
@@ -28011,7 +27974,7 @@
       if (tapPrompt) {
         tapPrompt.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
         tapPrompt.style.opacity = '0';
-        tapPrompt.style.transform = 'translate(-50%, -50%) scale(0.85)';
+        tapPrompt.style.transform = 'scale(0.85)';
         setTimeout(() => { if (tapPrompt) tapPrompt.style.display = 'none'; }, 260);
       }
 
