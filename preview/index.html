@@ -801,7 +801,7 @@
       top: 0;
       left: 0;
       right: 0;
-      padding: 22px 0 16px 0;
+      padding: 18px 0 14px 0;
       display: flex;
       justify-content: center;
       width: 100%;
@@ -811,32 +811,97 @@
 
     .prep-search-bar {
       display: flex;
-      align-items: center;
-      gap: 10px;
+      align-items: stretch;
       background: #ffffff;
-      border: 1px solid rgba(0, 0, 0, 0.08);
-      border-radius: 20px;
-      padding: 6px 16px;
-      width: 440px;
-      max-width: 82%;
-      height: 38px;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+      border: 1px solid #c8c8c8;
+      border-radius: 4px;
+      width: 580px;
+      max-width: 86%;
+      height: 50px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
       pointer-events: auto; /* Interactive & clickable */
+      box-sizing: border-box;
+      overflow: hidden;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .prep-search-bar:focus-within {
+      border-color: #7b0050;
+      box-shadow: 0 0 0 2px rgba(123, 0, 80, 0.18), 0 3px 8px rgba(0, 0, 0, 0.08);
     }
 
     .prep-search-bar input {
       flex: 1;
+      min-width: 0;
       border: none;
       background: transparent;
       outline: none;
-      font-size: 14px;
-      color: #1e293b;
-      font-family: inherit;
+      font-size: 17px;
+      font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-weight: 400;
+      color: #2d3748;
+      padding: 0 18px;
+      line-height: 48px;
+      height: 100%;
+      box-sizing: border-box;
     }
 
-    .prep-search-bar svg {
-      color: #64748b;
+    .prep-search-bar input::placeholder {
+      color: #737373;
+      font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-weight: 400;
+      opacity: 1;
+    }
+
+    .prep-search-btn {
+      width: 60px;
+      min-width: 60px;
+      background: #7b0050;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      margin: 0;
+      transition: background-color 0.18s ease;
       flex-shrink: 0;
+    }
+
+    .prep-search-btn:hover {
+      background: #8e035d;
+    }
+
+    .prep-search-btn:active {
+      background: #620040;
+    }
+
+    .prep-search-btn svg {
+      stroke: #ffffff;
+      color: #ffffff;
+      flex-shrink: 0;
+      display: block;
+    }
+
+    @media (max-width: 580px) {
+      .prep-search-bar {
+        height: 44px;
+        max-width: 90%;
+      }
+      .prep-search-bar input {
+        font-size: 15px;
+        padding: 0 12px;
+        line-height: 42px;
+      }
+      .prep-search-btn {
+        width: 48px;
+        min-width: 48px;
+      }
+      .prep-search-btn svg {
+        width: 18px;
+        height: 18px;
+      }
     }
 
     .prep-ribbon-wrapper {
@@ -12985,17 +13050,13 @@
               <!-- Search Bar (Overlaps buttons and top fade buffer) -->
               <div class="prep-search-wrapper">
                 <div class="prep-search-bar">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                  </svg>
-                  <input type="text" id="prepSearchInput" placeholder="Search" oninput="filterProcedures(this.value)" />
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                    <line x1="12" y1="19" x2="12" y2="23"></line>
-                    <line x1="8" y1="23" x2="16" y2="23"></line>
-                  </svg>
+                  <input type="text" id="prepSearchInput" placeholder="All Conditions & Services" oninput="filterProcedures(this.value)" aria-label="All Conditions & Services" />
+                  <button class="prep-search-btn" type="button" onclick="document.getElementById('prepSearchInput').focus(); filterProcedures(document.getElementById('prepSearchInput').value)" aria-label="Search">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="10.5" cy="10.5" r="7"></circle>
+                      <line x1="15.5" y1="15.5" x2="21" y2="21"></line>
+                    </svg>
+                  </button>
                 </div>
               </div>
 
