@@ -9298,6 +9298,8 @@
       transition: transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.24s ease;
       outline: none;
       display: block;
+      text-decoration: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .about-partner-card img {
@@ -14471,12 +14473,12 @@
               <!-- Lower Zone: Rich Riley Purple Background with Partner Cards -->
               <section class="about-bottom-section">
                 <div class="about-partners-container">
-                  <button class="about-partner-card card-childs-play" onclick="openPartnerModal('childs-play')" title="Learn about Child's Play Charity" aria-label="Child's Play Charity">
+                  <a href="https://www.childsplaycharity.org/" target="_blank" rel="noopener noreferrer" class="about-partner-card card-childs-play" title="Visit Child's Play Charity Website" aria-label="Visit Child's Play Charity Website">
                     <img src="assets/AboutChildsPlay.png" alt="Child’s Play Charity brings the healing power of gaming to hospitalized children, providing games, technology, and therapeutic play to improve the pediatric patient experience." loading="lazy" decoding="async" />
-                  </button>
-                  <button class="about-partner-card card-dunkin-joy" onclick="openPartnerModal('dunkin-joy')" title="Learn about Dunkin' Joy in Childhood Foundation" aria-label="Dunkin' Joy Foundation">
+                  </a>
+                  <a href="https://www.joyinchildhoodfoundation.org/" target="_blank" rel="noopener noreferrer" class="about-partner-card card-dunkin-joy" title="Visit Dunkin' Joy in Childhood Foundation Website" aria-label="Visit Dunkin' Joy in Childhood Foundation Website">
                     <img src="assets/AboutDunkinJoy.png" alt="The Dunkin’ Joy in Childhood Foundation funds programs such as facility dogs, gaming, and prom, all designed to help kids feel like kids even on their most difficult days." loading="lazy" decoding="async" />
-                  </button>
+                  </a>
                 </div>
               </section>
 
@@ -17980,9 +17982,9 @@
 
     function openPartnerModal(partnerKey) {
       if (partnerKey === 'childs-play') {
-        openSheet("Child's Play");
+        window.open('https://www.childsplaycharity.org/', '_blank', 'noopener,noreferrer');
       } else if (partnerKey === 'dunkin-joy') {
-        openSheet("Dunkin' Joy");
+        window.open('https://www.joyinchildhoodfoundation.org/', '_blank', 'noopener,noreferrer');
       }
     }
 
