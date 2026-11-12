@@ -152,6 +152,7 @@ public struct AnatomyExplorerView: View {
     @State private var activeStudioOrgan: OrganStudioItem? = nil
     @State private var selectedStudioColor: StudioColor = .blue
     @State private var selectedStudioTool: StudioTool = .pencil
+    @AppStorage("riley_sound_effects") private var soundEffectsEnabled: Bool = true
     
     // Studio Drawing State
     public struct StudioDrawingStroke: Identifiable {
@@ -2275,12 +2276,149 @@ public struct AnatomyExplorerView: View {
             .frame(width: screenW, height: screenH)
 
             
-            // Top Header Overlay: Centered Organ Name & Clear Button
-            VStack {
-                VStack(spacing: 8) {
-                    HStack(spacing: 10) {
+            // Top Header Overlay: Game Header Buttons (Back, Restart, Sound, Home) & Sub-Header (Organ Title & Clear Button)
+            VStack(spacing: 6) {
+                // Top Game Header Bar (Back on left; Restart, Sound, Home on right)
+                HStack(alignment: .center) {
+                    // Back button
+                    Button(action: {
+                        HapticManager.shared.lightTap()
+                        activeStudioOrgan = nil
+                    }) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 13, weight: .bold))
+                            Text("Back")
+                                .font(.system(size: 14, weight: .bold, design: .rounded))
+                        }
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 6)
+                        .background(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    Color(hex: "941262").opacity(0.92),
+                                    Color(hex: "7b0350").opacity(0.90),
+                                    Color(hex: "630240").opacity(0.94)
+                                ]),
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .clipShape(Capsule())
+                        .overlay(
+                            Capsule()
+                                .stroke(Color.white.opacity(0.40), lineWidth: 1.5)
+                        )
+                        .shadow(color: Color(hex: "4e0434").opacity(0.35), radius: 6, y: 3)
+                    }
+                    .buttonStyle(BouncyButtonStyle(scaleAmount: 0.95))
+                    
+                    Spacer()
+                    
+                    // Action buttons: Restart, Sound, Home
+                    HStack(spacing: 8) {
+                        // Restart Studio button
+                        Button(action: {
+                            HapticManager.shared.lightTap()
+                            studioStrokes.removeAll()
+                            currentStroke = nil
+                            selectedStudioColor = .blue
+                            selectedStudioTool = .pencil
+                            speakOrgan(studio.name)
+                        }) {
+                            Image(systemName: "arrow.counterclockwise")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(.white)
+                                .frame(width: 36, height: 36)
+                                .background(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [
+                                            Color(hex: "941262").opacity(0.92),
+                                            Color(hex: "7b0350").opacity(0.90),
+                                            Color(hex: "630240").opacity(0.94)
+                                        ]),
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .clipShape(Circle())
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color.white.opacity(0.40), lineWidth: 1.5)
+                                )
+                                .shadow(color: Color(hex: "4e0434").opacity(0.35), radius: 6, y: 3)
+                        }
+                        .buttonStyle(BouncyButtonStyle(scaleAmount: 0.95))
+                        
+                        // Sound Toggle button
+                        Button(action: {
+                            HapticManager.shared.lightTap()
+                            soundEffectsEnabled.toggle()
+                        }) {
+                            Image(systemName: soundEffectsEnabled ? "speaker.wave.2.fill" : "speaker.slash.fill")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(.white)
+                                .frame(width: 36, height: 36)
+                                .background(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [
+                                            Color(hex: "941262").opacity(0.92),
+                                            Color(hex: "7b0350").opacity(0.90),
+                                            Color(hex: "630240").opacity(0.94)
+                                        ]),
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .clipShape(Circle())
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color.white.opacity(0.40), lineWidth: 1.5)
+                                )
+                                .shadow(color: Color(hex: "4e0434").opacity(0.35), radius: 6, y: 3)
+                        }
+                        .buttonStyle(BouncyButtonStyle(scaleAmount: 0.95))
+                        
+                        // Home button
+                        Button(action: {
+                            HapticManager.shared.lightTap()
+                            activeStudioOrgan = nil
+                            onBackToHome()
+                        }) {
+                            Image(systemName: "house.fill")
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundColor(.white)
+                                .frame(width: 36, height: 36)
+                                .background(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [
+                                            Color(hex: "941262").opacity(0.92),
+                                            Color(hex: "7b0350").opacity(0.90),
+                                            Color(hex: "630240").opacity(0.94)
+                                        ]),
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .clipShape(Circle())
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color.white.opacity(0.40), lineWidth: 1.5)
+                                )
+                                .shadow(color: Color(hex: "4e0434").opacity(0.35), radius: 6, y: 3)
+                        }
+                        .buttonStyle(BouncyButtonStyle(scaleAmount: 0.95))
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 10)
+                
+                // Centered Organ Name & Clear Button (Positioned neatly under game top bar)
+                VStack(spacing: 4) {
+                    HStack(spacing: 8) {
                         Text(studio.name)
-                            .font(.system(size: 28, weight: .heavy, design: .rounded))
+                            .font(.system(size: 26, weight: .heavy, design: .rounded))
                             .foregroundColor(Color(hex: "5931ba"))
                             .shadow(color: Color.white.opacity(0.85), radius: 4)
                         
@@ -2288,9 +2426,9 @@ public struct AnatomyExplorerView: View {
                             speakOrgan(studio.name)
                         }) {
                             Image(systemName: "speaker.wave.2.fill")
-                                .font(.system(size: 16, weight: .bold))
+                                .font(.system(size: 14, weight: .bold))
                                 .foregroundColor(Color(hex: "1a0b2e"))
-                                .frame(width: 36, height: 36)
+                                .frame(width: 32, height: 32)
                                 .background(Circle().fill(Color(hex: "ffd700")))
                                 .shadow(color: Color(hex: "ffd700").opacity(0.7), radius: 8)
                         }
@@ -2305,15 +2443,14 @@ public struct AnatomyExplorerView: View {
                         Text("Clear")
                             .font(.system(size: 13, weight: .bold, design: .rounded))
                             .foregroundColor(.white)
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 6)
+                            .padding(.horizontal, 18)
+                            .padding(.vertical, 4)
                             .background(Capsule().fill(Color(hex: "5931ba").opacity(0.88)))
                             .overlay(Capsule().stroke(Color.white.opacity(0.4), lineWidth: 1.5))
                             .shadow(color: Color.black.opacity(0.2), radius: 4, y: 2)
                     }
                     .buttonStyle(PlainButtonStyle())
                 }
-                .padding(.top, 14)
                 
                 Spacer()
             }

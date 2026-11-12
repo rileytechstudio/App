@@ -11680,18 +11680,43 @@
       pointer-events: none !important;
     }
 
-    /* Studio Top Navigation Bar (Floating Overlay positioned beneath top ribbon) */
+    /* Studio Top Game Header Bar (Back, Restart, Sound, Home) */
+    .anatomy-studio-top-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: transparent !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      border: none !important;
+      box-shadow: none !important;
+      z-index: 30;
+      pointer-events: none;
+      padding: max(10px, env(safe-area-inset-top, 10px)) 20px 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .anatomy-studio-top-bar button {
+      pointer-events: auto;
+    }
+
+    /* Studio Top Sub-Header (Organ Title & Clear Button positioned neatly under game top bar) */
     .anatomy-studio-nav {
       position: absolute;
-      top: calc(env(safe-area-inset-top, 0px) + var(--anatomy-header-h, 78px) + 48px);
+      top: calc(max(10px, env(safe-area-inset-top, 10px)) + 46px);
       left: 0;
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 10px 24px;
+      padding: 0 24px;
       box-sizing: border-box;
-      z-index: 20;
+      z-index: 25;
       pointer-events: none;
       user-select: none;
       -webkit-user-select: none;
@@ -11706,22 +11731,23 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
       pointer-events: auto;
     }
 
     .anatomy-studio-title-row {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
 
     .anatomy-studio-title {
       margin: 0;
-      font-size: 28px;
+      font-size: 26px;
       font-weight: 800;
       color: #5931ba;
-      letter-spacing: 0.6px;
+      letter-spacing: 0.5px;
+      line-height: 1.1;
       text-shadow: 0 1px 4px rgba(255, 255, 255, 0.85), 0 2px 8px rgba(0, 0, 0, 0.08);
       font-family: inherit;
     }
@@ -11731,8 +11757,8 @@
       color: #1a0b2e;
       border: none;
       border-radius: 50%;
-      width: 36px;
-      height: 36px;
+      width: 32px;
+      height: 32px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -11754,7 +11780,7 @@
       color: #ffffff;
       border: 1.5px solid rgba(255, 255, 255, 0.4);
       border-radius: 9999px;
-      padding: 5px 20px;
+      padding: 4px 18px;
       font-size: 13px;
       font-weight: 700;
       font-family: inherit;
@@ -14072,6 +14098,12 @@
       pointer-events: auto !important;
     }
 
+    #screenAnatomyExplorer.active .anatomy-studio-top-bar button,
+    #screenAnatomyExplorer.active .anatomy-studio-nav button,
+    #screenAnatomyExplorer.active .anatomy-studio-nav a {
+      pointer-events: auto !important;
+    }
+
     .bottom-bar-tabs {
       display: flex !important;
       width: 100% !important;
@@ -16005,13 +16037,43 @@
 
               <!-- Dedicated Organ Illustration & Drawing Studio Screen (Revealed Upon 2nd Organ Tap) -->
               <div class="anatomy-studio-view" id="anatomyStudioView" aria-hidden="true">
-                <!-- Studio Top Navigation Header -->
+                <!-- Top Game Header Bar (Back, Restart, Sound, Home) -->
+                <div class="anatomy-studio-top-bar game-top-bar">
+                  <button type="button" class="game-top-btn" onclick="closeOrganStudio()" title="Back" aria-label="Back">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    <span>Back</span>
+                  </button>
+
+                  <div class="game-top-actions">
+                    <button type="button" class="game-top-btn-icon game-restart-btn" onclick="handleStudioRestart()" title="Restart Studio" aria-label="Restart Studio">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                    </button>
+                    <button type="button" class="game-top-btn-icon sound-toggle-btn" onclick="toggleSound()" title="Mute/Unmute Sound" aria-label="Toggle Sound">
+                      <svg class="sound-icon-on" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                      </svg>
+                      <svg class="sound-icon-off" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                        <line x1="23" y1="9" x2="17" y2="15"></line>
+                        <line x1="17" y1="9" x2="23" y2="15"></line>
+                      </svg>
+                    </button>
+                    <button type="button" class="game-top-btn-icon" onclick="goToHome()" title="Home" aria-label="Home">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Studio Top Sub-Header: Organ Name & Clear Button (Positioned directly under game top bar) -->
                 <div class="anatomy-studio-nav">
                   <div class="anatomy-studio-title-box">
                     <div class="anatomy-studio-title-row">
                       <h2 class="anatomy-studio-title" id="anatomyStudioTitle">Heart</h2>
                       <button type="button" class="anatomy-studio-audio-btn" id="anatomyStudioAudioBtn" onclick="speakCurrentStudioOrgan()" title="Hear name again" aria-label="Hear name again">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                           <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
                         </svg>
                       </button>
@@ -18445,6 +18507,16 @@
       const ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       if (isHapticsEnabled) triggerHapticFeedback(14);
+    }
+
+    function handleStudioRestart() {
+      clearStudioCanvas();
+      const pencilBtn = document.getElementById('studioToolBtnPencil');
+      if (pencilBtn) selectStudioTool('pencil', pencilBtn);
+      const blueSpot = document.querySelector('.spot-blue');
+      if (blueSpot) selectStudioColor('#0e76e6', 'Blue', blueSpot);
+      speakCurrentStudioOrgan();
+      if (isHapticsEnabled) triggerHapticFeedback([16, 60, 20]);
     }
 
     function clearOrganSelection() {

@@ -1188,6 +1188,12 @@ def build_distribution():
       pointer-events: auto !important;
     }
 
+    #screenAnatomyExplorer.active .anatomy-studio-top-bar button,
+    #screenAnatomyExplorer.active .anatomy-studio-nav button,
+    #screenAnatomyExplorer.active .anatomy-studio-nav a {
+      pointer-events: auto !important;
+    }
+
     .bottom-bar-tabs {
       display: flex !important;
       width: 100% !important;
