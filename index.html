@@ -9049,19 +9049,18 @@
       height: 0;
     }
 
-    /* Top Fade Gradient for About Screen (Fades into white behind header as content scrolls up) */
+    /* Top Fade Gradient for About Screen (Fixed below header, fades content smoothly as it scrolls up) */
     .about-top-fade {
       position: absolute;
-      top: 0;
+      top: var(--anatomy-header-h, 96px);
       left: 0;
       right: 0;
-      height: 140px;
+      height: 130px;
       background: linear-gradient(to bottom, 
         rgba(255, 255, 255, 1) 0%, 
-        rgba(255, 255, 255, 1) 28%, 
-        rgba(255, 255, 255, 0.88) 48%, 
-        rgba(255, 255, 255, 0.55) 68%, 
-        rgba(255, 255, 255, 0.18) 88%, 
+        rgba(255, 255, 255, 0.95) 25%, 
+        rgba(255, 255, 255, 0.70) 55%, 
+        rgba(255, 255, 255, 0.25) 82%, 
         rgba(255, 255, 255, 0) 100%
       );
       pointer-events: none;
@@ -9071,7 +9070,7 @@
     }
 
     .about-top-fade.visible {
-      opacity: 1;
+      opacity: 1 !important;
     }
 
     /* Bottom Fade Gradient for About Screen (Disappears at end of scroll) */
@@ -20424,9 +20423,9 @@
         }
       }
 
-      // Top Fade: appears once scrolled down from the top (scrollTop > 15), hidden at rest at top
+      // Top Fade: appears once scrolled down from the top (scrollTop > 8), hidden at rest at top
       if (topFade) {
-        if (scrollTop > 15) {
+        if (scrollTop > 8) {
           topFade.classList.add('visible');
         } else {
           topFade.classList.remove('visible');
@@ -25296,8 +25295,10 @@
 
       const aboutTopFade = document.getElementById('aboutTopFade') || document.querySelector('.about-top-fade');
       if (aboutTopFade) {
-        const topFadeH = isCompact ? 95 : 120;
+        const topFadeH = isCompact ? 100 : 130;
+        aboutTopFade.style.top = headerH + 'px';
         aboutTopFade.style.height = topFadeH + 'px';
+        updateAboutScrollFade();
       }
 
       const aboutBottomFade = document.getElementById('aboutBottomFade') || document.querySelector('.about-bottom-fade');
