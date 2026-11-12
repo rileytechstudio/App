@@ -9266,10 +9266,22 @@
       flex: 1 1 48%;
       min-height: 48%;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: 24px 40px;
       box-sizing: border-box;
+    }
+
+    .about-sponsor-heading {
+      font-family: 'Roboto', sans-serif;
+      font-size: 30px;
+      font-weight: 400;
+      color: #325b72;
+      letter-spacing: -0.2px;
+      margin: 0 0 16px 0;
+      line-height: 1.25;
+      text-align: center;
     }
 
     .about-partners-container {
@@ -9284,8 +9296,8 @@
     }
 
     .about-partner-card {
-      flex: 1 1 0;
-      min-width: 0;
+      flex: 0 1 420px;
+      width: 100%;
       max-width: 420px;
       aspect-ratio: 2 / 1;
       border: none;
@@ -9351,13 +9363,19 @@
       margin-bottom: 20px;
     }
 
+    .device-shell.is-portrait .about-sponsor-heading,
+    .device-shell.is-phone .about-sponsor-heading {
+      font-size: 26px;
+      margin-bottom: 14px;
+    }
+
     .device-shell.is-portrait .about-partners-container {
       gap: 24px;
       max-width: 680px;
     }
 
     .device-shell.is-portrait .about-partner-card {
-      max-width: 320px;
+      max-width: 340px;
     }
 
     .device-shell.is-phone .about-partners-container {
@@ -9368,7 +9386,7 @@
     .device-shell.is-phone .about-partner-card {
       flex: 0 0 auto;
       width: 100%;
-      max-width: 340px;
+      max-width: 320px;
     }
 
     /* Standard Responsive Media Queries for Standalone PWA (< 640px) */
@@ -9398,6 +9416,11 @@
         margin-bottom: 18px;
       }
 
+      .about-sponsor-heading {
+        font-size: 24px;
+        margin-bottom: 12px;
+      }
+
       .about-partners-container {
         flex-direction: column;
         gap: 16px;
@@ -9406,7 +9429,7 @@
       .about-partner-card {
         flex: 0 0 auto;
         width: 100%;
-        max-width: 340px;
+        max-width: 320px;
       }
     }
 
@@ -14470,14 +14493,12 @@
                 </div>
               </section>
 
-              <!-- Lower Zone: Rich Riley Purple Background with Partner Cards -->
+              <!-- Lower Zone: Gradient Background with Sponsor Card -->
               <section class="about-bottom-section">
+                <h1 class="about-sponsor-heading">Thank You to our Sponsor</h1>
                 <div class="about-partners-container">
                   <a href="https://www.childsplaycharity.org/" target="_blank" rel="noopener noreferrer" class="about-partner-card card-childs-play" title="Visit Child's Play Charity Website" aria-label="Visit Child's Play Charity Website">
                     <img src="assets/AboutChildsPlay.png" alt="Child’s Play Charity brings the healing power of gaming to hospitalized children, providing games, technology, and therapeutic play to improve the pediatric patient experience." loading="lazy" decoding="async" />
-                  </a>
-                  <a href="https://www.joyinchildhoodfoundation.org/" target="_blank" rel="noopener noreferrer" class="about-partner-card card-dunkin-joy" title="Visit Dunkin' Joy in Childhood Foundation Website" aria-label="Visit Dunkin' Joy in Childhood Foundation Website">
-                    <img src="assets/AboutDunkinJoy.png" alt="The Dunkin’ Joy in Childhood Foundation funds programs such as facility dogs, gaming, and prom, all designed to help kids feel like kids even on their most difficult days." loading="lazy" decoding="async" />
                   </a>
                 </div>
               </section>
