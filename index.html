@@ -9039,6 +9039,74 @@
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
       position: relative;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .about-content-body::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+
+    /* Top Fade Gradient for About Screen (Fades into white behind header as content scrolls up) */
+    .about-top-fade {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 140px;
+      background: linear-gradient(to bottom, 
+        rgba(255, 255, 255, 1) 0%, 
+        rgba(255, 255, 255, 1) 28%, 
+        rgba(255, 255, 255, 0.88) 48%, 
+        rgba(255, 255, 255, 0.55) 68%, 
+        rgba(255, 255, 255, 0.18) 88%, 
+        rgba(255, 255, 255, 0) 100%
+      );
+      pointer-events: none;
+      z-index: 25;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+    }
+
+    .about-top-fade.visible {
+      opacity: 1;
+    }
+
+    /* Bottom Fade Gradient for About Screen (Disappears at end of scroll) */
+    .about-bottom-fade {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 160px;
+      background: linear-gradient(to right, #ecebee 0%, #bdd9ea 100%);
+      -webkit-mask-image: linear-gradient(to top, 
+        rgba(0, 0, 0, 1) 0%, 
+        rgba(0, 0, 0, 1) 28%, 
+        rgba(0, 0, 0, 0.88) 48%, 
+        rgba(0, 0, 0, 0.55) 68%, 
+        rgba(0, 0, 0, 0.18) 88%, 
+        rgba(0, 0, 0, 0) 100%
+      );
+      mask-image: linear-gradient(to top, 
+        rgba(0, 0, 0, 1) 0%, 
+        rgba(0, 0, 0, 1) 28%, 
+        rgba(0, 0, 0, 0.88) 48%, 
+        rgba(0, 0, 0, 0.55) 68%, 
+        rgba(0, 0, 0, 0.18) 88%, 
+        rgba(0, 0, 0, 0) 100%
+      );
+      pointer-events: none;
+      z-index: 25;
+      opacity: 1;
+      transition: opacity 0.35s ease;
+    }
+
+    .about-bottom-fade.hidden {
+      opacity: 0;
+      pointer-events: none;
     }
 
     /* Upper Section: White Background */
@@ -15448,6 +15516,9 @@
         <div id="screenAbout" class="app-screen">
           <div class="about-screen-container">
             
+            <!-- Top Fade Overlay (Behind header buttons, fades content smoothly under header) -->
+            <div class="about-top-fade" id="aboutTopFade" aria-hidden="true"></div>
+
             <!-- Top Navigation Bar -->
             <header class="home-custom-header about-header" id="aboutHeader">
               <div class="home-header-left header-left">
@@ -15477,7 +15548,7 @@
             </header>
 
             <!-- Scrollable Content Body -->
-            <div class="about-content-body">
+            <div class="about-content-body" onscroll="updateAboutScrollFade()">
               
               <!-- Upper Zone: White Background with License Plate & Information -->
               <section class="about-top-section">
@@ -15508,6 +15579,10 @@
               </section>
 
             </div>
+
+            <!-- Bottom Fade Overlay (Fades content at bottom, disappears at end of scroll) -->
+            <div class="about-bottom-fade" id="aboutBottomFade" aria-hidden="true"></div>
+
           </div>
         </div>
 
@@ -16913,6 +16988,7 @@
         if (statusSpan) statusSpan.textContent = 'About Screen Active • Riley Children\'s Health & Community Partners';
         const aboutBody = document.querySelector('.about-content-body');
         if (aboutBody) aboutBody.scrollTop = 0;
+        setTimeout(updateAboutScrollFade, 60);
       } else if (screenName === 'settings') {
         // Navigating to Settings Screen
         clearAnatomyTimers();
@@ -17092,6 +17168,7 @@
 
     function goToAbout() {
       switchScreen('about');
+      setTimeout(updateAboutScrollFade, 60);
     }
 
     function goToSettings() {
@@ -20199,6 +20276,35 @@
       }
 
       // Top Fade: appears when there is space to scroll up (scrollTop > 15), hidden at rest at top
+      if (topFade) {
+        if (scrollTop > 15) {
+          topFade.classList.add('visible');
+        } else {
+          topFade.classList.remove('visible');
+        }
+      }
+    }
+
+    // Scroll fade controller for About Screen (Disappears at end of scroll, top fade appears when scrolling down)
+    function updateAboutScrollFade() {
+      const viewport = document.querySelector('.about-content-body');
+      const bottomFade = document.getElementById('aboutBottomFade') || document.querySelector('.about-bottom-fade');
+      const topFade = document.getElementById('aboutTopFade') || document.querySelector('.about-top-fade');
+      if (!viewport) return;
+
+      const scrollTop = viewport.scrollTop;
+      const maxScroll = viewport.scrollHeight - viewport.clientHeight;
+
+      // Bottom Fade: disappears once there is nowhere left to scroll down
+      if (bottomFade) {
+        if (maxScroll <= 15 || scrollTop >= maxScroll - 20) {
+          bottomFade.classList.add('hidden');
+        } else {
+          bottomFade.classList.remove('hidden');
+        }
+      }
+
+      // Top Fade: appears once scrolled down from the top (scrollTop > 15), hidden at rest at top
       if (topFade) {
         if (scrollTop > 15) {
           topFade.classList.add('visible');
@@ -25066,6 +25172,19 @@
         const fadeH = isCompact ? Math.min(Math.max(h * 0.25, 130), 170) : Math.min(Math.max(h * 0.30, 180), 230);
         gamesFade.style.height = fadeH + 'px';
         updateGamesScrollFade();
+      }
+
+      const aboutTopFade = document.getElementById('aboutTopFade') || document.querySelector('.about-top-fade');
+      if (aboutTopFade) {
+        const topFadeH = isCompact ? 130 : 155;
+        aboutTopFade.style.height = topFadeH + 'px';
+      }
+
+      const aboutBottomFade = document.getElementById('aboutBottomFade') || document.querySelector('.about-bottom-fade');
+      if (aboutBottomFade) {
+        const fadeH = isCompact ? Math.min(Math.max(h * 0.25, 130), 170) : Math.min(Math.max(h * 0.30, 180), 230);
+        aboutBottomFade.style.height = fadeH + 'px';
+        updateAboutScrollFade();
       }
 
       // Responsive MRI Stage Sizing (Strict 1366:1024 Aspect Ratio Containment)
