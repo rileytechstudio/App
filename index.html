@@ -9163,13 +9163,13 @@
     /* Lower Section: Gradient (#ecebee to #bdd9ea) Background */
     .about-bottom-section {
       background: linear-gradient(to right, #ecebee 0%, #bdd9ea 100%);
-      flex: 1 1 48%;
-      min-height: 48%;
+      flex: 0 0 auto;
+      min-height: 440px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 24px 40px;
+      padding: 48px 40px 64px 40px;
       box-sizing: border-box;
     }
 
@@ -9184,7 +9184,7 @@
       line-height: 1.25;
       text-align: center;
       box-sizing: border-box;
-      max-width: 880px;
+      max-width: 792px;
       width: 100%;
     }
 
@@ -9194,14 +9194,14 @@
       align-items: center;
       justify-content: center;
       width: 100%;
-      max-width: 880px;
+      max-width: 792px;
       margin: 0 auto;
     }
 
     .about-partner-card {
-      flex: 0 1 880px;
+      flex: 0 1 792px;
       width: 100%;
-      max-width: 880px;
+      max-width: 792px;
       aspect-ratio: 881 / 279;
       border: none;
       background: transparent;
@@ -9271,14 +9271,15 @@
       font-size: 26px;
       padding: 0 32px;
       margin-bottom: 14px;
+      max-width: 576px;
     }
 
     .device-shell.is-portrait .about-partners-container {
-      max-width: 640px;
+      max-width: 576px;
     }
 
     .device-shell.is-portrait .about-partner-card {
-      max-width: 640px;
+      max-width: 576px;
     }
 
     .device-shell.is-phone .about-partners-container {
@@ -9297,6 +9298,11 @@
     @media (max-width: 640px) {
       .about-top-section {
         padding: 20px 24px 38px 24px;
+      }
+
+      .about-bottom-section {
+        padding: 38px 20px 54px 20px;
+        min-height: auto;
       }
 
       .about-top-container {
