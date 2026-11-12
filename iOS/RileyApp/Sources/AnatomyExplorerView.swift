@@ -2415,20 +2415,19 @@ public struct AnatomyExplorerView: View {
                 .padding(.top, 24)
                 
                 // Centered Organ Name & Clear Button (Positioned neatly under game top bar)
-                VStack(spacing: 4) {
-                    HStack(spacing: 8) {
+                VStack(spacing: 6) {
+                    HStack(spacing: 12) {
                         Text(studio.name)
-                            .font(.system(size: 26, weight: .heavy, design: .rounded))
-                            .foregroundColor(Color(hex: "5931ba"))
-                            .shadow(color: Color.white.opacity(0.85), radius: 4)
+                            .font(.custom("Roboto-Regular", size: 48))
+                            .foregroundColor(Color(hex: "325b72"))
                         
                         Button(action: {
                             speakOrgan(studio.name)
                         }) {
                             Image(systemName: "speaker.wave.2.fill")
-                                .font(.system(size: 14, weight: .bold))
+                                .font(.system(size: 16, weight: .bold))
                                 .foregroundColor(Color(hex: "1a0b2e"))
-                                .frame(width: 32, height: 32)
+                                .frame(width: 36, height: 36)
                                 .background(Circle().fill(Color(hex: "ffd700")))
                                 .shadow(color: Color(hex: "ffd700").opacity(0.7), radius: 8)
                         }
