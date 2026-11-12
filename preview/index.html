@@ -928,13 +928,17 @@
       height: 100%;
       overflow-y: auto;
       overflow-x: hidden;
-      scroll-behavior: smooth;
-      padding: 92px 20px 85px;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-y;
+      overscroll-behavior-y: contain;
+      padding: 96px 20px calc(var(--prep-bottom-bar-h, 92px) + 54px + env(safe-area-inset-bottom, 20px));
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 24px;
       scrollbar-width: none;
+      -webkit-user-select: none;
+      user-select: none;
     }
 
     .prep-scroll-viewport::-webkit-scrollbar {
@@ -948,6 +952,10 @@
       border: none;
       outline: none;
       cursor: pointer;
+      touch-action: pan-y;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
       transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.15s ease;
       flex-shrink: 0;
     }
@@ -9940,8 +9948,10 @@
       height: 100%;
       overflow-y: auto;
       overflow-x: hidden;
-      scroll-behavior: smooth;
-      padding: 24px 20px calc(88px + env(safe-area-inset-bottom, 20px));
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-y;
+      overscroll-behavior-y: contain;
+      padding: 24px 20px calc(var(--prep-bottom-bar-h, 92px) + 54px + env(safe-area-inset-bottom, 20px));
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -9949,6 +9959,8 @@
       scrollbar-width: none;
       pointer-events: auto !important;
       box-sizing: border-box;
+      -webkit-user-select: none;
+      user-select: none;
     }
 
     .games-scroll-viewport::-webkit-scrollbar {
@@ -9968,6 +9980,10 @@
       border: none;
       outline: none;
       cursor: pointer;
+      touch-action: pan-y;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
       transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.15s ease;
       flex-shrink: 0;
       -webkit-tap-highlight-color: transparent;
@@ -16207,6 +16223,7 @@
           screenPrep.classList.add('active');
           if (select) select.value = 'preparations';
           if (statusSpan) statusSpan.textContent = 'Preparations Screen Active • Up/Down Arrow Scrolling Enabled';
+          if (typeof initPrepTouchScroll === 'function') initPrepTouchScroll();
           setTimeout(updateArrowStates, 60);
           setTimeout(updatePrepScrollFade, 60);
         } else {
@@ -16254,6 +16271,7 @@
       const screenNGTube = document.getElementById('screenNGTube');
       if (screenNGTube) screenNGTube.classList.remove('maze-mode');
       switchScreen('preparations');
+      if (typeof initPrepTouchScroll === 'function') initPrepTouchScroll();
       setTimeout(updateArrowStates, 60);
       setTimeout(updatePrepScrollFade, 60);
     }
@@ -23890,17 +23908,71 @@
     const cardIds = ['card-burn-dress', 'card-iv-start', 'card-mri', 'card-ng-tube', 'card-port-access'];
     let currentCardIndex = 0;
 
+    let prepTouchStartY = 0;
+    let prepTouchMoved = false;
+
+    function initPrepTouchScroll() {
+      const viewport = document.getElementById('prepViewport');
+      if (!viewport || viewport._hasTouchScrollInit) return;
+      viewport._hasTouchScrollInit = true;
+
+      viewport.addEventListener('touchstart', (e) => {
+        if (e.touches && e.touches[0]) {
+          prepTouchStartY = e.touches[0].clientY;
+          prepTouchMoved = false;
+        }
+      }, { passive: true });
+
+      viewport.addEventListener('touchmove', (e) => {
+        if (e.touches && e.touches[0]) {
+          const dy = Math.abs(e.touches[0].clientY - prepTouchStartY);
+          if (dy > 8) {
+            prepTouchMoved = true;
+          }
+        }
+      }, { passive: true });
+
+      viewport.addEventListener('touchend', () => {
+        if (prepTouchMoved) {
+          setTimeout(() => { prepTouchMoved = false; }, 150);
+        }
+      }, { passive: true });
+    }
+
     function scrollDown() {
+      const viewport = document.getElementById('prepViewport');
+      if (!viewport) return;
+      const maxScroll = viewport.scrollHeight - viewport.clientHeight;
+      if (viewport.scrollTop >= maxScroll - 10) return;
+
       if (currentCardIndex < cardIds.length - 1) {
         currentCardIndex++;
         scrollToCard(currentCardIndex);
+      } else {
+        viewport.scrollTo({
+          top: maxScroll,
+          behavior: 'smooth'
+        });
+        setTimeout(updateArrowStates, 380);
+        setTimeout(updatePrepScrollFade, 380);
       }
     }
 
     function scrollUp() {
+      const viewport = document.getElementById('prepViewport');
+      if (!viewport) return;
+      if (viewport.scrollTop <= 10) return;
+
       if (currentCardIndex > 0) {
         currentCardIndex--;
         scrollToCard(currentCardIndex);
+      } else {
+        viewport.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+        setTimeout(updateArrowStates, 380);
+        setTimeout(updatePrepScrollFade, 380);
       }
     }
 
@@ -23928,35 +24000,39 @@
           });
         }
       }
-      setTimeout(updateArrowStates, 320);
-      setTimeout(updatePrepScrollFade, 320);
+      setTimeout(updateArrowStates, 380);
+      setTimeout(updatePrepScrollFade, 380);
     }
 
+    let prepScrollRaf = null;
     function handleScroll() {
-      const viewport = document.getElementById('prepViewport');
-      const scrollTop = viewport.scrollTop;
-      const maxScroll = viewport.scrollHeight - viewport.clientHeight;
+      if (prepScrollRaf) return;
+      prepScrollRaf = requestAnimationFrame(() => {
+        prepScrollRaf = null;
+        updateArrowStates();
+        updatePrepScrollFade();
 
-      // Update current card index based on scroll position in visible area below search bar
-      const cards = cardIds.map(id => document.getElementById(id));
-      const searchOffset = 76;
-      const viewportCenter = viewport.getBoundingClientRect().top + searchOffset + (viewport.clientHeight - searchOffset) / 2;
+        // Update current card index based on scroll position in visible area below search bar
+        const viewport = document.getElementById('prepViewport');
+        if (!viewport) return;
+        const searchOffset = 76;
+        const viewportCenter = viewport.getBoundingClientRect().top + searchOffset + (viewport.clientHeight - searchOffset) / 2;
 
-      let closestIdx = 0;
-      let minDiff = Infinity;
-      cards.forEach((card, idx) => {
-        if (!card) return;
-        const rect = card.getBoundingClientRect();
-        const cardCenter = rect.top + rect.height / 2;
-        const diff = Math.abs(cardCenter - viewportCenter);
-        if (diff < minDiff) {
-          minDiff = diff;
-          closestIdx = idx;
-        }
+        const cards = cardIds.map(id => document.getElementById(id));
+        let closestIdx = 0;
+        let minDiff = Infinity;
+        cards.forEach((card, idx) => {
+          if (!card || card.style.display === 'none') return;
+          const rect = card.getBoundingClientRect();
+          const cardCenter = rect.top + rect.height / 2;
+          const diff = Math.abs(cardCenter - viewportCenter);
+          if (diff < minDiff) {
+            minDiff = diff;
+            closestIdx = idx;
+          }
+        });
+        currentCardIndex = closestIdx;
       });
-      currentCardIndex = closestIdx;
-      updateArrowStates();
-      updatePrepScrollFade();
     }
 
     // Scroll fade controller for Preparations Screen (Disappears at end of scroll, top fade appears when scrolling under search bar)
@@ -23971,7 +24047,7 @@
 
       // Bottom Fade: disappears once there is nowhere left to scroll down
       if (bottomFade) {
-        if (maxScroll <= 15 || scrollTop >= maxScroll - 20) {
+        if (maxScroll <= 8 || scrollTop >= maxScroll - 25) {
           bottomFade.classList.add('hidden');
         } else {
           bottomFade.classList.remove('hidden');
@@ -23992,17 +24068,23 @@
       const viewport = document.getElementById('prepViewport');
       const btnUp = document.getElementById('btnArrowUp');
       const btnDown = document.getElementById('btnArrowDown');
+      if (!viewport || !btnUp || !btnDown) return;
       
       const scrollTop = viewport.scrollTop;
       const maxScroll = viewport.scrollHeight - viewport.clientHeight;
 
+      // When all cards fit on screen without scrolling
+      if (maxScroll <= 8) {
+        btnUp.classList.add('hidden');
+        btnDown.classList.add('hidden');
+      } 
       // At top: hide Up arrow, show Down arrow (matches Screenshot 1)
-      if (scrollTop <= 15) {
+      else if (scrollTop <= 15) {
         btnUp.classList.add('hidden');
         btnDown.classList.remove('hidden');
       } 
       // At bottom: show Up arrow, hide Down arrow
-      else if (scrollTop >= maxScroll - 15) {
+      else if (scrollTop >= maxScroll - 20) {
         btnUp.classList.remove('hidden');
         btnDown.classList.add('hidden');
       } 
@@ -24230,6 +24312,7 @@
       bottomBars.forEach(bar => {
         bar.style.height = barH + 'px';
       });
+      document.documentElement.style.setProperty('--prep-bottom-bar-h', barH + 'px');
 
       // IV Game & Mask Game Stage padding - seamless full-bleed to bottom
       const gameWrapper = document.getElementById('gameStageWrapper');
@@ -24475,6 +24558,7 @@
     };
 
     function openProcedure(name) {
+      if (prepTouchMoved) return;
       if (name === 'IV Start') {
         goToIVStart();
       } else if (name === 'MRI' || name === 'Magnetic Resonance Imaging' || name === 'Magnetic Resonance Imaging (MRI)') {
@@ -32360,6 +32444,7 @@
       setupVideoResilience();
       initSettings();
       initSkinToneSlider();
+      initPrepTouchScroll();
       const urlParams = new URLSearchParams(window.location.search);
       const screenParam = urlParams.get('screen');
       if (screenParam) {

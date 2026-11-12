@@ -675,7 +675,18 @@ def build_distribution():
     }
 
     .prep-scroll-viewport {
-      padding-top: 92px !important;
+      padding-top: 96px !important;
+      padding-bottom: calc(var(--prep-bottom-bar-h, 92px) + 54px + env(safe-area-inset-bottom, 20px)) !important;
+      -webkit-overflow-scrolling: touch !important;
+      touch-action: pan-y !important;
+      overscroll-behavior-y: contain !important;
+    }
+
+    .procedure-card {
+      touch-action: pan-y !important;
+      -webkit-touch-callout: none !important;
+      -webkit-user-select: none !important;
+      user-select: none !important;
     }
 
     .prep-ribbon-wrapper {
@@ -807,6 +818,17 @@ def build_distribution():
 
     #screenGames .games-scroll-viewport {
       pointer-events: auto !important;
+      padding-bottom: calc(var(--prep-bottom-bar-h, 92px) + 54px + env(safe-area-inset-bottom, 20px)) !important;
+      -webkit-overflow-scrolling: touch !important;
+      touch-action: pan-y !important;
+      overscroll-behavior-y: contain !important;
+    }
+
+    #screenGames .game-card {
+      touch-action: pan-y !important;
+      -webkit-touch-callout: none !important;
+      -webkit-user-select: none !important;
+      user-select: none !important;
     }
 
     /* Child Life Zone Jigsaw Puzzle Overrides */
