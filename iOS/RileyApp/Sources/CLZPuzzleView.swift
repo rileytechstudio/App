@@ -199,7 +199,7 @@ public struct CLZPuzzleView: View {
             .buttonStyle(BouncyButtonStyle(scaleAmount: 0.95))
         }
         .padding(.horizontal, 20)
-        .padding(.top, 10)
+        .padding(.top, 24)
     }
     
     // MARK: - Main Interactive Stage

@@ -314,7 +314,7 @@ def build_distribution():
 
     /* Home Custom Header: Always respect iOS Tablet Status Bar (Time and Battery) */
     .home-custom-header {
-      padding-top: calc(env(safe-area-inset-top, 0px) + 16px) !important;
+      padding-top: calc(max(24px, env(safe-area-inset-top, 0px)) + 12px) !important;
       padding-left: max(24px, env(safe-area-inset-left, 0px)) !important;
       padding-right: max(24px, env(safe-area-inset-right, 0px)) !important;
       padding-bottom: 0 !important;
@@ -346,7 +346,7 @@ def build_distribution():
     .home-header-center {
       position: absolute !important;
       left: 50% !important;
-      top: calc(env(safe-area-inset-top, 0px) + 38px) !important;
+      top: calc(max(24px, env(safe-area-inset-top, 0px)) + 34px) !important;
       transform: translate(-50%, -50%) !important;
       display: flex !important;
       align-items: center !important;
@@ -516,7 +516,7 @@ def build_distribution():
 
     /* Consistent Navigation Header Across All Screens - Transparent floating header matching Home */
     .app-header, .about-header {
-      padding-top: calc(env(safe-area-inset-top, 0px) + 16px) !important;
+      padding-top: calc(max(24px, env(safe-area-inset-top, 0px)) + 12px) !important;
       padding-left: max(24px, env(safe-area-inset-left, 0px)) !important;
       padding-right: max(24px, env(safe-area-inset-right, 0px)) !important;
       padding-bottom: 0 !important;
@@ -558,7 +558,7 @@ def build_distribution():
     .app-header .header-center, .about-header .header-center {
       position: absolute !important;
       left: 50% !important;
-      top: calc(env(safe-area-inset-top, 0px) + 38px) !important;
+      top: calc(max(24px, env(safe-area-inset-top, 0px)) + 34px) !important;
       transform: translate(-50%, -50%) !important;
       display: flex !important;
       align-items: center !important;
@@ -1192,6 +1192,19 @@ def build_distribution():
     #screenAnatomyExplorer.active .anatomy-studio-nav button,
     #screenAnatomyExplorer.active .anatomy-studio-nav a {
       pointer-events: auto !important;
+    }
+
+    /* Game and Procedure Top Bar Safe-Area Inset: Always clear the Apple status bar on iPad & iPhone */
+    .game-top-bar, .mri-top-bar, .anatomy-studio-top-bar {
+      padding-top: calc(max(24px, env(safe-area-inset-top, 0px)) + 10px) !important;
+    }
+
+    .anatomy-studio-nav {
+      top: calc(max(24px, env(safe-area-inset-top, 0px)) + 52px) !important;
+    }
+
+    .ng-tube-top-prompt-bar, .port-access-top-prompt-bar, .matching-top-prompt-bar {
+      top: calc(max(24px, env(safe-area-inset-top, 0px)) + 54px) !important;
     }
 
     .bottom-bar-tabs {

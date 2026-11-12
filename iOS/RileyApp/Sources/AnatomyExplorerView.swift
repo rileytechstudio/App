@@ -2412,7 +2412,7 @@ public struct AnatomyExplorerView: View {
                     }
                 }
                 .padding(.horizontal, 20)
-                .padding(.top, 10)
+                .padding(.top, 24)
                 
                 // Centered Organ Name & Clear Button (Positioned neatly under game top bar)
                 VStack(spacing: 4) {

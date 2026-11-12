@@ -109,7 +109,7 @@ public struct HomeHeaderView: View {
             }
         }
         .padding(.horizontal, isLandscape ? 24 : 16)
-        .padding(.top, safeAreaTop > 0 ? safeAreaTop + 8 : (isLandscape ? 16 : 12))
+        .padding(.top, max(safeAreaTop, 24) + 8)
         .frame(width: availableWidth, height: headerHeight, alignment: .top)
     }
 }

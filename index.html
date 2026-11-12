@@ -266,7 +266,7 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      padding-top: calc(env(safe-area-inset-top, 0px) + 24px);
+      padding-top: calc(max(24px, env(safe-area-inset-top, 0px)) + 12px);
       padding-left: max(24px, env(safe-area-inset-left, 0px));
       padding-right: max(24px, env(safe-area-inset-right, 0px));
       padding-bottom: 0;
@@ -294,7 +294,7 @@
     .home-header-center {
       position: absolute;
       left: 50%;
-      top: calc(env(safe-area-inset-top, 0px) + 46px);
+      top: calc(max(24px, env(safe-area-inset-top, 0px)) + 34px);
       transform: translate(-50%, -50%);
       display: flex;
       align-items: center;
@@ -385,7 +385,7 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      padding-top: calc(env(safe-area-inset-top, 0px) + 24px);
+      padding-top: calc(max(24px, env(safe-area-inset-top, 0px)) + 12px);
       padding-left: max(24px, env(safe-area-inset-left, 0px));
       padding-right: max(24px, env(safe-area-inset-right, 0px));
       padding-bottom: 0;
@@ -423,7 +423,7 @@
     .app-header .header-center, .about-header .header-center {
       position: absolute;
       left: 50%;
-      top: calc(env(safe-area-inset-top, 0px) + 46px);
+      top: calc(max(24px, env(safe-area-inset-top, 0px)) + 34px);
       transform: translate(-50%, -50%);
       display: flex;
       align-items: center;
@@ -1150,13 +1150,14 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 20px 4px;
+      padding: calc(max(24px, env(safe-area-inset-top, 0px)) + 10px) 20px 4px;
       width: 100%;
       z-index: 25;
       flex-shrink: 0;
       background: rgba(11, 23, 28, 0.75);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
+      box-sizing: border-box;
     }
 
     .mri-stage-wrapper {
@@ -2768,7 +2769,8 @@
       box-shadow: none !important;
       z-index: 30;
       pointer-events: none;
-      padding: max(10px, env(safe-area-inset-top, 10px)) 20px 4px;
+      padding: calc(max(24px, env(safe-area-inset-top, 0px)) + 10px) 20px 4px;
+      box-sizing: border-box;
     }
 
     #screenNGTube .game-top-bar button {
@@ -3579,7 +3581,7 @@
     /* Top Transparent Instruction & Prompt Bar for NG Tube (Overlaps the screen) */
     .ng-tube-top-prompt-bar {
       position: absolute;
-      top: calc(env(safe-area-inset-top, 0px) + 52px);
+      top: calc(max(24px, env(safe-area-inset-top, 0px)) + 54px);
       left: 0;
       right: 0;
       width: 100%;
@@ -3606,7 +3608,7 @@
 
     @media (max-width: 700px) {
       .ng-tube-top-prompt-bar {
-        top: calc(env(safe-area-inset-top, 0px) + 50px);
+        top: calc(max(24px, env(safe-area-inset-top, 0px)) + 50px);
         padding: 6px 16px;
         min-height: 38px;
       }
@@ -4451,7 +4453,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: max(8px, env(safe-area-inset-top, 8px)) 20px 4px;
+      padding: calc(max(24px, env(safe-area-inset-top, 0px)) + 10px) 20px 4px;
       width: 100%;
       z-index: 55;
       background: transparent !important;
@@ -4460,6 +4462,7 @@
       border: none !important;
       box-shadow: none !important;
       pointer-events: none;
+      box-sizing: border-box;
     }
 
     #screenPortAccess .mri-top-bar {
@@ -4477,7 +4480,7 @@
     /* Top Instruction & Prompt Bar for Port Access (Matching IV Prep & NG Tube Aesthetic) */
     .port-access-top-prompt-bar {
       position: absolute;
-      top: calc(env(safe-area-inset-top, 0px) + 52px);
+      top: calc(max(24px, env(safe-area-inset-top, 0px)) + 54px);
       left: 0;
       right: 0;
       width: 100%;
@@ -4504,7 +4507,7 @@
 
     @media (max-width: 700px) {
       .port-access-top-prompt-bar {
-        top: calc(env(safe-area-inset-top, 0px) + 50px);
+        top: calc(max(24px, env(safe-area-inset-top, 0px)) + 50px);
         padding: 6px 16px;
         min-height: 38px;
       }
@@ -5832,10 +5835,11 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 20px 4px;
+      padding: calc(max(24px, env(safe-area-inset-top, 0px)) + 10px) 20px 4px;
       width: 100%;
       z-index: 20;
       flex-shrink: 0;
+      box-sizing: border-box;
     }
 
     #screenIVGame .game-top-bar {
@@ -5850,7 +5854,8 @@
       box-shadow: none !important;
       z-index: 30;
       pointer-events: none;
-      padding: max(10px, env(safe-area-inset-top, 10px)) 20px 4px;
+      padding: calc(max(24px, env(safe-area-inset-top, 0px)) + 10px) 20px 4px;
+      box-sizing: border-box;
     }
 
     #screenIVGame .game-top-bar button {
@@ -10603,7 +10608,7 @@
     /* Standardized Top Instruction & Prompt Bar for Matching Game */
     .matching-top-prompt-bar {
       position: absolute;
-      top: calc(env(safe-area-inset-top, 0px) + 52px);
+      top: calc(max(24px, env(safe-area-inset-top, 0px)) + 54px);
       left: 0;
       right: 0;
       width: 100%;
@@ -10622,7 +10627,7 @@
       border-left: none;
       border-right: none;
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
-      transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease, opacity 0.35s ease, transform 0.35s ease, visibility 0.35s ease;
+      transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease, opacity 0.3s ease, transform 0.35s ease, visibility 0.35s ease;
       cursor: default;
       pointer-events: auto;
       box-sizing: border-box;
@@ -10638,7 +10643,7 @@
 
     @media (max-width: 700px) {
       .matching-top-prompt-bar {
-        top: calc(env(safe-area-inset-top, 0px) + 50px);
+        top: calc(max(24px, env(safe-area-inset-top, 0px)) + 50px);
         padding: 6px 16px;
         min-height: 38px;
       }
@@ -11693,7 +11698,7 @@
       box-shadow: none !important;
       z-index: 30;
       pointer-events: none;
-      padding: max(10px, env(safe-area-inset-top, 10px)) 20px 4px;
+      padding: calc(max(24px, env(safe-area-inset-top, 0px)) + 10px) 20px 4px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -11708,7 +11713,7 @@
     /* Studio Top Sub-Header (Organ Title & Clear Button positioned neatly under game top bar) */
     .anatomy-studio-nav {
       position: absolute;
-      top: calc(max(10px, env(safe-area-inset-top, 10px)) + 46px);
+      top: calc(max(24px, env(safe-area-inset-top, 0px)) + 52px);
       left: 0;
       width: 100%;
       display: flex;
@@ -13224,7 +13229,7 @@
 
     /* Home Custom Header: Always respect iOS Tablet Status Bar (Time and Battery) */
     .home-custom-header {
-      padding-top: calc(env(safe-area-inset-top, 0px) + 16px) !important;
+      padding-top: calc(max(24px, env(safe-area-inset-top, 0px)) + 12px) !important;
       padding-left: max(24px, env(safe-area-inset-left, 0px)) !important;
       padding-right: max(24px, env(safe-area-inset-right, 0px)) !important;
       padding-bottom: 0 !important;
@@ -13256,7 +13261,7 @@
     .home-header-center {
       position: absolute !important;
       left: 50% !important;
-      top: calc(env(safe-area-inset-top, 0px) + 38px) !important;
+      top: calc(max(24px, env(safe-area-inset-top, 0px)) + 34px) !important;
       transform: translate(-50%, -50%) !important;
       display: flex !important;
       align-items: center !important;
@@ -13426,7 +13431,7 @@
 
     /* Consistent Navigation Header Across All Screens - Transparent floating header matching Home */
     .app-header, .about-header {
-      padding-top: calc(env(safe-area-inset-top, 0px) + 16px) !important;
+      padding-top: calc(max(24px, env(safe-area-inset-top, 0px)) + 12px) !important;
       padding-left: max(24px, env(safe-area-inset-left, 0px)) !important;
       padding-right: max(24px, env(safe-area-inset-right, 0px)) !important;
       padding-bottom: 0 !important;
@@ -13468,7 +13473,7 @@
     .app-header .header-center, .about-header .header-center {
       position: absolute !important;
       left: 50% !important;
-      top: calc(env(safe-area-inset-top, 0px) + 38px) !important;
+      top: calc(max(24px, env(safe-area-inset-top, 0px)) + 34px) !important;
       transform: translate(-50%, -50%) !important;
       display: flex !important;
       align-items: center !important;
@@ -14102,6 +14107,19 @@
     #screenAnatomyExplorer.active .anatomy-studio-nav button,
     #screenAnatomyExplorer.active .anatomy-studio-nav a {
       pointer-events: auto !important;
+    }
+
+    /* Game and Procedure Top Bar Safe-Area Inset: Always clear the Apple status bar on iPad & iPhone */
+    .game-top-bar, .mri-top-bar, .anatomy-studio-top-bar {
+      padding-top: calc(max(24px, env(safe-area-inset-top, 0px)) + 10px) !important;
+    }
+
+    .anatomy-studio-nav {
+      top: calc(max(24px, env(safe-area-inset-top, 0px)) + 52px) !important;
+    }
+
+    .ng-tube-top-prompt-bar, .port-access-top-prompt-bar, .matching-top-prompt-bar {
+      top: calc(max(24px, env(safe-area-inset-top, 0px)) + 54px) !important;
     }
 
     .bottom-bar-tabs {
@@ -25306,11 +25324,11 @@
       // Perfectly center and align header buttons with the 20% larger banner
       const centerTop = Math.round(bannerH / 2);
       document.querySelectorAll('.home-header-center, .header-center').forEach(el => {
-        el.style.top = `calc(env(safe-area-inset-top, 0px) + ${centerTop}px)`;
+        el.style.top = `calc(max(24px, env(safe-area-inset-top, 0px)) + ${centerTop}px)`;
       });
-      const btnPadTop = Math.max(0, centerTop - 22);
+      const btnPadTop = Math.max(0, centerTop - 22) + 6;
       document.querySelectorAll('.home-custom-header, .app-header, .about-header').forEach(hdr => {
-        hdr.style.paddingTop = `calc(env(safe-area-inset-top, 0px) + ${btnPadTop}px)`;
+        hdr.style.paddingTop = `calc(max(24px, env(safe-area-inset-top, 0px)) + ${btnPadTop}px)`;
       });
 
       // Home Screen Layout
