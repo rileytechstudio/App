@@ -9150,7 +9150,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 24px 40px;
+      padding: 24px 40px 52px 40px;
       box-sizing: border-box;
     }
 
@@ -9238,6 +9238,7 @@
       letter-spacing: 0.5px !important;
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35) !important;
       padding: 12px 32px !important;
+      margin-bottom: 8px !important;
       text-decoration: none !important;
       cursor: pointer !important;
       outline: none !important;
@@ -9279,9 +9280,13 @@
       font-weight: 400;
       color: #325b72;
       letter-spacing: -0.2px;
-      margin: 0 0 16px 0;
+      margin: 0 0 18px 0;
+      padding: 0 54px;
       line-height: 1.25;
       text-align: center;
+      box-sizing: border-box;
+      max-width: 880px;
+      width: 100%;
     }
 
     .about-partners-container {
@@ -9289,20 +9294,19 @@
       flex-direction: row;
       align-items: center;
       justify-content: center;
-      gap: 44px;
       width: 100%;
-      max-width: 900px;
+      max-width: 880px;
       margin: 0 auto;
     }
 
     .about-partner-card {
-      flex: 0 1 420px;
+      flex: 0 1 880px;
       width: 100%;
-      max-width: 420px;
-      aspect-ratio: 2 / 1;
+      max-width: 880px;
+      aspect-ratio: 881 / 279;
       border: none;
       background: transparent;
-      border-radius: 18px;
+      border-radius: 20px;
       overflow: hidden;
       cursor: pointer;
       padding: 0;
@@ -9366,31 +9370,36 @@
     .device-shell.is-portrait .about-sponsor-heading,
     .device-shell.is-phone .about-sponsor-heading {
       font-size: 26px;
+      padding: 0 32px;
       margin-bottom: 14px;
     }
 
     .device-shell.is-portrait .about-partners-container {
-      gap: 24px;
-      max-width: 680px;
+      max-width: 640px;
     }
 
     .device-shell.is-portrait .about-partner-card {
-      max-width: 340px;
+      max-width: 640px;
     }
 
     .device-shell.is-phone .about-partners-container {
       flex-direction: column;
       gap: 16px;
+      max-width: 100%;
     }
 
     .device-shell.is-phone .about-partner-card {
       flex: 0 0 auto;
       width: 100%;
-      max-width: 320px;
+      max-width: 100%;
     }
 
     /* Standard Responsive Media Queries for Standalone PWA (< 640px) */
     @media (max-width: 640px) {
+      .about-top-section {
+        padding: 20px 24px 38px 24px;
+      }
+
       .about-top-container {
         flex-direction: column;
         gap: 16px;
@@ -9418,18 +9427,20 @@
 
       .about-sponsor-heading {
         font-size: 24px;
+        padding: 0 20px;
         margin-bottom: 12px;
       }
 
       .about-partners-container {
         flex-direction: column;
         gap: 16px;
+        max-width: 100%;
       }
 
       .about-partner-card {
         flex: 0 0 auto;
         width: 100%;
-        max-width: 320px;
+        max-width: 100%;
       }
     }
 
