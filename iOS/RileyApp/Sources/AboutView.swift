@@ -72,7 +72,7 @@ public struct AboutView: View {
                         
                         // Lower Section: Gradient Background with Sponsor Card
                         VStack(spacing: isIPad ? 18 : 14) {
-                            Text("Thank You to our Sponsor")
+                            Text("Thank You to Our Sponsor")
                                 .font(.custom("Roboto-Medium", size: isIPad ? 32 : 22))
                                 .foregroundColor(Color(hex: "325b72"))
                                 .multilineTextAlignment(.center)
