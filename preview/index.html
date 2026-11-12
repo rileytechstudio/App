@@ -634,7 +634,7 @@
       cursor: pointer;
       transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.15s ease;
       display: block;
-      max-width: 420px;
+      max-width: 462px;
       width: 100%;
       padding: 0 !important;
       margin: 0 !important;
@@ -12899,19 +12899,19 @@
               <div id="landscapeGrid" class="cards-container">
                 <div class="home-main-cards">
                   <div class="grid-row-top">
-                    <button class="card-btn" onclick="goToAnatomyExplorer()" style="width: 360px;">
+                    <button class="card-btn" onclick="goToAnatomyExplorer()" style="width: 396px;">
                       <img src="assets/Anatomy Explorer.png" alt="Anatomy Explorer" decoding="async" />
                     </button>
-                    <button class="card-btn" onclick="openSheet('Gallery')" style="width: 360px;">
+                    <button class="card-btn" onclick="openSheet('Gallery')" style="width: 396px;">
                       <img src="assets/Gallery.png" alt="Gallery" decoding="async" />
                     </button>
                   </div>
 
                   <div class="grid-row-mid">
-                    <button class="card-btn" onclick="goToGames()" style="width: 360px;">
+                    <button class="card-btn" onclick="goToGames()" style="width: 396px;">
                       <img src="assets/Games.png" alt="Games" decoding="async" />
                     </button>
-                    <button class="card-btn" onclick="goToPreparations()" style="width: 360px;">
+                    <button class="card-btn" onclick="goToPreparations()" style="width: 396px;">
                       <img src="assets/Preparations.png" alt="Preparations" decoding="async" />
                     </button>
                   </div>
@@ -12931,18 +12931,18 @@
               <div id="portraitGrid" class="portrait-grid">
                 <div class="portrait-grid-cards">
                   <div class="portrait-grid-row">
-                    <button class="card-btn" onclick="goToAnatomyExplorer()" style="width: 142px;">
+                    <button class="card-btn" onclick="goToAnatomyExplorer()" style="width: 156px;">
                       <img src="assets/Anatomy Explorer.png" alt="Anatomy Explorer" decoding="async" />
                     </button>
-                    <button class="card-btn" onclick="openSheet('Gallery')" style="width: 142px;">
+                    <button class="card-btn" onclick="openSheet('Gallery')" style="width: 156px;">
                       <img src="assets/Gallery.png" alt="Gallery" decoding="async" />
                     </button>
                   </div>
                   <div class="portrait-grid-row">
-                    <button class="card-btn" onclick="goToGames()" style="width: 142px;">
+                    <button class="card-btn" onclick="goToGames()" style="width: 156px;">
                       <img src="assets/Games.png" alt="Games" decoding="async" />
                     </button>
-                    <button class="card-btn" onclick="goToPreparations()" style="width: 142px;">
+                    <button class="card-btn" onclick="goToPreparations()" style="width: 156px;">
                       <img src="assets/Preparations.png" alt="Preparations" decoding="async" />
                     </button>
                   </div>
@@ -23864,7 +23864,7 @@
       if (isCompact) {
         landscapeGrid.style.display = 'none';
         portraitGrid.style.display = 'flex';
-        const cardW = Math.round(Math.min(Math.max((w - 56) / 2, 124), 152) * 0.95);
+        const cardW = Math.round(Math.min(Math.max((w - 50) / 2, 136), 167) * 0.95);
         document.querySelectorAll('#portraitGrid .card-btn').forEach(el => {
           el.style.width = cardW + 'px';
         });
@@ -23906,10 +23906,10 @@
           ? Math.min(Math.max(w * 0.035, 24), 48)
           : Math.min(Math.max(w * 0.03, 18), 36);
         const maxCardByWidth = (w - (horizontalPadding * 2) - cardGap) / 2;
-        const maxCardByHeight = (availH * 0.62) / (2 / 2.24 + 0.58 / 3.44);
+        const maxCardByHeight = (availH * 0.68) / (2 / 2.24 + 0.58 / 3.44);
         
-        // Tablet sizing: comfortably scale buttons up to 360px on tablet landscape and 310px on tablet portrait
-        const maxAllowedWidth = isLandscape ? 360 : 310;
+        // Tablet sizing: comfortably scale buttons up to 396px on tablet landscape and 341px on tablet portrait
+        const maxAllowedWidth = isLandscape ? 396 : 341;
         const cardW = Math.round(Math.min(maxCardByWidth, maxCardByHeight, maxAllowedWidth) * 0.96);
         
         document.querySelectorAll('#landscapeGrid .card-btn').forEach(el => {
