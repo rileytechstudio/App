@@ -9115,9 +9115,9 @@
       flex: 0 0 auto;
       width: 100%;
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: center;
-      padding: 32px 40px 48px 40px;
+      padding: 28px 40px 32px 40px;
       box-sizing: border-box;
     }
 
@@ -9126,15 +9126,15 @@
       flex-direction: row;
       align-items: center;
       justify-content: center;
-      gap: 44px;
+      gap: 48px;
       width: 100%;
-      max-width: 940px;
+      max-width: 1060px;
       margin: 0 auto;
     }
 
     .about-plate-col {
-      flex: 0 0 42%;
-      max-width: 400px;
+      flex: 0 0 44%;
+      max-width: 440px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -9143,15 +9143,15 @@
     .about-wagon-img {
       width: 100%;
       height: auto;
-      max-height: 270px;
+      max-height: 310px;
       object-fit: contain;
       filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.12));
       display: block;
     }
 
     .about-info-col {
-      flex: 1 1 56%;
-      max-width: 500px;
+      flex: 1 1 54%;
+      max-width: 580px;
       display: flex;
       flex-direction: column;
       align-items: flex-start;
@@ -9160,8 +9160,8 @@
 
     .about-main-heading {
       font-family: 'Roboto', sans-serif;
-      font-size: 34px;
-      font-weight: 400;
+      font-size: 36px;
+      font-weight: 500;
       color: #325b72;
       letter-spacing: -0.2px;
       margin: 0 0 14px 0;
@@ -9179,16 +9179,16 @@
 
     .about-description {
       width: 100%;
-      font-family: Arial, sans-serif;
-      font-size: 18px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 19px;
       font-weight: 400;
       line-height: 1.6;
-      color: #4a5568;
-      margin: 0 0 26px 0;
+      color: #475569;
+      margin: 0 0 22px 0;
     }
 
     .about-website-btn {
-      align-self: center;
+      align-self: flex-start;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -9200,12 +9200,12 @@
       border-radius: 9999px !important;
       color: #ffffff !important;
       font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
-      font-size: 16px !important;
-      font-weight: 400 !important;
-      letter-spacing: 0.5px !important;
+      font-size: 17px !important;
+      font-weight: 500 !important;
+      letter-spacing: 0.4px !important;
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35) !important;
-      padding: 12px 32px !important;
-      margin-bottom: 8px !important;
+      padding: 13px 36px !important;
+      margin-bottom: 4px !important;
       text-decoration: none !important;
       cursor: pointer !important;
       outline: none !important;
@@ -9232,27 +9232,27 @@
     .about-bottom-section {
       background: linear-gradient(to right, #ecebee 0%, #bdd9ea 100%);
       flex: 1 0 auto;
-      min-height: 440px;
+      min-height: auto;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 48px 40px 64px 40px;
+      padding: 32px 40px 52px 40px;
       box-sizing: border-box;
     }
 
     .about-sponsor-heading {
       font-family: 'Roboto', sans-serif;
-      font-size: 30px;
-      font-weight: 400;
+      font-size: 32px;
+      font-weight: 500;
       color: #325b72;
       letter-spacing: -0.2px;
       margin: 0 0 18px 0;
-      padding: 0 54px;
+      padding: 0 24px;
       line-height: 1.25;
       text-align: center;
       box-sizing: border-box;
-      max-width: 792px;
+      max-width: 920px;
       width: 100%;
     }
 
@@ -9262,14 +9262,14 @@
       align-items: center;
       justify-content: center;
       width: 100%;
-      max-width: 792px;
+      max-width: 920px;
       margin: 0 auto;
     }
 
     .about-partner-card {
-      flex: 0 1 792px;
+      flex: 0 1 920px;
       width: 100%;
-      max-width: 792px;
+      max-width: 920px;
       aspect-ratio: 881 / 279;
       border: none;
       background: transparent;
@@ -9277,7 +9277,7 @@
       overflow: hidden;
       cursor: pointer;
       padding: 0;
-      box-shadow: 0 8px 24px rgba(28, 67, 92, 0.20);
+      box-shadow: 0 10px 28px rgba(28, 67, 92, 0.22);
       transition: transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.24s ease;
       outline: none;
       display: block;
@@ -9294,82 +9294,191 @@
     }
 
     .about-partner-card:hover {
-      transform: translateY(-4px) scale(1.025);
-      box-shadow: 0 14px 32px rgba(28, 67, 92, 0.32);
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 16px 36px rgba(28, 67, 92, 0.32);
     }
 
     .about-partner-card:active {
       transform: scale(0.97);
     }
 
-    /* Portrait Mode for Simulator Shell */
-    .device-shell.is-portrait .about-top-container,
-    .device-shell.is-phone .about-top-container {
+    /* Portrait Responsive Layout (iPad, Tablets, and Portrait Viewports <= 860px or orientation: portrait) */
+    @media (orientation: portrait), (max-width: 860px) {
+      .about-top-section {
+        padding: 24px 28px 32px 28px;
+      }
+
+      .about-top-container {
+        flex-direction: column;
+        gap: 22px;
+        text-align: center;
+      }
+
+      .about-plate-col {
+        flex: 0 0 auto;
+        width: 100%;
+        max-width: 420px;
+      }
+
+      .about-wagon-img {
+        max-height: 290px;
+      }
+
+      .about-info-col {
+        align-items: center;
+        text-align: center;
+        max-width: 660px;
+      }
+
+      .about-main-heading {
+        font-size: 32px;
+        margin-bottom: 12px;
+      }
+
+      .about-description {
+        font-size: 18.5px;
+        line-height: 1.58;
+        max-width: 640px;
+        margin-bottom: 20px;
+      }
+
+      .about-website-btn {
+        align-self: center !important;
+        font-size: 17px !important;
+        padding: 13px 36px !important;
+      }
+
+      .about-bottom-section {
+        padding: 28px 24px 48px 24px;
+      }
+
+      .about-sponsor-heading {
+        font-size: 28px;
+        padding: 0 16px;
+        margin-bottom: 16px;
+        max-width: 780px;
+      }
+
+      .about-partners-container,
+      .about-partner-card {
+        max-width: min(92vw, 780px);
+      }
+    }
+
+    /* Simulator Shell Support for Portrait & Phone in Development Workspace */
+    .device-shell.is-portrait:not(.is-phone) .about-top-container {
       flex-direction: column;
-      gap: 18px;
+      gap: 22px;
       text-align: center;
     }
 
-    .device-shell.is-portrait .about-plate-col,
-    .device-shell.is-phone .about-plate-col {
+    .device-shell.is-portrait:not(.is-phone) .about-plate-col {
       flex: 0 0 auto;
-      width: 60%;
-      max-width: 320px;
+      width: 100%;
+      max-width: 400px;
     }
 
-    .device-shell.is-portrait .about-info-col,
-    .device-shell.is-phone .about-info-col {
+    .device-shell.is-portrait:not(.is-phone) .about-wagon-img {
+      max-height: 280px;
+    }
+
+    .device-shell.is-portrait:not(.is-phone) .about-info-col {
       align-items: center;
-      max-width: 580px;
+      text-align: center;
+      max-width: 640px;
     }
 
-    .device-shell.is-portrait .about-main-heading,
-    .device-shell.is-phone .about-main-heading {
-      font-size: 28px;
+    .device-shell.is-portrait:not(.is-phone) .about-main-heading {
+      font-size: 32px;
     }
 
-    .device-shell.is-portrait .about-description,
-    .device-shell.is-phone .about-description {
-      font-size: 15.5px;
+    .device-shell.is-portrait:not(.is-phone) .about-description {
+      font-size: 18px;
+      max-width: 620px;
       margin-bottom: 20px;
     }
 
-    .device-shell.is-portrait .about-sponsor-heading,
-    .device-shell.is-phone .about-sponsor-heading {
-      font-size: 26px;
-      padding: 0 32px;
-      margin-bottom: 14px;
-      max-width: 576px;
+    .device-shell.is-portrait:not(.is-phone) .about-website-btn {
+      align-self: center !important;
+      font-size: 17px !important;
+      padding: 13px 34px !important;
     }
 
-    .device-shell.is-portrait .about-partners-container {
-      max-width: 576px;
+    .device-shell.is-portrait:not(.is-phone) .about-sponsor-heading {
+      font-size: 28px;
+      max-width: 740px;
     }
 
-    .device-shell.is-portrait .about-partner-card {
-      max-width: 576px;
+    .device-shell.is-portrait:not(.is-phone) .about-partners-container,
+    .device-shell.is-portrait:not(.is-phone) .about-partner-card {
+      max-width: 740px;
     }
 
-    .device-shell.is-phone .about-partners-container {
+    .device-shell.is-phone .about-top-section {
+      padding: 16px 20px 24px 20px;
+    }
+
+    .device-shell.is-phone .about-bottom-section {
+      padding: 24px 16px 40px 16px;
+    }
+
+    .device-shell.is-phone .about-top-container {
       flex-direction: column;
       gap: 16px;
-      max-width: 100%;
+      text-align: center;
     }
 
-    .device-shell.is-phone .about-partner-card {
+    .device-shell.is-phone .about-plate-col {
       flex: 0 0 auto;
+      width: 60%;
+      max-width: 250px;
+    }
+
+    .device-shell.is-phone .about-wagon-img {
+      max-height: 190px;
+    }
+
+    .device-shell.is-phone .about-info-col {
+      align-items: center;
+      text-align: center;
+    }
+
+    .device-shell.is-phone .about-main-heading {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .device-shell.is-phone .about-description {
+      font-size: 14.5px;
+      margin-bottom: 16px;
+    }
+
+    .device-shell.is-phone .about-website-btn {
+      align-self: center !important;
+      font-size: 15px !important;
+      padding: 10px 24px !important;
+    }
+
+    .device-shell.is-phone .about-sponsor-heading {
+      font-size: 22px;
+      padding: 0 10px;
+      margin-bottom: 12px;
+    }
+
+    .device-shell.is-phone .about-partners-container,
+    .device-shell.is-phone .about-partner-card {
       width: 100%;
       max-width: 100%;
     }
 
-    /* Standard Responsive Media Queries for Standalone PWA (< 640px) */
-    @media (max-width: 640px) {
+    /* Standard Responsive Media Queries for Standalone PWA (< 580px) */
+    @media (max-width: 580px) {
       .about-top-section {
-        padding: 20px 24px 38px 24px;
+        padding: 16px 20px 24px 20px;
       }
 
       .about-bottom-section {
-        padding: 38px 20px 54px 20px;
+        padding: 24px 16px 40px 16px;
         min-height: auto;
       }
 
@@ -9382,7 +9491,11 @@
       .about-plate-col {
         flex: 0 0 auto;
         width: 60%;
-        max-width: 280px;
+        max-width: 250px;
+      }
+
+      .about-wagon-img {
+        max-height: 190px;
       }
 
       .about-info-col {
@@ -9390,17 +9503,24 @@
       }
 
       .about-main-heading {
-        font-size: 26px;
+        font-size: 24px;
+        margin-bottom: 8px;
       }
 
       .about-description {
         font-size: 14.5px;
-        margin-bottom: 18px;
+        margin-bottom: 16px;
+      }
+
+      .about-website-btn {
+        align-self: center !important;
+        font-size: 15px !important;
+        padding: 10px 24px !important;
       }
 
       .about-sponsor-heading {
-        font-size: 24px;
-        padding: 0 20px;
+        font-size: 22px;
+        padding: 0 10px;
         margin-bottom: 12px;
       }
 
@@ -25176,13 +25296,13 @@
 
       const aboutTopFade = document.getElementById('aboutTopFade') || document.querySelector('.about-top-fade');
       if (aboutTopFade) {
-        const topFadeH = isCompact ? 130 : 155;
+        const topFadeH = isCompact ? 95 : 120;
         aboutTopFade.style.height = topFadeH + 'px';
       }
 
       const aboutBottomFade = document.getElementById('aboutBottomFade') || document.querySelector('.about-bottom-fade');
       if (aboutBottomFade) {
-        const fadeH = isCompact ? Math.min(Math.max(h * 0.25, 130), 170) : Math.min(Math.max(h * 0.30, 180), 230);
+        const fadeH = isCompact ? 95 : 120;
         aboutBottomFade.style.height = fadeH + 'px';
         updateAboutScrollFade();
       }
