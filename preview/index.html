@@ -9145,12 +9145,12 @@
     /* Upper Section: White Background */
     .about-top-section {
       background-color: #ffffff;
-      flex: 1 1 52%;
-      min-height: 52%;
+      flex: 0 0 auto;
+      width: 100%;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
-      padding: 24px 40px 52px 40px;
+      padding: 32px 40px 48px 40px;
       box-sizing: border-box;
     }
 
@@ -9264,7 +9264,7 @@
     /* Lower Section: Gradient (#ecebee to #bdd9ea) Background */
     .about-bottom-section {
       background: linear-gradient(to right, #ecebee 0%, #bdd9ea 100%);
-      flex: 0 0 auto;
+      flex: 1 0 auto;
       min-height: 440px;
       display: flex;
       flex-direction: column;
@@ -15897,6 +15897,8 @@
         if (screenAbout) screenAbout.classList.add('active');
         if (select) select.value = 'about';
         if (statusSpan) statusSpan.textContent = 'About Screen Active • Riley Children\'s Health & Community Partners';
+        const aboutBody = document.querySelector('.about-content-body');
+        if (aboutBody) aboutBody.scrollTop = 0;
       } else if (screenName === 'settings') {
         // Navigating to Settings Screen
         clearAnatomyTimers();
