@@ -2181,23 +2181,20 @@ public struct AnatomyExplorerView: View {
                                 HapticManager.shared.lightTap()
                             }
                         
-                        // Outer Ring Color Tap Areas (12 sectors spaced every 30 degrees)
+                        // Outer Ring Color Tap Areas (12 sectors strictly inset within colored boundaries)
                         ForEach(Array(StudioColor.allCases.enumerated()), id: \.element) { idx, color in
-                            let angleDeg = Double(idx * 30 + 15)
-                            let rad = angleDeg * Double.pi / 180.0
-                            let rDist = wheelSize * 0.40
-                            let xPos = (wheelSize / 2) + CGFloat(cos(rad)) * rDist
-                            let yPos = (wheelSize / 2) + CGFloat(sin(rad)) * rDist
+                            let a1 = Angle.degrees(Double(idx * 30) + 4.5)
+                            let a2 = Angle.degrees(Double(idx * 30) + 28.5)
+                            let sectorShape = AnatomyWheelSectorShape(startAngle: a1, endAngle: a2)
                             
-                            Circle()
-                                .fill(selectedStudioColor == color ? Color.white.opacity(0.35) : Color.clear)
-                                .frame(width: wheelSize * 0.16, height: wheelSize * 0.16)
+                            sectorShape
+                                .fill(selectedStudioColor == color ? Color.white.opacity(0.14) : Color.clear)
                                 .overlay(
-                                    Circle()
-                                        .stroke(selectedStudioColor == color ? Color.white : Color.clear, lineWidth: 3)
+                                    sectorShape
+                                        .stroke(selectedStudioColor == color ? Color.white : Color.clear, lineWidth: 3.5)
                                 )
-                                .position(x: xPos, y: yPos)
-                                .contentShape(Circle())
+                                .frame(width: wheelSize, height: wheelSize)
+                                .contentShape(sectorShape)
                                 .onTapGesture {
                                     selectedStudioColor = color
                                     HapticManager.shared.lightTap()
@@ -2396,6 +2393,30 @@ public struct AnatomyExplorerView: View {
             .frame(width: screenW, height: screenH)
         }
         .frame(width: proxy.size.width, height: proxy.size.height)
+    }
+}
+
+// MARK: - Anatomy Wheel Sector Shape (Strictly Inset Within Color Boundaries)
+struct AnatomyWheelSectorShape: Shape {
+    var startAngle: Angle
+    var endAngle: Angle
+    var innerRadiusRatio: CGFloat = 264.0 / 416.0
+    var outerRadiusRatio: CGFloat = 409.0 / 416.0
+    
+    func path(in rect: CGRect) -> Path {
+        let center = CGPoint(x: rect.midX, y: rect.midY)
+        let maxRadius = min(rect.width, rect.height) / 2.0
+        let rIn = maxRadius * innerRadiusRatio
+        let rOut = maxRadius * outerRadiusRatio
+        
+        var path = Path()
+        path.addArc(center: center, radius: rOut, startAngle: startAngle, endAngle: endAngle, clockwise: false)
+        let endX = center.x + rIn * CGFloat(cos(endAngle.radians))
+        let endY = center.y + rIn * CGFloat(sin(endAngle.radians))
+        path.addLine(to: CGPoint(x: endX, y: endY))
+        path.addArc(center: center, radius: rIn, startAngle: endAngle, endAngle: startAngle, clockwise: true)
+        path.closeSubpath()
+        return path
     }
 }
 

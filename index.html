@@ -12087,23 +12087,25 @@
       fill: transparent;
       stroke: transparent;
       stroke-width: 0;
+      stroke-linejoin: round;
+      stroke-linecap: round;
       cursor: pointer;
       pointer-events: auto;
       transition: fill 0.15s ease, stroke 0.15s ease, filter 0.15s ease;
     }
 
     .wheel-sector:hover {
-      fill: rgba(255, 255, 255, 0.22);
+      fill: rgba(255, 255, 255, 0.10);
       stroke: rgba(255, 255, 255, 0.85);
-      stroke-width: 4px;
+      stroke-width: 3px;
     }
 
     .wheel-sector:active,
     .wheel-sector.is-selected {
-      fill: rgba(255, 255, 255, 0.32);
+      fill: rgba(255, 255, 255, 0.14);
       stroke: #ffffff;
-      stroke-width: 5px;
-      filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.95));
+      stroke-width: 3.5px;
+      filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.85));
     }
 
     /* Left: Magnifying Glass Dock (Permanently Displays Magnifying Glass 2 left behind) */
@@ -16169,19 +16171,19 @@
                     <svg class="anatomy-studio-wheel-svg" viewBox="0 0 832 832" preserveAspectRatio="xMidYMid meet">
                       <!-- Center circle: tap to close / revert -->
                       <circle class="wheel-center-btn" cx="416" cy="416" r="205" onclick="closeColorPicker()" />
-                      <!-- 12 Sector Segments -->
-                      <path class="wheel-sector" data-color-id="yellow" data-color-name="Yellow" data-color-hex="#fff300" d="M 828.00 416.00 A 412 412 0 0 1 772.80 622.00 L 636.84 543.50 A 255 255 0 0 0 671.00 416.00 Z" onclick="selectWheelColor('yellow')" />
-                      <path class="wheel-sector" data-color-id="lime" data-color-name="Lime" data-color-hex="#9ec536" d="M 772.80 622.00 A 412 412 0 0 1 622.00 772.80 L 543.50 636.84 A 255 255 0 0 0 636.84 543.50 Z" onclick="selectWheelColor('lime')" />
-                      <path class="wheel-sector" data-color-id="green" data-color-name="Green" data-color-hex="#4eaf43" d="M 622.00 772.80 A 412 412 0 0 1 416.00 828.00 L 416.00 671.00 A 255 255 0 0 0 543.50 636.84 Z" onclick="selectWheelColor('green')" />
-                      <path class="wheel-sector" data-color-id="teal" data-color-name="Teal" data-color-hex="#00a289" d="M 416.00 828.00 A 412 412 0 0 1 210.00 772.80 L 288.50 636.84 A 255 255 0 0 0 416.00 671.00 Z" onclick="selectWheelColor('teal')" />
-                      <path class="wheel-sector is-selected" data-color-id="blue" data-color-name="Blue" data-color-hex="#0172bb" d="M 210.00 772.80 A 412 412 0 0 1 59.20 622.00 L 195.16 543.50 A 255 255 0 0 0 288.50 636.84 Z" onclick="selectWheelColor('blue')" />
-                      <path class="wheel-sector" data-color-id="indigo" data-color-name="Indigo" data-color-hex="#3d5eac" d="M 59.20 622.00 A 412 412 0 0 1 4.00 416.00 L 161.00 416.00 A 255 255 0 0 0 195.16 543.50 Z" onclick="selectWheelColor('indigo')" />
-                      <path class="wheel-sector" data-color-id="purple" data-color-name="Purple" data-color-hex="#702c90" d="M 4.00 416.00 A 412 412 0 0 1 59.20 210.00 L 195.16 288.50 A 255 255 0 0 0 161.00 416.00 Z" onclick="selectWheelColor('purple')" />
-                      <path class="wheel-sector" data-color-id="magenta" data-color-name="Magenta" data-color-hex="#b6207e" d="M 59.20 210.00 A 412 412 0 0 1 210.00 59.20 L 288.50 195.16 A 255 255 0 0 0 195.16 288.50 Z" onclick="selectWheelColor('magenta')" />
-                      <path class="wheel-sector" data-color-id="red" data-color-name="Red" data-color-hex="#ef1c26" d="M 210.00 59.20 A 412 412 0 0 1 416.00 4.00 L 416.00 161.00 A 255 255 0 0 0 288.50 195.16 Z" onclick="selectWheelColor('red')" />
-                      <path class="wheel-sector" data-color-id="orangered" data-color-name="OrangeRed" data-color-hex="#f15b22" d="M 416.00 4.00 A 412 412 0 0 1 622.00 59.20 L 543.50 195.16 A 255 255 0 0 0 416.00 161.00 Z" onclick="selectWheelColor('orangered')" />
-                      <path class="wheel-sector" data-color-id="orange" data-color-name="Orange" data-color-hex="#f9931d" d="M 622.00 59.20 A 412 412 0 0 1 772.80 210.00 L 636.84 288.50 A 255 255 0 0 0 543.50 195.16 Z" onclick="selectWheelColor('orange')" />
-                      <path class="wheel-sector" data-color-id="amber" data-color-name="Amber" data-color-hex="#ffc20f" d="M 772.80 210.00 A 412 412 0 0 1 828.00 416.00 L 671.00 416.00 A 255 255 0 0 0 636.84 288.50 Z" onclick="selectWheelColor('amber')" />
+                      <!-- 12 Sector Segments Strictly Inset Within Color Boundaries -->
+                      <path class="wheel-sector" data-color-id="yellow" data-color-name="Yellow" data-color-hex="#fff300" d="M 823.74 448.09 A 409.00 409.00 0 0 1 775.44 611.16 L 648.01 541.97 A 264.00 264.00 0 0 0 679.19 436.71 Z" onclick="selectWheelColor('yellow')" />
+                      <path class="wheel-sector" data-color-id="lime" data-color-name="Lime" data-color-hex="#9ec536" d="M 753.07 647.66 A 409.00 409.00 0 0 1 629.70 764.73 L 553.94 641.10 A 264.00 264.00 0 0 0 633.57 565.53 Z" onclick="selectWheelColor('lime')" />
+                      <path class="wheel-sector" data-color-id="green" data-color-name="Green" data-color-hex="#4eaf43" d="M 592.08 785.16 A 409.00 409.00 0 0 1 426.71 824.86 L 422.91 679.91 A 264.00 264.00 0 0 0 529.65 654.28 Z" onclick="selectWheelColor('green')" />
+                      <path class="wheel-sector" data-color-id="teal" data-color-name="Teal" data-color-hex="#00a289" d="M 383.91 823.74 A 409.00 409.00 0 0 1 220.84 775.44 L 290.03 648.01 A 264.00 264.00 0 0 0 395.29 679.19 Z" onclick="selectWheelColor('teal')" />
+                      <path class="wheel-sector is-selected" data-color-id="blue" data-color-name="Blue" data-color-hex="#0172bb" d="M 184.34 753.07 A 409.00 409.00 0 0 1 67.27 629.70 L 190.90 553.94 A 264.00 264.00 0 0 0 266.47 633.57 Z" onclick="selectWheelColor('blue')" />
+                      <path class="wheel-sector" data-color-id="indigo" data-color-name="Indigo" data-color-hex="#3d5eac" d="M 46.84 592.08 A 409.00 409.00 0 0 1 7.14 426.71 L 152.09 422.91 A 264.00 264.00 0 0 0 177.72 529.65 Z" onclick="selectWheelColor('indigo')" />
+                      <path class="wheel-sector" data-color-id="purple" data-color-name="Purple" data-color-hex="#702c90" d="M 8.26 383.91 A 409.00 409.00 0 0 1 56.56 220.84 L 183.99 290.03 A 264.00 264.00 0 0 0 152.81 395.29 Z" onclick="selectWheelColor('purple')" />
+                      <path class="wheel-sector" data-color-id="magenta" data-color-name="Magenta" data-color-hex="#b6207e" d="M 78.93 184.34 A 409.00 409.00 0 0 1 202.30 67.27 L 278.06 190.90 A 264.00 264.00 0 0 0 198.43 266.47 Z" onclick="selectWheelColor('magenta')" />
+                      <path class="wheel-sector" data-color-id="red" data-color-name="Red" data-color-hex="#ef1c26" d="M 239.92 46.84 A 409.00 409.00 0 0 1 405.29 7.14 L 409.09 152.09 A 264.00 264.00 0 0 0 302.35 177.72 Z" onclick="selectWheelColor('red')" />
+                      <path class="wheel-sector" data-color-id="orangered" data-color-name="OrangeRed" data-color-hex="#f15b22" d="M 448.09 8.26 A 409.00 409.00 0 0 1 611.16 56.56 L 541.97 183.99 A 264.00 264.00 0 0 0 436.71 152.81 Z" onclick="selectWheelColor('orangered')" />
+                      <path class="wheel-sector" data-color-id="orange" data-color-name="Orange" data-color-hex="#f9931d" d="M 647.66 78.93 A 409.00 409.00 0 0 1 764.73 202.30 L 641.10 278.06 A 264.00 264.00 0 0 0 565.53 198.43 Z" onclick="selectWheelColor('orange')" />
+                      <path class="wheel-sector" data-color-id="amber" data-color-name="Amber" data-color-hex="#ffc20f" d="M 785.16 239.92 A 409.00 409.00 0 0 1 824.86 405.29 L 679.91 409.09 A 264.00 264.00 0 0 0 654.28 302.35 Z" onclick="selectWheelColor('amber')" />
                     </svg>
                   </div>
                 </div>
