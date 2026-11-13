@@ -2363,16 +2363,33 @@ public struct AnatomyExplorerView: View {
                             .foregroundColor(Color(hex: "325b72"))
                         
                         Button(action: {
+                            HapticManager.shared.lightTap()
                             speakOrgan(studio.name)
                         }) {
-                            Image(systemName: "speaker.wave.2.fill")
-                                .font(.system(size: 16, weight: .bold))
-                                .foregroundColor(Color(hex: "1a0b2e"))
-                                .frame(width: 34, height: 34)
-                                .background(Circle().fill(Color(hex: "ffd700")))
-                                .shadow(color: Color(hex: "ffd700").opacity(0.6), radius: 6)
+                            Image("AnatomyVoiceIcon")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 20, height: 20)
+                                .frame(width: 36, height: 36)
+                                .background(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [
+                                            Color(hex: "f6f5f8").opacity(0.94),
+                                            Color(hex: "ecebee").opacity(0.90),
+                                            Color(hex: "e0dee4").opacity(0.94)
+                                        ]),
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .clipShape(Circle())
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color.white.opacity(0.65), lineWidth: 1.5)
+                                )
+                                .shadow(color: Color.black.opacity(0.12), radius: 6, y: 3)
                         }
-                        .buttonStyle(PlainButtonStyle())
+                        .buttonStyle(BouncyButtonStyle(scaleAmount: 0.94))
                     }
                     
                     Button(action: {
@@ -2382,14 +2399,28 @@ public struct AnatomyExplorerView: View {
                     }) {
                         Text("Clear")
                             .font(.system(size: 13, weight: .bold, design: .rounded))
-                            .foregroundColor(.white)
+                            .foregroundColor(Color(hex: "7a1852"))
                             .padding(.horizontal, 18)
                             .padding(.vertical, 4)
-                            .background(Capsule().fill(Color(hex: "5931ba").opacity(0.88)))
-                            .overlay(Capsule().stroke(Color.white.opacity(0.4), lineWidth: 1.5))
-                            .shadow(color: Color.black.opacity(0.2), radius: 4, y: 2)
+                            .background(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [
+                                        Color(hex: "f6f5f8").opacity(0.94),
+                                        Color(hex: "ecebee").opacity(0.90),
+                                        Color(hex: "e0dee4").opacity(0.94)
+                                    ]),
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .clipShape(Capsule())
+                            .overlay(
+                                Capsule()
+                                    .stroke(Color.white.opacity(0.65), lineWidth: 1.5)
+                            )
+                            .shadow(color: Color.black.opacity(0.12), radius: 6, y: 3)
                     }
-                    .buttonStyle(PlainButtonStyle())
+                    .buttonStyle(BouncyButtonStyle(scaleAmount: 0.95))
                 }
                 .padding(.top, 16)
                 

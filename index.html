@@ -11763,9 +11763,8 @@
     }
 
     .anatomy-studio-audio-btn {
-      background: #ffd700;
-      color: #1a0b2e;
-      border: none;
+      background: linear-gradient(145deg, rgba(246, 245, 248, 0.94) 0%, rgba(236, 235, 238, 0.90) 50%, rgba(224, 222, 228, 0.94) 100%);
+      border: 1.5px solid rgba(255, 255, 255, 0.65);
       border-radius: 50%;
       width: 36px;
       height: 36px;
@@ -11773,37 +11772,49 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
-      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      backdrop-filter: blur(24px) saturate(190%);
+      -webkit-backdrop-filter: blur(24px) saturate(190%);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.85);
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+      padding: 0;
     }
 
     .anatomy-studio-audio-btn:hover {
-      transform: scale(1.1);
+      transform: scale(1.08);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16), inset 0 1px 1px rgba(255, 255, 255, 0.95);
     }
 
     .anatomy-studio-audio-btn:active {
       transform: scale(0.94);
     }
 
+    .anatomy-studio-voice-img {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+    }
+
     .anatomy-studio-clear-btn {
-      background: rgba(89, 49, 186, 0.88);
-      color: #ffffff;
-      border: 1.5px solid rgba(255, 255, 255, 0.4);
+      background: linear-gradient(145deg, rgba(246, 245, 248, 0.94) 0%, rgba(236, 235, 238, 0.90) 50%, rgba(224, 222, 228, 0.94) 100%);
+      color: #7a1852;
+      border: 1.5px solid rgba(255, 255, 255, 0.65);
       border-radius: 9999px;
       padding: 4px 18px;
       font-size: 13px;
       font-weight: 700;
       font-family: inherit;
       cursor: pointer;
-      transition: background 0.2s ease, transform 0.2s ease;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.22);
+      backdrop-filter: blur(24px) saturate(190%);
+      -webkit-backdrop-filter: blur(24px) saturate(190%);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.85);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
     .anatomy-studio-clear-btn:hover {
-      background: rgba(89, 49, 186, 1);
       transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16), inset 0 1px 1px rgba(255, 255, 255, 0.95);
     }
 
     .anatomy-studio-clear-btn:active {
@@ -16290,10 +16301,7 @@
                     <div class="anatomy-studio-title-row">
                       <h1 class="anatomy-studio-title" id="anatomyStudioTitle">Heart</h1>
                       <button type="button" class="anatomy-studio-audio-btn" id="anatomyStudioAudioBtn" onclick="speakCurrentStudioOrgan()" title="Hear name again" aria-label="Hear name again">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
-                        </svg>
-                      </button>
+                        <img src="assets/Voice Icon.png" alt="Voice" class="anatomy-studio-voice-img" loading="lazy" decoding="async" />                      </button>
                     </div>
                     <button type="button" class="anatomy-studio-clear-btn" onclick="clearStudioCanvas()" title="Clear drawings" aria-label="Clear drawings">
                       <span>Clear</span>
