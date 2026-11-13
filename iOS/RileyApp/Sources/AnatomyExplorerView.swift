@@ -1999,14 +1999,13 @@ public struct AnatomyExplorerView: View {
         guard !stroke.points.isEmpty else { return }
         let strokeColor = Color(hex: stroke.color.hex)
         let lineWidth = stroke.lineWidth
-        let alpha: Double = 0.90
         
         if stroke.points.count == 1 {
             let p = stroke.points[0]
             let radius = lineWidth / 2.0
             var dotPath = Path()
             dotPath.addEllipse(in: CGRect(x: p.x - radius, y: p.y - radius, width: radius * 2, height: radius * 2))
-            context.fill(dotPath, with: .color(strokeColor.opacity(alpha)))
+            context.fill(dotPath, with: .color(strokeColor))
             return
         }
         
@@ -2031,7 +2030,7 @@ public struct AnatomyExplorerView: View {
         
         context.stroke(
             path,
-            with: .color(strokeColor.opacity(alpha)),
+            with: .color(strokeColor),
             style: StrokeStyle(lineWidth: lineWidth, lineCap: .round, lineJoin: .round)
         )
     }
@@ -2125,7 +2124,7 @@ public struct AnatomyExplorerView: View {
                 .buttonStyle(PlainButtonStyle())
                 .position(x: max(65, screenW * 0.08), y: screenH - max(58, screenH * 0.08))
 
-                // Bottom-Center Pencil Thickness Slider
+                // Bottom-Center Pencil Thickness Slider (Liquid Glass Effect)
                 let sliderPillWidth: CGFloat = min(300.0, max(200.0, screenW * 0.32))
                 let sliderPillHeight: CGFloat = 44.0
                 let trackInset: CGFloat = 20.0
@@ -2134,37 +2133,125 @@ public struct AnatomyExplorerView: View {
                 let maxStrokeWidth: CGFloat = 22.0
                 let strokeRatio = max(0.0, min(1.0, (studioStrokeWidth - minStrokeWidth) / (maxStrokeWidth - minStrokeWidth)))
                 let thumbX = trackInset + strokeRatio * trackWidth
-                let thumbDiameter: CGFloat = 28.0
+                let thumbDiameter: CGFloat = 30.0
                 let dotDiameter = 5.0 + strokeRatio * 14.0
 
                 ZStack(alignment: .leading) {
-                    // Frosted Pill Container
-                    Capsule()
-                        .fill(Color.white.opacity(0.65))
-                        .overlay(
+                    // Liquid Glass Pill Container
+                    ZStack {
+                        // Liquid Translucent Depth
+                        Capsule()
+                            .fill(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [
+                                        Color.white.opacity(0.48),
+                                        Color.white.opacity(0.14),
+                                        Color(hex: "ebf5ff").opacity(0.22),
+                                        Color.white.opacity(0.38)
+                                    ]),
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .background(
+                                Capsule()
+                                    .fill(.ultraThinMaterial)
+                            )
+                        
+                        // Meniscus Surface Sheen (Gloss highlight across top hemisphere)
+                        VStack {
                             Capsule()
-                                .stroke(Color.white.opacity(0.85), lineWidth: 1.5)
-                        )
-                        .shadow(color: Color.black.opacity(0.18), radius: 8, y: 3)
-                        .frame(width: sliderPillWidth, height: sliderPillHeight)
+                                .fill(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [
+                                            Color.white.opacity(0.75),
+                                            Color.white.opacity(0.20),
+                                            Color.white.opacity(0.0)
+                                        ]),
+                                        startPoint: .top,
+                                        endPoint: .bottom
+                                    )
+                                )
+                                .frame(height: sliderPillHeight * 0.46)
+                                .padding(.horizontal, 6)
+                                .padding(.top, 1.2)
+                            Spacer()
+                        }
+                        .allowsHitTesting(false)
+                        
+                        // Bottom Caustic Reflection
+                        VStack {
+                            Spacer()
+                            Capsule()
+                                .fill(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [
+                                            Color.white.opacity(0.0),
+                                            Color.white.opacity(0.35)
+                                        ]),
+                                        startPoint: .top,
+                                        endPoint: .bottom
+                                    )
+                                )
+                                .frame(height: sliderPillHeight * 0.28)
+                                .padding(.horizontal, 12)
+                                .padding(.bottom, 1.2)
+                        }
+                        .allowsHitTesting(false)
+                    }
+                    .overlay(
+                        // Specular Liquid Rim Border
+                        Capsule()
+                            .stroke(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [
+                                        Color.white.opacity(0.95),
+                                        Color.white.opacity(0.45),
+                                        Color.white.opacity(0.75)
+                                    ]),
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                ),
+                                lineWidth: 1.2
+                            )
+                    )
+                    .shadow(color: Color.black.opacity(0.16), radius: 12, y: 5)
+                    .shadow(color: Color.black.opacity(0.08), radius: 3, y: 1)
+                    .frame(width: sliderPillWidth, height: sliderPillHeight)
                     
                     // Wedge / Track Image
                     Image("AnatomyThicknessLine")
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: trackWidth, height: 18)
-                        .opacity(0.85)
+                        .opacity(0.88)
                         .offset(x: trackInset)
                         .allowsHitTesting(false)
                     
-                    // Draggable Thumb Knob
+                    // Draggable Thumb Knob (Liquid Crystal Orb)
                     ZStack {
                         Circle()
-                            .fill(Color.white)
-                            .shadow(color: Color.black.opacity(0.32), radius: 4, y: 2)
+                            .fill(
+                                RadialGradient(
+                                    gradient: Gradient(colors: [
+                                        Color.white,
+                                        Color(hex: "f6f8fc"),
+                                        Color(hex: "e2e8f0")
+                                    ]),
+                                    center: .topLeading,
+                                    startRadius: 2,
+                                    endRadius: thumbDiameter
+                                )
+                            )
+                            .overlay(
+                                Circle()
+                                    .stroke(Color.white.opacity(0.95), lineWidth: 1.0)
+                            )
+                            .shadow(color: Color.black.opacity(0.25), radius: 5, y: 2)
                         Circle()
                             .fill(Color(hex: selectedStudioColor.hex))
                             .frame(width: dotDiameter, height: dotDiameter)
+                            .shadow(color: Color.black.opacity(0.25), radius: 2, y: 1)
                     }
                     .frame(width: thumbDiameter, height: thumbDiameter)
                     .offset(x: thumbX - thumbDiameter / 2.0)
