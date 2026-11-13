@@ -2183,15 +2183,17 @@ public struct AnatomyExplorerView: View {
                         
                         // Outer Ring Color Tap Areas (12 sectors strictly inset within colored boundaries)
                         ForEach(Array(StudioColor.allCases.enumerated()), id: \.element) { idx, color in
-                            let a1 = Angle.degrees(Double(idx * 30) + 4.5)
-                            let a2 = Angle.degrees(Double(idx * 30) + 28.5)
+                            let a1 = Angle.degrees(Double(idx * 30) + 3.4)
+                            let a2 = Angle.degrees(Double(idx * 30) + 29.6)
                             let sectorShape = AnatomyWheelSectorShape(startAngle: a1, endAngle: a2)
                             
                             sectorShape
-                                .fill(selectedStudioColor == color ? Color.white.opacity(0.14) : Color.clear)
+                                .fill(selectedStudioColor == color ? Color.white.opacity(0.15) : Color.clear)
                                 .overlay(
                                     sectorShape
-                                        .stroke(selectedStudioColor == color ? Color.white : Color.clear, lineWidth: 3.5)
+                                        .stroke(selectedStudioColor == color ? Color.white : Color.clear, lineWidth: 5.0)
+                                        .shadow(color: selectedStudioColor == color ? Color.white.opacity(0.95) : Color.clear, radius: 8)
+                                        .shadow(color: selectedStudioColor == color ? Color.white.opacity(0.65) : Color.clear, radius: 16)
                                 )
                                 .frame(width: wheelSize, height: wheelSize)
                                 .contentShape(sectorShape)
@@ -2400,8 +2402,8 @@ public struct AnatomyExplorerView: View {
 struct AnatomyWheelSectorShape: Shape {
     var startAngle: Angle
     var endAngle: Angle
-    var innerRadiusRatio: CGFloat = 264.0 / 416.0
-    var outerRadiusRatio: CGFloat = 409.0 / 416.0
+    var innerRadiusRatio: CGFloat = 260.5 / 416.0
+    var outerRadiusRatio: CGFloat = 412.0 / 416.0
     
     func path(in rect: CGRect) -> Path {
         let center = CGPoint(x: rect.midX, y: rect.midY)
