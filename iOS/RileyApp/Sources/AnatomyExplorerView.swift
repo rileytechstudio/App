@@ -2109,8 +2109,10 @@ public struct AnatomyExplorerView: View {
             
             // Bottom Controls Layer
             ZStack {
-                // Bottom-Left Pencil (Only writing tool, flipped horizontally)
-                let pencilSize = min(screenW * 0.14, 124.0)
+                let bottomCenterY = screenH - max(52.0, screenH * 0.075)
+                
+                // Bottom-Left Pencil (Only writing tool, flipped horizontally, centered with slider)
+                let pencilSize = min(screenW * 0.11, 88.0)
                 Button(action: {
                     HapticManager.shared.lightTap()
                 }) {
@@ -2122,10 +2124,10 @@ public struct AnatomyExplorerView: View {
                         .shadow(color: Color.black.opacity(0.30), radius: 8, y: 4)
                 }
                 .buttonStyle(PlainButtonStyle())
-                .position(x: max(65, screenW * 0.08), y: screenH - max(58, screenH * 0.08))
+                .position(x: max(55.0, screenW * 0.075), y: bottomCenterY)
 
-                // Bottom-Center Pencil Thickness Slider (Liquid Glass Effect)
-                let sliderPillWidth: CGFloat = min(300.0, max(200.0, screenW * 0.32))
+                // Bottom-Center Pencil Thickness Slider (Liquid Glass Effect, centered horizontally & vertically)
+                let sliderPillWidth: CGFloat = min(290.0, max(200.0, screenW * 0.32))
                 let sliderPillHeight: CGFloat = 44.0
                 let trackInset: CGFloat = 20.0
                 let trackWidth: CGFloat = max(100.0, sliderPillWidth - (trackInset * 2.0))
@@ -2268,10 +2270,10 @@ public struct AnatomyExplorerView: View {
                             HapticManager.shared.lightTap()
                         }
                 )
-                .position(x: screenW * 0.50, y: screenH - max(58, screenH * 0.08))
+                .position(x: screenW * 0.50, y: bottomCenterY)
                 
-                // Bottom-Right Color Picker 1 Button (Pops open into Color Picker 2)
-                let pickerSize = min(screenW * 0.12, 106.0)
+                // Bottom-Right Color Picker 1 Button (Pops open into Color Picker 2, centered with slider)
+                let pickerSize = min(screenW * 0.10, 82.0)
                 Button(action: {
                     withAnimation(.spring(response: 0.35, dampingFraction: 0.72)) {
                         isColorPickerOpen.toggle()
@@ -2285,7 +2287,7 @@ public struct AnatomyExplorerView: View {
                         .shadow(color: Color.black.opacity(0.32), radius: 10, y: 5)
                 }
                 .buttonStyle(PlainButtonStyle())
-                .position(x: screenW - max(58, screenW * 0.08), y: screenH - max(58, screenH * 0.08))
+                .position(x: screenW - max(55.0, screenW * 0.075), y: bottomCenterY)
                 
                 // Color Picker 2 Popout Overlay
                 if isColorPickerOpen {
@@ -2331,7 +2333,6 @@ public struct AnatomyExplorerView: View {
                                         .shadow(color: selectedStudioColor == color ? Color.white.opacity(0.95) : Color.clear, radius: 8)
                                         .shadow(color: selectedStudioColor == color ? Color.white.opacity(0.65) : Color.clear, radius: 16)
                                 )
-                                .frame(width: wheelSize, height: wheelSize)
                                 .contentShape(sectorShape)
                                 .onTapGesture {
                                     selectedStudioColor = color
@@ -2345,7 +2346,7 @@ public struct AnatomyExplorerView: View {
                         }
                     }
                     .frame(width: wheelSize, height: wheelSize)
-                    .position(x: screenW - max(58, screenW * 0.08) - wheelSize * 0.35, y: screenH - max(58, screenH * 0.08) - wheelSize * 0.35)
+                    .position(x: screenW - max(55.0, screenW * 0.075) - wheelSize * 0.35, y: bottomCenterY - wheelSize * 0.35)
                     .transition(.scale(scale: 0.3, anchor: .bottomTrailing).combined(with: .opacity))
                 }
             }
