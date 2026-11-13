@@ -19198,7 +19198,7 @@
       // The circular lens center is at ~47% width and ~28.4% height of the magnifying glass
       const lensX = magRect.left + magRect.width * 0.47;
       const lensY = magRect.top + magRect.height * 0.284;
-      const lensRadius = magRect.width * 0.35;
+      const lensRadius = magRect.width * 0.376;
       const charRect = charContainer.getBoundingClientRect();
 
       const isOver = (
@@ -19343,7 +19343,7 @@
             const magRect = wrapper.getBoundingClientRect();
             const lensX = magRect.left + magRect.width * 0.47;
             const lensY = magRect.top + magRect.height * 0.284;
-            const lensRadius = magRect.width * 0.35;
+            const lensRadius = magRect.width * 0.376;
             const distToLens = Math.hypot(e.clientX - lensX, e.clientY - lensY);
 
             if (isMagnifierOverCharacter && distToLens <= lensRadius) {

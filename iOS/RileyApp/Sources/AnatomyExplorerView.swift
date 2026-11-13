@@ -1033,9 +1033,9 @@ public struct AnatomyExplorerView: View {
                 let organCenterY = charTopY + (charHeight * organCfg.offsetY) + (organH / 2)
                 let organCenterX = charCenterX + (proxy.size.width * organCfg.offsetX)
                 
-                let currentCenterX = dockX + magnifierOffset.width
+                let currentCenterX = dockX + magnifierOffset.width - (magWidth * 0.031)
                 let currentCenterY = dockY + magnifierOffset.height - (magHeight * 0.216)
-                let lensRadius = magWidth * 0.35
+                let lensRadius = magWidth * 0.376
                 
                 let isOlder = (charId == "older-boy" || charId == "older-girl")
                 let organBoxW = isOlder ? (organH * (303.0 / 1042.0)) : (organH * (477.0 / 1583.0))
@@ -1080,9 +1080,9 @@ public struct AnatomyExplorerView: View {
 
             // Assembled Skeleton Layer (Revealed through magnifying glass lens when Skeletal System is active)
             if selectedSystemId == "skeletal" {
-                let currentCenterX = dockX + magnifierOffset.width
+                let currentCenterX = dockX + magnifierOffset.width - (magWidth * 0.031)
                 let currentCenterY = dockY + magnifierOffset.height - (magHeight * 0.216)
-                let lensRadius = magWidth * 0.35
+                let lensRadius = magWidth * 0.376
                 
                 let charAspect = characterAspect(for: charId)
                 let charW = charHeight * charAspect
@@ -1188,7 +1188,7 @@ public struct AnatomyExplorerView: View {
                             height: magnifierBaseOffset.height + value.translation.height
                         )
                         
-                        let currentCenterX = dockX + magnifierOffset.width
+                        let currentCenterX = dockX + magnifierOffset.width - (magWidth * 0.031)
                         let currentCenterY = dockY + magnifierOffset.height - (magHeight * 0.216)
                         
                         let charMinX = proxy.size.width * 0.32
@@ -1385,7 +1385,8 @@ public struct AnatomyExplorerView: View {
         let dockX = proxy.size.width * 0.185
         let dockY = proxy.size.height * 0.48
         let magHeight = proxy.size.height * 0.542
-        let currentLensX = dockX + magnifierOffset.width
+        let magWidth = magHeight * (1066.0 / 1751.0)
+        let currentLensX = dockX + magnifierOffset.width - (magWidth * 0.031)
         let currentLensY = dockY + magnifierOffset.height - (magHeight * 0.216)
         
         let sortedOrgans = organList.sorted { a, b in
@@ -1546,7 +1547,8 @@ public struct AnatomyExplorerView: View {
         let dockX = proxy.size.width * 0.185
         let dockY = proxy.size.height * 0.48
         let magHeight = proxy.size.height * 0.542
-        let currentLensX = dockX + magnifierOffset.width
+        let magWidth = magHeight * (1066.0 / 1751.0)
+        let currentLensX = dockX + magnifierOffset.width - (magWidth * 0.031)
         let currentLensY = dockY + magnifierOffset.height - (magHeight * 0.216)
 
         guard charW > 0, charHeight > 0 else { return }
