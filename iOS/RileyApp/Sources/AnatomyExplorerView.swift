@@ -2110,6 +2110,7 @@ public struct AnatomyExplorerView: View {
             // Bottom Controls Layer
             ZStack {
                 let bottomCenterY = screenH - max(52.0, screenH * 0.075)
+                let sideMargin = max(95.0, screenW * 0.14)
                 
                 // Bottom-Left Pencil (Only writing tool, flipped horizontally, centered with slider)
                 let pencilSize = min(screenW * 0.11, 88.0)
@@ -2124,7 +2125,7 @@ public struct AnatomyExplorerView: View {
                         .shadow(color: Color.black.opacity(0.30), radius: 8, y: 4)
                 }
                 .buttonStyle(PlainButtonStyle())
-                .position(x: max(55.0, screenW * 0.075), y: bottomCenterY)
+                .position(x: sideMargin, y: bottomCenterY)
 
                 // Bottom-Center Pencil Thickness Slider (Liquid Glass Effect, centered horizontally & vertically)
                 let sliderPillWidth: CGFloat = min(290.0, max(200.0, screenW * 0.32))
@@ -2287,7 +2288,7 @@ public struct AnatomyExplorerView: View {
                         .shadow(color: Color.black.opacity(0.32), radius: 10, y: 5)
                 }
                 .buttonStyle(PlainButtonStyle())
-                .position(x: screenW - max(55.0, screenW * 0.075), y: bottomCenterY)
+                .position(x: screenW - sideMargin, y: bottomCenterY)
                 
                 // Color Picker 2 Popout Overlay
                 if isColorPickerOpen {
@@ -2346,7 +2347,7 @@ public struct AnatomyExplorerView: View {
                         }
                     }
                     .frame(width: wheelSize, height: wheelSize)
-                    .position(x: screenW - max(55.0, screenW * 0.075) - wheelSize * 0.35, y: bottomCenterY - wheelSize * 0.35)
+                    .position(x: screenW - sideMargin - wheelSize * 0.35, y: bottomCenterY - wheelSize * 0.35)
                     .transition(.scale(scale: 0.3, anchor: .bottomTrailing).combined(with: .opacity))
                 }
             }
