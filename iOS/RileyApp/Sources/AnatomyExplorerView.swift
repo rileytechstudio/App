@@ -989,8 +989,11 @@ public struct AnatomyExplorerView: View {
     // MARK: - Exploration Detail View (Centered Character, Magnifier, System Selection, Skin Tone Picker)
     @ViewBuilder
     private func explorationDetailView(for charId: String, proxy: GeometryProxy) -> some View {
-        let magWidth = proxy.size.width * 0.249
-        let magHeight = proxy.size.height * 0.542
+        let magBoxW = proxy.size.width * 0.249
+        let magBoxH = proxy.size.height * 0.542
+        let magScale = min(magBoxW / 1066.0, magBoxH / 1751.0)
+        let magWidth = 1066.0 * magScale
+        let magHeight = 1751.0 * magScale
         let dockX = proxy.size.width * 0.185
         let dockY = proxy.size.height * 0.48
         let charHeight = proxy.size.height * 0.903
@@ -1384,8 +1387,9 @@ public struct AnatomyExplorerView: View {
         
         let dockX = proxy.size.width * 0.185
         let dockY = proxy.size.height * 0.48
-        let magHeight = proxy.size.height * 0.542
-        let magWidth = magHeight * (1066.0 / 1751.0)
+        let magScale = min((proxy.size.width * 0.249) / 1066.0, (proxy.size.height * 0.542) / 1751.0)
+        let magWidth = 1066.0 * magScale
+        let magHeight = 1751.0 * magScale
         let currentLensX = dockX + magnifierOffset.width - (magWidth * 0.031)
         let currentLensY = dockY + magnifierOffset.height - (magHeight * 0.216)
         
@@ -1546,8 +1550,9 @@ public struct AnatomyExplorerView: View {
 
         let dockX = proxy.size.width * 0.185
         let dockY = proxy.size.height * 0.48
-        let magHeight = proxy.size.height * 0.542
-        let magWidth = magHeight * (1066.0 / 1751.0)
+        let magScale = min((proxy.size.width * 0.249) / 1066.0, (proxy.size.height * 0.542) / 1751.0)
+        let magWidth = 1066.0 * magScale
+        let magHeight = 1751.0 * magScale
         let currentLensX = dockX + magnifierOffset.width - (magWidth * 0.031)
         let currentLensY = dockY + magnifierOffset.height - (magHeight * 0.216)
 

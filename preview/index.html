@@ -18125,6 +18125,20 @@
       if (isHapticsEnabled) triggerHapticFeedback(12);
     }
 
+    function getMagnifierLensMetrics(wrapper) {
+      const magRect = wrapper.getBoundingClientRect();
+      const imgScale = Math.min(magRect.width / 1066, magRect.height / 1751);
+      const renderedW = 1066 * imgScale;
+      const renderedH = 1751 * imgScale;
+      const renderedLeft = magRect.left + (magRect.width - renderedW) / 2;
+      const renderedTop = magRect.top + (magRect.height - renderedH) / 2;
+      return {
+        lensX: renderedLeft + renderedW * 0.469,
+        lensY: renderedTop + renderedH * 0.2838,
+        lensRadius: renderedW * 0.376
+      };
+    }
+
     function checkMagnifierOverCharacter() {
       const wrapper = document.getElementById('anatomyMagnifierWrapper');
       const charContainer = document.getElementById('anatomyExplorationCharContainer');
@@ -18132,11 +18146,7 @@
       const skeletonContainer = document.getElementById('anatomyExplorationSkeletonContainer');
       if (!wrapper || !charContainer) return false;
 
-      const magRect = wrapper.getBoundingClientRect();
-      // The circular lens center is at ~47% width and ~28.4% height of the magnifying glass
-      const lensX = magRect.left + magRect.width * 0.47;
-      const lensY = magRect.top + magRect.height * 0.284;
-      const lensRadius = magRect.width * 0.376;
+      const { lensX, lensY, lensRadius } = getMagnifierLensMetrics(wrapper);
       const charRect = charContainer.getBoundingClientRect();
 
       const isOver = (
@@ -18278,10 +18288,7 @@
 
           if (!didMove) {
             // Tap detected! Check if tap occurred within circular lens aperture while over character
-            const magRect = wrapper.getBoundingClientRect();
-            const lensX = magRect.left + magRect.width * 0.47;
-            const lensY = magRect.top + magRect.height * 0.284;
-            const lensRadius = magRect.width * 0.376;
+            const { lensX, lensY, lensRadius } = getMagnifierLensMetrics(wrapper);
             const distToLens = Math.hypot(e.clientX - lensX, e.clientY - lensY);
 
             if (isMagnifierOverCharacter && distToLens <= lensRadius) {
