@@ -88,21 +88,33 @@ public struct OrganStudioItem: Identifiable, Equatable {
 }
 
 public enum StudioColor: String, CaseIterable, Equatable {
-    case blue = "Blue"
-    case purple = "Purple"
-    case black = "Black"
-    case green = "Green"
     case yellow = "Yellow"
+    case lime = "Lime"
+    case green = "Green"
+    case teal = "Teal"
+    case blue = "Blue"
+    case indigo = "Indigo"
+    case purple = "Purple"
+    case magenta = "Magenta"
     case red = "Red"
+    case orangeRed = "OrangeRed"
+    case orange = "Orange"
+    case amber = "Amber"
     
     public var hex: String {
         switch self {
-        case .blue: return "0e76e6"
-        case .purple: return "542e90"
-        case .black: return "1a1a1a"
-        case .green: return "00b55f"
-        case .yellow: return "fee544"
-        case .red: return "ff0102"
+        case .yellow: return "fff300"
+        case .lime: return "9ec536"
+        case .green: return "4eaf43"
+        case .teal: return "00a289"
+        case .blue: return "0172bb"
+        case .indigo: return "3d5eac"
+        case .purple: return "702c90"
+        case .magenta: return "b6207e"
+        case .red: return "ef1c26"
+        case .orangeRed: return "f15b22"
+        case .orange: return "f9931d"
+        case .amber: return "ffc20f"
         }
     }
 }
@@ -152,6 +164,7 @@ public struct AnatomyExplorerView: View {
     @State private var activeStudioOrgan: OrganStudioItem? = nil
     @State private var selectedStudioColor: StudioColor = .blue
     @State private var selectedStudioTool: StudioTool = .pencil
+    @State private var isColorPickerOpen: Bool = false
     @AppStorage("riley_sound_effects") private var soundEffectsEnabled: Bool = true
     
     // Studio Drawing State
@@ -2049,26 +2062,26 @@ public struct AnatomyExplorerView: View {
                 .frame(width: screenW, height: screenH)
                 .clipped()
             
-            // Organ Illustrations Layer (Centered, Enlarged +10% larger, Balanced 1:1, Spacing -10%)
+            // Organ Illustrations Layer (Strictly Centered on Screen)
             Group {
                 if studio.isDual {
-                    HStack(spacing: -screenW * 0.012) {
+                    HStack(spacing: screenW * 0.02) {
                         ForEach(Array(studio.imageNames.enumerated()), id: \.offset) { idx, imgName in
                             Image(imgName)
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
-                                .frame(maxWidth: screenW * 0.395, maxHeight: screenH * 0.88)
+                                .frame(maxWidth: screenW * 0.42, maxHeight: screenH * 0.88)
                                 .shadow(color: Color.black.opacity(0.18), radius: 14, y: 6)
                         }
                     }
-                    .position(x: screenW * 0.405, y: screenH * 0.520)
+                    .position(x: screenW * 0.50, y: screenH * 0.520)
                 } else if let imgName = studio.imageNames.first {
                     Image(imgName)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(maxWidth: screenW * 0.74, maxHeight: screenH * 0.92)
+                        .frame(maxWidth: screenW * 0.82, maxHeight: screenH * 0.90)
                         .shadow(color: Color.black.opacity(0.18), radius: 14, y: 6)
-                        .position(x: screenW * 0.450, y: screenH * 0.520)
+                        .position(x: screenW * 0.50, y: screenH * 0.520)
                 }
             }
             
@@ -2088,7 +2101,7 @@ public struct AnatomyExplorerView: View {
                 DragGesture(minimumDistance: 0, coordinateSpace: .named("StudioDrawingSpace"))
                     .onChanged { val in
                         let loc = val.location
-                        if loc.x < screenW * 0.76 && loc.y > 60 && loc.y < screenH - 52 {
+                        if loc.y > 80 && loc.y < screenH - 20 && !isColorPickerOpen {
                             if currentStroke == nil {
                                 currentStroke = StudioDrawingStroke(tool: selectedStudioTool, color: selectedStudioColor, points: [loc])
                             } else {
@@ -2104,178 +2117,105 @@ public struct AnatomyExplorerView: View {
                     }
             )
             
-            // Right Toolbar Icons Layer
+            // Bottom Controls Layer
             ZStack {
-                // Pencil: Top Right (Compact)
-                let pencilW = screenW * 0.115
-                let pencilH = screenH * 0.150
-                let pencilX = screenW * (0.855 + 0.115/2)
-                let pencilY = screenH * (0.115 + 0.150/2)
-                
+                // Bottom-Left Pencil (Only writing tool, flipped horizontally)
+                let pencilSize = min(screenW * 0.14, 124.0)
                 Button(action: {
-                    selectedStudioTool = .pencil
                     HapticManager.shared.lightTap()
                 }) {
                     Image("AnatomyToolPencil\(selectedStudioColor.rawValue)")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(width: pencilW, height: pencilH)
-                        .scaleEffect(selectedStudioTool == .pencil ? 1.12 : 1.0)
-                        .shadow(color: selectedStudioTool == .pencil ? Color(hex: "ffd700").opacity(0.85) : .clear, radius: 10)
+                        .frame(width: pencilSize, height: pencilSize)
+                        .scaleEffect(x: -1, y: 1)
+                        .shadow(color: Color.black.opacity(0.30), radius: 8, y: 4)
                 }
                 .buttonStyle(PlainButtonStyle())
-                .position(x: pencilX, y: pencilY)
+                .position(x: max(65, screenW * 0.08), y: screenH - max(58, screenH * 0.08))
                 
-                // Marker: Below Pencil (Compact)
-                let markerW = screenW * 0.120
-                let markerH = screenH * 0.160
-                let markerX = screenW * (0.855 + 0.120/2)
-                let markerY = screenH * (0.260 + 0.160/2)
-                
+                // Bottom-Right Color Picker 1 Button (Pops open into Color Picker 2)
+                let pickerSize = min(screenW * 0.12, 106.0)
                 Button(action: {
-                    selectedStudioTool = .marker
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.72)) {
+                        isColorPickerOpen.toggle()
+                    }
                     HapticManager.shared.lightTap()
                 }) {
-                    Image("AnatomyToolMarker\(selectedStudioColor.rawValue)")
+                    Image("AnatomyColorPicker1")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(width: markerW, height: markerH)
-                        .scaleEffect(selectedStudioTool == .marker ? 1.12 : 1.0)
-                        .shadow(color: selectedStudioTool == .marker ? Color(hex: "ffd700").opacity(0.85) : .clear, radius: 10)
+                        .frame(width: pickerSize, height: pickerSize)
+                        .shadow(color: Color.black.opacity(0.32), radius: 10, y: 5)
                 }
                 .buttonStyle(PlainButtonStyle())
-                .position(x: markerX, y: markerY)
+                .position(x: screenW - max(58, screenW * 0.08), y: screenH - max(58, screenH * 0.08))
                 
-                // Paint Tube: Below Marker, pointing into palette (Compact)
-                let tubeW = screenW * 0.125
-                let tubeH = screenH * 0.165
-                let tubeX = screenW * (0.855 + 0.125/2)
-                let tubeY = screenH * (0.415 + 0.165/2)
-                
-                Button(action: {
-                    selectedStudioTool = .paint
-                    HapticManager.shared.lightTap()
-                }) {
-                    Image("AnatomyToolPaintTube\(selectedStudioColor.rawValue)")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: tubeW, height: tubeH)
-                        .scaleEffect(selectedStudioTool == .paint ? 1.12 : 1.0)
-                        .shadow(color: selectedStudioTool == .paint ? Color(hex: "ffd700").opacity(0.85) : .clear, radius: 10)
+                // Color Picker 2 Popout Overlay
+                if isColorPickerOpen {
+                    Color.black.opacity(0.28)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            withAnimation(.spring(response: 0.28, dampingFraction: 0.8)) {
+                                isColorPickerOpen = false
+                            }
+                        }
+                    
+                    let wheelSize = min(screenW * 0.44, screenH * 0.48, 340.0)
+                    ZStack {
+                        Image("AnatomyColorPicker2")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: wheelSize, height: wheelSize)
+                            .shadow(color: Color.black.opacity(0.48), radius: 18, y: 8)
+                        
+                        // Center close button (taps Color Picker 1 inside wheel)
+                        Circle()
+                            .fill(Color.clear)
+                            .frame(width: wheelSize * 0.48, height: wheelSize * 0.48)
+                            .contentShape(Circle())
+                            .onTapGesture {
+                                withAnimation(.spring(response: 0.28, dampingFraction: 0.8)) {
+                                    isColorPickerOpen = false
+                                }
+                                HapticManager.shared.lightTap()
+                            }
+                        
+                        // Outer Ring Color Tap Areas (12 sectors spaced every 30 degrees)
+                        ForEach(Array(StudioColor.allCases.enumerated()), id: \.element) { idx, color in
+                            let angleDeg = Double(idx * 30 + 15)
+                            let rad = angleDeg * Double.pi / 180.0
+                            let rDist = wheelSize * 0.40
+                            let xPos = (wheelSize / 2) + CGFloat(cos(rad)) * rDist
+                            let yPos = (wheelSize / 2) + CGFloat(sin(rad)) * rDist
+                            
+                            Circle()
+                                .fill(selectedStudioColor == color ? Color.white.opacity(0.35) : Color.clear)
+                                .frame(width: wheelSize * 0.16, height: wheelSize * 0.16)
+                                .overlay(
+                                    Circle()
+                                        .stroke(selectedStudioColor == color ? Color.white : Color.clear, lineWidth: 3)
+                                )
+                                .position(x: xPos, y: yPos)
+                                .contentShape(Circle())
+                                .onTapGesture {
+                                    selectedStudioColor = color
+                                    HapticManager.shared.lightTap()
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {
+                                        withAnimation(.spring(response: 0.28, dampingFraction: 0.8)) {
+                                            isColorPickerOpen = false
+                                        }
+                                    }
+                                }
+                        }
+                    }
+                    .frame(width: wheelSize, height: wheelSize)
+                    .position(x: screenW - max(58, screenW * 0.08) - wheelSize * 0.35, y: screenH - max(58, screenH * 0.08) - wheelSize * 0.35)
+                    .transition(.scale(scale: 0.3, anchor: .bottomTrailing).combined(with: .opacity))
                 }
-                .buttonStyle(PlainButtonStyle())
-                .position(x: tubeX, y: tubeY)
-                
-                // Palette 2 with 6 Interactive Paint Spots (Purple, Blue, Black, Green, Yellow, Red)
-                // Positioned cleanly 14pt above the bottom 52pt text prompt bar! (Compact)
-                let palW = min(screenW * 0.210, 220.0)
-                let palH = palW * (272.0 / 335.0)
-                let palBottom = screenH - 52 - 14
-                let palX = screenW * (0.770 + 0.210/2)
-                let palY = palBottom - palH / 2
-                
-                ZStack {
-                    Image("AnatomyToolPallette2")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: palW, height: palH)
-                    
-                    // Purple Spot (top-left) - center at 29.0%, 25.5%
-                    Button(action: {
-                        selectedStudioColor = .purple
-                        HapticManager.shared.lightTap()
-                    }) {
-                        Image("AnatomyPaintPurple")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: palW * 0.20, height: palH * 0.22)
-                            .scaleEffect(selectedStudioColor == .purple ? 1.20 : 1.0)
-                            .shadow(color: selectedStudioColor == .purple ? Color.white.opacity(0.95) : .clear, radius: 8)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .position(x: palW * 0.290, y: palH * 0.255)
-                    
-                    // Green Spot (top-right) - center at 66.5%, 24.5%
-                    Button(action: {
-                        selectedStudioColor = .green
-                        HapticManager.shared.lightTap()
-                    }) {
-                        Image("AnatomyPaintGreen")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: palW * 0.18, height: palH * 0.20)
-                            .scaleEffect(selectedStudioColor == .green ? 1.20 : 1.0)
-                            .shadow(color: selectedStudioColor == .green ? Color.white.opacity(0.95) : .clear, radius: 8)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .position(x: palW * 0.665, y: palH * 0.245)
-                    
-                    // Black Spot (center-left) - center at 48.0%, 50.5%
-                    Button(action: {
-                        selectedStudioColor = .black
-                        HapticManager.shared.lightTap()
-                    }) {
-                        Image("AnatomyPaintBlack")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: palW * 0.17, height: palH * 0.19)
-                            .scaleEffect(selectedStudioColor == .black ? 1.20 : 1.0)
-                            .shadow(color: selectedStudioColor == .black ? Color.white.opacity(0.95) : .clear, radius: 8)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .position(x: palW * 0.480, y: palH * 0.505)
-                    
-                    // Yellow Spot (center-right) - center at 80.0%, 50.5%
-                    Button(action: {
-                        selectedStudioColor = .yellow
-                        HapticManager.shared.lightTap()
-                    }) {
-                        Image("AnatomyPaintYellow")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: palW * 0.17, height: palH * 0.21)
-                            .scaleEffect(selectedStudioColor == .yellow ? 1.20 : 1.0)
-                            .shadow(color: selectedStudioColor == .yellow ? Color.white.opacity(0.95) : .clear, radius: 8)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .position(x: palW * 0.800, y: palH * 0.505)
-                    
-                    // Blue Spot (bottom-left) - center at 29.0%, 76.0%
-                    Button(action: {
-                        selectedStudioColor = .blue
-                        HapticManager.shared.lightTap()
-                    }) {
-                        Image("AnatomyPaintBlue")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: palW * 0.18, height: palH * 0.22)
-                            .scaleEffect(selectedStudioColor == .blue ? 1.20 : 1.0)
-                            .shadow(color: selectedStudioColor == .blue ? Color.white.opacity(0.95) : .clear, radius: 8)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .position(x: palW * 0.290, y: palH * 0.760)
-                    
-                    // Red Spot (bottom-right) - center at 66.5%, 76.0%
-                    Button(action: {
-                        selectedStudioColor = .red
-                        HapticManager.shared.lightTap()
-                    }) {
-                        Image("AnatomyPaintRed")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: palW * 0.16, height: palH * 0.22)
-                            .scaleEffect(selectedStudioColor == .red ? 1.20 : 1.0)
-                            .shadow(color: selectedStudioColor == .red ? Color.white.opacity(0.95) : .clear, radius: 8)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .position(x: palW * 0.665, y: palH * 0.760)
-                }
-                .frame(width: palW, height: palH)
-                .position(x: palX, y: palY)
             }
             .frame(width: screenW, height: screenH)
 
-            
             // Top Header Overlay: Game Header Buttons (Back, Restart, Sound, Home) & Sub-Header (Organ Title & Clear Button)
             VStack(spacing: 6) {
                 // Top Game Header Bar (Back on left; Restart, Sound, Home on right)
@@ -2283,6 +2223,7 @@ public struct AnatomyExplorerView: View {
                     // Back button
                     Button(action: {
                         HapticManager.shared.lightTap()
+                        isColorPickerOpen = false
                         activeStudioOrgan = nil
                     }) {
                         HStack(spacing: 6) {
@@ -2308,7 +2249,7 @@ public struct AnatomyExplorerView: View {
                         .clipShape(Capsule())
                         .overlay(
                             Capsule()
-                                .stroke(Color.white.opacity(0.40), lineWidth: 1.5)
+                                .stroke(Color.white.opacity(0.45), lineWidth: 1.5)
                         )
                         .shadow(color: Color(hex: "4e0434").opacity(0.35), radius: 6, y: 3)
                     }
@@ -2316,15 +2257,15 @@ public struct AnatomyExplorerView: View {
                     
                     Spacer()
                     
-                    // Action buttons: Restart, Sound, Home
-                    HStack(spacing: 8) {
-                        // Restart Studio button
+                    // Right Action Icons (Restart, Sound, Home)
+                    HStack(spacing: 12) {
                         Button(action: {
                             HapticManager.shared.lightTap()
                             studioStrokes.removeAll()
                             currentStroke = nil
                             selectedStudioColor = .blue
                             selectedStudioTool = .pencil
+                            isColorPickerOpen = false
                             speakOrgan(studio.name)
                         }) {
                             Image(systemName: "arrow.counterclockwise")
@@ -2351,10 +2292,9 @@ public struct AnatomyExplorerView: View {
                         }
                         .buttonStyle(BouncyButtonStyle(scaleAmount: 0.95))
                         
-                        // Sound Toggle button
                         Button(action: {
-                            HapticManager.shared.lightTap()
                             soundEffectsEnabled.toggle()
+                            HapticManager.shared.lightTap()
                         }) {
                             Image(systemName: soundEffectsEnabled ? "speaker.wave.2.fill" : "speaker.slash.fill")
                                 .font(.system(size: 14, weight: .bold))
@@ -2380,9 +2320,9 @@ public struct AnatomyExplorerView: View {
                         }
                         .buttonStyle(BouncyButtonStyle(scaleAmount: 0.95))
                         
-                        // Home button
                         Button(action: {
                             HapticManager.shared.lightTap()
+                            isColorPickerOpen = false
                             activeStudioOrgan = nil
                             onBackToHome()
                         }) {

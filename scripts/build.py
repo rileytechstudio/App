@@ -1190,7 +1190,12 @@ def build_distribution():
 
     #screenAnatomyExplorer.active .anatomy-studio-top-bar button,
     #screenAnatomyExplorer.active .anatomy-studio-nav button,
-    #screenAnatomyExplorer.active .anatomy-studio-nav a {
+    #screenAnatomyExplorer.active .anatomy-studio-nav a,
+    #screenAnatomyExplorer.active .anatomy-studio-pencil-btn,
+    #screenAnatomyExplorer.active .anatomy-studio-picker-btn,
+    #screenAnatomyExplorer.active .anatomy-studio-picker-backdrop,
+    #screenAnatomyExplorer.active .anatomy-studio-picker-popout,
+    #screenAnatomyExplorer.active .anatomy-studio-picker-popout * {
       pointer-events: auto !important;
     }
 

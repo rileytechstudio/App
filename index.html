@@ -11859,14 +11859,15 @@
       z-index: 2;
     }
 
-    /* Single Illustration: Centered, Enlarged (+10% larger) */
+    /* Single Illustration: Strictly Centered on Screen */
     .anatomy-single-illus {
       position: absolute;
-      left: 45.0%;
+      left: 50%;
       top: 52.0%;
       transform: translate(-50%, -50%);
-      width: 74%;
-      height: 94%;
+      width: 82%;
+      height: 90%;
+      max-width: 900px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -11874,31 +11875,32 @@
 
     .anatomy-single-illus img {
       max-width: 100%;
-      max-height: 98%;
+      max-height: 96%;
       object-fit: contain;
       filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.22));
       display: block;
     }
 
-    /* Dual Illustrations: Centered side-by-side, Balanced 1:1, Reduced Spacing (-10%) */
+    /* Dual Illustrations: Strictly Centered side-by-side */
     .anatomy-dual-illus {
       position: absolute;
-      left: 41.0%;
+      left: 50%;
       top: 52.0%;
       transform: translate(-50%, -50%);
-      width: 78%;
+      width: 84%;
       height: 90%;
+      max-width: 960px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0px;
+      gap: 16px;
     }
 
     .anatomy-dual-illus .illus-item {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 49%;
+      width: 48%;
       height: 100%;
     }
 
@@ -11921,84 +11923,137 @@
       cursor: crosshair;
     }
 
-    /* Right Side Creative Toolbar Sized & Positioned (Compact -15-20%) */
-    .anatomy-studio-toolbar {
+    /* Bottom-Left Pencil Button: Flipped Horizontally */
+    .anatomy-studio-pencil-btn {
       position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 4;
-    }
-
-    .anatomy-studio-tool-btn {
-      position: absolute;
+      left: calc(max(20px, env(safe-area-inset-left, 0px)) + 14px);
+      bottom: calc(max(20px, env(safe-area-inset-bottom, 0px)) + 14px);
+      width: min(126px, 15vw);
+      aspect-ratio: 190 / 187;
       background: none;
       border: none;
       padding: 0;
       cursor: pointer;
       pointer-events: auto;
+      z-index: 25;
+      user-select: none;
+      -webkit-user-select: none;
+      transform: scaleX(-1);
+      transform-origin: center center;
       transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.22s ease;
-      transform-origin: 50% 50%;
+      filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.35));
     }
 
-    .anatomy-studio-tool-btn img {
+    .anatomy-studio-pencil-btn:hover {
+      transform: scaleX(-1) scale(1.08);
+      filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.45));
+    }
+
+    .anatomy-studio-pencil-btn:active {
+      transform: scaleX(-1) scale(0.96);
+    }
+
+    .anatomy-studio-pencil-btn img {
       width: 100%;
       height: 100%;
       object-fit: contain;
       display: block;
       pointer-events: none;
       -webkit-user-drag: none;
-      user-select: none;
     }
 
-    .anatomy-studio-tool-btn:hover {
-      transform: scale(1.08);
-    }
-
-    .anatomy-studio-tool-btn.is-active {
-      transform: scale(1.15);
-      filter: drop-shadow(0 0 12px #ffd700) drop-shadow(0 0 18px rgba(255, 215, 0, 0.8));
-    }
-
-    /* Pencil: Top Right (Compact) */
-    .tool-pencil {
-      left: 85.5%;
-      top: 11.5%;
-      width: 11.5%;
-      height: 13.5%;
-    }
-
-    /* Marker: Below Pencil (Compact) */
-    .tool-marker {
-      left: 85.5%;
-      top: 26.0%;
-      width: 12.0%;
-      height: 14.5%;
-    }
-
-    /* Paint Tube: Below Marker, pointing into palette (Compact) */
-    .tool-paint-tube {
-      left: 85.5%;
-      top: 41.5%;
-      width: 12.5%;
-      height: 15.0%;
-    }
-
-    /* Pallette 2: Fully visible ABOVE the text prompt bar (Compact) */
-    .anatomy-studio-tool-palette-wrap {
+    /* Bottom-Right Color Picker 1 Button */
+    .anatomy-studio-picker-btn {
       position: absolute;
-      left: 77.0%;
-      bottom: calc(52px + env(safe-area-inset-bottom, 0px) + 14px);
-      width: 21.0%;
-      max-width: 225px;
-      aspect-ratio: 335 / 272;
+      right: calc(max(20px, env(safe-area-inset-right, 0px)) + 14px);
+      bottom: calc(max(20px, env(safe-area-inset-bottom, 0px)) + 14px);
+      width: min(112px, 14vw);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
       pointer-events: auto;
+      z-index: 26;
+      user-select: none;
+      -webkit-user-select: none;
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.22s ease;
+      filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.35));
+    }
+
+    .anatomy-studio-picker-btn:hover {
+      transform: scale(1.08);
+      filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.45));
+    }
+
+    .anatomy-studio-picker-btn:active {
+      transform: scale(0.95);
+    }
+
+    .anatomy-studio-picker-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+      -webkit-user-drag: none;
+    }
+
+    /* Color Picker 2 Popout Overlay */
+    .anatomy-studio-picker-backdrop {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 38;
+      background: rgba(14, 6, 32, 0.28);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s;
+    }
+
+    .anatomy-studio-picker-backdrop.is-open {
+      opacity: 1;
+      pointer-events: auto;
+      visibility: visible;
+    }
+
+    .anatomy-studio-picker-popout {
+      position: absolute;
+      right: calc(max(20px, env(safe-area-inset-right, 0px)) + 14px);
+      bottom: calc(max(20px, env(safe-area-inset-bottom, 0px)) + 14px);
+      width: min(340px, 46vw, 46vh);
+      aspect-ratio: 1;
+      z-index: 40;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      transform: scale(0.32);
+      transform-origin: bottom right;
+      transition: opacity 0.25s cubic-bezier(0.2, 0.9, 0.3, 1), transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), visibility 0.28s;
+      filter: drop-shadow(0 16px 36px rgba(0, 0, 0, 0.5));
+    }
+
+    .anatomy-studio-picker-popout.is-open {
+      opacity: 1;
+      pointer-events: auto;
+      visibility: visible;
+      transform: scale(1);
+    }
+
+    .anatomy-studio-wheel-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
       user-select: none;
       -webkit-user-select: none;
     }
 
-    .anatomy-studio-palette-base {
+    .anatomy-studio-wheel-img {
       position: absolute;
       inset: 0;
       width: 100%;
@@ -12006,78 +12061,49 @@
       object-fit: contain;
       pointer-events: none;
       -webkit-user-drag: none;
+      display: block;
     }
 
-    .anatomy-studio-color-spot {
+    .anatomy-studio-wheel-svg {
       position: absolute;
-      background: none;
-      border: none;
-      padding: 0;
-      cursor: pointer;
-      pointer-events: auto;
-      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease;
-      transform-origin: 50% 50%;
-    }
-
-    .anatomy-studio-color-spot img {
+      inset: 0;
       width: 100%;
       height: 100%;
-      object-fit: contain;
-      display: block;
-      pointer-events: none;
-      -webkit-user-drag: none;
+      pointer-events: auto;
     }
 
-    .anatomy-studio-color-spot:hover {
-      transform: scale(1.15);
+    .wheel-center-btn {
+      fill: transparent;
+      cursor: pointer;
+      pointer-events: auto;
+      transition: fill 0.18s ease;
     }
 
-    .anatomy-studio-color-spot.is-active {
-      transform: scale(1.22);
-      filter: drop-shadow(0 0 8px #ffffff) drop-shadow(0 0 16px rgba(255, 255, 255, 0.95));
+    .wheel-center-btn:hover {
+      fill: rgba(255, 255, 255, 0.18);
     }
 
-    /* 6 Paint spots inside Pallette 2 centered slightly more to the right and down */
-    .spot-purple {
-      left: 19.0%;
-      top: 14.5%;
-      width: 20.0%;
-      height: 22.0%;
+    .wheel-sector {
+      fill: transparent;
+      stroke: transparent;
+      stroke-width: 0;
+      cursor: pointer;
+      pointer-events: auto;
+      transition: fill 0.15s ease, stroke 0.15s ease, filter 0.15s ease;
     }
 
-    .spot-green {
-      left: 57.5%;
-      top: 14.5%;
-      width: 18.0%;
-      height: 20.0%;
+    .wheel-sector:hover {
+      fill: rgba(255, 255, 255, 0.22);
+      stroke: rgba(255, 255, 255, 0.85);
+      stroke-width: 4px;
     }
 
-    .spot-black {
-      left: 39.5%;
-      top: 41.0%;
-      width: 17.0%;
-      height: 19.0%;
-    }
-
-    .spot-yellow {
-      left: 71.5%;
-      top: 40.0%;
-      width: 17.0%;
-      height: 21.0%;
-    }
-
-    .spot-blue {
-      left: 20.0%;
-      top: 65.0%;
-      width: 18.0%;
-      height: 22.0%;
-    }
-
-    .spot-red {
-      left: 58.5%;
-      top: 65.0%;
-      width: 16.0%;
-      height: 22.0%;
+    .wheel-sector:active,
+    .wheel-sector.is-selected {
+      fill: rgba(255, 255, 255, 0.32);
+      stroke: #ffffff;
+      stroke-width: 5px;
+      filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.95));
     }
 
     /* Left: Magnifying Glass Dock (Permanently Displays Magnifying Glass 2 left behind) */
@@ -14110,7 +14136,12 @@
 
     #screenAnatomyExplorer.active .anatomy-studio-top-bar button,
     #screenAnatomyExplorer.active .anatomy-studio-nav button,
-    #screenAnatomyExplorer.active .anatomy-studio-nav a {
+    #screenAnatomyExplorer.active .anatomy-studio-nav a,
+    #screenAnatomyExplorer.active .anatomy-studio-pencil-btn,
+    #screenAnatomyExplorer.active .anatomy-studio-picker-btn,
+    #screenAnatomyExplorer.active .anatomy-studio-picker-backdrop,
+    #screenAnatomyExplorer.active .anatomy-studio-picker-popout,
+    #screenAnatomyExplorer.active .anatomy-studio-picker-popout * {
       pointer-events: auto !important;
     }
 
@@ -16117,47 +16148,41 @@
 
                     <!-- Centered Illustrations Layer -->
                     <div class="anatomy-studio-illustrations" id="anatomyStudioIllustrations"></div>
+                  </div>
+                </div>
 
-                    <!-- Right Side Creative Toolbar -->
-                    <div class="anatomy-studio-toolbar">
-                      <!-- Palette 2 with 6 interactive paint spots -->
-                      <div class="anatomy-studio-tool-palette-wrap">
-                        <img class="anatomy-studio-palette-base" src="assets/Pallette 2.png" alt="Paint Palette" loading="lazy" decoding="async" />
-                        <button type="button" class="anatomy-studio-color-spot spot-purple" data-color="#542e90" data-color-name="Purple" onclick="selectStudioColor('#542e90', 'Purple', this)" title="Purple Paint">
-                          <img src="assets/Purple Paint.png" alt="Purple" loading="lazy" decoding="async" />
-                        </button>
-                        <button type="button" class="anatomy-studio-color-spot spot-blue is-active" data-color="#0e76e6" data-color-name="Blue" onclick="selectStudioColor('#0e76e6', 'Blue', this)" title="Blue Paint">
-                          <img src="assets/Blue Paint.png" alt="Blue" loading="lazy" decoding="async" />
-                        </button>
-                        <button type="button" class="anatomy-studio-color-spot spot-black" data-color="#1a1a1a" data-color-name="Black" onclick="selectStudioColor('#1a1a1a', 'Black', this)" title="Black Paint">
-                          <img src="assets/Black Paint.png" alt="Black" loading="lazy" decoding="async" />
-                        </button>
-                        <button type="button" class="anatomy-studio-color-spot spot-green" data-color="#00b55f" data-color-name="Green" onclick="selectStudioColor('#00b55f', 'Green', this)" title="Green Paint">
-                          <img src="assets/Green Paint.png" alt="Green" loading="lazy" decoding="async" />
-                        </button>
-                        <button type="button" class="anatomy-studio-color-spot spot-yellow" data-color="#fee544" data-color-name="Yellow" onclick="selectStudioColor('#fee544', 'Yellow', this)" title="Yellow Paint">
-                          <img src="assets/Yellow Paint.png" alt="Yellow" loading="lazy" decoding="async" />
-                        </button>
-                        <button type="button" class="anatomy-studio-color-spot spot-red" data-color="#ff0102" data-color-name="Red" onclick="selectStudioColor('#ff0102', 'Red', this)" title="Red Paint">
-                          <img src="assets/Red Paint.png" alt="Red" loading="lazy" decoding="async" />
-                        </button>
-                      </div>
+                <!-- Bottom Left Pencil Tool (Only Writing Tool, Flipped Horizontally) -->
+                <button type="button" class="anatomy-studio-pencil-btn" id="studioPencilBtn" onclick="handlePencilTap()" title="Pencil" aria-label="Pencil">
+                  <img id="studioPencilImg" src="assets/Pencil Blue.png" alt="Pencil" loading="lazy" decoding="async" />
+                </button>
 
-                      <!-- Paint Tube (Swaps color when paint spot tapped) -->
-                      <button type="button" class="anatomy-studio-tool-btn tool-paint-tube" id="studioToolBtnPaint" data-tool="paint" onclick="selectStudioTool('paint', this)" title="Paint Tube">
-                        <img id="studioToolPaintTubeImg" src="assets/Paint Tube Blue.png" alt="Paint Tube" loading="lazy" decoding="async" />
-                      </button>
+                <!-- Bottom Right Color Picker 1 Button (Pops open into Color Picker 2) -->
+                <button type="button" class="anatomy-studio-picker-btn" id="studioPickerBtn" onclick="toggleColorPicker()" title="Color Picker" aria-label="Color Picker">
+                  <img src="assets/Color Picker 1.png" alt="Color Picker" loading="lazy" decoding="async" />
+                </button>
 
-                      <!-- Marker (Swaps color when paint spot tapped) -->
-                      <button type="button" class="anatomy-studio-tool-btn tool-marker" id="studioToolBtnMarker" data-tool="marker" onclick="selectStudioTool('marker', this)" title="Marker">
-                        <img id="studioToolMarkerImg" src="assets/Marker Blue.png" alt="Marker" loading="lazy" decoding="async" />
-                      </button>
-
-                      <!-- Pencil (Swaps color when paint spot tapped, Active by default) -->
-                      <button type="button" class="anatomy-studio-tool-btn tool-pencil is-active" id="studioToolBtnPencil" data-tool="pencil" onclick="selectStudioTool('pencil', this)" title="Pencil">
-                        <img id="studioToolPencilImg" src="assets/Pencil Blue.png" alt="Pencil" loading="lazy" decoding="async" />
-                      </button>
-                    </div>
+                <!-- Pop-open Color Picker 2 Overlay & 12 Interactive Outer Ring Sectors -->
+                <div class="anatomy-studio-picker-backdrop" id="studioPickerBackdrop" onclick="closeColorPicker()"></div>
+                <div class="anatomy-studio-picker-popout" id="studioPickerPopout" role="dialog" aria-label="Color Wheel">
+                  <div class="anatomy-studio-wheel-container">
+                    <img class="anatomy-studio-wheel-img" src="assets/Color Picker 2.png" alt="Color Wheel" loading="lazy" decoding="async" />
+                    <svg class="anatomy-studio-wheel-svg" viewBox="0 0 832 832" preserveAspectRatio="xMidYMid meet">
+                      <!-- Center circle: tap to close / revert -->
+                      <circle class="wheel-center-btn" cx="416" cy="416" r="205" onclick="closeColorPicker()" />
+                      <!-- 12 Sector Segments -->
+                      <path class="wheel-sector" data-color-id="yellow" data-color-name="Yellow" data-color-hex="#fff300" d="M 828.00 416.00 A 412 412 0 0 1 772.80 622.00 L 636.84 543.50 A 255 255 0 0 0 671.00 416.00 Z" onclick="selectWheelColor('yellow')" />
+                      <path class="wheel-sector" data-color-id="lime" data-color-name="Lime" data-color-hex="#9ec536" d="M 772.80 622.00 A 412 412 0 0 1 622.00 772.80 L 543.50 636.84 A 255 255 0 0 0 636.84 543.50 Z" onclick="selectWheelColor('lime')" />
+                      <path class="wheel-sector" data-color-id="green" data-color-name="Green" data-color-hex="#4eaf43" d="M 622.00 772.80 A 412 412 0 0 1 416.00 828.00 L 416.00 671.00 A 255 255 0 0 0 543.50 636.84 Z" onclick="selectWheelColor('green')" />
+                      <path class="wheel-sector" data-color-id="teal" data-color-name="Teal" data-color-hex="#00a289" d="M 416.00 828.00 A 412 412 0 0 1 210.00 772.80 L 288.50 636.84 A 255 255 0 0 0 416.00 671.00 Z" onclick="selectWheelColor('teal')" />
+                      <path class="wheel-sector is-selected" data-color-id="blue" data-color-name="Blue" data-color-hex="#0172bb" d="M 210.00 772.80 A 412 412 0 0 1 59.20 622.00 L 195.16 543.50 A 255 255 0 0 0 288.50 636.84 Z" onclick="selectWheelColor('blue')" />
+                      <path class="wheel-sector" data-color-id="indigo" data-color-name="Indigo" data-color-hex="#3d5eac" d="M 59.20 622.00 A 412 412 0 0 1 4.00 416.00 L 161.00 416.00 A 255 255 0 0 0 195.16 543.50 Z" onclick="selectWheelColor('indigo')" />
+                      <path class="wheel-sector" data-color-id="purple" data-color-name="Purple" data-color-hex="#702c90" d="M 4.00 416.00 A 412 412 0 0 1 59.20 210.00 L 195.16 288.50 A 255 255 0 0 0 161.00 416.00 Z" onclick="selectWheelColor('purple')" />
+                      <path class="wheel-sector" data-color-id="magenta" data-color-name="Magenta" data-color-hex="#b6207e" d="M 59.20 210.00 A 412 412 0 0 1 210.00 59.20 L 288.50 195.16 A 255 255 0 0 0 195.16 288.50 Z" onclick="selectWheelColor('magenta')" />
+                      <path class="wheel-sector" data-color-id="red" data-color-name="Red" data-color-hex="#ef1c26" d="M 210.00 59.20 A 412 412 0 0 1 416.00 4.00 L 416.00 161.00 A 255 255 0 0 0 288.50 195.16 Z" onclick="selectWheelColor('red')" />
+                      <path class="wheel-sector" data-color-id="orangered" data-color-name="OrangeRed" data-color-hex="#f15b22" d="M 416.00 4.00 A 412 412 0 0 1 622.00 59.20 L 543.50 195.16 A 255 255 0 0 0 416.00 161.00 Z" onclick="selectWheelColor('orangered')" />
+                      <path class="wheel-sector" data-color-id="orange" data-color-name="Orange" data-color-hex="#f9931d" d="M 622.00 59.20 A 412 412 0 0 1 772.80 210.00 L 636.84 288.50 A 255 255 0 0 0 543.50 195.16 Z" onclick="selectWheelColor('orange')" />
+                      <path class="wheel-sector" data-color-id="amber" data-color-name="Amber" data-color-hex="#ffc20f" d="M 772.80 210.00 A 412 412 0 0 1 828.00 416.00 L 671.00 416.00 A 255 255 0 0 0 636.84 288.50 Z" onclick="selectWheelColor('amber')" />
+                    </svg>
                   </div>
                 </div>
               </div>
@@ -18297,11 +18322,9 @@
         studioView.classList.add('active');
       }
 
-      // Reset default tool & color selections
-      const pencilBtn = document.getElementById('studioToolBtnPencil');
-      if (pencilBtn) selectStudioTool('pencil', pencilBtn);
-      const blueSpot = document.querySelector('.spot-blue');
-      if (blueSpot) selectStudioColor('#0e76e6', 'Blue', blueSpot);
+      // Reset default color to blue and close picker
+      closeColorPicker();
+      selectWheelColor('blue');
 
       // Initialize drawing canvas
       initStudioCanvas();
@@ -18344,6 +18367,7 @@
       } else {
         updateAnatomyExplorationPrompt();
       }
+      closeColorPicker();
       currentStudioOrganId = null;
       if (isHapticsEnabled) triggerHapticFeedback(12);
     }
@@ -18358,29 +18382,95 @@
       }
     }
 
+    const WHEEL_COLORS_MAP = {
+      yellow: { name: "Yellow", hex: "#fff300", pencil: "assets/Pencil Yellow.png" },
+      lime: { name: "Lime", hex: "#9ec536", pencil: "assets/Pencil Lime.png" },
+      green: { name: "Green", hex: "#4eaf43", pencil: "assets/Pencil Green.png" },
+      teal: { name: "Teal", hex: "#00a289", pencil: "assets/Pencil Teal.png" },
+      blue: { name: "Blue", hex: "#0172bb", pencil: "assets/Pencil Blue.png" },
+      indigo: { name: "Indigo", hex: "#3d5eac", pencil: "assets/Pencil Indigo.png" },
+      purple: { name: "Purple", hex: "#702c90", pencil: "assets/Pencil Purple.png" },
+      magenta: { name: "Magenta", hex: "#b6207e", pencil: "assets/Pencil Magenta.png" },
+      red: { name: "Red", hex: "#ef1c26", pencil: "assets/Pencil Red.png" },
+      orangered: { name: "OrangeRed", hex: "#f15b22", pencil: "assets/Pencil OrangeRed.png" },
+      orange: { name: "Orange", hex: "#f9931d", pencil: "assets/Pencil Orange.png" },
+      amber: { name: "Amber", hex: "#ffc20f", pencil: "assets/Pencil Amber.png" },
+    };
+
+    let isColorPickerOpen = false;
+
+    function toggleColorPicker() {
+      if (isColorPickerOpen) {
+        closeColorPicker();
+      } else {
+        openColorPicker();
+      }
+    }
+
+    function openColorPicker() {
+      isColorPickerOpen = true;
+      const popout = document.getElementById('studioPickerPopout');
+      const backdrop = document.getElementById('studioPickerBackdrop');
+      if (popout) popout.classList.add('is-open');
+      if (backdrop) backdrop.classList.add('is-open');
+      if (isHapticsEnabled) triggerHapticFeedback(10);
+    }
+
+    function closeColorPicker() {
+      isColorPickerOpen = false;
+      const popout = document.getElementById('studioPickerPopout');
+      const backdrop = document.getElementById('studioPickerBackdrop');
+      if (popout) popout.classList.remove('is-open');
+      if (backdrop) backdrop.classList.remove('is-open');
+    }
+
+    function selectWheelColor(colorId) {
+      const info = WHEEL_COLORS_MAP[colorId];
+      if (!info) return;
+
+      activeStudioColor = info.hex;
+      activeStudioColorName = info.name;
+
+      // Update bottom-left pencil tip asset to match selected color
+      const pencilImg = document.getElementById('studioPencilImg');
+      if (pencilImg) {
+        pencilImg.src = info.pencil;
+      }
+
+      // Update selected sector visual feedback
+      document.querySelectorAll('.wheel-sector').forEach(sector => {
+        sector.classList.toggle('is-selected', sector.dataset.colorId === colorId);
+      });
+
+      if (isHapticsEnabled) triggerHapticFeedback([12, 40, 16]);
+
+      // Smoothly dismiss color wheel after selection
+      setTimeout(() => {
+        closeColorPicker();
+      }, 190);
+    }
+
+    function handlePencilTap() {
+      if (isHapticsEnabled) triggerHapticFeedback(8);
+      const pencilBtn = document.getElementById('studioPencilBtn');
+      if (pencilBtn) {
+        pencilBtn.style.transform = 'scaleX(-1) scale(1.15)';
+        setTimeout(() => {
+          pencilBtn.style.transform = '';
+        }, 180);
+      }
+    }
+
     function selectStudioTool(toolName, el) {
       activeStudioTool = toolName;
-      document.querySelectorAll('.anatomy-studio-tool-btn').forEach(btn => {
-        btn.classList.toggle('is-active', btn === el);
-      });
       if (isHapticsEnabled) triggerHapticFeedback(10);
     }
 
     function selectStudioColor(colorHex, colorName, el) {
       activeStudioColor = colorHex;
       activeStudioColorName = colorName;
-      document.querySelectorAll('.anatomy-studio-color-spot').forEach(spot => {
-        spot.classList.toggle('is-active', spot === el);
-      });
-
-      // Dynamically swap the color of all 3 creative tools on the right!
-      const pencilImg = document.getElementById('studioToolPencilImg');
-      const markerImg = document.getElementById('studioToolMarkerImg');
-      const paintTubeImg = document.getElementById('studioToolPaintTubeImg');
+      const pencilImg = document.getElementById('studioPencilImg');
       if (pencilImg) pencilImg.src = `assets/Pencil ${colorName}.png`;
-      if (markerImg) markerImg.src = `assets/Marker ${colorName}.png`;
-      if (paintTubeImg) paintTubeImg.src = `assets/Paint Tube ${colorName}.png`;
-
       if (isHapticsEnabled) triggerHapticFeedback(10);
     }
 
@@ -18534,10 +18624,8 @@
 
     function handleStudioRestart() {
       clearStudioCanvas();
-      const pencilBtn = document.getElementById('studioToolBtnPencil');
-      if (pencilBtn) selectStudioTool('pencil', pencilBtn);
-      const blueSpot = document.querySelector('.spot-blue');
-      if (blueSpot) selectStudioColor('#0e76e6', 'Blue', blueSpot);
+      closeColorPicker();
+      selectWheelColor('blue');
       speakCurrentStudioOrgan();
       if (isHapticsEnabled) triggerHapticFeedback([16, 60, 20]);
     }
