@@ -2353,8 +2353,46 @@ public struct AnatomyExplorerView: View {
             }
             .frame(width: screenW, height: screenH)
 
-            // Top Header Overlay: Game Header Buttons (Back, Restart, Sound, Home) & Sub-Header (Organ Title & Clear Button)
-            VStack(spacing: 6) {
+            // Top Header Overlay: Game Header Buttons & Sub-Header (Organ Title & Clear Button Raised to Overlap Ribbon)
+            ZStack(alignment: .top) {
+                // Centered Organ Name & Clear Button (Raised to slightly overlap top ribbon area)
+                VStack(spacing: 4) {
+                    HStack(spacing: 12) {
+                        Text(studio.name)
+                            .font(.custom("Roboto-Regular", size: 48))
+                            .foregroundColor(Color(hex: "325b72"))
+                        
+                        Button(action: {
+                            speakOrgan(studio.name)
+                        }) {
+                            Image(systemName: "speaker.wave.2.fill")
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundColor(Color(hex: "1a0b2e"))
+                                .frame(width: 34, height: 34)
+                                .background(Circle().fill(Color(hex: "ffd700")))
+                                .shadow(color: Color(hex: "ffd700").opacity(0.6), radius: 6)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                    
+                    Button(action: {
+                        studioStrokes.removeAll()
+                        currentStroke = nil
+                        HapticManager.shared.lightTap()
+                    }) {
+                        Text("Clear")
+                            .font(.system(size: 13, weight: .bold, design: .rounded))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 18)
+                            .padding(.vertical, 4)
+                            .background(Capsule().fill(Color(hex: "5931ba").opacity(0.88)))
+                            .overlay(Capsule().stroke(Color.white.opacity(0.4), lineWidth: 1.5))
+                            .shadow(color: Color.black.opacity(0.2), radius: 4, y: 2)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
+                .padding(.top, 16)
+                
                 // Top Game Header Bar (Back on left; Restart, Sound, Home on right)
                 HStack(alignment: .center) {
                     // Back button
@@ -2490,48 +2528,9 @@ public struct AnatomyExplorerView: View {
                     }
                 }
                 .padding(.horizontal, 20)
-                .padding(.top, 24)
-                
-                // Centered Organ Name & Clear Button (Positioned neatly under game top bar)
-                VStack(spacing: 6) {
-                    HStack(spacing: 12) {
-                        Text(studio.name)
-                            .font(.custom("Roboto-Regular", size: 48))
-                            .foregroundColor(Color(hex: "325b72"))
-                        
-                        Button(action: {
-                            speakOrgan(studio.name)
-                        }) {
-                            Image(systemName: "speaker.wave.2.fill")
-                                .font(.system(size: 16, weight: .bold))
-                                .foregroundColor(Color(hex: "1a0b2e"))
-                                .frame(width: 36, height: 36)
-                                .background(Circle().fill(Color(hex: "ffd700")))
-                                .shadow(color: Color(hex: "ffd700").opacity(0.7), radius: 8)
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                    }
-                    
-                    Button(action: {
-                        studioStrokes.removeAll()
-                        currentStroke = nil
-                        HapticManager.shared.lightTap()
-                    }) {
-                        Text("Clear")
-                            .font(.system(size: 13, weight: .bold, design: .rounded))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 18)
-                            .padding(.vertical, 4)
-                            .background(Capsule().fill(Color(hex: "5931ba").opacity(0.88)))
-                            .overlay(Capsule().stroke(Color.white.opacity(0.4), lineWidth: 1.5))
-                            .shadow(color: Color.black.opacity(0.2), radius: 4, y: 2)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                }
-                
-                Spacer()
+                .padding(.top, 22)
             }
-            .frame(width: screenW, height: screenH)
+            .frame(width: screenW, height: screenH, alignment: .top)
         }
         .frame(width: proxy.size.width, height: proxy.size.height)
         .onAppear {
