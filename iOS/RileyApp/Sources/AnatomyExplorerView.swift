@@ -164,6 +164,7 @@ public struct AnatomyExplorerView: View {
     @State private var activeStudioOrgan: OrganStudioItem? = nil
     @State private var selectedStudioColor: StudioColor = .blue
     @State private var selectedStudioTool: StudioTool = .pencil
+    @State private var studioStrokeWidth: CGFloat = 4.5
     @State private var isColorPickerOpen: Bool = false
     @AppStorage("riley_sound_effects") private var soundEffectsEnabled: Bool = true
     
@@ -172,11 +173,13 @@ public struct AnatomyExplorerView: View {
         public let id = UUID()
         public let tool: StudioTool
         public let color: StudioColor
+        public let lineWidth: CGFloat
         public var points: [CGPoint]
         
-        public init(tool: StudioTool, color: StudioColor, points: [CGPoint]) {
+        public init(tool: StudioTool, color: StudioColor, lineWidth: CGFloat = 4.5, points: [CGPoint]) {
             self.tool = tool
             self.color = color
+            self.lineWidth = lineWidth
             self.points = points
         }
     }
@@ -1995,20 +1998,8 @@ public struct AnatomyExplorerView: View {
     private func drawStudioStroke(_ stroke: StudioDrawingStroke, in context: inout GraphicsContext) {
         guard !stroke.points.isEmpty else { return }
         let strokeColor = Color(hex: stroke.color.hex)
-        
-        let lineWidth: CGFloat
-        let alpha: Double
-        switch stroke.tool {
-        case .pencil:
-            lineWidth = 3.5
-            alpha = 0.88
-        case .marker:
-            lineWidth = 11.0
-            alpha = 0.96
-        case .paint:
-            lineWidth = 20.0
-            alpha = 0.95
-        }
+        let lineWidth = stroke.lineWidth
+        let alpha: Double = 0.90
         
         if stroke.points.count == 1 {
             let p = stroke.points[0]
@@ -2103,7 +2094,7 @@ public struct AnatomyExplorerView: View {
                         let loc = val.location
                         if loc.y > 80 && loc.y < screenH - 20 && !isColorPickerOpen {
                             if currentStroke == nil {
-                                currentStroke = StudioDrawingStroke(tool: selectedStudioTool, color: selectedStudioColor, points: [loc])
+                                currentStroke = StudioDrawingStroke(tool: selectedStudioTool, color: selectedStudioColor, lineWidth: studioStrokeWidth, points: [loc])
                             } else {
                                 currentStroke?.points.append(loc)
                             }
@@ -2133,6 +2124,64 @@ public struct AnatomyExplorerView: View {
                 }
                 .buttonStyle(PlainButtonStyle())
                 .position(x: max(65, screenW * 0.08), y: screenH - max(58, screenH * 0.08))
+
+                // Bottom-Center Pencil Thickness Slider
+                let sliderPillWidth: CGFloat = min(300.0, max(200.0, screenW * 0.32))
+                let sliderPillHeight: CGFloat = 44.0
+                let trackInset: CGFloat = 20.0
+                let trackWidth: CGFloat = max(100.0, sliderPillWidth - (trackInset * 2.0))
+                let minStrokeWidth: CGFloat = 2.0
+                let maxStrokeWidth: CGFloat = 22.0
+                let strokeRatio = max(0.0, min(1.0, (studioStrokeWidth - minStrokeWidth) / (maxStrokeWidth - minStrokeWidth)))
+                let thumbX = trackInset + strokeRatio * trackWidth
+                let thumbDiameter: CGFloat = 28.0
+                let dotDiameter = 5.0 + strokeRatio * 14.0
+
+                ZStack(alignment: .leading) {
+                    // Frosted Pill Container
+                    Capsule()
+                        .fill(Color.white.opacity(0.65))
+                        .overlay(
+                            Capsule()
+                                .stroke(Color.white.opacity(0.85), lineWidth: 1.5)
+                        )
+                        .shadow(color: Color.black.opacity(0.18), radius: 8, y: 3)
+                        .frame(width: sliderPillWidth, height: sliderPillHeight)
+                    
+                    // Wedge / Track Image
+                    Image("AnatomyThicknessLine")
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: trackWidth, height: 18)
+                        .opacity(0.85)
+                        .offset(x: trackInset)
+                        .allowsHitTesting(false)
+                    
+                    // Draggable Thumb Knob
+                    ZStack {
+                        Circle()
+                            .fill(Color.white)
+                            .shadow(color: Color.black.opacity(0.32), radius: 4, y: 2)
+                        Circle()
+                            .fill(Color(hex: selectedStudioColor.hex))
+                            .frame(width: dotDiameter, height: dotDiameter)
+                    }
+                    .frame(width: thumbDiameter, height: thumbDiameter)
+                    .offset(x: thumbX - thumbDiameter / 2.0)
+                    .allowsHitTesting(false)
+                }
+                .frame(width: sliderPillWidth, height: sliderPillHeight)
+                .contentShape(Rectangle())
+                .gesture(
+                    DragGesture(minimumDistance: 0)
+                        .onChanged { val in
+                            let rawX = val.location.x - trackInset
+                            let ratio = max(0.0, min(1.0, rawX / trackWidth))
+                            studioStrokeWidth = minStrokeWidth + ratio * (maxStrokeWidth - minStrokeWidth)
+                            HapticManager.shared.lightTap()
+                        }
+                )
+                .position(x: screenW * 0.50, y: screenH - max(58, screenH * 0.08))
                 
                 // Bottom-Right Color Picker 1 Button (Pops open into Color Picker 2)
                 let pickerSize = min(screenW * 0.12, 106.0)
@@ -2264,6 +2313,7 @@ public struct AnatomyExplorerView: View {
                             currentStroke = nil
                             selectedStudioColor = .blue
                             selectedStudioTool = .pencil
+                            studioStrokeWidth = 4.5
                             isColorPickerOpen = false
                             speakOrgan(studio.name)
                         }) {
@@ -2395,6 +2445,11 @@ public struct AnatomyExplorerView: View {
             .frame(width: screenW, height: screenH)
         }
         .frame(width: proxy.size.width, height: proxy.size.height)
+        .onAppear {
+            selectedStudioColor = .blue
+            studioStrokeWidth = 4.5
+            isColorPickerOpen = false
+        }
     }
 }
 

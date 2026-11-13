@@ -11962,6 +11962,92 @@
       -webkit-user-drag: none;
     }
 
+    /* Bottom-Center Pencil Thickness Slider Pill */
+    .anatomy-studio-thickness-wrap {
+      position: absolute;
+      left: 50%;
+      bottom: calc(max(20px, env(safe-area-inset-bottom, 0px)) + 16px);
+      transform: translateX(-50%);
+      width: min(300px, 34vw);
+      height: 44px;
+      background: rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(12px) saturate(140%);
+      -webkit-backdrop-filter: blur(12px) saturate(140%);
+      border: 1.5px solid rgba(255, 255, 255, 0.85);
+      border-radius: 9999px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18), inset 0 1px 2px rgba(255, 255, 255, 0.7);
+      padding: 4px 18px;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 25;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+      cursor: pointer;
+    }
+
+    .anatomy-studio-thickness-track-box {
+      position: relative;
+      width: 100%;
+      height: 28px;
+      display: flex;
+      align-items: center;
+    }
+
+    .anatomy-studio-thickness-track-img {
+      width: 100%;
+      height: 18px;
+      object-fit: fill;
+      pointer-events: none;
+      opacity: 0.85;
+      display: block;
+    }
+
+    .anatomy-studio-thickness-thumb {
+      position: absolute;
+      top: 50%;
+      left: 12.5%; /* default ~4.5px */
+      transform: translate(-50%, -50%);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.32);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .anatomy-studio-thickness-wrap:active .anatomy-studio-thickness-thumb {
+      transform: translate(-50%, -50%) scale(1.12);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .thickness-thumb-dot {
+      display: block;
+      border-radius: 50%;
+      background: #0172bb;
+      width: 7px;
+      height: 7px;
+      transition: background-color 0.2s ease, width 0.1s ease, height 0.1s ease;
+    }
+
+    .anatomy-studio-thickness-range {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+      margin: 0;
+      padding: 0;
+      z-index: 2;
+    }
+
     /* Bottom-Right Color Picker 1 Button */
     .anatomy-studio-picker-btn {
       position: absolute;
@@ -14141,6 +14227,8 @@
     #screenAnatomyExplorer.active .anatomy-studio-nav button,
     #screenAnatomyExplorer.active .anatomy-studio-nav a,
     #screenAnatomyExplorer.active .anatomy-studio-pencil-btn,
+    #screenAnatomyExplorer.active .anatomy-studio-thickness-wrap,
+    #screenAnatomyExplorer.active .anatomy-studio-thickness-wrap *,
     #screenAnatomyExplorer.active .anatomy-studio-picker-btn,
     #screenAnatomyExplorer.active .anatomy-studio-picker-backdrop,
     #screenAnatomyExplorer.active .anatomy-studio-picker-popout,
@@ -16158,6 +16246,17 @@
                 <button type="button" class="anatomy-studio-pencil-btn" id="studioPencilBtn" onclick="handlePencilTap()" title="Pencil" aria-label="Pencil">
                   <img id="studioPencilImg" src="assets/Pencil Blue.png" alt="Pencil" loading="lazy" decoding="async" />
                 </button>
+
+                <!-- Bottom Center Pencil Thickness Slider -->
+                <div class="anatomy-studio-thickness-wrap" id="studioThicknessWrap" title="Pencil Thickness">
+                  <div class="anatomy-studio-thickness-track-box" id="studioThicknessTrackBox">
+                    <img class="anatomy-studio-thickness-track-img" src="assets/Thickness line.png" alt="Thickness scale" loading="lazy" decoding="async" />
+                    <div class="anatomy-studio-thickness-thumb" id="studioThicknessThumb">
+                      <span class="thickness-thumb-dot" id="studioThicknessDot"></span>
+                    </div>
+                  </div>
+                  <input type="range" class="anatomy-studio-thickness-range" id="studioThicknessRange" min="2" max="22" step="0.5" value="4.5" aria-label="Pencil thickness" />
+                </div>
 
                 <!-- Bottom Right Color Picker 1 Button (Pops open into Color Picker 2) -->
                 <button type="button" class="anatomy-studio-picker-btn" id="studioPickerBtn" onclick="toggleColorPicker()" title="Color Picker" aria-label="Color Picker">
@@ -18325,9 +18424,10 @@
         studioView.classList.add('active');
       }
 
-      // Reset default color to blue and close picker
+      // Reset default color to blue, close picker, and init thickness slider
       closeColorPicker();
       selectWheelColor('blue');
+      initStudioThicknessSlider();
 
       // Initialize drawing canvas
       initStudioCanvas();
@@ -18400,6 +18500,81 @@
       amber: { name: "Amber", hex: "#ffc20f", pencil: "assets/Pencil Amber.png" },
     };
 
+    let studioStrokeWidth = 4.5;
+    let isDraggingThickness = false;
+
+    function initStudioThicknessSlider() {
+      const wrap = document.getElementById('studioThicknessWrap');
+      const trackBox = document.getElementById('studioThicknessTrackBox');
+      const range = document.getElementById('studioThicknessRange');
+      if (!wrap || !trackBox) return;
+
+      const updateFromPointer = (clientX) => {
+        const rect = trackBox.getBoundingClientRect();
+        const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+        const minW = 2.0;
+        const maxW = 22.0;
+        studioStrokeWidth = minW + ratio * (maxW - minW);
+        if (range) range.value = studioStrokeWidth.toFixed(1);
+        updateThicknessThumbVisuals();
+      };
+
+      if (!wrap._hasSliderEvents) {
+        wrap._hasSliderEvents = true;
+
+        wrap.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          isDraggingThickness = true;
+          try { wrap.setPointerCapture(e.pointerId); } catch (err) {}
+          updateFromPointer(e.clientX);
+          if (isHapticsEnabled) triggerHapticFeedback(8);
+        });
+
+        wrap.addEventListener('pointermove', (e) => {
+          if (!isDraggingThickness) return;
+          e.preventDefault();
+          updateFromPointer(e.clientX);
+        });
+
+        const onPointerEnd = (e) => {
+          if (!isDraggingThickness) return;
+          isDraggingThickness = false;
+          try { wrap.releasePointerCapture(e.pointerId); } catch (err) {}
+          if (isHapticsEnabled) triggerHapticFeedback(12);
+        };
+
+        wrap.addEventListener('pointerup', onPointerEnd);
+        wrap.addEventListener('pointercancel', onPointerEnd);
+
+        if (range) {
+          range.addEventListener('input', (e) => {
+            studioStrokeWidth = parseFloat(e.target.value) || 4.5;
+            updateThicknessThumbVisuals();
+          });
+        }
+      }
+
+      updateThicknessThumbVisuals();
+    }
+
+    function updateThicknessThumbVisuals() {
+      const thumb = document.getElementById('studioThicknessThumb');
+      const dot = document.getElementById('studioThicknessDot');
+      if (!thumb) return;
+
+      const minW = 2.0;
+      const maxW = 22.0;
+      const ratio = Math.max(0, Math.min(1, (studioStrokeWidth - minW) / (maxW - minW)));
+      thumb.style.left = `${(ratio * 100).toFixed(1)}%`;
+
+      if (dot) {
+        dot.style.backgroundColor = activeStudioColor;
+        const dotSize = Math.round(5 + ratio * 14);
+        dot.style.width = `${dotSize}px`;
+        dot.style.height = `${dotSize}px`;
+      }
+    }
+
     let isColorPickerOpen = false;
 
     function toggleColorPicker() {
@@ -18446,6 +18621,8 @@
       });
 
       if (isHapticsEnabled) triggerHapticFeedback([12, 40, 16]);
+
+      updateThicknessThumbVisuals();
 
       // Smoothly dismiss color wheel after selection
       setTimeout(() => {
@@ -18553,14 +18730,7 @@
     }
 
     function getStudioToolStyle() {
-      if (activeStudioTool === 'pencil') {
-        return { lineWidth: 3.5, alpha: 0.88 };
-      } else if (activeStudioTool === 'marker') {
-        return { lineWidth: 11.0, alpha: 0.96 };
-      } else {
-        // Paint Tube: rich, thick, continuous acrylic stroke
-        return { lineWidth: 20.0, alpha: 0.95 };
-      }
+      return { lineWidth: studioStrokeWidth || 4.5, alpha: 0.90 };
     }
 
     function drawStudioDot(x, y) {
@@ -18629,6 +18799,8 @@
       clearStudioCanvas();
       closeColorPicker();
       selectWheelColor('blue');
+      studioStrokeWidth = 4.5;
+      updateThicknessThumbVisuals();
       speakCurrentStudioOrgan();
       if (isHapticsEnabled) triggerHapticFeedback([16, 60, 20]);
     }

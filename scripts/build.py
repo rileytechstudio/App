@@ -1192,6 +1192,8 @@ def build_distribution():
     #screenAnatomyExplorer.active .anatomy-studio-nav button,
     #screenAnatomyExplorer.active .anatomy-studio-nav a,
     #screenAnatomyExplorer.active .anatomy-studio-pencil-btn,
+    #screenAnatomyExplorer.active .anatomy-studio-thickness-wrap,
+    #screenAnatomyExplorer.active .anatomy-studio-thickness-wrap *,
     #screenAnatomyExplorer.active .anatomy-studio-picker-btn,
     #screenAnatomyExplorer.active .anatomy-studio-picker-backdrop,
     #screenAnatomyExplorer.active .anatomy-studio-picker-popout,
