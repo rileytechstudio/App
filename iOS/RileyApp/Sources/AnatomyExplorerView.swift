@@ -1135,40 +1135,24 @@ public struct AnatomyExplorerView: View {
                 .allowsHitTesting(isMagnifierOverCharacter)
             }
 
-            // Assembled Muscular Layer (Revealed through magnifying glass lens when Muscular System is active)
-            if selectedSystemId == "muscular" && charId == "younger-boy" {
+            // Assembled Muscular / Nervous Layer (Revealed through magnifying glass lens when active)
+            if selectedSystemId == "muscular" || selectedSystemId == "nervous" {
+                let charSuffix: String = {
+                    switch charId {
+                    case "younger-girl": return "YoungerGirl"
+                    case "older-boy": return "OlderBoy"
+                    case "older-girl": return "OlderGirl"
+                    default: return "YoungerBoy"
+                    }
+                }()
+                let systemPrefix = selectedSystemId == "muscular" ? "AnatomyMuscular" : "AnatomyNervous"
                 let currentCenterX = dockX + magnifierOffset.width - (magWidth * 0.031)
                 let currentCenterY = dockY + magnifierOffset.height - (magHeight * 0.216)
                 let lensRadius = magWidth * 0.376
                 let charAspect = characterAspect(for: charId)
                 let charW = charHeight * charAspect
 
-                Image("AnatomyMuscularYoungerBoy")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: charW, height: charHeight)
-                    .position(x: charCenterX, y: charCenterY)
-                    .frame(width: proxy.size.width, height: proxy.size.height)
-                    .mask(
-                        Circle()
-                            .frame(width: lensRadius * 2, height: lensRadius * 2)
-                            .position(x: currentCenterX, y: currentCenterY)
-                    )
-                    .opacity(isMagnifierOverCharacter ? 1.0 : 0.0)
-                    .animation(.easeInOut(duration: 0.15), value: isMagnifierOverCharacter)
-                    .zIndex(15)
-                    .allowsHitTesting(false)
-            }
-
-            // Assembled Nervous Layer (Revealed through magnifying glass lens when Nervous System is active)
-            if selectedSystemId == "nervous" && charId == "younger-boy" {
-                let currentCenterX = dockX + magnifierOffset.width - (magWidth * 0.031)
-                let currentCenterY = dockY + magnifierOffset.height - (magHeight * 0.216)
-                let lensRadius = magWidth * 0.376
-                let charAspect = characterAspect(for: charId)
-                let charW = charHeight * charAspect
-
-                Image("AnatomyNervousYoungerBoy")
+                Image("\(systemPrefix)\(charSuffix)")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: charW, height: charHeight)

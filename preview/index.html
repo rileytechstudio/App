@@ -18005,11 +18005,27 @@
         skeletonEl.style.clipPath = 'circle(0px at 0px 0px)';
         skeletonEl.style.webkitClipPath = 'circle(0px at 0px 0px)';
       }
+      const charAssetSuffixMap = {
+        'younger-boy': 'YoungerBoy',
+        'younger-girl': 'YoungerGirl',
+        'older-boy': 'OlderBoy',
+        'older-girl': 'OlderGirl'
+      };
+      const charAssetSuffix = charAssetSuffixMap[charId] || 'YoungerBoy';
+
+      const muscularImg = document.getElementById('anatomyExplorationMuscularImg');
+      if (muscularImg) {
+        muscularImg.src = `assets/Muscular_${charAssetSuffix}.png`;
+      }
       const muscularEl = document.getElementById('anatomyExplorationMuscularContainer');
       if (muscularEl) {
         muscularEl.style.opacity = '0';
         muscularEl.style.clipPath = 'circle(0px at 0px 0px)';
         muscularEl.style.webkitClipPath = 'circle(0px at 0px 0px)';
+      }
+      const nervousImg = document.getElementById('anatomyExplorationNervousImg');
+      if (nervousImg) {
+        nervousImg.src = `assets/Nervous_${charAssetSuffix}.png`;
       }
       const nervousEl = document.getElementById('anatomyExplorationNervousContainer');
       if (nervousEl) {
@@ -18059,11 +18075,27 @@
         skeletonEl.style.clipPath = 'circle(0px at 0px 0px)';
         skeletonEl.style.webkitClipPath = 'circle(0px at 0px 0px)';
       }
+      const charAssetSuffixMap = {
+        'younger-boy': 'YoungerBoy',
+        'younger-girl': 'YoungerGirl',
+        'older-boy': 'OlderBoy',
+        'older-girl': 'OlderGirl'
+      };
+      const charAssetSuffix = charAssetSuffixMap[charId] || 'YoungerBoy';
+
+      const muscularImg = document.getElementById('anatomyExplorationMuscularImg');
+      if (muscularImg) {
+        muscularImg.src = `assets/Muscular_${charAssetSuffix}.png`;
+      }
       const muscularEl = document.getElementById('anatomyExplorationMuscularContainer');
       if (muscularEl) {
         muscularEl.style.opacity = '0';
         muscularEl.style.clipPath = 'circle(0px at 0px 0px)';
         muscularEl.style.webkitClipPath = 'circle(0px at 0px 0px)';
+      }
+      const nervousImg = document.getElementById('anatomyExplorationNervousImg');
+      if (nervousImg) {
+        nervousImg.src = `assets/Nervous_${charAssetSuffix}.png`;
       }
       const nervousEl = document.getElementById('anatomyExplorationNervousContainer');
       if (nervousEl) {
@@ -18253,7 +18285,7 @@
       // Dynamically reveal muscular system underneath the circular transparent lens aperture
       const muscularContainer = document.getElementById('anatomyExplorationMuscularContainer');
       if (muscularContainer) {
-        if (selectedAnatomySystemId === 'muscular' && selectedAnatomyCharacter === 'younger-boy' && isOver) {
+        if (selectedAnatomySystemId === 'muscular' && isOver) {
           muscularContainer.style.opacity = '1';
           muscularContainer.style.clipPath = lensClip;
           muscularContainer.style.webkitClipPath = lensClip;
@@ -18267,7 +18299,7 @@
       // Dynamically reveal nervous system underneath the circular transparent lens aperture
       const nervousContainer = document.getElementById('anatomyExplorationNervousContainer');
       if (nervousContainer) {
-        if (selectedAnatomySystemId === 'nervous' && selectedAnatomyCharacter === 'younger-boy' && isOver) {
+        if (selectedAnatomySystemId === 'nervous' && isOver) {
           nervousContainer.style.opacity = '1';
           nervousContainer.style.clipPath = lensClip;
           nervousContainer.style.webkitClipPath = lensClip;
