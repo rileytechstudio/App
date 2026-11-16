@@ -11694,6 +11694,27 @@
       -webkit-clip-path: circle(0px at 0 0);
     }
 
+    .anatomy-exploration-muscular-container {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 15;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      clip-path: circle(0px at 0 0);
+      -webkit-clip-path: circle(0px at 0 0);
+    }
+
+    .anatomy-exploration-muscular-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+    }
+
     .anatomy-skeleton-assembly-box {
       position: absolute;
       inset: 0;
@@ -15169,6 +15190,11 @@
                     <div class="anatomy-exploration-skeleton-container" id="anatomyExplorationSkeletonContainer" aria-hidden="true">
                       <div class="anatomy-skeleton-assembly-box" id="anatomySkeletonAssemblyBox"></div>
                     </div>
+
+                    <!-- Assembled Muscular Layer (Revealed through magnifying glass lens when Muscular System is active) -->
+                    <div class="anatomy-exploration-muscular-container" id="anatomyExplorationMuscularContainer" aria-hidden="true">
+                      <img class="anatomy-exploration-muscular-img" id="anatomyExplorationMuscularImg" src="assets/Muscular_YoungerBoy.png" alt="Muscular System" loading="lazy" decoding="async" />
+                    </div>
                   </div>
 
                   <!-- Inline SVG Filter for Real-Time GPU Silhouette Tinting -->
@@ -17971,6 +17997,12 @@
         skeletonEl.style.clipPath = 'circle(0px at 0px 0px)';
         skeletonEl.style.webkitClipPath = 'circle(0px at 0px 0px)';
       }
+      const muscularEl = document.getElementById('anatomyExplorationMuscularContainer');
+      if (muscularEl) {
+        muscularEl.style.opacity = '0';
+        muscularEl.style.clipPath = 'circle(0px at 0px 0px)';
+        muscularEl.style.webkitClipPath = 'circle(0px at 0px 0px)';
+      }
 
       initSkinToneSlider();
       initMagnifierDrag();
@@ -18012,6 +18044,12 @@
         skeletonEl.style.opacity = '0';
         skeletonEl.style.clipPath = 'circle(0px at 0px 0px)';
         skeletonEl.style.webkitClipPath = 'circle(0px at 0px 0px)';
+      }
+      const muscularEl = document.getElementById('anatomyExplorationMuscularContainer');
+      if (muscularEl) {
+        muscularEl.style.opacity = '0';
+        muscularEl.style.clipPath = 'circle(0px at 0px 0px)';
+        muscularEl.style.webkitClipPath = 'circle(0px at 0px 0px)';
       }
       isAnatomyInExploration = false;
       isAnatomyCharacterConfirmed = false;
@@ -18189,6 +18227,20 @@
           skeletonContainer.style.opacity = '0';
           skeletonContainer.style.clipPath = 'circle(0px at 0px 0px)';
           skeletonContainer.style.webkitClipPath = 'circle(0px at 0px 0px)';
+        }
+      }
+
+      // Dynamically reveal muscular system underneath the circular transparent lens aperture
+      const muscularContainer = document.getElementById('anatomyExplorationMuscularContainer');
+      if (muscularContainer) {
+        if (selectedAnatomySystemId === 'muscular' && selectedAnatomyCharacter === 'younger-boy' && isOver) {
+          muscularContainer.style.opacity = '1';
+          muscularContainer.style.clipPath = lensClip;
+          muscularContainer.style.webkitClipPath = lensClip;
+        } else {
+          muscularContainer.style.opacity = '0';
+          muscularContainer.style.clipPath = 'circle(0px at 0px 0px)';
+          muscularContainer.style.webkitClipPath = 'circle(0px at 0px 0px)';
         }
       }
 
