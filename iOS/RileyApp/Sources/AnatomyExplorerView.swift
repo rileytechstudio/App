@@ -1047,10 +1047,13 @@ public struct AnatomyExplorerView: View {
                 ZStack {
                     ForEach(organList) { organ in
                         let isSel = (selectedOrganId == organ.id)
-                        let w = organBoxW * organ.width
-                        let h = organH * organ.height
-                        let ox = -organBoxW / 2 + (organBoxW * organ.left) + w / 2
-                        let oy = -organH / 2 + (organH * organ.top) + h / 2
+                        let isYoungerBoyBrain = (charId == "younger-boy" && organ.id == "brain")
+                        let w = organBoxW * (isYoungerBoyBrain ? 0.7255 : organ.width)
+                        let h = organH * (isYoungerBoyBrain ? 0.2116 : organ.height)
+                        let leftPct: CGFloat = isYoungerBoyBrain ? 0.1393 : organ.left
+                        let topPct: CGFloat = isYoungerBoyBrain ? -0.0233 : organ.top
+                        let ox = -organBoxW / 2 + (organBoxW * leftPct) + w / 2
+                        let oy = -organH / 2 + (organH * topPct) + h / 2
                         
                         Image(organ.imageName)
                             .resizable()

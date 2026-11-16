@@ -17987,7 +17987,7 @@
 
     let selectedOrganId = null;
 
-    function renderOrganAssembly(isOlder) {
+    function renderOrganAssembly(isOlder, charId) {
       const box = document.getElementById('anatomyOrgansAssemblyBox');
       if (!box) return;
       box.innerHTML = '';
@@ -17996,14 +17996,15 @@
 
       const list = isOlder ? ORGAN_DEFINITIONS.side : ORGAN_DEFINITIONS.frontal;
       list.forEach(item => {
+        const isYoungerBoyBrain = (charId === 'younger-boy' && item.id === 'brain');
         const layer = document.createElement('div');
         layer.className = 'anatomy-organ-layer';
         layer.dataset.organ = item.id;
         layer.dataset.name = item.name;
-        layer.style.left = item.left;
-        layer.style.top = item.top;
-        layer.style.width = item.width;
-        layer.style.height = item.height;
+        layer.style.left = isYoungerBoyBrain ? '13.93%' : item.left;
+        layer.style.top = isYoungerBoyBrain ? '-2.33%' : item.top;
+        layer.style.width = isYoungerBoyBrain ? '72.55%' : item.width;
+        layer.style.height = isYoungerBoyBrain ? '21.16%' : item.height;
         layer.style.zIndex = item.zIndex;
 
         const img = document.createElement('img');
@@ -19032,7 +19033,7 @@
 
       // Set proportional organ alignment parameters for confirmed character
       const isOlder = (charId === 'older-boy' || charId === 'older-girl');
-      renderOrganAssembly(isOlder);
+      renderOrganAssembly(isOlder, charId);
 
       const organConfigs = {
         'younger-boy': { top: '4%', left: '51%', height: '61%' },
