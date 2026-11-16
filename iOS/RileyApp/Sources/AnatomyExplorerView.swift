@@ -1159,6 +1159,31 @@ public struct AnatomyExplorerView: View {
                     .zIndex(15)
                     .allowsHitTesting(false)
             }
+
+            // Assembled Nervous Layer (Revealed through magnifying glass lens when Nervous System is active)
+            if selectedSystemId == "nervous" && charId == "younger-boy" {
+                let currentCenterX = dockX + magnifierOffset.width - (magWidth * 0.031)
+                let currentCenterY = dockY + magnifierOffset.height - (magHeight * 0.216)
+                let lensRadius = magWidth * 0.376
+                let charAspect = characterAspect(for: charId)
+                let charW = charHeight * charAspect
+
+                Image("AnatomyNervousYoungerBoy")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: charW, height: charHeight)
+                    .position(x: charCenterX, y: charCenterY)
+                    .frame(width: proxy.size.width, height: proxy.size.height)
+                    .mask(
+                        Circle()
+                            .frame(width: lensRadius * 2, height: lensRadius * 2)
+                            .position(x: currentCenterX, y: currentCenterY)
+                    )
+                    .opacity(isMagnifierOverCharacter ? 1.0 : 0.0)
+                    .animation(.easeInOut(duration: 0.15), value: isMagnifierOverCharacter)
+                    .zIndex(15)
+                    .allowsHitTesting(false)
+            }
             
             // Left: Magnifying Glass Dock (Permanently Displays Magnifying Glass 2 left behind)
             Image("AnatomyMagnifyingGlass2")

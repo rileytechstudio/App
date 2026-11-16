@@ -11694,7 +11694,8 @@
       -webkit-clip-path: circle(0px at 0 0);
     }
 
-    .anatomy-exploration-muscular-container {
+    .anatomy-exploration-muscular-container,
+    .anatomy-exploration-nervous-container {
       position: absolute;
       inset: 0;
       width: 100%;
@@ -11707,7 +11708,8 @@
       -webkit-clip-path: circle(0px at 0 0);
     }
 
-    .anatomy-exploration-muscular-img {
+    .anatomy-exploration-muscular-img,
+    .anatomy-exploration-nervous-img {
       width: 100%;
       height: 100%;
       object-fit: contain;
@@ -15195,6 +15197,11 @@
                     <div class="anatomy-exploration-muscular-container" id="anatomyExplorationMuscularContainer" aria-hidden="true">
                       <img class="anatomy-exploration-muscular-img" id="anatomyExplorationMuscularImg" src="assets/Muscular_YoungerBoy.png" alt="Muscular System" loading="lazy" decoding="async" />
                     </div>
+
+                    <!-- Assembled Nervous Layer (Revealed through magnifying glass lens when Nervous System is active) -->
+                    <div class="anatomy-exploration-nervous-container" id="anatomyExplorationNervousContainer" aria-hidden="true">
+                      <img class="anatomy-exploration-nervous-img" id="anatomyExplorationNervousImg" src="assets/Nervous_YoungerBoy.png" alt="Nervous System" loading="lazy" decoding="async" />
+                    </div>
                   </div>
 
                   <!-- Inline SVG Filter for Real-Time GPU Silhouette Tinting -->
@@ -18004,6 +18011,12 @@
         muscularEl.style.clipPath = 'circle(0px at 0px 0px)';
         muscularEl.style.webkitClipPath = 'circle(0px at 0px 0px)';
       }
+      const nervousEl = document.getElementById('anatomyExplorationNervousContainer');
+      if (nervousEl) {
+        nervousEl.style.opacity = '0';
+        nervousEl.style.clipPath = 'circle(0px at 0px 0px)';
+        nervousEl.style.webkitClipPath = 'circle(0px at 0px 0px)';
+      }
 
       initSkinToneSlider();
       initMagnifierDrag();
@@ -18051,6 +18064,12 @@
         muscularEl.style.opacity = '0';
         muscularEl.style.clipPath = 'circle(0px at 0px 0px)';
         muscularEl.style.webkitClipPath = 'circle(0px at 0px 0px)';
+      }
+      const nervousEl = document.getElementById('anatomyExplorationNervousContainer');
+      if (nervousEl) {
+        nervousEl.style.opacity = '0';
+        nervousEl.style.clipPath = 'circle(0px at 0px 0px)';
+        nervousEl.style.webkitClipPath = 'circle(0px at 0px 0px)';
       }
       isAnatomyInExploration = false;
       isAnatomyCharacterConfirmed = false;
@@ -18242,6 +18261,20 @@
           muscularContainer.style.opacity = '0';
           muscularContainer.style.clipPath = 'circle(0px at 0px 0px)';
           muscularContainer.style.webkitClipPath = 'circle(0px at 0px 0px)';
+        }
+      }
+
+      // Dynamically reveal nervous system underneath the circular transparent lens aperture
+      const nervousContainer = document.getElementById('anatomyExplorationNervousContainer');
+      if (nervousContainer) {
+        if (selectedAnatomySystemId === 'nervous' && selectedAnatomyCharacter === 'younger-boy' && isOver) {
+          nervousContainer.style.opacity = '1';
+          nervousContainer.style.clipPath = lensClip;
+          nervousContainer.style.webkitClipPath = lensClip;
+        } else {
+          nervousContainer.style.opacity = '0';
+          nervousContainer.style.clipPath = 'circle(0px at 0px 0px)';
+          nervousContainer.style.webkitClipPath = 'circle(0px at 0px 0px)';
         }
       }
 
