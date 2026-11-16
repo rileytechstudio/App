@@ -1459,7 +1459,7 @@ public struct AnatomyExplorerView: View {
         switch charId {
         case "younger-boy":
             return [
-                AnatomicalBonePiece(id: "skull", parentBoneId: "skull", name: "Skull", x: 50.0, y: 14.4, width: 41.2, height: 17.9, rotationAngle: 0.0, zIndex: 10, imageName: "AnatomyBoneYoungerBoySkull"),
+                AnatomicalBonePiece(id: "skull", parentBoneId: "skull", name: "Skull", x: 49.8, y: 13.8, width: 44.8, height: 19.5, rotationAngle: 0.0, zIndex: 10, imageName: "AnatomyBoneYoungerBoySkull"),
                 AnatomicalBonePiece(id: "spine", parentBoneId: "spine", name: "Spine", x: 49.8, y: 39.2, width: 10.7, height: 33.2, rotationAngle: 0.0, zIndex: 1, imageName: "AnatomyBoneYoungerBoySpine"),
                 AnatomicalBonePiece(id: "ribcage", parentBoneId: "ribcage", name: "Ribcage", x: 49.8, y: 37.3, width: 71.0, height: 21.7, rotationAngle: 0.0, zIndex: 3, imageName: "AnatomyBoneYoungerBoyRibcage"),
                 AnatomicalBonePiece(id: "pelvis", parentBoneId: "pelvis", name: "Pelvis", x: 49.8, y: 57.6, width: 57.8, height: 15.4, rotationAngle: 0.0, zIndex: 2, imageName: "AnatomyBoneYoungerBoyPelvis"),
