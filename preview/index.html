@@ -27898,7 +27898,7 @@
       } else if (portAccessCurrentStep === 'mask_step') {
         applyPortMask();
       } else if (portAccessCurrentStep === 'gauze_ready' || portAccessCurrentStep === 'gauze_dragging') {
-        setPortAccessPrompt("Drag the gauze over the port and wipe back and forth to dry it!");
+        setPortAccessPrompt("Wipe the gauze back and forth over the port to dry it!");
       } else if (portAccessCurrentStep === 'chloraprep_ready' || portAccessCurrentStep === 'chloraprep_dragging') {
         setPortAccessPrompt("Drag the ChloraPrep over the port and color in the dotted square!");
       } else if (portAccessCurrentStep === 'needle_ready' || portAccessCurrentStep === 'needle_dragging') {
@@ -27936,7 +27936,7 @@
       } else if (portAccessCurrentStep === 'mask_step') {
         applyPortMask();
       } else if (portAccessCurrentStep === 'gauze_ready' || portAccessCurrentStep === 'gauze_dragging') {
-        setPortAccessPrompt("Drag the gauze over the port and wipe back and forth to dry it!");
+        setPortAccessPrompt("Wipe the gauze back and forth over the port to dry it!");
       } else if (portAccessCurrentStep === 'chloraprep_ready' || portAccessCurrentStep === 'chloraprep_dragging') {
         setPortAccessPrompt("Drag the ChloraPrep over the port and color in the dotted square!");
       } else if (portAccessCurrentStep === 'needle_ready' || portAccessCurrentStep === 'needle_dragging') {
@@ -29068,7 +29068,7 @@
       portGauzeLastY = 0;
       isPortGauzeWipingComplete = false;
 
-      setPortAccessPrompt("Drag the gauze over the port and wipe back and forth to dry it!");
+      setPortAccessPrompt("Wipe the gauze back and forth over the port to dry it!");
 
       const chestTarget = document.getElementById('portChestTargetZone');
       if (chestTarget) {
@@ -29103,7 +29103,7 @@
         e.preventDefault();
         e.stopPropagation();
       }
-      setPortAccessPrompt("Drag the gauze over the port and wipe back and forth to dry it!");
+      setPortAccessPrompt("Wipe the gauze back and forth over the port to dry it!");
     }
 
     function startDragPortGauze(e) {
@@ -29207,7 +29207,7 @@
           }
         }, 420);
         portAccessCurrentStep = 'gauze_ready';
-        setPortAccessPrompt("Drag the gauze over the port and wipe back and forth to dry it!");
+        setPortAccessPrompt("Wipe the gauze back and forth over the port to dry it!");
       }
 
       window.addEventListener('pointermove', onPointerMove, { passive: false });
