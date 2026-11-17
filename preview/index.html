@@ -29314,13 +29314,7 @@
         label.textContent = `Wiping to dry... ${pct}%`;
       }
 
-      if (portGauzeSweepCount === 1) {
-        setPortAccessPrompt("Good wipe! Wipe back again to dry the port.");
-      } else if (portGauzeSweepCount === 2) {
-        setPortAccessPrompt("Keep wiping back and forth to dry it completely!");
-      } else if (portGauzeSweepCount === 3) {
-        setPortAccessPrompt("One more wipe across the port!");
-      } else if (portGauzeSweepCount >= TOTAL_PORT_GAUZE_SWEEPS) {
+      if (portGauzeSweepCount >= TOTAL_PORT_GAUZE_SWEEPS) {
         isPortGauzeWipingComplete = true;
         if (label) label.textContent = "Dry & Ready!";
         setPortAccessPrompt("Great job! The port area is clean and dry.");
