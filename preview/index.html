@@ -717,16 +717,73 @@
       flex-shrink: 0;
     }
 
-    .grid-row-bottom {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 28px;
+    .home-bottom-toolbar {
+      position: relative;
+      z-index: 20;
       width: 100%;
-      margin: 0;
-      padding-top: 18px;
-      padding-bottom: 24px;
+      background: #ffffff;
+      border-top: 1px solid rgba(15, 23, 42, 0.08);
+      border-bottom: 9px solid #f4b828;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(32px, 8vw, 120px);
+      padding: 8px 24px calc(8px + env(safe-area-inset-bottom, 0px));
+      box-sizing: border-box;
       flex-shrink: 0;
+    }
+
+    .home-toolbar-link {
+      background: none;
+      border: none;
+      padding: 6px 10px;
+      margin: 0;
+      color: #7a1c4d;
+      font-family: inherit;
+      font-size: clamp(16px, 1.8vw, 20px);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      transition: opacity 0.15s ease, transform 0.15s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .home-toolbar-link:hover {
+      opacity: 0.78;
+    }
+
+    .home-toolbar-link:active {
+      transform: scale(0.96);
+    }
+
+    .home-toolbar-copyright {
+      color: #111827;
+      font-size: clamp(11px, 1.25vw, 14px);
+      font-weight: 500;
+      white-space: nowrap;
+      line-height: 1.3;
+    }
+
+    @media (max-width: 600px) {
+      .home-bottom-toolbar {
+        flex-wrap: wrap;
+        gap: 2px 32px;
+        padding: 8px 16px calc(8px + env(safe-area-inset-bottom, 0px));
+        border-bottom-width: 7px;
+      }
+
+      .home-toolbar-link {
+        font-size: 16px;
+        padding: 4px 10px;
+      }
+
+      .home-toolbar-copyright {
+        width: 100%;
+        text-align: center;
+        font-size: 11px;
+        white-space: normal;
+      }
     }
 
     .portrait-grid {
@@ -1248,23 +1305,35 @@
     }
 
     .mri-top-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: calc(max(24px, env(safe-area-inset-top, 0px)) + 10px) 20px 4px;
       width: 100%;
-      z-index: 25;
+      z-index: 55;
       flex-shrink: 0;
-      background: rgba(11, 23, 28, 0.75);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      background: transparent !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      border: none !important;
+      box-shadow: none !important;
+      pointer-events: none;
       box-sizing: border-box;
     }
 
+    .mri-top-bar button {
+      pointer-events: auto;
+    }
+
     .mri-stage-wrapper {
-      position: relative;
-      flex: 1;
+      position: absolute;
+      inset: 0;
       width: 100%;
+      height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1274,6 +1343,7 @@
 
     .mri-stage {
       position: relative;
+      z-index: 2;
       aspect-ratio: 1366 / 1024;
       max-width: 100%;
       max-height: 100%;
@@ -1300,7 +1370,7 @@
     .mri-room-lights-on {
       z-index: 2;
       opacity: 1;
-      transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: opacity 0.12s ease-out;
     }
 
     .mri-room-lights-on.lights-turned-off {
@@ -1367,10 +1437,10 @@
     }
 
     .mri-hotspot-switch {
-      top: 9.0%;
-      left: 77.0%;
-      width: 7%;
-      height: 8%;
+      top: 34.0%;
+      left: 69.7%;
+      width: 7.0%;
+      height: 13.8%;
     }
 
     .mri-hotspot-switch .mri-hotspot-label {
@@ -1414,10 +1484,20 @@
       width: 14%;
       height: 32%;
       z-index: 10;
+      cursor: pointer;
     }
 
-    .mri-hotspot-monitors-active .mri-hotspot-label {
-      margin-top: 54px;
+    #mriMonitorsImg {
+      animation: mriMonitorsGlow 2.0s infinite ease-in-out;
+    }
+
+    @keyframes mriMonitorsGlow {
+      0%, 100% {
+        filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.75)) drop-shadow(0 0 24px rgba(14, 165, 233, 0.5));
+      }
+      50% {
+        filter: drop-shadow(0 0 22px rgba(56, 189, 248, 1)) drop-shadow(0 0 42px rgba(14, 165, 233, 0.85));
+      }
     }
 
     /* Layer 3: MRI Inside Screen (explored after room lights off) */
@@ -1584,13 +1664,42 @@
       transform: translateY(0) scale(1);
     }
 
-    .mri-interactive-item-layer.clicked img {
-      animation: mriItemBounce 0.4s ease-out;
+    #mriRemoteLayer.active #mriRemoteImg,
+    #mriStressBallLayer.active #mriStressBallVisual {
+      animation: mriMonitorsGlow 2.0s infinite ease-in-out;
+    }
+
+    #mriRemoteLayer img {
+      transform-origin: 85% 85%;
+    }
+
+    #mriStressBallVisual {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      transform-origin: 15.4% 83.5%;
+      transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: transform;
+    }
+
+    .mri-stress-ball-frame {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+      transition: opacity 0.12s ease;
+      will-change: opacity;
+    }
+
+    #mriRemoteLayer.clicked #mriRemoteImg {
+      animation: mriItemBounce 0.3s ease-out, mriMonitorsGlow 2.0s infinite ease-in-out;
     }
 
     @keyframes mriItemBounce {
       0% { transform: scale(1); }
-      40% { transform: scale(1.04); }
+      40% { transform: scale(1.02); }
       100% { transform: scale(1); }
     }
 
@@ -1900,15 +2009,16 @@
 
     .mri-still-hud {
       position: absolute;
-      top: 20px;
+      top: auto;
+      bottom: calc(20px + env(safe-area-inset-bottom, 0px));
       left: 0;
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      padding: 0 28px;
+      padding: 0 24px;
       z-index: 45;
-      pointer-events: auto;
+      pointer-events: none;
     }
 
     .mri-still-back-btn {
@@ -2024,10 +2134,10 @@
 
     .mri-still-video {
       position: absolute;
-      top: 0;
+      top: 62px;
       left: 0;
       width: 100%;
-      height: 100%;
+      height: calc(100% - 62px);
       object-fit: contain;
       pointer-events: none;
       user-select: none;
@@ -2117,6 +2227,36 @@
     @keyframes mriCorePulse {
       0% { transform: scale(0.85); opacity: 0.7; }
       100% { transform: scale(1.25); opacity: 1; }
+    }
+
+    .mri-still-freeze-word {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.5);
+      z-index: 47;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      padding: 12px 34px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.96), rgba(185, 28, 28, 0.96));
+      border: 3px solid rgba(255, 255, 255, 0.92);
+      box-shadow: 0 0 36px rgba(239, 68, 68, 0.85), 0 10px 28px rgba(0, 0, 0, 0.55);
+      color: #ffffff;
+      font-size: clamp(36px, 5.5vw, 58px);
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
+      transition: opacity 0.16s ease, transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .mri-still-freeze-word.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%, -50%) scale(1);
     }
 
     /* Instruments Positioning & Animation */
@@ -2227,31 +2367,70 @@
       100% { transform: rotate(0deg); }
     }
 
-    /* Freeze Warning Toast */
+    /* Freeze Warning Top Ribbon */
     .mri-still-warning-toast {
       position: absolute;
-      top: 90px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: linear-gradient(135deg, rgba(220, 38, 38, 0.98), rgba(185, 28, 28, 0.98));
+      top: calc(max(24px, env(safe-area-inset-top, 0px)) + 54px);
+      left: 0;
+      right: 0;
+      width: 100%;
+      min-height: 36px;
+      box-sizing: border-box;
+      background: linear-gradient(135deg, rgba(220, 38, 38, 0.96), rgba(185, 28, 28, 0.96));
       color: #ffffff;
-      padding: 12px 28px;
-      border-radius: 999px;
-      font-size: 18px;
+      padding: 7px 24px;
+      border-radius: 0;
+      font-size: 16px;
       font-weight: 800;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7), 0 0 24px rgba(239, 68, 68, 0.8);
-      border: 2px solid #fca5a5;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.55), 0 0 24px rgba(239, 68, 68, 0.7);
+      border-top: 2px solid #fca5a5;
+      border-bottom: 2px solid #fca5a5;
+      border-left: none;
+      border-right: none;
       display: none;
       align-items: center;
+      justify-content: center;
       gap: 10px;
       z-index: 48;
       pointer-events: none;
-      animation: mriWarningBounce 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      animation: mriWarningBounce 0.25s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     @keyframes mriWarningBounce {
-      0% { transform: translateX(-50%) scale(0.8); opacity: 0; }
-      100% { transform: translateX(-50%) scale(1); opacity: 1; }
+      0% { transform: translateY(-8px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    #mriStaticBedEmptyImg.bed-tap-glow {
+      animation: mriMonitorsGlow 2.0s infinite ease-in-out;
+    }
+
+    .mri-still-music-note {
+      position: absolute;
+      z-index: 44;
+      pointer-events: none;
+      font-size: clamp(24px, 3.2vw, 34px);
+      font-weight: 900;
+      line-height: 1;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.45), 0 0 14px currentColor;
+      user-select: none;
+      -webkit-user-select: none;
+      animation: mriMusicNoteFloat 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes mriMusicNoteFloat {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5) rotate(0deg);
+      }
+      18% {
+        opacity: 1;
+        transform: translate(calc(-50% + var(--note-dx, 0px) * 0.25), calc(-50% - 26px)) scale(1.1) rotate(var(--note-rot, 8deg));
+      }
+      100% {
+        opacity: 0;
+        transform: translate(calc(-50% + var(--note-dx, 0px)), calc(-50% - 125px)) scale(0.92) rotate(calc(var(--note-rot, 8deg) * 1.6));
+      }
     }
 
     /* Confetti Canvas in Still Game */
@@ -2408,9 +2587,10 @@
 
     .mri-contrast-done-btn {
       position: absolute;
-      top: 14px;
-      right: 20px;
-      z-index: 20;
+      bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 32;
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -2428,7 +2608,7 @@
 
     .mri-contrast-done-btn:hover,
     .mri-contrast-done-btn:active {
-      transform: scale(1.05);
+      transform: translateX(-50%) scale(1.05);
       background: linear-gradient(135deg, #34d399 0%, #059669 100%);
       box-shadow: 0 6px 22px rgba(16, 185, 129, 0.85);
     }
@@ -2489,33 +2669,33 @@
       transform: translate(-50%, -50%) scale(1.06);
     }
 
-    /* MRI All Done Center Button (Pops up after 8 seconds inside) */
+    /* MRI Continue Button (appears at bottom-middle after remote & stress ball) */
     .mri-all-done-btn {
       position: absolute;
-      top: 50%;
+      bottom: calc(20px + env(safe-area-inset-bottom, 0px));
       left: 50%;
-      transform: translate(-50%, -50%) scale(0.6);
+      transform: translateX(-50%) scale(0.92);
       z-index: 60;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      padding: 16px 36px;
-      background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
-      border: 3px solid rgba(255, 255, 255, 0.95);
+      gap: 8px;
+      padding: 9px 20px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border: 2px solid #34d399;
       border-radius: 999px;
       color: #ffffff;
-      font-size: clamp(18px, 2.5vw, 24px);
+      font-size: 15px;
       font-weight: 800;
-      letter-spacing: 0.5px;
       cursor: pointer;
-      box-shadow: 0 10px 30px rgba(16, 185, 129, 0.55), 0 0 20px rgba(255, 255, 255, 0.5);
+      box-shadow: 0 4px 18px rgba(16, 185, 129, 0.65);
       opacity: 0;
       pointer-events: none;
       visibility: hidden;
-      transition: opacity 0.5s cubic-bezier(0.34, 1.35, 0.64, 1),
-                  transform 0.5s cubic-bezier(0.34, 1.35, 0.64, 1),
-                  box-shadow 0.3s ease;
+      transition: opacity 0.35s ease,
+                  transform 0.2s ease,
+                  background 0.2s ease,
+                  box-shadow 0.2s ease;
       touch-action: manipulation;
       user-select: none;
       -webkit-user-select: none;
@@ -2525,17 +2705,14 @@
       opacity: 1;
       visibility: visible;
       pointer-events: auto;
-      transform: translate(-50%, -50%) scale(1);
-      animation: mriAllDonePulse 2.2s ease-in-out infinite;
+      transform: translateX(-50%) scale(1);
     }
 
-    .mri-all-done-btn:hover {
-      transform: translate(-50%, -50%) scale(1.06);
-      box-shadow: 0 14px 36px rgba(16, 185, 129, 0.7), 0 0 28px rgba(255, 255, 255, 0.75);
-    }
-
+    .mri-all-done-btn:hover,
     .mri-all-done-btn:active {
-      transform: translate(-50%, -50%) scale(0.95);
+      transform: translateX(-50%) scale(1.05);
+      background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+      box-shadow: 0 6px 22px rgba(16, 185, 129, 0.85);
     }
 
     @keyframes mriAllDonePulse {
@@ -2728,7 +2905,7 @@
     /* Tap hint overlay during welcome */
     .mri-tap-hint {
       position: absolute;
-      top: 24px;
+      bottom: 24px;
       right: 28px;
       background: rgba(0, 0, 0, 0.65);
       border: 1px solid rgba(255, 255, 255, 0.25);
@@ -2747,34 +2924,48 @@
       gap: 6px;
     }
 
-    /* Bottom Standardized Prompt Bar for MRI (Standardized to Anatomy Explorer format) */
+    /* Top Standardized Prompt Bar for MRI (Matching Port Access & NG Tube) */
     .mri-bottom-prompt-bar {
       position: absolute;
-      bottom: 0;
+      top: calc(max(24px, env(safe-area-inset-top, 0px)) + 54px);
+      bottom: auto;
       left: 0;
       right: 0;
       width: 100%;
-      height: calc(52px + env(safe-area-inset-bottom, 0px));
-      min-height: 52px;
-      padding-bottom: env(safe-area-inset-bottom, 0px);
+      min-height: 42px;
+      height: auto;
+      padding: 8px 24px;
+      border-radius: 0;
       box-sizing: border-box;
-      z-index: 60;
+      z-index: 50;
       display: flex;
       justify-content: center;
       align-items: center;
-      background: linear-gradient(180deg, rgba(16, 8, 34, 0.65) 0%, rgba(24, 12, 48, 0.72) 100%);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-top: 1px solid rgba(255, 255, 255, 0.16);
-      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.32);
+      background: linear-gradient(180deg, rgba(14, 28, 32, 0.16) 0%, rgba(20, 38, 44, 0.22) 100%);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-top: 1px solid rgba(255, 255, 255, 0.14);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      border-left: none;
+      border-right: none;
+      box-shadow: none;
       transition: background 0.35s ease, border-color 0.35s ease, opacity 0.35s ease, box-shadow 0.35s ease, color 0.35s ease;
       cursor: pointer;
       pointer-events: auto;
     }
 
+    @media (max-height: 600px) {
+      .mri-bottom-prompt-bar {
+        top: calc(max(24px, env(safe-area-inset-top, 0px)) + 50px);
+        padding: 6px 16px;
+        min-height: 38px;
+      }
+    }
+
     .mri-bottom-prompt-bar.can-confirm {
-      background: linear-gradient(180deg, rgba(26, 13, 50, 0.78) 0%, rgba(38, 18, 72, 0.86) 100%);
+      background: linear-gradient(180deg, rgba(18, 36, 42, 0.32) 0%, rgba(24, 48, 56, 0.40) 100%);
       border-top: 1px solid rgba(255, 215, 0, 0.38);
+      border-bottom: 1px solid rgba(255, 215, 0, 0.25);
     }
 
     .mri-bottom-prompt-bar.prompt-pulse {
@@ -2782,6 +2973,22 @@
     }
 
     /* Still Game Dynamic Prompt Bar Color States */
+    .mri-bottom-prompt-bar.still-move-mode,
+    .mri-bottom-prompt-bar.still-warning-mode,
+    .mri-bottom-prompt-bar.still-freeze-mode,
+    .mri-bottom-prompt-bar.still-success-mode {
+      min-height: 30px;
+      padding: 4px 18px;
+    }
+
+    .mri-bottom-prompt-bar.still-move-mode .step-instruction-text,
+    .mri-bottom-prompt-bar.still-warning-mode .step-instruction-text,
+    .mri-bottom-prompt-bar.still-freeze-mode .step-instruction-text,
+    .mri-bottom-prompt-bar.still-success-mode .step-instruction-text {
+      font-size: 13.5px;
+      line-height: 1.25;
+    }
+
     .mri-bottom-prompt-bar.still-move-mode {
       background: linear-gradient(135deg, rgba(16, 185, 129, 0.95), rgba(5, 150, 105, 0.95)) !important;
       border-top: 2px solid #34d399 !important;
@@ -3552,9 +3759,9 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      background: linear-gradient(135deg, #0ea5e9, #0284c7) !important;
+      background: linear-gradient(135deg, #10b981, #059669) !important;
       color: #ffffff !important;
-      box-shadow: 0 6px 20px rgba(14, 165, 233, 0.45) !important;
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45) !important;
       border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
       font-size: 18px !important;
       font-weight: 800 !important;
@@ -3566,7 +3773,7 @@
 
     .intro-start-btn:hover {
       transform: translateY(-2px) scale(1.04);
-      box-shadow: 0 10px 26px rgba(14, 165, 233, 0.6) !important;
+      box-shadow: 0 10px 26px rgba(16, 185, 129, 0.6) !important;
     }
 
     .intro-start-btn:active {
@@ -3758,6 +3965,8 @@
       touch-action: none;
       user-select: none;
       -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .ng-tube-maze-bg {
@@ -3802,7 +4011,11 @@
       height: 100%;
       z-index: 10;
       touch-action: none;
-      cursor: crosshair;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
+      cursor: default;
     }
 
     /* Strikes / Touches Counter in Prompt Bar */
@@ -3918,9 +4131,64 @@
     }
 
     .ng-tube-maze-stomach-glow.won {
-      opacity: 1;
-      box-shadow: 0 0 45px rgba(56, 189, 248, 0.85), 0 0 90px rgba(16, 185, 129, 0.6);
-      animation: stomachWinAura 1.4s infinite alternate ease-in-out;
+      opacity: 0;
+      box-shadow: none;
+      animation: none;
+    }
+
+    /* Stomach Success Sparkles at end of maze */
+    .ng-tube-maze-stomach-sparkles {
+      position: absolute;
+      left: 83.8%;
+      top: 18.5%;
+      width: 15.5%;
+      height: 23.5%;
+      pointer-events: none;
+      z-index: 12;
+      overflow: visible;
+      display: none;
+    }
+    .ng-tube-maze-stomach-sparkles.active {
+      display: block;
+    }
+    .maze-sparkle-item {
+      position: absolute;
+      pointer-events: none;
+      object-fit: contain;
+      opacity: 0;
+      will-change: transform, opacity;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+    .ng-tube-maze-stomach-sparkles.active .maze-sparkle-item {
+      animation: mazeStomachSparklePop 1.15s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    .maze-sparkle-item.ms-1 { left: 15%; top: 22%; width: clamp(22px, 2.8vw, 36px); animation-delay: 0.02s; }
+    .maze-sparkle-item.ms-2 { left: 52%; top: 8%;  width: clamp(26px, 3.2vw, 42px); animation-delay: 0.08s; }
+    .maze-sparkle-item.ms-3 { left: 86%; top: 24%; width: clamp(22px, 2.6vw, 34px); animation-delay: 0.14s; }
+    .maze-sparkle-item.ms-4 { left: 8%;  top: 66%; width: clamp(20px, 2.4vw, 32px); animation-delay: 0.18s; }
+    .maze-sparkle-item.ms-5 { left: 78%; top: 72%; width: clamp(24px, 2.8vw, 36px); animation-delay: 0.12s; }
+    .maze-sparkle-item.ms-6 { left: 46%; top: 86%; width: clamp(20px, 2.4vw, 30px); animation-delay: 0.22s; }
+
+    @keyframes mazeStomachSparklePop {
+      0% {
+        opacity: 0;
+        transform: translate3d(-50%, -50%, 0) scale(0.2) rotate(0deg);
+      }
+      22% {
+        opacity: 1;
+        transform: translate3d(-50%, -50%, 0) scale(1.12) rotate(18deg);
+      }
+      65% {
+        opacity: 0.92;
+        transform: translate3d(-50%, -50%, 0) scale(0.96) rotate(45deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translate3d(-50%, -50%, 0) scale(0.15) rotate(72deg);
+      }
     }
 
     @keyframes stomachWinAura {
@@ -4379,12 +4647,20 @@
       z-index: 12;
       pointer-events: auto;
       cursor: pointer;
-      animation: miniWhiteboardPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      animation: miniWhiteboardPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), miniWhiteboardGlow 2.0s 0.5s infinite ease-in-out;
       transition: filter 0.2s ease, transform 0.2s ease;
     }
     @keyframes miniWhiteboardPop {
       0% { transform: scale(0.65) translateY(20px); opacity: 0; }
       100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    @keyframes miniWhiteboardGlow {
+      0%, 100% {
+        filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.7)) drop-shadow(0 0 22px rgba(14, 165, 233, 0.45));
+      }
+      50% {
+        filter: drop-shadow(0 0 24px rgba(56, 189, 248, 1)) drop-shadow(0 0 42px rgba(14, 165, 233, 0.78));
+      }
     }
     .ng-tube-mini-whiteboard-container img {
       width: 100%;
@@ -4405,6 +4681,106 @@
     .ng-tube-mini-whiteboard-container:hover {
       filter: drop-shadow(0 0 18px rgba(56, 189, 248, 0.85));
       transform: scale(1.02);
+    }
+
+    /* Sparkle burst around mini whiteboard edges, drifting up and glimmering */
+    .ng-tube-whiteboard-sparkle-fx {
+      position: absolute;
+      left: 8.35%;
+      top: 55.86%;
+      width: 25.04%;
+      height: 25.78%;
+      pointer-events: none;
+      z-index: 15;
+      overflow: visible;
+      display: none;
+    }
+    .ng-tube-whiteboard-sparkle-fx.active {
+      display: block;
+    }
+    .wb-sparkle-item {
+      position: absolute;
+      pointer-events: none;
+      object-fit: contain;
+      opacity: 0;
+      will-change: transform, opacity;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      transform: translate3d(-50%, -50%, 0) scale(0.2);
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+    .ng-tube-whiteboard-sparkle-fx.active .wb-sparkle-item {
+      animation: wbSparkleDriftUp 2.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    .wb-sparkle-item.wb-s1 { left: 10%;  top: 6%;  width: clamp(22px, 2.8vw, 36px); animation-delay: 0.04s; }
+    .wb-sparkle-item.wb-s2 { left: 36%;  top: -2%; width: clamp(26px, 3.2vw, 42px); animation-delay: 0.14s; }
+    .wb-sparkle-item.wb-s3 { left: 66%;  top: -2%; width: clamp(24px, 3.0vw, 38px); animation-delay: 0.09s; }
+    .wb-sparkle-item.wb-s4 { left: 94%;  top: 10%; width: clamp(22px, 2.6vw, 34px); animation-delay: 0.20s; }
+    .wb-sparkle-item.wb-s5 { left: -3%;  top: 38%; width: clamp(18px, 2.2vw, 28px); animation-delay: 0.28s; }
+    .wb-sparkle-item.wb-s6 { left: 103%; top: 42%; width: clamp(20px, 2.4vw, 30px); animation-delay: 0.34s; }
+    .ng-tube-whiteboard-sparkle-fx.active .wb-sparkle-item.wb-s1,
+    .ng-tube-whiteboard-sparkle-fx.active .wb-sparkle-item.wb-s5 {
+      animation-name: wbSparkleDriftUpLeft;
+    }
+    .ng-tube-whiteboard-sparkle-fx.active .wb-sparkle-item.wb-s4,
+    .ng-tube-whiteboard-sparkle-fx.active .wb-sparkle-item.wb-s6 {
+      animation-name: wbSparkleDriftUpRight;
+    }
+
+    @keyframes wbSparkleDriftUp {
+      0% {
+        opacity: 0;
+        transform: translate3d(-50%, -50%, 0) scale(0.2) rotate(0deg);
+      }
+      18% {
+        opacity: 1;
+        transform: translate3d(-50%, calc(-50% - 14px), 0) scale(1.12) rotate(18deg);
+      }
+      72% {
+        opacity: 0.85;
+        transform: translate3d(-50%, calc(-50% - 62px), 0) scale(0.95) rotate(58deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translate3d(-50%, calc(-50% - 88px), 0) scale(0.15) rotate(84deg);
+      }
+    }
+    @keyframes wbSparkleDriftUpLeft {
+      0% {
+        opacity: 0;
+        transform: translate3d(-50%, -50%, 0) scale(0.2) rotate(0deg);
+      }
+      18% {
+        opacity: 1;
+        transform: translate3d(calc(-50% - 5px), calc(-50% - 14px), 0) scale(1.12) rotate(-18deg);
+      }
+      72% {
+        opacity: 0.85;
+        transform: translate3d(calc(-50% - 15px), calc(-50% - 62px), 0) scale(0.95) rotate(-55deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translate3d(calc(-50% - 20px), calc(-50% - 88px), 0) scale(0.15) rotate(-82deg);
+      }
+    }
+    @keyframes wbSparkleDriftUpRight {
+      0% {
+        opacity: 0;
+        transform: translate3d(-50%, -50%, 0) scale(0.2) rotate(0deg);
+      }
+      18% {
+        opacity: 1;
+        transform: translate3d(calc(-50% + 5px), calc(-50% - 14px), 0) scale(1.12) rotate(18deg);
+      }
+      72% {
+        opacity: 0.85;
+        transform: translate3d(calc(-50% + 15px), calc(-50% - 62px), 0) scale(0.95) rotate(55deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translate3d(calc(-50% + 20px), calc(-50% - 88px), 0) scale(0.15) rotate(82deg);
+      }
     }
 
     /* Large Whiteboard Screen Modal */
@@ -4725,8 +5101,19 @@
       user-select: none;
       -webkit-user-select: none;
       transition: transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1), filter 0.25s ease;
-      animation: portGownPopIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, portGownGlow 2.4s infinite ease-in-out;
-      filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.85)) drop-shadow(0 0 28px rgba(14, 165, 233, 0.5));
+      animation: portGownPopIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, portGownGlow 2.0s infinite ease-in-out;
+      filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.8)) drop-shadow(0 0 30px rgba(14, 165, 233, 0.55));
+    }
+
+    .port-folded-gown-item::before {
+      content: '';
+      position: absolute;
+      inset: -10px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at center, rgba(125, 211, 252, 0.45) 0%, rgba(56, 189, 248, 0.24) 48%, transparent 76%);
+      animation: portGownAuraPulse 2.0s infinite ease-in-out;
+      pointer-events: none;
+      z-index: 0;
     }
 
     .port-folded-gown-item.dragging {
@@ -4737,7 +5124,14 @@
       filter: drop-shadow(0 0 24px rgba(56, 189, 248, 1)) drop-shadow(0 0 40px rgba(14, 165, 233, 0.75)) drop-shadow(0 12px 20px rgba(0,0,0,0.45));
     }
 
+    .port-folded-gown-item.dragging::before {
+      animation: none;
+      opacity: 0.75;
+    }
+
     .port-folded-gown-item img {
+      position: relative;
+      z-index: 1;
       width: 100%;
       height: 100%;
       object-fit: contain;
@@ -4756,12 +5150,23 @@
       }
     }
 
-    @keyframes portGownGlow {
+    @keyframes portGownAuraPulse {
       0%, 100% {
-        filter: drop-shadow(0 0 14px rgba(56, 189, 248, 0.8)) drop-shadow(0 0 26px rgba(14, 165, 233, 0.45));
+        opacity: 0.25;
+        transform: scale(0.94);
       }
       50% {
-        filter: drop-shadow(0 0 22px rgba(56, 189, 248, 1)) drop-shadow(0 0 38px rgba(14, 165, 233, 0.7));
+        opacity: 0.65;
+        transform: scale(1.08);
+      }
+    }
+
+    @keyframes portGownGlow {
+      0%, 100% {
+        filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.65)) drop-shadow(0 0 22px rgba(14, 165, 233, 0.4));
+      }
+      50% {
+        filter: drop-shadow(0 0 24px rgba(56, 189, 248, 0.95)) drop-shadow(0 0 42px rgba(14, 165, 233, 0.7));
       }
     }
 
@@ -4986,13 +5391,38 @@
       }
     }
 
-    /* Draggable LMX Cream Tube (Matches IV Prep Ointment Tube Mechanics) */
+    /* Black Corner Blur Backdrop behind Open Tote Bag */
+    .port-bag-corner-backdrop {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(
+        ellipse 45% 60% at 94% 90%,
+        rgba(0, 0, 0, 0.88) 0%,
+        rgba(0, 0, 0, 0.68) 34%,
+        rgba(0, 0, 0, 0.36) 60%,
+        rgba(0, 0, 0, 0.10) 82%,
+        transparent 100%
+      );
+      pointer-events: none;
+      z-index: 21;
+    }
+
+    /* Open Supply Tote Bag in Bottom-Right Corner */
+    .port-open-bag-layer {
+      z-index: 22;
+      pointer-events: none;
+      filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.6));
+    }
+
+    /* Draggable LMX Cream Tube (Floating above Open Tote Bag) */
     .port-lmx-tube-item {
       position: absolute;
-      left: 62.0%;
-      top: 52.0%;
-      width: 24.08%;
-      height: 32.52%;
+      left: 74.1%;
+      top: 45.0%;
+      width: 20.5%;
+      height: 27.7%;
       z-index: 25;
       cursor: grab;
       touch-action: none;
@@ -5221,12 +5651,12 @@
       }
     }
 
-    /* Draggable Clear Bandage Item (appears on tray with radiant glow) */
+    /* Draggable Clear Bandage Item (Floating above Open Tote Bag) */
     .port-bandage-item {
       position: absolute;
-      left: 63%;
-      top: 50%;
-      width: 20%;
+      left: 75.6%;
+      top: 61.0%;
+      width: 17.5%;
       aspect-ratio: 599 / 295;
       z-index: 25;
       cursor: grab;
@@ -5317,12 +5747,12 @@
       filter: drop-shadow(0 3px 10px rgba(56, 189, 248, 0.65));
     }
 
-    /* Tappable Floating Mask Item Centered in Middle of Screen with Radiant Contour Glow */
+    /* Tappable Floating Mask Item (Floating above Open Tote Bag) */
     .port-mask-item {
       position: absolute;
-      left: 50%;
-      top: 50%;
-      width: 25%;
+      left: 84.3%;
+      top: 64.0%;
+      width: 21.5%;
       aspect-ratio: 442 / 278;
       z-index: 26;
       cursor: pointer;
@@ -5374,12 +5804,12 @@
       pointer-events: none;
     }
 
-    /* Draggable & Tappable Gauze Item on Tray to Wipe Port Area Dry */
+    /* Draggable & Tappable Gauze Item (Floating above Open Tote Bag) */
     .port-gauze-item {
       position: absolute;
-      left: 63%;
-      top: 48%;
-      width: 19%;
+      left: 76.1%;
+      top: 57.0%;
+      width: 16.5%;
       aspect-ratio: 359 / 307;
       z-index: 26;
       cursor: grab;
@@ -5434,12 +5864,12 @@
       pointer-events: none;
     }
 
-    /* Draggable ChloraPrep Applicator on Tray */
+    /* Draggable ChloraPrep Applicator (Floating above Open Tote Bag) */
     .port-chloraprep-item {
       position: absolute;
-      left: 63%;
-      top: 45%;
-      width: 14%;
+      left: 78.3%;
+      top: 54.0%;
+      width: 12.0%;
       aspect-ratio: 557 / 793;
       z-index: 26;
       cursor: grab;
@@ -5504,7 +5934,7 @@
       transform: translate(-50%, -50%);
       border-radius: 14px;
       pointer-events: none;
-      z-index: 22 !important;
+      z-index: 16;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -5554,12 +5984,12 @@
       z-index: 25 !important;
     }
 
-    /* Draggable Port Huber Needle on Tray */
+    /* Draggable Port Huber Needle (Floating above Open Tote Bag) */
     .port-needle-item {
       position: absolute;
-      left: 63.5%;
-      top: 47%;
-      width: 14%;
+      left: 78.1%;
+      top: 59.0%;
+      width: 12.5%;
       aspect-ratio: 241 / 214;
       z-index: 26;
       cursor: grab;
@@ -5645,12 +6075,12 @@
       pointer-events: none;
     }
 
-    /* Draggable Transparent Tegaderm Bandage on Tray */
+    /* Draggable Transparent Tegaderm Bandage (Floating above Open Tote Bag) */
     .port-tegaderm-item {
       position: absolute;
-      left: 63%;
-      top: 48%;
-      width: 15%;
+      left: 76.3%;
+      top: 59.0%;
+      width: 16.0%;
       aspect-ratio: 422 / 290;
       z-index: 26;
       cursor: grab;
@@ -8690,22 +9120,6 @@
     .mask-success-overlay.visible {
       opacity: 1;
       pointer-events: auto;
-    }
-
-    /* All confetti canvases and particles permanently disabled */
-    .mask-confetti-canvas,
-    .game-confetti-canvas,
-    .mri-confetti-canvas,
-    .mri-still-confetti-canvas,
-    .ng-tube-final-confetti-canvas,
-    .puzzle-confetti-canvas,
-    .matching-confetti-canvas,
-    #ngTubeMazeConfettiCanvas,
-    .confetti-sparkle-star {
-      display: none !important;
-      opacity: 0 !important;
-      visibility: hidden !important;
-      pointer-events: none !important;
     }
 
     #portConfettiCanvas {
@@ -13417,14 +13831,6 @@
                   </div>
                 </div>
 
-                <div class="grid-row-bottom">
-                  <button class="pill-btn" onclick="goToAbout()" style="width: 220px; height: 55px;" aria-label="About">
-                    <span class="pill-btn-text">About</span>
-                  </button>
-                  <button class="pill-btn" onclick="openSheet('Legal')" style="width: 220px; height: 55px;" aria-label="Legal">
-                    <span class="pill-btn-text">Legal</span>
-                  </button>
-                </div>
               </div>
 
               <!-- Compact Portrait Grid -->
@@ -13447,16 +13853,14 @@
                     </button>
                   </div>
                 </div>
-                <div class="portrait-grid-bottom">
-                  <button class="pill-btn" onclick="goToAbout()" style="width: 120px;" aria-label="About">
-                    <span class="pill-btn-text">About</span>
-                  </button>
-                  <button class="pill-btn" onclick="openSheet('Legal')" style="width: 120px;" aria-label="Legal">
-                    <span class="pill-btn-text">Legal</span>
-                  </button>
-                </div>
               </div>
             </div>
+
+            <footer class="home-bottom-toolbar" aria-label="Footer navigation">
+              <button type="button" class="home-toolbar-link" onclick="goToAbout()" aria-label="About">About</button>
+              <button type="button" class="home-toolbar-link" onclick="openSheet('Legal')" aria-label="Legal">Legal</button>
+              <span class="home-toolbar-copyright">&copy;2026 Indiana University Health, Inc. All Rights Reserved</span>
+            </footer>
           </div>
         </div>
 
@@ -13604,8 +14008,11 @@
               </div>
             </div>
 
-            <!-- MRI Stage Wrapper (1366:1024 Aspect Ratio, Scales Responsively) -->
+            <!-- MRI Stage Wrapper (Full-Screen with Ambient Backdrop) -->
             <div class="mri-stage-wrapper" id="mriStageWrapper">
+              <div id="mriBackdrop" class="port-access-backdrop" aria-hidden="true">
+                <img src="assets/MRIRoomLightsOn.png" class="port-backdrop-img" alt="" draggable="false" />
+              </div>
               <div class="mri-stage" id="mriStage" onclick="handleMRIStageTap(event)">
                 <!-- Layer 0: Room Lights Off Screen (revealed when lights turn off) -->
                 <img id="mriRoomLightsOff" class="mri-layer mri-room-lights-off" src="assets/MRIRoomLightsOff.png" alt="MRI Room Lights Off" loading="lazy" decoding="async" />
@@ -13613,10 +14020,7 @@
                 <!-- Layer 0.5: Monitors Layer in Dimmed Room -->
                 <div id="mriMonitorsLayer" class="mri-layer mri-monitors-layer" style="display: none; opacity: 0; pointer-events: none;" onclick="onMRIMonitorsTap(event)">
                   <img id="mriMonitorsImg" class="mri-layer" src="assets/Monitors 2.png" alt="Monitors" draggable="false" loading="lazy" decoding="async" />
-                  <div class="mri-hotspot mri-hotspot-monitors-active" id="mriSpotMonitorsActive" title="Click on the monitors">
-                    <span class="mri-pulse-ring"></span>
-                    <span class="mri-hotspot-label">Monitors</span>
-                  </div>
+                  <div class="mri-hotspot mri-hotspot-monitors-active" id="mriSpotMonitorsActive" title="Click on the monitors"></div>
                 </div>
 
                 <!-- Layer 1: Room Lights On Screen (the interactive room screen) -->
@@ -13645,10 +14049,9 @@
                   <!-- Hotspot 4: Light Switch (Active when all spots are clicked) -->
                   <div class="mri-hotspot mri-hotspot-switch" id="mriSpotSwitch" onclick="onMRILightSwitchTap(event)" title="Turn Off Lights" style="display: none;">
                     <span class="mri-pulse-ring"></span>
-                    <span class="mri-hotspot-label">Turn Off Lights</span>
                   </div>
                   <!-- Ceiling Light Fixture Tap Target (Active when all spots are clicked) -->
-                  <div class="mri-hotspot-ceiling" id="mriSpotCeiling" onclick="onMRILightSwitchTap(event)" title="Ceiling Lights" style="position: absolute; top: 5%; left: 26%; width: 48%; height: 9%; cursor: pointer; z-index: 8; display: none;"></div>
+                  <div class="mri-hotspot-ceiling" id="mriSpotCeiling" onclick="onMRILightSwitchTap(event)" title="Ceiling Lights" style="position: absolute; top: 9%; left: 26%; width: 48%; height: 10%; cursor: pointer; z-index: 8; display: none;"></div>
                 </div>
 
                 <!-- Layer 3: MRI Inside Screen (explored after room lights off) -->
@@ -13686,7 +14089,11 @@
 
                   <!-- Stress Ball Layer (bottom-left) -->
                   <div id="mriStressBallLayer" class="mri-layer mri-interactive-item-layer" style="pointer-events: none;">
-                    <img id="mriStressBallImg" class="mri-layer" src="assets/MRIStressBall.png" alt="Stress Ball" style="width: 100%; height: 100%; object-fit: cover; pointer-events: none;" loading="lazy" decoding="async" />
+                    <div id="mriStressBallVisual">
+                      <img id="mriStressBallImg" class="mri-layer mri-stress-ball-frame" src="assets/MRIStressBall.png" alt="Stress Ball" style="opacity: 1;" loading="eager" decoding="async" />
+                      <img id="mriStressSquish1Img" class="mri-layer mri-stress-ball-frame" src="assets/MRIStressSquish1.png" alt="" aria-hidden="true" style="opacity: 0;" loading="eager" decoding="async" />
+                      <img id="mriStressSquish2Img" class="mri-layer mri-stress-ball-frame" src="assets/MRIStressSquish2.png" alt="" aria-hidden="true" style="opacity: 0;" loading="eager" decoding="async" />
+                    </div>
                   </div>
 
                   <!-- Interactive Buttons on Inside Screen -->
@@ -13701,15 +14108,11 @@
                     </div>
 
                     <!-- Interactive Stress Ball Hotspot (bottom-left) -->
-                    <div class="mri-hotspot mri-hotspot-stress-ball" id="mriBtnStressBall" onclick="onMRIStressBallTap(event)" title="Squish the Stress Ball" style="display: none;">
-                      <span class="mri-pulse-ring" style="width: 54px; height: 54px;"></span>
-                    </div>
+                    <div class="mri-hotspot mri-hotspot-stress-ball" id="mriBtnStressBall" onclick="onMRIStressBallTap(event)" title="Squish the Stress Ball" style="display: none;"></div>
 
                     <!-- Interactive Remote Hotspots (remote body + red power button) -->
                     <div class="mri-hotspot-remote-body" id="mriBtnRemoteBody" onclick="onMRIRemoteTap(event)" title="Remote Controller" style="display: none;"></div>
-                    <div class="mri-hotspot-remote" id="mriBtnRemote" onclick="onMRIRemoteTap(event)" title="Start Program with Remote" style="display: none;">
-                      <span class="mri-pulse-ring"></span>
-                    </div>
+                    <div class="mri-hotspot-remote" id="mriBtnRemote" onclick="onMRIRemoteTap(event)" title="Start Program with Remote" style="display: none;"></div>
                   </div>
                 </div>
 
@@ -13749,19 +14152,33 @@
                         <polyline points="19 12 12 19 5 12"></polyline>
                       </svg>
                     </div>
-                    <span class="mri-slide-label">Drag down out of the machine!</span>
                   </div>
 
                   <!-- Hotspot on the bed to get ready -->
-                  <div class="mri-hotspot-bed-prep" id="mriBedHotspot" onclick="onMRIBedTap(event)" title="Tap the bed to get ready for your MRI">
-                    <span class="mri-pulse-ring"></span>
-                    <span class="mri-hotspot-label">Tap the bed to get ready</span>
-                  </div>
+                  <div class="mri-hotspot-bed-prep" id="mriBedHotspot" onclick="onMRIBedTap(event)" title="Tap the bed to get ready for your MRI"></div>
 
-                  <!-- Floating prompt button to practice holding still -->
-                  <button id="mriStageStillGameBtn" class="mri-stage-still-game-btn" onclick="startMRIStillGame(event)" title="Practice Holding Still">
-                    <span>Practice Holding Still!</span>
-                  </button>
+                  <!-- Standardized Practice Activity Intro Overlay for Holding Still -->
+                  <div id="mriStillIntroOverlay" class="ng-tube-maze-intro-overlay" style="display: none; z-index: 35;" onclick="startMRIStillGame(event)">
+                    <div class="ng-tube-maze-intro-card" onclick="event.stopPropagation()">
+                      <div class="intro-badge">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <polygon points="10 8 16 12 10 16 10 8" fill="currentColor"></polygon>
+                        </svg>
+                        <span>Practice Activity</span>
+                      </div>
+                      <div class="intro-title">Let's practice holding still!</div>
+                      <div class="intro-subtitle">Play the instruments until it's time to freeze!</div>
+                      <div class="intro-actions">
+                        <button class="ng-tube-choice-btn intro-start-btn" onclick="startMRIStillGame(event)">
+                          <span>Start</span>
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <!-- Layer 5: Staying Still Game Screen (Interrupts scene before bed slides into machine) -->
@@ -13808,6 +14225,9 @@
                     <div class="mri-still-ring mri-still-ring-1"></div>
                     <div class="mri-still-ring-core"></div>
                   </div>
+
+                  <!-- Freeze! Pop-up Word in Center -->
+                  <div id="mriStillFreezeWord" class="mri-still-freeze-word" aria-live="assertive">Freeze!</div>
 
                   <!-- Freeze Warning Toast / Gentle Alert -->
                   <div id="mriStillWarningToast" class="mri-still-warning-toast" aria-live="assertive">
@@ -13866,26 +14286,20 @@
                   </div>
                 </div>
 
-                <!-- All Done! Button (Pops up in center after 8 seconds) -->
-                <button class="mri-all-done-btn" id="mriAllDoneBtn" onclick="onMRIAllDoneTap(event)" aria-label="MRI All Done">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  <span>All Done!</span>
+                <!-- Continue Button (appears at bottom-middle) -->
+                <button class="mri-all-done-btn" id="mriAllDoneBtn" onclick="onMRIAllDoneTap(event)" aria-label="Continue MRI Preparation">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span>Continue</span>
                 </button>
 
                 <!-- MRI Success Celebration Overlay -->
-                <div id="mriSuccessOverlay" class="mri-success-overlay" aria-hidden="true" onclick="replayMRIFromCelebration()">
-                  <canvas id="mriConfettiCanvas" class="mri-confetti-canvas"></canvas>
-                  <div class="mri-success-content" onclick="event.stopPropagation()">
-                    <img class="mri-you-did-it-img" src="assets/YouDidIt2Cropped.png" alt="You Did It!" draggable="false" loading="lazy" decoding="async" />
-                    <p class="mri-success-subtitle">You completed your MRI scan! You were brave and stayed so still!</p>
-                    <div class="mri-success-actions">
-                      <button class="mri-btn-action mri-btn-done" onclick="finishMRIToProcedures()" aria-label="Finished">
-                        <span>Finished</span>
-                      </button>
-                      <button class="mri-btn-action mri-btn-replay" onclick="replayMRIFromCelebration()" aria-label="Play Again">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
-                        <span>Play Again</span>
-                      </button>
+                <div id="mriSuccessOverlay" class="game-success-overlay" aria-hidden="true" onclick="replayMRIFromCelebration()">
+                  <canvas id="mriConfettiCanvas" class="game-confetti-canvas"></canvas>
+                  <div class="success-content" onclick="event.stopPropagation()">
+                    <img class="game-you-did-it-img" src="assets/GameYouDidIt.png" alt="You Did It!" draggable="false" loading="lazy" decoding="async" />
+                    <div style="display: flex; gap: 14px; justify-content: center; margin-top: 18px;">
+                      <button class="ng-tube-choice-btn ng-tube-btn-yes" onclick="finishMRIToProcedures()" style="padding: 10px 24px; font-size: 16px; border-radius: 24px;">Finished</button>
+                      <button class="game-btn-replay" onclick="replayMRIFromCelebration()" style="margin: 0; padding: 10px 24px; font-size: 16px; border-radius: 24px;">Play Again</button>
                     </div>
                   </div>
                 </div>
@@ -13947,7 +14361,7 @@
             <div class="ng-tube-top-prompt-bar visible can-confirm" id="ngTubePromptBar" role="status" aria-live="polite" onclick="handleNGTubePromptBarTap()">
               <div class="step-instruction-card">
                 <span class="step-instruction-dot confirm-pulse" id="ngTubePromptDot" aria-hidden="true"></span>
-                <span class="step-instruction-text" id="ngTubePromptText">We will now prepare our patient for an NG tube.</span>
+                <span class="step-instruction-text" id="ngTubePromptText">Lets prepare for an NG tube! Should our patient take relaxing medicine before we begin?</span>
               </div>
             </div>
 
@@ -13996,6 +14410,14 @@
                 <div id="ngTubeMiniWhiteboardContainer" class="ng-tube-mini-whiteboard-container" style="display: none;" onclick="openNGTubeLargeWhiteboard()" aria-label="Mini Whiteboard on Bedside Table" role="button" tabindex="0">
                   <img src="assets/TransparentMiniWhiteboard.png" alt="Mini Whiteboard" draggable="false" loading="lazy" decoding="async" />
                   <canvas id="ngTubeMiniWhiteboardCanvas" width="342" height="264" class="ng-tube-mini-whiteboard-canvas"></canvas>
+                  <div id="ngTubeWhiteboardSparkleFX" class="ng-tube-whiteboard-sparkle-fx" aria-hidden="true">
+                    <img class="wb-sparkle-item wb-s1" src="assets/Sparkle1.png" alt="" draggable="false" />
+                    <img class="wb-sparkle-item wb-s2" src="assets/Sparkle2.png" alt="" draggable="false" />
+                    <img class="wb-sparkle-item wb-s3" src="assets/Sparkle3.png" alt="" draggable="false" />
+                    <img class="wb-sparkle-item wb-s4" src="assets/Sparkle4.png" alt="" draggable="false" />
+                    <img class="wb-sparkle-item wb-s5" src="assets/Sparkle1.png" alt="" draggable="false" />
+                    <img class="wb-sparkle-item wb-s6" src="assets/Sparkle2.png" alt="" draggable="false" />
+                  </div>
                 </div>
 
                 <!-- Layer 5: Table Glowing Item (Table Transparent PNG glowing as a whole) -->
@@ -14044,21 +14466,14 @@
                   <img src="assets/NGTubeFaceTapeItem.png" alt="Soft tape" draggable="false" loading="lazy" decoding="async" />
                 </div>
 
-                <!-- NG Tube Final Procedure Complete Overlay (You Did It Screen with Confetti) -->
-                <div id="ngTubeFinalVictoryOverlay" class="ng-tube-maze-victory ng-tube-final-victory-overlay" style="display: none;">
-                  <canvas id="ngTubeFinalConfettiCanvas" class="ng-tube-final-confetti-canvas"></canvas>
-                  <div class="ng-tube-victory-card ng-tube-final-victory-card">
-                    <img class="ng-tube-you-did-it-img" src="assets/YouDidIt2Cropped.png" alt="You Did It!" draggable="false" loading="lazy" decoding="async" />
-                    <div class="victory-subtitle">You helped your brave patient get a new NG tube!</div>
-                    <div class="victory-actions">
-                      <button class="ng-tube-choice-btn ng-tube-btn-yes" onclick="finishNGTubeToProcedures()">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        <span>Finished</span>
-                      </button>
-                      <button class="ng-tube-choice-btn ng-tube-choice-btn-secondary" onclick="restartNGTubeFaceTape()">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-                        <span>Play Again</span>
-                      </button>
+                <!-- NG Tube Final Procedure Complete Overlay (Standardized You Did It Screen with Confetti) -->
+                <div id="ngTubeFinalVictoryOverlay" class="game-success-overlay" style="display: none;">
+                  <canvas id="ngTubeFinalConfettiCanvas" class="game-confetti-canvas"></canvas>
+                  <div class="success-content">
+                    <img class="game-you-did-it-img" src="assets/GameYouDidIt.png" alt="You Did It!" draggable="false" loading="lazy" decoding="async" />
+                    <div style="display: flex; gap: 14px; justify-content: center; margin-top: 18px;">
+                      <button class="ng-tube-choice-btn ng-tube-btn-yes" onclick="finishNGTubeToProcedures()" style="padding: 10px 24px; font-size: 16px; border-radius: 24px;">Finished</button>
+                      <button class="game-btn-replay" onclick="restartNGTubeFaceTape()" style="margin: 0; padding: 10px 24px; font-size: 16px; border-radius: 24px;">Play Again</button>
                     </div>
                   </div>
                 </div>
@@ -14206,56 +14621,66 @@
                 <!-- Stomach Glow Aura when tube reaches destination -->
                 <div id="ngTubeMazeStomachGlow" class="ng-tube-maze-stomach-glow"></div>
 
+                <!-- Stomach Success Sparkles when tube reaches destination -->
+                <div id="ngTubeMazeStomachSparkleFX" class="ng-tube-maze-stomach-sparkles" aria-hidden="true">
+                  <img class="maze-sparkle-item ms-1" src="assets/Sparkle1.png" alt="" draggable="false" />
+                  <img class="maze-sparkle-item ms-2" src="assets/Sparkle2.png" alt="" draggable="false" />
+                  <img class="maze-sparkle-item ms-3" src="assets/Sparkle3.png" alt="" draggable="false" />
+                  <img class="maze-sparkle-item ms-4" src="assets/Sparkle4.png" alt="" draggable="false" />
+                  <img class="maze-sparkle-item ms-5" src="assets/Sparkle1.png" alt="" draggable="false" />
+                  <img class="maze-sparkle-item ms-6" src="assets/Sparkle2.png" alt="" draggable="false" />
+                </div>
+
                 <!-- Red Collision Bump Flash Overlay -->
                 <div id="ngTubeMazeBumpFlash" class="ng-tube-maze-bump-flash"></div>
+              </div>
 
-                <!-- Strike Popup Overlay (Strikes 1-2: Dims/disables screen briefly) -->
-                <div id="ngTubeMazeStrikeOverlay" class="ng-tube-maze-strike-overlay" style="display: none;">
-                  <div class="ng-tube-strike-card" id="ngTubeStrikeCard">
-                    <div class="strike-popup-badge">
-                      <span class="strike-popup-title" id="ngTubeStrikePopupTitle">Strike 1 of 3</span>
-                    </div>
-                    <div class="strike-popup-subtitle" id="ngTubeStrikePopupSubtitle">Careful! Stay inside the path.</div>
+              <!-- Strike Popup Overlay (Strikes 1-2: Dims/disables screen briefly) -->
+              <div id="ngTubeMazeStrikeOverlay" class="ng-tube-maze-strike-overlay" style="display: none;">
+                <div class="ng-tube-strike-card" id="ngTubeStrikeCard">
+                  <div class="strike-popup-badge">
+                    <span class="strike-popup-title" id="ngTubeStrikePopupTitle">Strike 1 of 3</span>
+                  </div>
+                  <div class="strike-popup-subtitle" id="ngTubeStrikePopupSubtitle">Careful! Stay inside the path.</div>
+                </div>
+              </div>
+
+              <!-- Try Again Replay Modal (Strike 3 of 3 Trigger) -->
+              <div id="ngTubeMazeTryAgainOverlay" class="ng-tube-maze-try-again" style="display: none;">
+                <div class="ng-tube-try-again-card">
+                  <div class="try-again-icon">
+                    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                    </svg>
+                  </div>
+                  <div class="try-again-title" id="ngTubeTryAgainTitle">Strike 3 of 3</div>
+                  <div class="try-again-subtitle" id="ngTubeTryAgainSubtitle">You touched the sides 3 times. Let's give it another shot!</div>
+                  <div class="try-again-actions">
+                    <button class="ng-tube-choice-btn ng-tube-btn-yes" onclick="restartNGTubeMaze()">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                      <span>Try Again</span>
+                    </button>
                   </div>
                 </div>
+              </div>
 
-                <!-- Try Again Replay Modal (Strike 3 of 3 Trigger) -->
-                <div id="ngTubeMazeTryAgainOverlay" class="ng-tube-maze-try-again" style="display: none;">
-                  <div class="ng-tube-try-again-card">
-                    <div class="try-again-icon">
-                      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-                      </svg>
-                    </div>
-                    <div class="try-again-title" id="ngTubeTryAgainTitle">Strike 3 of 3</div>
-                    <div class="try-again-subtitle" id="ngTubeTryAgainSubtitle">You touched the sides 3 times. Let's give it another shot!</div>
-                    <div class="try-again-actions">
-                      <button class="ng-tube-choice-btn ng-tube-btn-yes" onclick="restartNGTubeMaze()">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-                        <span>Try Again</span>
-                      </button>
-                    </div>
+              <!-- Victory Overlay Modal -->
+              <div id="ngTubeMazeVictoryOverlay" class="ng-tube-maze-victory" style="display: none;">
+                <div class="ng-tube-victory-card">
+                  <div class="victory-icon">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    </svg>
                   </div>
-                </div>
-
-                <!-- Victory Overlay Modal -->
-                <div id="ngTubeMazeVictoryOverlay" class="ng-tube-maze-victory" style="display: none;">
-                  <div class="ng-tube-victory-card">
-                    <div class="victory-icon">
-                      <svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                      </svg>
-                    </div>
-                    <div class="victory-title">Way to go!</div>
-                    <div class="victory-subtitle">The tube is safely in the stomach!</div>
-                    <div class="victory-actions">
-                      <button class="ng-tube-choice-btn ng-tube-btn-yes" onclick="startNGTubeFaceTapeStep()">
-                        <span>Continue</span>
-                      </button>
-                      <button class="ng-tube-choice-btn ng-tube-choice-btn-secondary" onclick="restartNGTubeMaze()">
-                        <span>Play Again</span>
-                      </button>
-                    </div>
+                  <div class="victory-title">Way to go!</div>
+                  <div class="victory-subtitle">The tube is safely in the stomach!</div>
+                  <div class="victory-actions">
+                    <button class="ng-tube-choice-btn ng-tube-btn-yes" onclick="startNGTubeFaceTapeStep()">
+                      <span>Continue</span>
+                    </button>
+                    <button class="ng-tube-choice-btn ng-tube-choice-btn-secondary" onclick="restartNGTubeMaze()">
+                      <span>Play Again</span>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -14340,9 +14765,6 @@
                   <!-- Layer 5: Draggable Folded Gown (Appears on stool) -->
                   <div id="portFoldedGownItem" class="port-folded-gown-item" style="display: none;" onpointerdown="startDragPortGown(event)">
                     <img src="assets/PortAccess/Folded Gown Cropped.png" alt="Folded Hospital Gown" draggable="false" loading="lazy" decoding="async" />
-                    <div class="port-drag-hint-bubble" id="portGownDragHint">
-                      <span>Drag to Patient</span>
-                    </div>
                   </div>
 
                   <!-- Localized Sparkle FX Layer strictly over Patient -->
@@ -14366,16 +14788,20 @@
                   <!-- Layer 2: Chest with Port -->
                   <img id="portChestImg" class="port-access-layer" src="assets/PortAccess/Chest.png" alt="Patient Chest with Port" loading="lazy" decoding="async" draggable="false" />
 
+                  <!-- Black Corner Blur behind Open Tote Bag -->
+                  <div id="portBagCornerBackdrop" class="port-bag-corner-backdrop" aria-hidden="true"></div>
+
+                  <!-- Layer 2b: Open Supply Tote Bag in Bottom-Right Corner -->
+                  <img id="portOpenBagLayer" class="port-access-layer port-open-bag-layer" src="assets/PortAccess/Open Bag.png" alt="Open Supply Tote Bag" draggable="false" loading="eager" decoding="sync" />
+
                   <!-- Port Target Zone (Glow beacon on port circle) -->
                   <div id="portChestTargetZone" class="port-chest-target-zone" aria-hidden="true">
                     <span class="port-target-pulse-ring"></span>
-                    <span class="port-target-label" style="display: none;"></span>
                   </div>
 
                   <!-- Dotted Square over Port Area for ChloraPrep Disinfection -->
                   <div id="portChloraprepSquare" class="port-chloraprep-square" style="display: none;" aria-hidden="true">
                     <span class="port-target-pulse-ring"></span>
-                    <span class="port-target-label">Dotted Square Area</span>
                   </div>
 
                   <!-- Layer 3: Dispensed Numbing Ointment Canvas over Port -->
@@ -14404,7 +14830,7 @@
                   <img id="portNeedleWithTubeLayer" class="port-access-layer" src="assets/PortAccess/Needle with tube 3.png" alt="Accessed Port Huber Needle with Tube" draggable="false" loading="eager" decoding="sync" style="display: none; z-index: 23; pointer-events: none;" />
 
                   <!-- Layer 5d: Final Transparent Tegaderm Bandage Secured over Accessed Port -->
-                  <img id="portTegadermAppliedLayer" class="port-access-layer" src="assets/PortAccess/Transparent Tegaderm.png" alt="Transparent Tegaderm Bandage Applied" draggable="false" loading="eager" decoding="sync" style="display: none; z-index: 19; pointer-events: none;" />
+                  <img id="portTegadermAppliedLayer" class="port-access-layer" src="assets/PortAccess/Transparent Tegaderm Cropped.png" alt="Transparent Tegaderm Bandage Applied" draggable="false" loading="eager" decoding="sync" style="display: none; z-index: 19; pointer-events: none; left: 42.53%; top: 41.0%; width: 26.26%; height: auto; aspect-ratio: 422 / 290; transform: translate(-50%, -50%); object-fit: contain;" />
 
                   <!-- Draggable Clear Bandage Item (Appears on tray with radiant glow) -->
                   <div id="portBandageItem" class="port-bandage-item" style="display: none;" onpointerdown="startDragPortBandage(event)">
@@ -14436,18 +14862,12 @@
                     <div class="port-gauze-visual">
                       <img src="assets/PortAccess/Gauze Cropped.png" alt="Sterile Gauze Pad" draggable="false" />
                     </div>
-                    <div class="port-drag-hint-bubble" id="portGauzeDragHint">
-                      <span>Wipe Port Dry</span>
-                    </div>
                   </div>
 
                   <!-- Layer 7c: Draggable ChloraPrep Applicator on Tray to Disinfect Port Area -->
                   <div id="portChloraprepItem" class="port-chloraprep-item" style="display: none;" onpointerdown="startDragPortChloraprep(event)" onclick="handlePortChloraprepClick(event)">
                     <div class="port-chloraprep-visual">
                       <img src="assets/PortAccess/Chloraprep Cropped.png" alt="ChloraPrep Applicator" draggable="false" />
-                    </div>
-                    <div class="port-drag-hint-bubble" id="portChloraprepDragHint">
-                      <span>Color in Square</span>
                     </div>
                   </div>
 
@@ -14456,18 +14876,12 @@
                     <div id="portNeedleVisual" class="port-needle-visual">
                       <img id="portNeedleImg" src="assets/PortAccess/Yellow Needle Only Cropped.png" alt="Port Huber Needle" draggable="false" />
                     </div>
-                    <div class="port-drag-hint-bubble" id="portNeedleDragHint">
-                      <span>Access Port</span>
-                    </div>
                   </div>
 
                   <!-- Layer 7e: Draggable Transparent Tegaderm Bandage on Tray to Secure Accessed Port -->
                   <div id="portTegadermItem" class="port-tegaderm-item" style="display: none;" onpointerdown="startDragPortTegaderm(event)" onclick="handlePortTegadermClick(event)">
                     <div id="portTegadermVisual" class="port-tegaderm-visual">
                       <img src="assets/PortAccess/Transparent Tegaderm Cropped.png" alt="Clear Tegaderm Bandage" draggable="false" />
-                    </div>
-                    <div class="port-drag-hint-bubble" id="portTegadermDragHint">
-                      <span>Place Bandage</span>
                     </div>
                   </div>
 
@@ -15743,6 +16157,9 @@
         if (ivBgMusic) ivBgMusic.pause();
         if (maskBgMusic) maskBgMusic.pause();
         if (portBgMusic) portBgMusic.pause();
+        if (typeof pauseMRIBackgroundMusic === 'function') pauseMRIBackgroundMusic();
+        if (typeof pauseMRISalsaMusic === 'function') pauseMRISalsaMusic();
+        if (typeof stopAllMRIInstrumentSounds === 'function') stopAllMRIInstrumentSounds();
         stopClothWipeSound(true);
         stopClothWetWipeSound(true);
         if (typeof pauseChapstickRubbingSound === 'function') pauseChapstickRubbingSound(0);
@@ -15754,12 +16171,21 @@
         const screenGame = document.getElementById('screenIVGame');
         const screenMask = document.getElementById('screenMaskGame');
         const screenPort = document.getElementById('screenPortAccess');
+        const screenMRI = document.getElementById('screenMRI');
         if (screenGame && screenGame.classList.contains('active')) {
           playIVBackgroundMusic();
         } else if (screenMask && screenMask.classList.contains('active')) {
           playMaskBackgroundMusic();
         } else if (screenPort && screenPort.classList.contains('active')) {
           playPortBackgroundMusic();
+        } else if (screenMRI && screenMRI.classList.contains('active')) {
+          if (typeof mriStillGameActive !== 'undefined' && mriStillGameActive) {
+            if (typeof mriStillGameState !== 'undefined' && mriStillGameState !== 'FREEZE' && typeof playMRISalsaMusic === 'function') {
+              playMRISalsaMusic();
+            }
+          } else if (typeof playMRIBackgroundMusic === 'function') {
+            playMRIBackgroundMusic();
+          }
         }
       }
     }
@@ -15873,8 +16299,17 @@
 
       if (!isSoundMuted) {
         const screenPort = document.getElementById('screenPortAccess');
+        const screenMRI = document.getElementById('screenMRI');
         if (screenPort && screenPort.classList.contains('active')) {
           playPortBackgroundMusic();
+        } else if (screenMRI && screenMRI.classList.contains('active')) {
+          if (typeof mriStillGameActive !== 'undefined' && mriStillGameActive) {
+            if (typeof mriStillGameState !== 'undefined' && mriStillGameState !== 'FREEZE' && typeof playMRISalsaMusic === 'function') {
+              playMRISalsaMusic();
+            }
+          } else if (typeof playMRIBackgroundMusic === 'function') {
+            playMRIBackgroundMusic();
+          }
         }
       }
     }
@@ -15986,6 +16421,63 @@
         try {
           portBgMusic.pause();
           portBgMusic.currentTime = 0;
+        } catch (e) {}
+      }
+    }
+
+    // Background Music for MRI Preparation: Music BG 14 (Looped, Quiet Volume 0.16)
+    let mriBgMusic = null;
+    let mriLightSwitchAudio = null;
+
+    function preloadMRILightSwitchAudio() {
+      if (!mriLightSwitchAudio) {
+        mriLightSwitchAudio = new Audio('assets/MRILightSwitch.mp3');
+        mriLightSwitchAudio.preload = 'auto';
+        mriLightSwitchAudio.volume = 0.85;
+        try { mriLightSwitchAudio.load(); } catch (e) {}
+      }
+    }
+
+    function playMRIBackgroundMusic() {
+      if (isSoundMuted) return;
+      const screenMRI = document.getElementById('screenMRI');
+      if (screenMRI && !screenMRI.classList.contains('active')) return;
+      if (typeof mriStillGameActive !== 'undefined' && mriStillGameActive) return;
+      if (!mriBgMusic) {
+        mriBgMusic = new Audio('assets/MusicBG14.mp3');
+        mriBgMusic.loop = true;
+        mriBgMusic.volume = 0.16;
+        mriBgMusic.onerror = function() {
+          if (mriBgMusic && !mriBgMusic.src.includes('Music%20BG%2014.mp3')) {
+            mriBgMusic.src = 'assets/Music%20BG%2014.mp3';
+            mriBgMusic.play().catch(function() {});
+          }
+        };
+      }
+      if (mriBgMusic && mriBgMusic.paused) {
+        mriBgMusic.play().catch(err => {
+          console.log('MRI background music waiting for user gesture:', err);
+        });
+      }
+      preloadMRILightSwitchAudio();
+      if (typeof preloadMRIStillInstrumentBuffers === 'function') {
+        preloadMRIStillInstrumentBuffers();
+      }
+    }
+
+    function pauseMRIBackgroundMusic() {
+      if (mriBgMusic && !mriBgMusic.paused) {
+        try {
+          mriBgMusic.pause();
+        } catch (e) {}
+      }
+    }
+
+    function stopMRIBackgroundMusic() {
+      if (mriBgMusic) {
+        try {
+          mriBgMusic.pause();
+          mriBgMusic.currentTime = 0;
         } catch (e) {}
       }
     }
@@ -16235,6 +16727,11 @@
       const statusSpan = document.querySelector('.sim-status div:last-child span');
 
       // Record previous screen before switching (unless entering settings itself)
+      if (screenName !== 'mri') {
+        if (typeof stopMRIBackgroundMusic === 'function') stopMRIBackgroundMusic();
+        if (typeof stopMRISalsaMusic === 'function') stopMRISalsaMusic();
+        if (typeof stopAllMRIInstrumentSounds === 'function') stopAllMRIInstrumentSounds();
+      }
       if (screenName !== 'settings') {
         if (screenPrep && screenPrep.classList.contains('active')) previousScreen = 'preparations';
         else if (screenGame && screenGame.classList.contains('active')) previousScreen = 'iv-start';
@@ -16462,6 +16959,7 @@
         if (select) select.value = 'mri';
         if (statusSpan) statusSpan.textContent = 'MRI Procedure Active • Welcome to the MRI Room';
         startMRIWelcomeSequence();
+        playMRIBackgroundMusic();
       } else if (screenName === 'ng-tube') {
         try {
           clearAnatomyTimers();
@@ -19574,8 +20072,8 @@
     }
 
     function startPuzzleConfetti() {
-      // Confetti completely removed
       stopPuzzleConfetti();
+      launchStandardConfettiBurst('puzzleConfettiCanvas', (id) => { puzzleConfettiAnimationId = id; });
     }
 
     function stopPuzzleConfetti() {
@@ -20013,8 +20511,8 @@
     }
 
     function startMatchingConfetti() {
-      // Confetti completely removed
       stopMatchingConfetti();
+      launchStandardConfettiBurst('matchingConfettiCanvas', (id) => { matchingConfettiId = id; });
     }
 
     function stopMatchingConfetti() {
@@ -22079,8 +22577,8 @@
     }
 
     function startMaskConfetti() {
-      // Confetti completely removed
       stopMaskConfetti();
+      launchStandardConfettiBurst('maskConfettiCanvas', (id) => { maskConfettiAnimationId = id; });
     }
 
     function stopMaskConfetti() {
@@ -24920,7 +25418,7 @@
         updateAboutScrollFade();
       }
 
-      // Responsive MRI Stage Sizing (Strict 1366:1024 Aspect Ratio Containment)
+      // Responsive MRI Stage Sizing (Full-Screen Friendly Containment matching Port Access)
       const mriWrapper = document.getElementById('mriStageWrapper');
       const mriStage = document.getElementById('mriStage');
       if (mriWrapper && mriStage) {
@@ -24928,9 +25426,11 @@
         const wrapH = mriWrapper.clientHeight;
         if (wrapW > 0 && wrapH > 0) {
           const targetAspect = 1366 / 1024;
+          const currentAspect = wrapW / wrapH;
           let stageW, stageH;
-          if (wrapW / wrapH > targetAspect) {
-            stageH = wrapH;
+          if (currentAspect > targetAspect) {
+            const fillFactor = Math.min(1.05, currentAspect / targetAspect);
+            stageH = Math.round(wrapH * fillFactor);
             stageW = Math.round(stageH * targetAspect);
           } else {
             stageW = wrapW;
@@ -25284,6 +25784,7 @@
       isDraggingNGTubeSyringe = false;
       isNGMazeWon = false;
       isDrawingNGTube = false;
+      activeNGMazePointerId = null;
       ngMazeTouches = 0;
       ngTubeDrawnPoints = [];
 
@@ -25317,9 +25818,10 @@
       }
 
       if (promptText) {
-        promptText.textContent = 'We will now prepare our patient for an NG tube.';
+        promptText.textContent = 'Lets prepare for an NG tube! Should our patient take relaxing medicine before we begin?';
       }
       if (promptBar) {
+        promptBar.style.display = 'flex';
         promptBar.classList.remove('highlight-advance');
         promptBar.classList.add('visible', 'can-confirm');
       }
@@ -25444,17 +25946,20 @@
       }
 
       const finalVictoryOverlay = document.getElementById('ngTubeFinalVictoryOverlay');
-      if (finalVictoryOverlay) finalVictoryOverlay.style.display = 'none';
+      if (finalVictoryOverlay) {
+        finalVictoryOverlay.classList.remove('visible');
+        finalVictoryOverlay.style.display = 'none';
+      }
+      const wbSparkleFX = document.getElementById('ngTubeWhiteboardSparkleFX');
+      if (wbSparkleFX) wbSparkleFX.classList.remove('active');
       if (typeof stopNGTubeFinalConfetti === 'function') stopNGTubeFinalConfetti();
 
       if (typeof updateResponsiveLayout === 'function') {
         updateResponsiveLayout();
       }
 
-      // Automatically advance to asking the relaxant medicine question after short delay (~2.4s)
-      ngTubeIntroTimer = setTimeout(() => {
-        askNGTubeRelaxMedicine();
-      }, 2400);
+      // Start directly on the relaxing medicine decision prompt
+      askNGTubeRelaxMedicine();
     }
 
     function askNGTubeRelaxMedicine() {
@@ -25470,9 +25975,10 @@
       const tapHint = document.getElementById('ngTubeTapHint');
 
       if (promptText) {
-        promptText.textContent = 'Would you like to give your patient medicine to help relax?';
+        promptText.textContent = 'Lets prepare for an NG tube! Should our patient take relaxing medicine before we begin?';
       }
       if (promptBar) {
+        promptBar.style.display = 'flex';
         promptBar.classList.remove('highlight-advance');
         void promptBar.offsetWidth;
         promptBar.classList.add('highlight-advance');
@@ -25687,21 +26193,11 @@
         }
       }, 950);
 
-      // Update prompt
-      if (promptText) {
-        promptText.textContent = 'Great job! The medicine helps relax your patient.';
-      }
-      if (promptBar) {
-        promptBar.classList.remove('highlight-advance');
-        void promptBar.offsetWidth;
-        promptBar.classList.add('highlight-advance');
-      }
-
       if (navigator.vibrate) {
         try { navigator.vibrate([40, 60, 80]); } catch (e) {}
       }
 
-      // Prompt user to tap tabletop for drinks after brief delay (1.2s)
+      // Prompt user to tap table for drinks after spray animation finishes (1.2s)
       ngTubeMazeTransitionTimer = setTimeout(() => {
         promptForDrinkPreparation();
       }, 1200);
@@ -25714,9 +26210,10 @@
       const promptText = document.getElementById('ngTubePromptText');
       const promptBar = document.getElementById('ngTubePromptBar') || document.getElementById('ngTubeBottomPromptBar');
       if (promptText) {
-        promptText.textContent = 'Tap the tabletop to get a drink ready to help with the NG tube.';
+        promptText.textContent = 'Tap the table to get a drink ready for our patient. Drinks can help swallow and make the process easier.';
       }
       if (promptBar) {
+        promptBar.style.display = 'flex';
         promptBar.classList.remove('highlight-advance');
         void promptBar.offsetWidth;
         promptBar.classList.add('highlight-advance');
@@ -25752,21 +26249,10 @@
         try { navigator.vibrate([30, 50, 40]); } catch (e) {}
       }
 
-      const promptText = document.getElementById('ngTubePromptText');
-      const promptBar = document.getElementById('ngTubePromptBar') || document.getElementById('ngTubeBottomPromptBar');
-      if (promptText) {
-        promptText.textContent = 'Great! Having a drink ready helps with swallowing during the NG tube.';
-      }
-      if (promptBar) {
-        promptBar.classList.remove('highlight-advance');
-        void promptBar.offsetWidth;
-        promptBar.classList.add('highlight-advance');
-      }
-
-      // Advance to measuring tape step after a pause with drinks explanation (~2.4s)
+      // Advance to measuring tape step after drinks pop-in (~1.2s)
       ngTubeTapePromptTimer = setTimeout(() => {
         promptForMeasuringTape();
-      }, 2400);
+      }, 1200);
     }
 
     function promptForMeasuringTape() {
@@ -25800,9 +26286,10 @@
       const promptText = document.getElementById('ngTubePromptText');
       const promptBar = document.getElementById('ngTubePromptBar') || document.getElementById('ngTubeBottomPromptBar');
       if (promptText) {
-        promptText.textContent = "Drag the measuring tape down from nose level to belly level.";
+        promptText.textContent = "Now lets measure our patient from nose to belly. Pull the tape measure down!";
       }
       if (promptBar) {
+        promptBar.style.display = 'flex';
         promptBar.classList.remove('highlight-advance');
         void promptBar.offsetWidth;
         promptBar.classList.add('highlight-advance');
@@ -25950,8 +26437,10 @@
       ribbonEl.style.left = '0';
       ribbonEl.style.width = '100%';
       const curDist = ngTubeTapeProgress * totalDist;
-      // Tape ribbon height stops precisely at the target
-      ribbonEl.style.height = `${curDist}px`;
+      const casingEl = document.getElementById('ngTubeTapeCasing');
+      const overlapPx = casingEl ? casingEl.offsetHeight * 0.3 : 24;
+      // Extend ribbon slightly underneath the casing (z-index 26 < 28) so there is never a gap
+      ribbonEl.style.height = `${curDist + overlapPx}px`;
     }
 
     function deliverNGTubeTapeAtBelly() {
@@ -26014,27 +26503,14 @@
       if (prepJelly) prepJelly.style.display = 'none';
 
       if (promptText) {
-        promptText.textContent = "Excellent work! Now we can prepare our tube!";
+        promptText.textContent = "Now, lets add a little jelly to the end of the tube to make it more comfortable.";
       }
       if (promptBar) {
+        promptBar.style.display = 'flex';
         promptBar.classList.remove('highlight-advance');
         void promptBar.offsetWidth;
         promptBar.classList.add('highlight-advance');
       }
-
-      // Prompt the user to tap the end of the tube to add jelly
-      ngTubeTapePromptTimer = setTimeout(() => {
-        if (ngTubeCurrentStep === 'prep_tube_jelly' && !isNGTubeJellyApplied) {
-          if (promptText) {
-            promptText.textContent = "Tap the end of the tube to add a little jelly.";
-          }
-          if (promptBar) {
-            promptBar.classList.remove('highlight-advance');
-            void promptBar.offsetWidth;
-            promptBar.classList.add('highlight-advance');
-          }
-        }
-      }, 1400);
     }
 
     function handleNGTubeJellyTap(event) {
@@ -26065,6 +26541,7 @@
         promptText.textContent = "Great job! Lubricating jelly helps the tube slide smoothly and comfortably.";
       }
       if (promptBar) {
+        promptBar.style.display = 'flex';
         promptBar.classList.remove('highlight-advance');
         void promptBar.offsetWidth;
         promptBar.classList.add('highlight-advance');
@@ -26086,6 +26563,7 @@
         promptText.textContent = "Let's practice guiding the tube to the stomach!";
       }
       if (promptBar) {
+        promptBar.style.display = 'flex';
         promptBar.classList.remove('highlight-advance');
         void promptBar.offsetWidth;
         promptBar.classList.add('highlight-advance');
@@ -26223,6 +26701,7 @@
       if (ngTubeCurrentStep === 'maze' || ngTubeCurrentStep === 'maze_won') return;
       ngTubeCurrentStep = 'maze';
       isDrawingNGTube = false;
+      activeNGMazePointerId = null;
       isNGMazeWon = false;
       ngMazeTouches = 0;
       ngTubeDrawnPoints = [];
@@ -26263,13 +26742,17 @@
 
       const stomachGlow = document.getElementById('ngTubeMazeStomachGlow');
       if (stomachGlow) stomachGlow.classList.remove('won');
+      const stomachSparkles = document.getElementById('ngTubeMazeStomachSparkleFX');
+      if (stomachSparkles) stomachSparkles.classList.remove('active');
 
       const promptText = document.getElementById('ngTubePromptText');
       const promptBar = document.getElementById('ngTubePromptBar');
+      if (promptBar) promptBar.style.display = 'flex';
       if (promptText) {
         promptText.textContent = "Guide the tube from the syringe to the stomach!";
       }
       if (promptBar) {
+        promptBar.style.display = 'flex';
         promptBar.classList.remove('highlight-advance');
         void promptBar.offsetWidth;
         promptBar.classList.add('highlight-advance');
@@ -26282,13 +26765,17 @@
       }
     }
 
+    let activeNGMazePointerId = null;
+
     function setupNGTubeCanvasEvents() {
       const canvas = document.getElementById('ngTubeMazeCanvas');
       if (!canvas || ngTubeEventsAttached) return;
       ngTubeEventsAttached = true;
 
-      canvas.addEventListener('pointerdown', onNGMazePointerDown);
-      window.addEventListener('pointermove', onNGMazePointerMove);
+      canvas.addEventListener('pointerdown', onNGMazePointerDown, { passive: false });
+      canvas.addEventListener('touchstart', (e) => { if (e.cancelable) e.preventDefault(); }, { passive: false });
+      canvas.addEventListener('touchmove', (e) => { if (e.cancelable) e.preventDefault(); }, { passive: false });
+      window.addEventListener('pointermove', onNGMazePointerMove, { passive: false });
       window.addEventListener('pointerup', onNGMazePointerUp);
       window.addEventListener('pointercancel', onNGMazePointerUp);
     }
@@ -26307,7 +26794,9 @@
     }
 
     function onNGMazePointerDown(e) {
+      if (e && e.cancelable) e.preventDefault();
       if (ngTubeCurrentStep !== 'maze' || isNGMazeWon || isNGMazeInteractingBlocked()) return;
+      if (activeNGMazePointerId !== null && e.pointerId !== activeNGMazePointerId) return;
       const canvas = document.getElementById('ngTubeMazeCanvas');
       if (!canvas) return;
       const rect = canvas.getBoundingClientRect();
@@ -26330,9 +26819,12 @@
 
       if (isNearStart || isNearTip) {
         isDrawingNGTube = true;
+        activeNGMazePointerId = e.pointerId !== undefined ? e.pointerId : null;
         try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
         const beaconEl = document.getElementById('ngTubeMazeStartBeacon');
         if (beaconEl) beaconEl.style.opacity = '0';
+        const promptBar = document.getElementById('ngTubePromptBar');
+        if (promptBar) promptBar.style.display = 'none';
 
         if (isNearStart && (!isNearTip || ngTubeDrawnPoints.length === 0)) {
           ngTubeDrawnPoints = [{ x: 160, y: 405 }];
@@ -26344,6 +26836,8 @@
 
     function onNGMazePointerMove(e) {
       if (!isDrawingNGTube || ngTubeCurrentStep !== 'maze' || isNGMazeWon || isNGMazeInteractingBlocked()) return;
+      if (activeNGMazePointerId !== null && e.pointerId !== activeNGMazePointerId) return;
+      if (e && e.cancelable) e.preventDefault();
       const canvas = document.getElementById('ngTubeMazeCanvas');
       if (!canvas) return;
       const rect = canvas.getBoundingClientRect();
@@ -26379,8 +26873,11 @@
     }
 
     function onNGMazePointerUp(e) {
+      if (activeNGMazePointerId !== null && e && e.pointerId !== undefined && e.pointerId !== activeNGMazePointerId) return;
+      activeNGMazePointerId = null;
       if (!isDrawingNGTube) return;
       isDrawingNGTube = false;
+      activeNGMazePointerId = null;
       if (!isNGMazeWon && ngTubeDrawnPoints.length <= 1) {
         const beaconEl = document.getElementById('ngTubeMazeStartBeacon');
         if (beaconEl) beaconEl.style.opacity = '1';
@@ -26438,6 +26935,7 @@
 
       ngMazeTouches++;
       isDrawingNGTube = false;
+      activeNGMazePointerId = null;
 
       // Red collision flash overlay
       const flashEl = document.getElementById('ngTubeMazeBumpFlash');
@@ -26522,10 +27020,12 @@
       }
       const promptText = document.getElementById('ngTubePromptText');
       const promptBar = document.getElementById('ngTubePromptBar');
+      if (promptBar) promptBar.style.display = 'flex';
       if (promptText) {
         promptText.textContent = "Strike 3 of 3. Tap Try Again to replay.";
       }
       if (promptBar) {
+        promptBar.style.display = 'flex';
         promptBar.classList.remove('highlight-advance');
         void promptBar.offsetWidth;
         promptBar.classList.add('highlight-advance');
@@ -26561,6 +27061,7 @@
       if (isNGMazeWon) return;
       isNGMazeWon = true;
       isDrawingNGTube = false;
+      activeNGMazePointerId = null;
       ngTubeCurrentStep = 'maze_won';
 
       // Snap final point to stomach entrance (1170, 300)
@@ -26571,9 +27072,15 @@
       const beaconEl = document.getElementById('ngTubeMazeStartBeacon');
       if (beaconEl) beaconEl.style.display = 'none';
 
-      // Stomach glow aura
+      // Stomach glow aura & success sparkles
       const stomachGlow = document.getElementById('ngTubeMazeStomachGlow');
       if (stomachGlow) stomachGlow.classList.add('won');
+      const stomachSparkles = document.getElementById('ngTubeMazeStomachSparkleFX');
+      if (stomachSparkles) {
+        stomachSparkles.classList.remove('active');
+        void stomachSparkles.offsetWidth;
+        stomachSparkles.classList.add('active');
+      }
 
       // Hide strike popup if visible
       hideNGTubeStrikePopup();
@@ -26583,17 +27090,6 @@
         playYouDidItSound();
       } else if (typeof playYouDidItChimeSound === 'function') {
         playYouDidItChimeSound();
-      }
-
-      const promptText = document.getElementById('ngTubePromptText');
-      const promptBar = document.getElementById('ngTubePromptBar');
-      if (promptText) {
-        promptText.textContent = "You guided the tube all the way to the stomach! Fantastic job!";
-      }
-      if (promptBar) {
-        promptBar.classList.remove('highlight-advance');
-        void promptBar.offsetWidth;
-        promptBar.classList.add('highlight-advance');
       }
 
       // Confetti burst
@@ -26609,6 +27105,7 @@
     function restartNGTubeMaze() {
       isNGMazeWon = false;
       isDrawingNGTube = false;
+      activeNGMazePointerId = null;
       ngMazeTouches = 0;
       ngTubeDrawnPoints = [];
       lastNGMazeCollisionTime = 0;
@@ -26629,6 +27126,8 @@
 
       const stomachGlow = document.getElementById('ngTubeMazeStomachGlow');
       if (stomachGlow) stomachGlow.classList.remove('won');
+      const stomachSparkles = document.getElementById('ngTubeMazeStomachSparkleFX');
+      if (stomachSparkles) stomachSparkles.classList.remove('active');
 
       const beaconEl = document.getElementById('ngTubeMazeStartBeacon');
       if (beaconEl) {
@@ -26644,10 +27143,12 @@
 
       const promptText = document.getElementById('ngTubePromptText');
       const promptBar = document.getElementById('ngTubePromptBar');
+      if (promptBar) promptBar.style.display = 'flex';
       if (promptText) {
         promptText.textContent = "Guide the tube from the syringe to the stomach!";
       }
       if (promptBar) {
+        promptBar.style.display = 'flex';
         promptBar.classList.remove('highlight-advance');
         void promptBar.offsetWidth;
         promptBar.classList.add('highlight-advance');
@@ -26694,7 +27195,12 @@
       if (victoryOverlay) victoryOverlay.style.display = 'none';
 
       const finalVictoryOverlay = document.getElementById('ngTubeFinalVictoryOverlay');
-      if (finalVictoryOverlay) finalVictoryOverlay.style.display = 'none';
+      if (finalVictoryOverlay) {
+        finalVictoryOverlay.classList.remove('visible');
+        finalVictoryOverlay.style.display = 'none';
+      }
+      const wbSparkleFX = document.getElementById('ngTubeWhiteboardSparkleFX');
+      if (wbSparkleFX) wbSparkleFX.classList.remove('active');
 
       // Ensure measuring tape, table hotspot, and syringe prep are hidden
       const tapeTableItem = document.getElementById('ngTubeTapeTableItem');
@@ -26749,10 +27255,12 @@
       // Prompt instruction
       const promptText = document.getElementById('ngTubePromptText');
       const promptBar = document.getElementById('ngTubePromptBar');
+      if (promptBar) promptBar.style.display = 'flex';
       if (promptText) {
         promptText.textContent = "Secure the NG tube on the patient's cheek using soft tape!";
       }
       if (promptBar) {
+        promptBar.style.display = 'flex';
         promptBar.classList.remove('highlight-advance');
         void promptBar.offsetWidth;
         promptBar.classList.add('highlight-advance');
@@ -26899,19 +27407,10 @@
         try { navigator.vibrate([40, 60, 40]); } catch (e) {}
       }
 
-      if (promptText) {
-        promptText.textContent = "Great job! The NG tube is securely taped in place!";
-      }
-      if (promptBar) {
-        promptBar.classList.remove('highlight-advance');
-        void promptBar.offsetWidth;
-        promptBar.classList.add('highlight-advance');
-      }
-
       // Transition to post-tape cups swipe step
       setTimeout(() => {
         startNGTubeCupsSwipeStep();
-      }, 1300);
+      }, 700);
     }
 
     // =========================================================
@@ -26924,10 +27423,12 @@
 
       const promptText = document.getElementById('ngTubePromptText');
       const promptBar = document.getElementById('ngTubePromptBar');
+      if (promptBar) promptBar.style.display = 'flex';
       if (promptText) {
         promptText.textContent = "Swipe away the cups on the bedside table to clear space!";
       }
       if (promptBar) {
+        promptBar.style.display = 'flex';
         promptBar.classList.remove('highlight-advance');
         void promptBar.offsetWidth;
         promptBar.classList.add('highlight-advance');
@@ -27054,10 +27555,12 @@
 
       const promptText = document.getElementById('ngTubePromptText');
       const promptBar = document.getElementById('ngTubePromptBar');
+      if (promptBar) promptBar.style.display = 'flex';
       if (promptText) {
-        promptText.textContent = "Sometimes, patients like having a whiteboard to communicate right after getting an NG tube. Tap the table to get a whiteboard!";
+        promptText.textContent = "Some patients like using a whiteboard to talk after an NG tube. Tap the table to get one!";
       }
       if (promptBar) {
+        promptBar.style.display = 'flex';
         promptBar.classList.remove('highlight-advance');
         void promptBar.offsetWidth;
         promptBar.classList.add('highlight-advance');
@@ -27097,10 +27600,12 @@
 
       const promptText = document.getElementById('ngTubePromptText');
       const promptBar = document.getElementById('ngTubePromptBar');
+      if (promptBar) promptBar.style.display = 'flex';
       if (promptText) {
-        promptText.textContent = "Finish the preparation by drawing something silly on the whiteboard! Tap the whiteboard to begin.";
+        promptText.textContent = "Lets celebrate a job well done by drawing something silly on the whiteboard! Tap it to begin.";
       }
       if (promptBar) {
+        promptBar.style.display = 'flex';
         promptBar.classList.remove('highlight-advance');
         void promptBar.offsetWidth;
         promptBar.classList.add('highlight-advance');
@@ -27261,26 +27766,27 @@
 
       ngTubeCurrentStep = 'mini_whiteboard_display';
 
-      const promptText = document.getElementById('ngTubePromptText');
+      // No text prompt on the final admiration screen
       const promptBar = document.getElementById('ngTubePromptBar');
-      if (promptText) {
-        promptText.textContent = "Look at your wonderful drawing! What a great way for your patient to communicate.";
-      }
-      if (promptBar) {
-        promptBar.classList.remove('highlight-advance');
-        void promptBar.offsetWidth;
-        promptBar.classList.add('highlight-advance');
+      if (promptBar) promptBar.style.display = 'none';
+
+      // Trigger sparkle burst around the mini whiteboard to show off their drawing
+      const wbSparkleFX = document.getElementById('ngTubeWhiteboardSparkleFX');
+      if (wbSparkleFX) {
+        wbSparkleFX.classList.remove('active');
+        void wbSparkleFX.offsetWidth;
+        wbSparkleFX.classList.add('active');
       }
 
       if (typeof playBandageSound === 'function') {
         playBandageSound();
       }
 
-      // Pause for a moment (~3.2s) to admire the user's drawing before congratulating them with You Did It celebration
+      // Linger (~3.4s) until shortly after the sparkles fade before showing You Did It celebration
       if (ngTubeWhiteboardDelayTimer) clearTimeout(ngTubeWhiteboardDelayTimer);
       ngTubeWhiteboardDelayTimer = setTimeout(() => {
         showNGTubeFinalVictoryModal();
-      }, 3200);
+      }, 3400);
     }
 
     function showNGTubeFinalVictoryModal() {
@@ -27294,12 +27800,20 @@
       const finalOverlay = document.getElementById('ngTubeFinalVictoryOverlay');
       if (finalOverlay) {
         finalOverlay.style.display = 'flex';
+        requestAnimationFrame(() => {
+          finalOverlay.classList.add('visible');
+        });
       }
       startNGTubeFinalConfetti();
     }
 
     function finishNGTubeToProcedures() {
       stopNGTubeFinalConfetti();
+      const finalOverlay = document.getElementById('ngTubeFinalVictoryOverlay');
+      if (finalOverlay) {
+        finalOverlay.classList.remove('visible');
+        finalOverlay.style.display = 'none';
+      }
       goToPreparations();
     }
 
@@ -27307,17 +27821,83 @@
       stopNGTubeFinalConfetti();
       const finalOverlay = document.getElementById('ngTubeFinalVictoryOverlay');
       if (finalOverlay) {
+        finalOverlay.classList.remove('visible');
         finalOverlay.style.display = 'none';
       }
+      const wbSparkleFX = document.getElementById('ngTubeWhiteboardSparkleFX');
+      if (wbSparkleFX) wbSparkleFX.classList.remove('active');
       startNGTubeFaceTapeStep();
     }
 
     // NG Tube Final Screen Confetti Engine (Full Stage Burst & Fall)
     let ngTubeFinalConfettiAnimationId = null;
 
+    function launchStandardConfettiBurst(canvasId, onFrameId) {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+      canvas.style.display = 'block';
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      const rect = canvas.getBoundingClientRect();
+      const w = Math.round(rect.width) || 1366;
+      const h = Math.round(rect.height) || 1024;
+      canvas.width = w;
+      canvas.height = h;
+      const particles = [];
+      const colors = ['#FF4D6D', '#FFB703', '#00C6FF', '#9D4EDD', '#06D6A0', '#FF9E00', '#48CAE4', '#38bdf8', '#34d399', '#f43f5e'];
+      for (let i = 0; i < 65; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 14 + 5;
+        particles.push({
+          x: w / 2 + (Math.random() - 0.5) * 180,
+          y: h / 2 + (Math.random() - 0.5) * 90,
+          w: Math.random() * 10 + 7,
+          h: Math.random() * 15 + 8,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rotation: Math.random() * 360,
+          rotationSpeed: (Math.random() - 0.5) * 8,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 3.0,
+          gravity: 0.22,
+          drag: 0.95,
+          alpha: 1
+        });
+      }
+      function render() {
+        ctx.clearRect(0, 0, w, h);
+        let alive = false;
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          p.vx *= p.drag;
+          p.vy = p.vy * p.drag + p.gravity;
+          p.x += p.vx;
+          p.y += p.vy;
+          p.rotation += p.rotationSpeed;
+          if (p.y > h * 0.75) p.alpha = Math.max(0, p.alpha - 0.03);
+          if (p.y < h + 40 && p.alpha > 0.01) {
+            alive = true;
+            ctx.save();
+            ctx.globalAlpha = p.alpha;
+            ctx.translate(p.x, p.y);
+            ctx.rotate((p.rotation * Math.PI) / 180);
+            ctx.fillStyle = p.color;
+            ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+            ctx.restore();
+          }
+        }
+        if (alive) {
+          onFrameId(requestAnimationFrame(render));
+        } else {
+          ctx.clearRect(0, 0, w, h);
+          onFrameId(null);
+        }
+      }
+      onFrameId(requestAnimationFrame(render));
+    }
+
     function startNGTubeFinalConfetti() {
-      // Confetti completely removed
       stopNGTubeFinalConfetti();
+      launchStandardConfettiBurst('ngTubeFinalConfettiCanvas', (id) => { ngTubeFinalConfettiAnimationId = id; });
     }
 
     function stopNGTubeFinalConfetti() {
@@ -27529,6 +28109,8 @@
       const chloraSquare = document.getElementById('portChloraprepSquare');
       if (chloraSquare) {
         chloraSquare.style.display = 'none';
+        chloraSquare.style.opacity = '1';
+        chloraSquare.style.transition = '';
         chloraSquare.classList.remove('hovered', 'completed');
         const label = chloraSquare.querySelector('.port-target-label');
         if (label) label.textContent = "Dotted Square Area";
@@ -27552,9 +28134,9 @@
         needleItem.style.display = 'none';
         needleItem.style.opacity = '1';
         needleItem.style.transform = 'none';
-        needleItem.style.left = '63.5%';
-        needleItem.style.top = '47%';
-        needleItem.style.width = '14%';
+        needleItem.style.left = '78.1%';
+        needleItem.style.top = '59.0%';
+        needleItem.style.width = '12.5%';
         needleItem.style.aspectRatio = '241 / 214';
         needleItem.classList.remove('dragging', 'spring-back', 'over-port', 'accessed');
       }
@@ -27586,9 +28168,9 @@
         tegadermItem.style.display = 'none';
         tegadermItem.style.opacity = '1';
         tegadermItem.style.transform = 'none';
-        tegadermItem.style.left = '63%';
-        tegadermItem.style.top = '48%';
-        tegadermItem.style.width = '15%';
+        tegadermItem.style.left = '76.3%';
+        tegadermItem.style.top = '59.0%';
+        tegadermItem.style.width = '16.0%';
         tegadermItem.style.aspectRatio = '422 / 290';
         tegadermItem.classList.remove('dragging', 'spring-back', 'over-port');
       }
@@ -27686,8 +28268,8 @@
       if (targetZone) targetZone.classList.remove('active', 'hovered');
       if (lmxTube) {
         lmxTube.style.display = 'none';
-        lmxTube.style.left = '62%';
-        lmxTube.style.top = '52%';
+        lmxTube.style.left = '74.1%';
+        lmxTube.style.top = '45.0%';
         lmxTube.style.opacity = '1';
         lmxTube.style.transform = 'none';
         lmxTube.style.transition = '';
@@ -27707,8 +28289,8 @@
       }
       if (bandageItem) {
         bandageItem.style.display = 'none';
-        bandageItem.style.left = '63%';
-        bandageItem.style.top = '50%';
+        bandageItem.style.left = '75.6%';
+        bandageItem.style.top = '61.0%';
         bandageItem.style.opacity = '1';
         bandageItem.style.transform = 'none';
         bandageItem.style.transition = '';
@@ -27725,8 +28307,8 @@
       }
       if (maskItem) {
         maskItem.style.display = 'none';
-        maskItem.style.left = '50%';
-        maskItem.style.top = '50%';
+        maskItem.style.left = '84.3%';
+        maskItem.style.top = '64.0%';
         maskItem.style.opacity = '1';
         maskItem.style.transform = 'translate(-50%, -50%)';
         maskItem.classList.remove('disappearing');
@@ -27768,6 +28350,8 @@
       const chloraSquare = document.getElementById('portChloraprepSquare');
       if (chloraSquare) {
         chloraSquare.style.display = 'none';
+        chloraSquare.style.opacity = '1';
+        chloraSquare.style.transition = '';
         chloraSquare.classList.remove('hovered', 'completed');
         const label = chloraSquare.querySelector('.port-target-label');
         if (label) label.textContent = "Dotted Square Area";
@@ -27791,9 +28375,9 @@
         needleItem.style.display = 'none';
         needleItem.style.opacity = '1';
         needleItem.style.transform = 'none';
-        needleItem.style.left = '63.5%';
-        needleItem.style.top = '47%';
-        needleItem.style.width = '14%';
+        needleItem.style.left = '78.1%';
+        needleItem.style.top = '59.0%';
+        needleItem.style.width = '12.5%';
         needleItem.style.aspectRatio = '241 / 214';
         needleItem.classList.remove('dragging', 'spring-back', 'over-port', 'accessed');
       }
@@ -27825,9 +28409,9 @@
         tegadermItem.style.display = 'none';
         tegadermItem.style.opacity = '1';
         tegadermItem.style.transform = 'none';
-        tegadermItem.style.left = '63%';
-        tegadermItem.style.top = '48%';
-        tegadermItem.style.width = '15%';
+        tegadermItem.style.left = '76.3%';
+        tegadermItem.style.top = '59.0%';
+        tegadermItem.style.width = '16.0%';
         tegadermItem.style.aspectRatio = '422 / 290';
         tegadermItem.classList.remove('dragging', 'spring-back', 'over-port');
       }
@@ -27898,7 +28482,7 @@
       } else if (portAccessCurrentStep === 'mask_step') {
         applyPortMask();
       } else if (portAccessCurrentStep === 'gauze_ready' || portAccessCurrentStep === 'gauze_dragging') {
-        setPortAccessPrompt("Wipe the gauze back and forth over the port to dry it!");
+        setPortAccessPrompt("Wipe the gauze back and forth over the port to dry it.");
       } else if (portAccessCurrentStep === 'chloraprep_ready' || portAccessCurrentStep === 'chloraprep_dragging') {
         setPortAccessPrompt("Drag the ChloraPrep over the port and color in the dotted square!");
       } else if (portAccessCurrentStep === 'needle_ready' || portAccessCurrentStep === 'needle_dragging') {
@@ -27936,7 +28520,7 @@
       } else if (portAccessCurrentStep === 'mask_step') {
         applyPortMask();
       } else if (portAccessCurrentStep === 'gauze_ready' || portAccessCurrentStep === 'gauze_dragging') {
-        setPortAccessPrompt("Wipe the gauze back and forth over the port to dry it!");
+        setPortAccessPrompt("Wipe the gauze back and forth over the port to dry it.");
       } else if (portAccessCurrentStep === 'chloraprep_ready' || portAccessCurrentStep === 'chloraprep_dragging') {
         setPortAccessPrompt("Drag the ChloraPrep over the port and color in the dotted square!");
       } else if (portAccessCurrentStep === 'needle_ready' || portAccessCurrentStep === 'needle_dragging') {
@@ -28237,8 +28821,8 @@
 
       if (lmxTube) {
         lmxTube.style.display = 'block';
-        lmxTube.style.left = '62%';
-        lmxTube.style.top = '52%';
+        lmxTube.style.left = '74.1%';
+        lmxTube.style.top = '45.0%';
         lmxTube.style.opacity = '1';
         lmxTube.style.transform = 'none';
         lmxTube.style.transition = '';
@@ -28306,9 +28890,21 @@
       const chestTarget = document.getElementById('portChestTargetZone');
       if (!item || !stage || !chestTarget) return;
 
-      const stageRect = stage.getBoundingClientRect();
-      const snapDx = -stageRect.width * 0.2236;
-      const snapDy = -stageRect.height * 0.1509;
+      const itemRect = item.getBoundingClientRect();
+      const targetRect = chestTarget.getBoundingClientRect();
+
+      // Untransformed nozzle position:
+      const baseLeft = itemRect.left - portLMXDeltaX;
+      const baseTop = itemRect.top - portLMXDeltaY;
+      const nozzleBaseX = baseLeft + itemRect.width * 0.15;
+      const nozzleBaseY = baseTop + itemRect.height * 0.12;
+
+      // Target center:
+      const targetCenterX = targetRect.left + targetRect.width * 0.5;
+      const targetCenterY = targetRect.top + targetRect.height * 0.5;
+
+      const snapDx = targetCenterX - nozzleBaseX;
+      const snapDy = targetCenterY - nozzleBaseY;
 
       portLMXDeltaX = snapDx;
       portLMXDeltaY = snapDy;
@@ -28924,7 +29520,7 @@
 
       // 30 minutes are up! Advance to bandage removal step
       portAccessCurrentStep = 'bandage_remove';
-      setPortAccessPrompt("30 minutes have passed! Tap the clear bandage to remove it.");
+      setPortAccessPrompt("Time's up! Tap the clear bandage to remove it.");
 
       // Reveal tap prompt over clear bandage and make layer clickable
       portAccessTimers.push(setTimeout(() => {
@@ -28984,8 +29580,6 @@
         }, 550));
       }
 
-      setPortAccessPrompt("Awesome job! You peeled off the bandage.");
-
       portAccessTimers.push(setTimeout(() => {
         if (bandageLayer) {
           bandageLayer.style.display = 'none';
@@ -29002,7 +29596,7 @@
 
     function showPortMaskStep() {
       portAccessCurrentStep = 'mask_step';
-      setPortAccessPrompt("Tap the mask to keep you and your patient safe!");
+      setPortAccessPrompt("Tap the mask to put one on yourself and your patient so everyone is safe!");
 
       const maskItem = document.getElementById('portMaskItem');
       if (maskItem) {
@@ -29049,8 +29643,6 @@
         maskLayer.style.opacity = '1';
       }
 
-      setPortAccessPrompt("Great job putting on your mask to stay safe!");
-
       // Transition to gauze drying step after brief admire pause
       portAccessTimers.push(setTimeout(() => {
         showPortGauzeStep();
@@ -29068,7 +29660,7 @@
       portGauzeLastY = 0;
       isPortGauzeWipingComplete = false;
 
-      setPortAccessPrompt("Wipe the gauze back and forth over the port to dry it!");
+      setPortAccessPrompt("Wipe the gauze back and forth over the port to dry it.");
 
       const chestTarget = document.getElementById('portChestTargetZone');
       if (chestTarget) {
@@ -29103,7 +29695,7 @@
         e.preventDefault();
         e.stopPropagation();
       }
-      setPortAccessPrompt("Wipe the gauze back and forth over the port to dry it!");
+      setPortAccessPrompt("Wipe the gauze back and forth over the port to dry it.");
     }
 
     function startDragPortGauze(e) {
@@ -29207,7 +29799,7 @@
           }
         }, 420);
         portAccessCurrentStep = 'gauze_ready';
-        setPortAccessPrompt("Wipe the gauze back and forth over the port to dry it!");
+        setPortAccessPrompt("Wipe the gauze back and forth over the port to dry it.");
       }
 
       window.addEventListener('pointermove', onPointerMove, { passive: false });
@@ -29317,7 +29909,6 @@
       if (portGauzeSweepCount >= TOTAL_PORT_GAUZE_SWEEPS) {
         isPortGauzeWipingComplete = true;
         if (label) label.textContent = "Dry & Ready!";
-        setPortAccessPrompt("Great job! The port area is clean and dry.");
         completePortGauzeStep();
       }
     }
@@ -29349,7 +29940,6 @@
 
       if (chestFX) spawnPortSparkles(chestFX, 16);
       playPortClothWipeSound();
-      setPortAccessPrompt("The port is dry! Next, let's prep the area with ChloraPrep to disinfect.");
 
       portAccessTimers.push(setTimeout(() => {
         showPortChloraprepStep();
@@ -29365,11 +29955,13 @@
       portChloraprepLastTipY = null;
       portChloraprepGrid = new Array(CHLORAPREP_GRID_COLS * CHLORAPREP_GRID_ROWS).fill(false);
 
-      setPortAccessPrompt("Use the ChloraPrep to color in the whole dotted square over the port!");
+      setPortAccessPrompt("Now lets disinfect the dry area! Use the Chloraprep to color in a square over the port!");
 
       const square = document.getElementById('portChloraprepSquare');
       if (square) {
         square.style.display = 'flex';
+        square.style.opacity = '1';
+        square.style.transition = '';
         square.classList.remove('hovered', 'completed');
         const label = square.querySelector('.port-target-label');
         if (label) label.textContent = "Color in whole square";
@@ -29404,7 +29996,6 @@
         e.preventDefault();
         e.stopPropagation();
       }
-      setPortAccessPrompt("Drag the ChloraPrep over the port and color in the dotted square!");
     }
 
     function startDragPortChloraprep(e) {
@@ -29515,7 +30106,6 @@
           }
         }, 420);
         portAccessCurrentStep = 'chloraprep_ready';
-        setPortAccessPrompt("Keep coloring in the dotted square with ChloraPrep to disinfect!");
       }
 
       window.addEventListener('pointermove', onPointerMove, { passive: false });
@@ -29604,14 +30194,7 @@
         if (pct >= 95) {
           isPortChloraprepComplete = true;
           if (label) label.textContent = "100% Fully Disinfected!";
-          setPortAccessPrompt("Great job! You completely filled in the whole area with ChloraPrep!");
           completeChloraprepStep();
-        } else if (pct >= 85) {
-          setPortAccessPrompt("Almost done! Fill in all remaining spots in the square!");
-        } else if (pct >= 60) {
-          setPortAccessPrompt("Looking good! Keep coloring to fill the whole square!");
-        } else if (pct >= 30) {
-          setPortAccessPrompt("Color in the whole dotted square with ChloraPrep!");
         }
       }
     }
@@ -29688,12 +30271,12 @@
         const label = square.querySelector('.port-target-label');
         if (label) label.textContent = "Disinfected & Clean!";
         square.style.transition = 'opacity 1.2s ease';
-        setTimeout(() => {
+        portAccessTimers.push(setTimeout(() => {
           if (square) square.style.opacity = '0';
-          setTimeout(() => {
+          portAccessTimers.push(setTimeout(() => {
             if (square) square.style.display = 'none';
-          }, 1250);
-        }, 600);
+          }, 1250));
+        }, 600));
       }
 
       if (item) {
@@ -29701,9 +30284,9 @@
         item.style.transition = 'opacity 0.4s ease, transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1)';
         item.style.opacity = '0';
         item.style.transform = 'scale(0.85)';
-        setTimeout(() => {
+        portAccessTimers.push(setTimeout(() => {
           if (item) item.style.display = 'none';
-        }, 420);
+        }, 420));
       }
 
       // Soften and fade the antiseptic color as it dries
@@ -29712,7 +30295,6 @@
         canvas.style.opacity = '0.35';
       }
 
-      setPortAccessPrompt("Great job! Now let's let the antiseptic dry...");
       playPortDryingSound();
 
       portAccessTimers.push(setTimeout(() => {
@@ -29737,9 +30319,9 @@
 
       if (needleItem) {
         needleItem.style.display = 'block';
-        needleItem.style.left = '63.5%';
-        needleItem.style.top = '47%';
-        needleItem.style.width = '14%';
+        needleItem.style.left = '78.1%';
+        needleItem.style.top = '59.0%';
+        needleItem.style.width = '12.5%';
         needleItem.style.aspectRatio = '241 / 214';
         needleItem.style.transform = 'none';
         needleItem.style.opacity = '0';
@@ -29767,7 +30349,7 @@
         }
       }
 
-      setPortAccessPrompt("Use the needle to access the port! Drag it over the port and tap to access.");
+      setPortAccessPrompt("Now that the Chloraprep is dry, lets use our needle to access the port!");
       playPortBandageSound();
     }
 
@@ -29779,8 +30361,6 @@
       if (isPortNeedleAccessed) return;
       if (isNeedleOverPort) {
         accessPortWithNeedle();
-      } else {
-        setPortAccessPrompt("Drag the needle over the port and tap to access!");
       }
     }
 
@@ -29866,7 +30446,6 @@
             const lbl = chestTarget.querySelector('.port-target-label');
             if (lbl) lbl.textContent = "Tap to Access!";
           }
-          setPortAccessPrompt("Tap now to access the port with the needle!");
         } else {
           isNeedleOverPort = false;
           item.classList.remove('over-port');
@@ -29875,7 +30454,6 @@
             const lbl = chestTarget.querySelector('.port-target-label');
             if (lbl) lbl.textContent = "Port Target";
           }
-          setPortAccessPrompt("Drag the needle over the port and tap to access!");
         }
       }
 
@@ -29911,8 +30489,6 @@
               if (hint) hint.style.display = 'flex';
             }
           }, 320);
-
-          setPortAccessPrompt("Drag the needle over the port and tap to access!");
         }
       }
 
@@ -29957,8 +30533,6 @@
       playPortAccessClickSound();
       triggerHapticFeedback(true);
 
-      setPortAccessPrompt("Awesome job! The port has been safely accessed!");
-
       portAccessTimers.push(setTimeout(() => {
         showPortTegadermStep();
       }, 1400));
@@ -29976,9 +30550,9 @@
 
       if (tegadermItem) {
         tegadermItem.style.display = 'block';
-        tegadermItem.style.left = '63%';
-        tegadermItem.style.top = '48%';
-        tegadermItem.style.width = '15%';
+        tegadermItem.style.left = '76.3%';
+        tegadermItem.style.top = '59.0%';
+        tegadermItem.style.width = '16.0%';
         tegadermItem.style.aspectRatio = '422 / 290';
         tegadermItem.style.transform = 'none';
         tegadermItem.style.opacity = '0';
@@ -30006,7 +30580,7 @@
         }
       }
 
-      setPortAccessPrompt("Place the clear Tegaderm bandage over the port to keep everything safe!");
+      setPortAccessPrompt("Put the Tegaderm bandage over the accessed port to keep everything safe and secure.");
       playPortBandageSound();
     }
 
@@ -30565,6 +31139,8 @@
     let mriInsideTimer = null;
     let mriInsidePromptTimer = null;
     let mriSquishTimer = null;
+    let mriSquishMidTimer = null;
+    let mriStressSquishCount = 0;
     let mriHasTransitioned = false;
     let mriAllSpotsClicked = false;
     let mriLightsOff = false;
@@ -30661,6 +31237,9 @@
       }
       mriMonitorsActive = false;
       mriMonitorsDone = false;
+      const backdropImg = document.querySelector('#mriBackdrop img');
+      if (backdropImg) backdropImg.src = 'assets/MRIRoomLightsOn.png';
+
       const monitorsLayer = document.getElementById('mriMonitorsLayer');
       if (monitorsLayer) {
         monitorsLayer.style.display = 'none';
@@ -30673,10 +31252,14 @@
       if (vC && typeof vC.pause === 'function') vC.pause();
       const stillPromptBar = document.getElementById('mriBottomPromptBar');
       if (stillPromptBar) {
+        stillPromptBar.style.display = 'flex';
         stillPromptBar.classList.remove('still-move-mode', 'still-warning-mode', 'still-freeze-mode', 'still-success-mode');
       }
-      const stageStillBtn = document.getElementById('mriStageStillGameBtn');
-      if (stageStillBtn) stageStillBtn.style.display = 'none';
+      const stillIntro = document.getElementById('mriStillIntroOverlay');
+      if (stillIntro) {
+        stillIntro.classList.remove('active');
+        stillIntro.style.display = 'none';
+      }
       const stillVideo = document.getElementById('mriStillVideo');
       if (stillVideo && typeof stillVideo.pause === 'function') stillVideo.pause();
 
@@ -30699,6 +31282,7 @@
         staticBedEmpty.style.display = 'block';
         staticBedEmpty.style.opacity = '1';
         staticBedEmpty.style.transform = 'translateY(22%)';
+        staticBedEmpty.classList.add('bed-tap-glow');
       }
       const bedEmptyImg = document.getElementById('mriBedEmptyImg');
       if (bedEmptyImg) {
@@ -30799,6 +31383,11 @@
         clearTimeout(mriSquishTimer);
         mriSquishTimer = null;
       }
+      if (mriSquishMidTimer) {
+        clearTimeout(mriSquishMidTimer);
+        mriSquishMidTimer = null;
+      }
+      mriStressSquishCount = 0;
       if (mriSoundAudio) {
         try {
           mriSoundAudio.pause();
@@ -30813,6 +31402,8 @@
         } catch (e) {}
       }
       stopMRISoundWaves();
+      stopMRISalsaMusic();
+      stopAllMRIInstrumentSounds();
     }
 
     function goToMRI() {
@@ -30832,6 +31423,9 @@
       mriItemsActive = false;
       mriTappedButtons.clear();
       mriClickedSpots.clear();
+
+      const backdropImg = document.querySelector('#mriBackdrop img');
+      if (backdropImg) backdropImg.src = 'assets/MRIRoomLightsOn.png';
 
       const monitorsLayer = document.getElementById('mriMonitorsLayer');
       if (monitorsLayer) {
@@ -30894,8 +31488,10 @@
           mriVideoReset.classList.remove('video-active');
         } catch (e) {}
       }
-      if (stressBallImg) {
-        stressBallImg.src = 'assets/MRIStressBall.png';
+      setMRIStressBallFrame('base');
+      const stressBallVisualReset = document.getElementById('mriStressBallVisual');
+      if (stressBallVisualReset) {
+        stressBallVisualReset.style.transform = '';
       }
       if (highlights) {
         highlights.style.display = 'none';
@@ -31017,12 +31613,39 @@
       }, 900);
     }
 
+    function playMRIEquipmentTapTone(partKey) {
+      if (isSoundMuted) return;
+      const ctx = getMRIAudioCtx();
+      if (!ctx) return;
+      try {
+        const freqMap = { scanner: 523.25, bed: 659.25, monitors: 783.99 };
+        const baseFreq = freqMap[partKey] || 587.33;
+        const now = ctx.currentTime;
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(baseFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.18, now + 0.08);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.16, now + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.24);
+      } catch (e) {}
+    }
+
     function onMRIPartTap(event, partKey) {
       if (event) event.stopPropagation();
       if (!mriHasTransitioned || mriLightsOff) return;
       if (mriClickedSpots.has(partKey)) return;
 
       mriClickedSpots.add(partKey);
+      playMRIEquipmentTapTone(partKey);
 
       // Remove spot once clicked with smooth transition
       const spotMap = {
@@ -31127,14 +31750,23 @@
     function turnOffMRILights() {
       if (mriLightsOff) return;
       mriLightsOff = true;
+      if (!isSoundMuted) {
+        if (mriLightSwitchAudio) {
+          try {
+            mriLightSwitchAudio.currentTime = 0;
+            mriLightSwitchAudio.play().catch(() => {});
+          } catch (e) {}
+        } else {
+          playFreshOneShot('assets/MRILightSwitch.mp3', 0.85);
+        }
+      }
       clearMRITimers();
 
       const switchSpot = document.getElementById('mriSpotSwitch');
       const ceilingSpot = document.getElementById('mriSpotCeiling');
       const highlights = document.getElementById('mriPartsHighlights');
       if (switchSpot) {
-        switchSpot.classList.add('spot-removed');
-        setTimeout(() => { switchSpot.style.display = 'none'; }, 380);
+        switchSpot.style.display = 'none';
       }
       if (ceilingSpot) {
         ceilingSpot.style.display = 'none';
@@ -31144,13 +31776,15 @@
         highlights.style.pointerEvents = 'none';
       }
 
-      // Transition to room lights off
+      // Immediate room lights-off & switch flip
       const roomLightsOn = document.getElementById('mriRoomLightsOn');
       if (roomLightsOn) {
         roomLightsOn.classList.add('lights-turned-off');
       }
+      const backdropImg = document.querySelector('#mriBackdrop img');
+      if (backdropImg) backdropImg.src = 'assets/MRIRoomLightsOff.png';
 
-      // Activate Monitors step in dimmed room
+      // Activate Monitors step in dimmed room right after the switch flips
       mriMonitorsActive = true;
       mriMonitorsDone = false;
 
@@ -31158,9 +31792,12 @@
       if (monitorsLayer) {
         monitorsLayer.style.display = 'block';
         monitorsLayer.style.pointerEvents = 'auto';
-        requestAnimationFrame(() => {
-          monitorsLayer.style.opacity = '1';
-        });
+        monitorsLayer.style.transition = 'opacity 0.35s ease-out';
+        setTimeout(() => {
+          if (mriMonitorsActive && monitorsLayer) {
+            monitorsLayer.style.opacity = '1';
+          }
+        }, 160);
       }
 
       const promptBar = document.getElementById('mriBottomPromptBar');
@@ -31322,20 +31959,6 @@
         }, 2700);
         return;
       }
-
-      // If only one button has been tapped so far
-      const promptBar = document.getElementById('mriBottomPromptBar');
-      const promptText = document.getElementById('mriPromptText');
-      const promptDot = document.getElementById('mriPromptDot');
-      if (promptText) {
-        promptText.textContent = "Listen to the sounds the MRI makes! Try tapping the other black button to hear more!";
-      }
-      if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
-      if (promptBar) {
-        promptBar.classList.remove('prompt-pulse');
-        void promptBar.offsetWidth;
-        promptBar.classList.add('prompt-pulse');
-      }
     }
 
     function bringUpMRIRemoteAndSquishBall() {
@@ -31373,56 +31996,122 @@
         promptDot.className = 'step-instruction-dot confirm-pulse';
       }
       if (promptBar) {
+        promptBar.style.display = 'flex';
         promptBar.classList.remove('prompt-pulse', 'is-confirmed');
         void promptBar.offsetWidth;
         promptBar.classList.add('prompt-pulse');
       }
     }
 
+    function setMRIStressBallFrame(frameName) {
+      const baseImg = document.getElementById('mriStressBallImg');
+      const squish1Img = document.getElementById('mriStressSquish1Img');
+      const squish2Img = document.getElementById('mriStressSquish2Img');
+      if (baseImg) baseImg.style.opacity = frameName === 'base' ? '1' : '0';
+      if (squish1Img) squish1Img.style.opacity = frameName === 'squish1' ? '1' : '0';
+      if (squish2Img) squish2Img.style.opacity = frameName === 'squish2' ? '1' : '0';
+    }
+
     function onMRIStressBallTap(event) {
       if (event) event.stopPropagation();
-      const stressBallImg = document.getElementById('mriStressBallImg');
+      const stressBallVisual = document.getElementById('mriStressBallVisual');
       const btnStressBall = document.getElementById('mriBtnStressBall');
-      if (!stressBallImg) return;
+      if (!stressBallVisual) return;
+      playFreshOneShot('assets/MRISquishBall.mp3', 0.75);
 
-      if (mriSquishTimer) clearTimeout(mriSquishTimer);
-      stressBallImg.src = 'assets/MRIStressSquish1.png';
+      if (mriSquishTimer) {
+        clearTimeout(mriSquishTimer);
+        mriSquishTimer = null;
+      }
+      if (mriSquishMidTimer) {
+        clearTimeout(mriSquishMidTimer);
+        mriSquishMidTimer = null;
+      }
+
+      const squishVariants = [
+        {
+          first: 'squish1',
+          second: 'squish2',
+          transform1: 'scale(1.04, 0.94) rotate(-2deg)',
+          transform2: 'scale(0.97, 1.03) rotate(1deg)'
+        },
+        {
+          first: 'squish2',
+          second: 'squish1',
+          transform1: 'scale(0.94, 1.05) rotate(2.5deg)',
+          transform2: 'scale(1.03, 0.96) rotate(-1.5deg)'
+        },
+        {
+          first: 'squish1',
+          second: null,
+          transform1: 'scale(1.06, 0.91) rotate(-3deg)',
+          transform2: null
+        },
+        {
+          first: 'squish2',
+          second: null,
+          transform1: 'scale(0.92, 1.06) rotate(3deg)',
+          transform2: null
+        },
+        {
+          first: 'squish1',
+          second: 'squish2',
+          transform1: 'scale(0.95, 0.92) rotate(-4deg)',
+          transform2: 'scale(1.03, 0.96) rotate(2deg)'
+        },
+        {
+          first: 'squish2',
+          second: 'squish1',
+          transform1: 'scale(1.05, 0.92) rotate(3.5deg)',
+          transform2: 'scale(0.96, 1.03) rotate(-2deg)'
+        }
+      ];
+
+      const variant = squishVariants[mriStressSquishCount % squishVariants.length];
+      mriStressSquishCount += 1;
+
+      setMRIStressBallFrame(variant.first);
+      stressBallVisual.style.transform = variant.transform1;
       if (btnStressBall) btnStressBall.classList.add('squished');
 
-      setTimeout(() => {
-        if (stressBallImg) stressBallImg.src = 'assets/MRIStressSquish2.png';
-      }, 100);
+      if (variant.second) {
+        mriSquishMidTimer = setTimeout(() => {
+          setMRIStressBallFrame(variant.second);
+          if (stressBallVisual) {
+            stressBallVisual.style.transform = variant.transform2;
+          }
+        }, 160);
+      }
 
       mriSquishTimer = setTimeout(() => {
-        if (stressBallImg) stressBallImg.src = 'assets/MRIStressBall.png';
+        setMRIStressBallFrame('base');
+        if (stressBallVisual) {
+          stressBallVisual.style.transform = '';
+        }
         if (btnStressBall) btnStressBall.classList.remove('squished');
-      }, 380);
+      }, 450);
 
       const promptBar = document.getElementById('mriBottomPromptBar');
-      const promptText = document.getElementById('mriPromptText');
-      const promptDot = document.getElementById('mriPromptDot');
-      if (promptText) {
-        promptText.textContent = "Squish! You can squeeze the stress ball to talk with staff anytime through the speaker!";
-      }
-      if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
-      if (promptBar) {
-        promptBar.classList.remove('prompt-pulse');
-        void promptBar.offsetWidth;
-        promptBar.classList.add('prompt-pulse');
-      }
+      if (promptBar) promptBar.style.display = 'none';
     }
 
     function onMRIRemoteTap(event) {
       if (event) event.stopPropagation();
+      playFreshOneShot('assets/MRIRemoteButton.mp3', 0.75);
       const remoteLayer = document.getElementById('mriRemoteLayer');
       const btnRemote = document.getElementById('mriBtnRemote');
       const btnRemoteBody = document.getElementById('mriBtnRemoteBody');
       const mriVideo = document.getElementById('mriVideoPlayer');
       const promptBar = document.getElementById('mriBottomPromptBar');
-      const promptText = document.getElementById('mriPromptText');
-      const promptDot = document.getElementById('mriPromptDot');
 
+      if (promptBar) promptBar.style.display = 'none';
       stopMRISoundWaves();
+
+      if (remoteLayer) {
+        remoteLayer.classList.remove('clicked');
+        void remoteLayer.offsetWidth;
+        remoteLayer.classList.add('clicked');
+      }
 
       if (mriVideoPlaying) {
         // STOP / PAUSE the program
@@ -31433,9 +32122,6 @@
             mriVideo.classList.remove('video-active');
           } catch (e) {}
         }
-        if (remoteLayer) {
-          remoteLayer.classList.remove('clicked');
-        }
         if (btnRemote) {
           btnRemote.classList.remove('video-playing', 'spot-removed');
           btnRemote.style.display = 'flex';
@@ -31444,23 +32130,9 @@
         if (btnRemoteBody) {
           btnRemoteBody.title = "Resume Program with Remote";
         }
-        if (promptText) {
-          promptText.textContent = "Program stopped! Click on the remote anytime to resume your movie, or squish the stress ball to chat with staff.";
-        }
-        if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
-        if (promptBar) {
-          promptBar.classList.remove('prompt-pulse');
-          void promptBar.offsetWidth;
-          promptBar.classList.add('prompt-pulse');
-        }
       } else {
         // START / RESUME the program
         mriVideoPlaying = true;
-        if (remoteLayer) {
-          remoteLayer.classList.remove('clicked');
-          void remoteLayer.offsetWidth;
-          remoteLayer.classList.add('clicked');
-        }
         if (btnRemote) {
           btnRemote.classList.add('video-playing');
           btnRemote.style.display = 'flex';
@@ -31497,29 +32169,7 @@
             if (btnRemoteBody) {
               btnRemoteBody.title = "Replay Program with Remote";
             }
-            if (promptText) {
-              promptText.textContent = "The MRI is finished! You did a fantastic job staying still!";
-            }
-            if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
-            if (promptBar) {
-              promptBar.classList.remove('prompt-pulse');
-              void promptBar.offsetWidth;
-              promptBar.classList.add('prompt-pulse');
-            }
           };
-        }
-
-        const isResuming = mriVideo && mriVideo.currentTime > 0.5;
-        if (promptText) {
-          promptText.textContent = isResuming
-            ? "Program resumed! Put on your movie or music with headphones while the MRI takes pictures!"
-            : "Program started! Put on your movie or music with headphones while the MRI takes pictures!";
-        }
-        if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
-        if (promptBar) {
-          promptBar.classList.remove('prompt-pulse');
-          void promptBar.offsetWidth;
-          promptBar.classList.add('prompt-pulse');
         }
       }
     }
@@ -31610,6 +32260,7 @@
         staticBedEmpty.style.opacity = '1';
         staticBedEmpty.style.pointerEvents = 'auto';
         staticBedEmpty.style.transform = 'translateY(22%)';
+        staticBedEmpty.classList.add('bed-tap-glow');
       }
       if (bedFullImg) {
         bedFullImg.style.display = 'none';
@@ -31648,6 +32299,7 @@
       }
       if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
       if (promptBar) {
+        promptBar.style.display = 'flex';
         promptBar.classList.remove('prompt-pulse');
         requestAnimationFrame(() => {
           promptBar.classList.add('prompt-pulse');
@@ -31659,6 +32311,9 @@
       if (event) event.stopPropagation();
       if (!mriBedActive || mriBedFull) return;
       mriBedFull = true;
+      const staticBedGlow = document.getElementById('mriStaticBedEmptyImg');
+      if (staticBedGlow) staticBedGlow.classList.remove('bed-tap-glow');
+      playFreshOneShot('assets/MRIBlanket.mp3', 0.85);
       triggerHapticFeedback(true);
 
       const bedHotspot = document.getElementById('mriBedHotspot');
@@ -31722,8 +32377,11 @@
     function showMRIHoldingStillPrompt() {
       if (mriStillGameActive || mriStillGameDone) return;
       setMRIStillPrompt(null, "Your most important job during the MRI is to hold perfectly still!");
-      const stageBtn = document.getElementById('mriStageStillGameBtn');
-      if (stageBtn) stageBtn.style.display = 'flex';
+      const stillIntro = document.getElementById('mriStillIntroOverlay');
+      if (stillIntro) {
+        stillIntro.style.display = 'flex';
+        requestAnimationFrame(() => stillIntro.classList.add('active'));
+      }
       const promptBar = document.getElementById('mriBottomPromptBar');
       if (promptBar) {
         promptBar.classList.remove('prompt-pulse');
@@ -31777,8 +32435,43 @@
     }
 
     /* ========================================================= */
-    /* MRI STAYING STILL GAME LOGIC & AUDIO SYNTHESIS            */
+    /* MRI STAYING STILL GAME AUDIO (SALSA + INSTRUMENTS)        */
     /* ========================================================= */
+    let mriSalsaMusic = null;
+    const mriInstrumentBuffers = {};
+    const mriInstrumentBufferLoading = {};
+    const mriActiveInstrumentSources = new Set();
+    const mriActiveInstrumentFallbacks = new Set();
+    const mriInstrumentTapIndex = { bell: 0, keyboard: 0, tambourine: 0 };
+    let mriLastBellRateIdx = -1;
+
+    const MRI_INSTRUMENT_CONFIG = {
+      bell: {
+        src: 'assets/MRIBell.mp3',
+        offsets: [0.05],
+        rates: [0.75, 0.89, 1.0, 1.12, 1.26, 1.41, 1.59],
+        randomRate: true,
+        duration: 0.85,
+        volume: 0.65
+      },
+      keyboard: {
+        src: 'assets/MRIPiano.mp3',
+        offsets: [0.45, 2.35, 3.85, 5.5, 7.2, 8.85, 9.85, 10.6, 12.3, 13.95, 15.7],
+        rates: [1.0, 1.04, 0.96, 1.08],
+        duration: 0.65,
+        volume: 0.62
+      },
+      tambourine: {
+        src: 'assets/MRIDrums.mp3',
+        offsets: [0.0, 0.75, 1.5, 2.25, 3.0, 3.9, 4.75, 5.5, 6.25, 7.0, 7.9, 8.75],
+        rates: [1.0, 1.06, 0.94],
+        duration: 0.50,
+        volume: 0.62
+      }
+    };
+    const mriInstrumentFallbackPools = {};
+    let mriInstrumentFallbackPreloaded = false;
+
     function getMRIAudioCtx() {
       if (!window._sharedAudioCtx) {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -31790,13 +32483,208 @@
       return window._sharedAudioCtx;
     }
 
+    function preloadMRIStillInstrumentBuffers() {
+      if (!mriInstrumentFallbackPreloaded) {
+        mriInstrumentFallbackPreloaded = true;
+        Object.keys(MRI_INSTRUMENT_CONFIG).forEach((key) => {
+          mriInstrumentFallbackPools[key] = [];
+          for (let i = 0; i < 3; i++) {
+            const a = new Audio(MRI_INSTRUMENT_CONFIG[key].src);
+            a.preload = 'auto';
+            a.preservesPitch = false;
+            a.webkitPreservesPitch = false;
+            a.mozPreservesPitch = false;
+            try { a.load(); } catch (e) {}
+            mriInstrumentFallbackPools[key].push({ audio: a, timer: null, busy: false });
+          }
+        });
+      }
+      const ctx = getMRIAudioCtx();
+      if (!ctx) return;
+      Object.keys(MRI_INSTRUMENT_CONFIG).forEach((key) => {
+        if (mriInstrumentBuffers[key] || mriInstrumentBufferLoading[key]) return;
+        mriInstrumentBufferLoading[key] = true;
+        fetch(MRI_INSTRUMENT_CONFIG[key].src)
+          .then(res => res.arrayBuffer())
+          .then(buf => ctx.decodeAudioData(buf))
+          .then(decoded => {
+            mriInstrumentBuffers[key] = decoded;
+          })
+          .catch(() => {})
+          .finally(() => {
+            mriInstrumentBufferLoading[key] = false;
+          });
+      });
+    }
+
+    function playMRISalsaMusic(resetToStart = false) {
+      if (isSoundMuted) return;
+      if (!mriStillGameActive || mriStillGameState === 'FREEZE') return;
+      if (!mriSalsaMusic) {
+        mriSalsaMusic = new Audio('assets/Salsa.mp3');
+        mriSalsaMusic.loop = true;
+        mriSalsaMusic.volume = 0.28;
+      }
+      if (resetToStart) {
+        try { mriSalsaMusic.currentTime = 0; } catch (e) {}
+      }
+      if (mriSalsaMusic.paused) {
+        mriSalsaMusic.play().catch(err => {
+          console.log('Salsa music waiting for user gesture:', err);
+        });
+      }
+    }
+
+    function pauseMRISalsaMusic() {
+      if (mriSalsaMusic && !mriSalsaMusic.paused) {
+        try { mriSalsaMusic.pause(); } catch (e) {}
+      }
+    }
+
+    function stopMRISalsaMusic() {
+      if (mriSalsaMusic) {
+        try {
+          mriSalsaMusic.pause();
+          mriSalsaMusic.currentTime = 0;
+        } catch (e) {}
+      }
+    }
+
+    function stopAllMRIInstrumentSounds() {
+      mriActiveInstrumentSources.forEach((entry) => {
+        try {
+          if (entry.gain && entry.ctx) {
+            entry.gain.gain.cancelScheduledValues(entry.ctx.currentTime);
+            entry.gain.gain.setValueAtTime(0, entry.ctx.currentTime);
+          }
+          entry.source.stop();
+          entry.source.disconnect();
+        } catch (e) {}
+      });
+      mriActiveInstrumentSources.clear();
+
+      mriActiveInstrumentFallbacks.forEach((entry) => {
+        try {
+          if (entry.timer) clearTimeout(entry.timer);
+          entry.audio.pause();
+          entry.audio.currentTime = 0;
+          entry.busy = false;
+        } catch (e) {}
+      });
+      mriActiveInstrumentFallbacks.clear();
+    }
+
+    function playMRIInstrumentSample(type) {
+      if (isSoundMuted) return;
+      if (!mriStillGameActive || mriStillGameState === 'FREEZE') return;
+      const cfg = MRI_INSTRUMENT_CONFIG[type];
+      if (!cfg) return;
+
+      const idx = mriInstrumentTapIndex[type] || 0;
+      mriInstrumentTapIndex[type] = idx + 1;
+
+      const offset = cfg.offsets[idx % cfg.offsets.length];
+      let rate;
+      if (cfg.randomRate && cfg.rates.length > 1) {
+        let rateIdx = Math.floor(Math.random() * cfg.rates.length);
+        if (rateIdx === mriLastBellRateIdx) {
+          rateIdx = (rateIdx + 1 + Math.floor(Math.random() * (cfg.rates.length - 1))) % cfg.rates.length;
+        }
+        mriLastBellRateIdx = rateIdx;
+        rate = cfg.rates[rateIdx];
+      } else {
+        rate = cfg.rates[idx % cfg.rates.length];
+      }
+      const ctx = getMRIAudioCtx();
+      const buffer = mriInstrumentBuffers[type];
+
+      if (ctx && buffer) {
+        try {
+          const source = ctx.createBufferSource();
+          const gain = ctx.createGain();
+          source.buffer = buffer;
+          source.playbackRate.value = rate;
+
+          const now = ctx.currentTime;
+          const safeOffset = Math.min(offset, Math.max(0, buffer.duration - 0.15));
+          const dur = Math.min(cfg.duration, Math.max(0.15, (buffer.duration - safeOffset) / rate));
+
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.linearRampToValueAtTime(cfg.volume, now + 0.015);
+          gain.gain.setValueAtTime(cfg.volume, now + Math.max(0.03, dur - 0.12));
+          gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+
+          source.connect(gain);
+          gain.connect(ctx.destination);
+
+          const entry = { source, gain, ctx };
+          mriActiveInstrumentSources.add(entry);
+          source.onended = () => {
+            mriActiveInstrumentSources.delete(entry);
+            try { source.disconnect(); gain.disconnect(); } catch (e) {}
+          };
+
+          source.start(now, safeOffset, dur);
+          return;
+        } catch (e) {}
+      }
+
+      // Fallback to preloaded HTMLAudioElement pool if Web Audio buffer isn't decoded (e.g. file:// origin)
+      try {
+        const pool = mriInstrumentFallbackPools[type] || [];
+        let entry = pool.find(item => !item.busy);
+        if (!entry && pool.length > 0) {
+          entry = pool[0];
+          if (entry.timer) clearTimeout(entry.timer);
+          entry.audio.pause();
+        }
+        const audio = entry ? entry.audio : new Audio(cfg.src);
+        if (!entry) {
+          entry = { audio, timer: null, busy: true };
+        }
+        entry.busy = true;
+        audio.volume = Math.min(1.0, cfg.volume);
+        audio.preservesPitch = false;
+        audio.webkitPreservesPitch = false;
+        audio.mozPreservesPitch = false;
+        try { audio.playbackRate = rate; } catch (e) {}
+        mriActiveInstrumentFallbacks.add(entry);
+
+        const startFallback = () => {
+          try {
+            if (audio.duration && offset < audio.duration - 0.15) {
+              audio.currentTime = offset;
+            } else {
+              audio.currentTime = 0;
+            }
+          } catch (e) {}
+          audio.play().catch(() => {});
+          if (entry.timer) clearTimeout(entry.timer);
+          entry.timer = setTimeout(() => {
+            try {
+              audio.pause();
+              audio.currentTime = 0;
+            } catch (e) {}
+            entry.busy = false;
+            mriActiveInstrumentFallbacks.delete(entry);
+          }, cfg.duration * 1000);
+        };
+
+        if (audio.readyState >= 1) {
+          startFallback();
+        } else {
+          audio.addEventListener('loadedmetadata', startFallback, { once: true });
+          audio.load();
+        }
+      } catch (e) {}
+    }
+
     function playMetronomeTick() {
-      // Sound removed from MRI preparation for now
+      // Handled by Salsa music
     }
 
     function startMetronome() {
       stopMetronome();
-      // Sound removed from MRI preparation for now
     }
 
     function stopMetronome() {
@@ -31807,23 +32695,23 @@
     }
 
     function playHandbellSound() {
-      // Sound removed from MRI preparation for now
+      playMRIInstrumentSample('bell');
     }
 
     function playKeyboardSound() {
-      // Sound removed from MRI preparation for now
+      playMRIInstrumentSample('keyboard');
     }
 
     function playTambourineSound() {
-      // Sound removed from MRI preparation for now
+      playMRIInstrumentSample('tambourine');
     }
 
     function playFreezeCueSound() {
-      // Sound removed from MRI preparation for now
+      // Silence during freeze
     }
 
     function playStillWarningSound() {
-      // Sound removed from MRI preparation for now
+      // Silence during freeze warning
     }
 
     function onMRIStillGameOverlayTap(event) {
@@ -31841,16 +32729,32 @@
       if (mriStillGameActive) return;
       triggerHapticFeedback(true);
 
-      // Hide center launcher button
-      const stageBtn = document.getElementById('mriStageStillGameBtn');
-      if (stageBtn) stageBtn.style.display = 'none';
+      // Hide practice activity intro overlay
+      const stillIntro = document.getElementById('mriStillIntroOverlay');
+      if (stillIntro) {
+        stillIntro.classList.remove('active');
+        stillIntro.style.display = 'none';
+      }
 
       mriStillGameActive = true;
       mriStillGamePauseCount = 0;
       mriStillGameState = 'MOVE';
 
+      pauseMRIBackgroundMusic();
+      preloadMRIStillInstrumentBuffers();
+      playMRISalsaMusic(true);
+
       const ringWarning = document.getElementById('mriStillRingWarning');
       if (ringWarning) ringWarning.classList.remove('active');
+
+      const freezeWord = document.getElementById('mriStillFreezeWord');
+      if (freezeWord) freezeWord.classList.remove('active');
+
+      const warningToast = document.getElementById('mriStillWarningToast');
+      if (warningToast) warningToast.style.display = 'none';
+
+      const promptBar = document.getElementById('mriBottomPromptBar');
+      if (promptBar) promptBar.style.display = 'none';
 
       const overlay = document.getElementById('mriStillGameOverlay');
       if (overlay) {
@@ -31878,11 +32782,16 @@
     function enterStillGameMovePhase() {
       if (!mriStillGameActive) return;
       mriStillGameState = 'MOVE';
+      playMRISalsaMusic();
 
       const ringWarning = document.getElementById('mriStillRingWarning');
       if (ringWarning) ringWarning.classList.remove('active');
 
-      setMRIStillPrompt('move', "Move and play music! Tap the instruments!");
+      const freezeWord = document.getElementById('mriStillFreezeWord');
+      if (freezeWord) freezeWord.classList.remove('active');
+
+      const warningToast = document.getElementById('mriStillWarningToast');
+      if (warningToast) warningToast.style.display = 'none';
 
       const skeletonStage = document.getElementById('mriStillSkeletonStage');
       const video = document.getElementById('mriStillVideo');
@@ -31949,8 +32858,6 @@
       if (!mriStillGameActive) return;
       mriStillGameState = 'WARNING';
 
-      setMRIStillPrompt('warning', "Get ready to freeze...");
-
       const ringWarning = document.getElementById('mriStillRingWarning');
       if (ringWarning) {
         ringWarning.classList.remove('active');
@@ -31981,6 +32888,8 @@
       }
 
       stopMetronome();
+      pauseMRISalsaMusic();
+      stopAllMRIInstrumentSounds();
 
       const video = document.getElementById('mriStillVideo');
       if (video) video.pause();
@@ -31994,7 +32903,12 @@
       playFreezeCueSound();
       triggerHapticFeedback(true);
 
-      setMRIStillPrompt('freeze', "FREEZE! Hold perfectly still!");
+      const freezeWord = document.getElementById('mriStillFreezeWord');
+      if (freezeWord) {
+        freezeWord.classList.remove('active');
+        void freezeWord.offsetWidth;
+        freezeWord.classList.add('active');
+      }
 
       // 3.0s freeze interval
       if (mriStillGameTimer) clearTimeout(mriStillGameTimer);
@@ -32007,9 +32921,10 @@
       if (!mriStillGameActive) return;
       triggerHapticFeedback(true);
 
-      if (mriStillGamePauseCount < 3) {
-        setMRIStillPrompt('success', "Great job holding still! Get ready to move!");
+      const freezeWord = document.getElementById('mriStillFreezeWord');
+      if (freezeWord) freezeWord.classList.remove('active');
 
+      if (mriStillGamePauseCount < 3) {
         if (mriStillGameTimer) clearTimeout(mriStillGameTimer);
         mriStillGameTimer = setTimeout(() => {
           enterStillGameMovePhase();
@@ -32051,12 +32966,48 @@
         setTimeout(() => wrapperEl.classList.remove('tap-active'), 400);
       }
 
+      spawnMRIMusicNotes(type);
+
       // Resume or start video playback on direct user tap if browser paused it
       const stillVideo = document.getElementById('mriStillVideo');
       if (stillVideo && stillVideo.paused && (mriStillGameState === 'MOVE' || mriStillGameState === 'WARNING')) {
         stillVideo.muted = true;
         stillVideo.playsInline = true;
         stillVideo.play().catch(() => {});
+      }
+    }
+
+    function spawnMRIMusicNotes(type) {
+      const overlay = document.getElementById('mriStillGameOverlay');
+      if (!overlay) return;
+      const origins = {
+        bell: { x: 10.5, y: 58, colors: ['#fde047', '#38bdf8', '#f472b6'] },
+        keyboard: { x: 50, y: 74, colors: ['#34d399', '#38bdf8', '#a78bfa'] },
+        tambourine: { x: 89.5, y: 58, colors: ['#fb923c', '#fde047', '#f472b6'] }
+      };
+      const cfg = origins[type] || origins.keyboard;
+      const glyphs = ['♪', '♫', '♬'];
+
+      for (let i = 0; i < 3; i++) {
+        setTimeout(() => {
+          if (!mriStillGameActive) return;
+          const note = document.createElement('span');
+          note.className = 'mri-still-music-note';
+          note.textContent = glyphs[(Math.floor(Math.random() * glyphs.length))];
+          const offsetX = (Math.random() - 0.5) * 7;
+          const offsetY = (Math.random() - 0.5) * 4;
+          const dx = (Math.random() - 0.5) * 70;
+          const rot = (Math.random() - 0.5) * 28;
+          note.style.left = `${cfg.x + offsetX}%`;
+          note.style.top = `${cfg.y + offsetY}%`;
+          note.style.color = cfg.colors[i % cfg.colors.length];
+          note.style.setProperty('--note-dx', `${dx.toFixed(1)}px`);
+          note.style.setProperty('--note-rot', `${rot.toFixed(1)}deg`);
+          overlay.appendChild(note);
+          setTimeout(() => {
+            if (note.parentNode) note.parentNode.removeChild(note);
+          }, 980);
+        }, i * 65);
       }
     }
 
@@ -32076,8 +33027,12 @@
     function finishStillGameSuccess() {
       mriStillGameState = 'COMPLETE';
       stopMetronome();
+      stopMRISalsaMusic();
+      stopAllMRIInstrumentSounds();
+      playMRIBackgroundMusic();
 
-      setMRIStillPrompt('success', "Great job! You are an expert at holding still!");
+      const freezeWord = document.getElementById('mriStillFreezeWord');
+      if (freezeWord) freezeWord.classList.remove('active');
 
       triggerHapticFeedback(true);
       startMRIStillConfetti();
@@ -32093,10 +33048,22 @@
       const completed = isCompleted === true;
       mriStillGameActive = false;
       stopMetronome();
+      stopMRISalsaMusic();
+      stopAllMRIInstrumentSounds();
       stopMRIStillConfetti();
+      playMRIBackgroundMusic();
 
       const ringWarning = document.getElementById('mriStillRingWarning');
       if (ringWarning) ringWarning.classList.remove('active');
+
+      const freezeWord = document.getElementById('mriStillFreezeWord');
+      if (freezeWord) freezeWord.classList.remove('active');
+
+      const warningToast = document.getElementById('mriStillWarningToast');
+      if (warningToast) warningToast.style.display = 'none';
+
+      const promptBar = document.getElementById('mriBottomPromptBar');
+      if (promptBar) promptBar.style.display = 'flex';
 
       const video = document.getElementById('mriStillVideo');
       if (video) video.pause();
@@ -32190,6 +33157,7 @@
       }
       if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
       if (promptBar) {
+        promptBar.style.display = 'flex';
         promptBar.classList.remove('prompt-pulse');
         requestAnimationFrame(() => {
           promptBar.classList.add('prompt-pulse');
@@ -32411,6 +33379,7 @@
       }
       if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
       if (promptBar) {
+        promptBar.style.display = 'flex';
         promptBar.classList.remove('prompt-pulse');
         requestAnimationFrame(() => {
           promptBar.classList.add('prompt-pulse');
@@ -32474,16 +33443,9 @@
         draggableBed.style.pointerEvents = 'none';
       }
 
-      const promptText = document.getElementById('mriPromptText');
-      const promptDot = document.getElementById('mriPromptDot');
       const promptBar = document.getElementById('mriBottomPromptBar');
-      if (promptText) {
-        promptText.textContent = "Great job! You completed your MRI scan!";
-      }
-      if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
       if (promptBar) {
-        promptBar.classList.remove('prompt-pulse');
-        requestAnimationFrame(() => promptBar.classList.add('prompt-pulse'));
+        promptBar.style.display = 'none';
       }
 
       // Preparation ends here once bed slides back out!
@@ -32624,6 +33586,7 @@
       }
       if (promptDot) promptDot.className = 'step-instruction-dot confirm-pulse';
       if (promptBar) {
+        promptBar.style.display = 'flex';
         promptBar.classList.remove('still-move-mode', 'still-warning-mode', 'still-freeze-mode', 'still-success-mode');
         promptBar.classList.remove('prompt-pulse');
         requestAnimationFrame(() => promptBar.classList.add('prompt-pulse'));
@@ -32673,6 +33636,8 @@
       function onDown(e) {
         if (e.target.closest('.mri-contrast-done-btn')) return;
         isDragging = true;
+        const promptBar = document.getElementById('mriBottomPromptBar');
+        if (promptBar) promptBar.style.display = 'none';
         ensurePlaying();
         triggerHapticFeedback(false);
         const p = getPercentFromEvent(e);
@@ -32721,6 +33686,12 @@
       mriMonitorsActive = false;
       mriMonitorsDone = true;
 
+      const promptBar = document.getElementById('mriBottomPromptBar');
+      if (promptBar) promptBar.style.display = 'flex';
+
+      const backdropImg = document.querySelector('#mriBackdrop img');
+      if (backdropImg) backdropImg.src = 'assets/MRIRoomLightsOn.png';
+
       const monitorsLayer = document.getElementById('mriMonitorsLayer');
       if (monitorsLayer) {
         monitorsLayer.style.opacity = '0';
@@ -32750,15 +33721,15 @@
       }
       startMRIConfetti();
 
-      const promptText = document.getElementById('mriPromptText');
-      if (promptText) {
-        promptText.textContent = "Great job! You completed your MRI scan!";
+      const promptBar = document.getElementById('mriBottomPromptBar');
+      if (promptBar) {
+        promptBar.style.display = 'none';
       }
     }
 
     function startMRIConfetti() {
-      // Confetti completely removed
       stopMRIConfetti();
+      launchStandardConfettiBurst('mriConfettiCanvas', (id) => { mriConfettiAnimationId = id; });
     }
 
     function stopMRIConfetti() {
@@ -32849,16 +33820,7 @@
           promptBar.classList.add('prompt-pulse');
         }
       } else if (mriInsideActive) {
-        if (mriInsidePromptTimer) {
-          showMRISoundPrompt();
-        } else if (mriTappedButtons.size === 1) {
-          const promptText = document.getElementById('mriPromptText');
-          if (promptText) {
-            promptText.textContent = "Listen to the sounds the MRI makes! Try tapping the other black button to hear more!";
-          }
-        } else {
-          showMRISoundPrompt();
-        }
+        showMRISoundPrompt();
       } else if (mriAllSpotsClicked && !mriLightsOff) {
         turnOffMRILights();
       } else if (!mriAllSpotsClicked) {

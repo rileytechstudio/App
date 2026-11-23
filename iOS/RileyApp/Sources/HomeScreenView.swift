@@ -63,6 +63,13 @@ public struct HomeScreenView: View {
                     } else {
                         portraitCompactLayout(screenSize: screenSize)
                     }
+
+                    // Bottom Toolbar: About, Legal & Copyright
+                    homeBottomToolbar(
+                        isCompact: !shouldUseMockupGrid,
+                        screenSize: screenSize,
+                        safeAreaBottom: geometry.safeAreaInsets.bottom
+                    )
                 }
             }
         }
@@ -141,7 +148,7 @@ public struct HomeScreenView: View {
         
         // Responsive Metrics Calculations matching increased header banner
         let headerApproxHeight: CGFloat = isLandscape ? min(max(screenSize.height * 0.17, 96), 148) : min(max(screenSize.height * 0.13, 76), 118)
-        let availableHeight = max(screenSize.height - headerApproxHeight, 200)
+        let availableHeight = max(screenSize.height - headerApproxHeight - 52, 200)
         
         // Horizontal padding
         let hPadding: CGFloat = min(max(screenSize.width * 0.05, 24), 80)
@@ -202,28 +209,8 @@ public struct HomeScreenView: View {
                 }
                 .frame(maxWidth: .infinity)
                 
-                // Bottom flexible spacer to About & Legal buttons
+                // Bottom flexible spacer
                 Spacer(minLength: min(max(availableHeight * 0.06, 18), 70))
-                
-                // Row 3 (Bottom): About, Legal (Side by side, centered)
-                HStack(spacing: cardSpacing * 0.8) {
-                    FooterPillButton(
-                        imageName: "ButtonAbout",
-                        title: "About",
-                        width: footerWidth,
-                        action: { navState.navigate(to: .about) }
-                    )
-                    
-                    FooterPillButton(
-                        imageName: "ButtonLegal",
-                        title: "Legal",
-                        width: footerWidth,
-                        action: { navState.navigate(to: .legal) }
-                    )
-                }
-                .frame(maxWidth: .infinity)
-                
-                Spacer().frame(height: min(max(availableHeight * 0.035, 12), 28))
             }
             .padding(.horizontal, hPadding)
             .frame(minHeight: availableHeight)
@@ -234,13 +221,12 @@ public struct HomeScreenView: View {
     @ViewBuilder
     private func portraitCompactLayout(screenSize: CGSize) -> some View {
         let headerApproxHeight: CGFloat = min(max(screenSize.height * 0.09, 52), 70)
-        let availableHeight = max(screenSize.height - headerApproxHeight, 200)
+        let availableHeight = max(screenSize.height - headerApproxHeight - 64, 200)
         let hPadding: CGFloat = min(max(screenSize.width * 0.05, 16), 28)
         let spacing: CGFloat = min(max(screenSize.width * 0.035, 12), 20)
         
         // 2-column card width decreased by 5% (was up to 160pt)
         let cardWidth = min((screenSize.width - (hPadding * 2) - spacing) / 2.0, 152) * 0.95
-        let footerWidth = min(cardWidth * 0.82, 120)
         
         ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
@@ -283,30 +269,80 @@ public struct HomeScreenView: View {
                     )
                 }
                 
-                // Flexible spacer pushing About & Legal near bottom on mobile
                 Spacer(minLength: 24)
-                
-                // Row 3: About, Legal
-                HStack(spacing: spacing) {
-                    FooterPillButton(
-                        imageName: "ButtonAbout",
-                        title: "About",
-                        width: footerWidth,
-                        action: { navState.navigate(to: .about) }
-                    )
-                    
-                    FooterPillButton(
-                        imageName: "ButtonLegal",
-                        title: "Legal",
-                        width: footerWidth,
-                        action: { navState.navigate(to: .legal) }
-                    )
-                }
-                
-                Spacer().frame(height: 16)
             }
             .padding(.horizontal, hPadding)
             .frame(minHeight: availableHeight)
         }
+    }
+
+    // MARK: - Bottom Toolbar (About, Legal & Copyright)
+    @ViewBuilder
+    private func homeBottomToolbar(isCompact: Bool, screenSize: CGSize, safeAreaBottom: CGFloat) -> some View {
+        let linkColor = Color(red: 122/255, green: 28/255, blue: 77/255)
+        let accentGold = Color(red: 244/255, green: 184/255, blue: 40/255)
+        let copyrightColor = Color(red: 17/255, green: 24/255, blue: 39/255)
+
+        VStack(spacing: 0) {
+            Divider()
+                .background(Color.black.opacity(0.08))
+
+            if isCompact {
+                VStack(spacing: 4) {
+                    HStack(spacing: 36) {
+                        Button(action: { navState.navigate(to: .about) }) {
+                            Text("About")
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundColor(linkColor)
+                        }
+                        .buttonStyle(.plain)
+
+                        Button(action: { navState.navigate(to: .legal) }) {
+                            Text("Legal")
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundColor(linkColor)
+                        }
+                        .buttonStyle(.plain)
+                    }
+
+                    Text("©2026 Indiana University Health, Inc. All Rights Reserved")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(copyrightColor)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .frame(maxWidth: .infinity)
+            } else {
+                HStack(spacing: min(max(screenSize.width * 0.08, 32), 120)) {
+                    Button(action: { navState.navigate(to: .about) }) {
+                        Text("About")
+                            .font(.system(size: min(max(screenSize.width * 0.018, 16), 20), weight: .bold))
+                            .foregroundColor(linkColor)
+                    }
+                    .buttonStyle(.plain)
+
+                    Button(action: { navState.navigate(to: .legal) }) {
+                        Text("Legal")
+                            .font(.system(size: min(max(screenSize.width * 0.018, 16), 20), weight: .bold))
+                            .foregroundColor(linkColor)
+                    }
+                    .buttonStyle(.plain)
+
+                    Text("©2026 Indiana University Health, Inc. All Rights Reserved")
+                        .font(.system(size: min(max(screenSize.width * 0.013, 12), 14), weight: .medium))
+                        .foregroundColor(copyrightColor)
+                        .lineLimit(1)
+                }
+                .padding(.horizontal, 24)
+                .padding(.vertical, 10)
+                .frame(maxWidth: .infinity)
+            }
+
+            accentGold
+                .frame(height: max(8, safeAreaBottom > 0 ? 8 + safeAreaBottom * 0.35 : 8))
+        }
+        .background(Color.white)
     }
 }
