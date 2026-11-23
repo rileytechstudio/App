@@ -6109,6 +6109,93 @@
       transition: transform 0.42s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
     }
 
+    /* Dotted Tegaderm Outline for Skin-Protectant Swab Tracing */
+    .port-swab-outline {
+      position: absolute;
+      left: 42.53%;
+      top: 41.0%;
+      width: 26.26%;
+      aspect-ratio: 422 / 290;
+      transform: translate(-50%, -50%);
+      border-radius: 18px;
+      pointer-events: none;
+      z-index: 24;
+      border: 3.5px dashed rgba(56, 189, 248, 0.95);
+      background: transparent;
+      animation: portSwabOutlinePulse 2.2s infinite ease-in-out;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .port-swab-outline.hovered {
+      border-color: rgba(125, 211, 252, 1);
+      box-shadow: 0 0 22px rgba(56, 189, 248, 0.65), inset 0 0 14px rgba(56, 189, 248, 0.18);
+    }
+
+    .port-swab-outline.completed {
+      border: 3.5px solid rgba(52, 211, 153, 0.98) !important;
+      box-shadow: 0 0 28px rgba(52, 211, 153, 0.78), inset 0 0 16px rgba(52, 211, 153, 0.25) !important;
+      animation: none !important;
+    }
+
+    @keyframes portSwabOutlinePulse {
+      0%, 100% {
+        border-color: rgba(56, 189, 248, 0.85);
+        box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+      }
+      50% {
+        border-color: rgba(186, 230, 253, 1);
+        box-shadow: 0 0 24px rgba(56, 189, 248, 0.72), 0 0 8px rgba(255, 255, 255, 0.55);
+      }
+    }
+
+    /* Draggable Skin-Protectant Swab on Tray */
+    .port-swab-item {
+      position: absolute;
+      left: 78.0%;
+      top: 57.5%;
+      width: 11.5%;
+      aspect-ratio: 404 / 405;
+      z-index: 26;
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      will-change: transform;
+    }
+
+    .port-swab-item:active,
+    .port-swab-item.dragging {
+      cursor: grabbing;
+    }
+
+    .port-swab-item.dragging .port-swab-visual {
+      animation: none !important;
+      filter: drop-shadow(0 10px 24px rgba(56, 189, 248, 0.95)) drop-shadow(0 0 18px rgba(255, 255, 255, 0.85));
+    }
+
+    .port-swab-item.spring-back {
+      transition: transform 0.42s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    }
+
+    .port-swab-visual {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: portTegadermFloat 2.4s infinite ease-in-out alternate;
+      filter: drop-shadow(0 6px 14px rgba(56, 189, 248, 0.75)) drop-shadow(0 0 14px rgba(255, 255, 255, 0.85));
+      pointer-events: none;
+    }
+
+    .port-swab-visual img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+    }
+
     .port-tegaderm-visual {
       position: relative;
       width: 100%;
@@ -14804,11 +14891,17 @@
                     <span class="port-target-pulse-ring"></span>
                   </div>
 
+                  <!-- Dotted Tegaderm Outline for Skin-Protectant Swab Tracing -->
+                  <div id="portSwabOutline" class="port-swab-outline" style="display: none;" aria-hidden="true"></div>
+
                   <!-- Layer 3: Dispensed Numbing Ointment Canvas over Port -->
                   <canvas id="portOintmentCanvas" class="port-ointment-canvas" width="1366" height="1024" style="display: none;"></canvas>
 
                   <!-- Layer 3b: ChloraPrep Antiseptic Trail Canvas over Port Area -->
                   <canvas id="portChloraprepCanvas" class="port-access-layer" width="1366" height="1024" style="display: none; z-index: 15; pointer-events: none;"></canvas>
+
+                  <!-- Layer 3c: Swab Skin-Protectant Outline Trail Canvas -->
+                  <canvas id="portSwabCanvas" class="port-access-layer" width="1366" height="1024" style="display: none; z-index: 23; pointer-events: none;"></canvas>
 
                   <!-- Layer 4: Applied Clear Bandage Layer (Worn under gown wrapping body) -->
                   <div id="portClearBandageLayer" class="port-clear-bandage-layer" style="opacity: 0; pointer-events: none; z-index: 18;" onclick="removePortBandage(event)">
@@ -14875,6 +14968,13 @@
                   <div id="portNeedleItem" class="port-needle-item" style="display: none;" onpointerdown="startDragPortNeedle(event)" onclick="handlePortNeedleClick(event)">
                     <div id="portNeedleVisual" class="port-needle-visual">
                       <img id="portNeedleImg" src="assets/PortAccess/Yellow Needle Only Cropped.png" alt="Port Huber Needle" draggable="false" />
+                    </div>
+                  </div>
+
+                  <!-- Layer 7d2: Draggable Skin-Protectant Swab on Tray to Trace Tegaderm Outline -->
+                  <div id="portSwabItem" class="port-swab-item" style="display: none;" onpointerdown="startDragPortSwab(event)" onclick="handlePortSwabClick(event)">
+                    <div class="port-swab-visual">
+                      <img src="assets/PortAccess/Swab Cropped.png" alt="Skin Protectant Swab" draggable="false" />
                     </div>
                   </div>
 
@@ -27955,6 +28055,13 @@
     let isDraggingPortNeedle = false;
     let isPortNeedleAccessed = false;
     let isNeedleOverPort = false;
+    let isDraggingPortSwab = false;
+    let isPortSwabComplete = false;
+    let portSwabLastTipX = null;
+    let portSwabLastTipY = null;
+    let portSwabLastSoundTime = 0;
+    const PORT_SWAB_SEGMENTS_TOTAL = 32;
+    let portSwabSegments = [];
     let isDraggingPortTegaderm = false;
     let isPortTegadermApplied = false;
     let isTegadermOverPort = false;
@@ -28155,6 +28262,30 @@
       if (needleTubeLayer) {
         needleTubeLayer.style.display = 'none';
         needleTubeLayer.style.opacity = '1';
+      }
+
+      isDraggingPortSwab = false;
+      isPortSwabComplete = false;
+      portSwabLastTipX = null;
+      portSwabLastTipY = null;
+      portSwabSegments = [];
+      const swabItem = document.getElementById('portSwabItem');
+      if (swabItem) {
+        swabItem.style.display = 'none';
+        swabItem.style.opacity = '1';
+        swabItem.style.transform = 'none';
+        swabItem.classList.remove('dragging', 'spring-back');
+      }
+      const swabOutline = document.getElementById('portSwabOutline');
+      if (swabOutline) {
+        swabOutline.style.display = 'none';
+        swabOutline.classList.remove('hovered', 'completed');
+      }
+      const swabCanvas = document.getElementById('portSwabCanvas');
+      if (swabCanvas) {
+        swabCanvas.style.display = 'none';
+        const sctx = swabCanvas.getContext('2d');
+        if (sctx) sctx.clearRect(0, 0, swabCanvas.width, swabCanvas.height);
       }
 
       const tegadermLayer = document.getElementById('portTegadermAppliedLayer');
@@ -28398,6 +28529,30 @@
         needleTubeLayer.style.opacity = '1';
       }
 
+      isDraggingPortSwab = false;
+      isPortSwabComplete = false;
+      portSwabLastTipX = null;
+      portSwabLastTipY = null;
+      portSwabSegments = [];
+      const swabItem = document.getElementById('portSwabItem');
+      if (swabItem) {
+        swabItem.style.display = 'none';
+        swabItem.style.opacity = '1';
+        swabItem.style.transform = 'none';
+        swabItem.classList.remove('dragging', 'spring-back');
+      }
+      const swabOutline = document.getElementById('portSwabOutline');
+      if (swabOutline) {
+        swabOutline.style.display = 'none';
+        swabOutline.classList.remove('hovered', 'completed');
+      }
+      const swabCanvas = document.getElementById('portSwabCanvas');
+      if (swabCanvas) {
+        swabCanvas.style.display = 'none';
+        const sctx = swabCanvas.getContext('2d');
+        if (sctx) sctx.clearRect(0, 0, swabCanvas.width, swabCanvas.height);
+      }
+
       const tegadermLayer = document.getElementById('portTegadermAppliedLayer');
       if (tegadermLayer) {
         tegadermLayer.style.display = 'none';
@@ -28491,6 +28646,8 @@
         } else {
           setPortAccessPrompt("Drag the needle over the port and tap to access!");
         }
+      } else if (portAccessCurrentStep === 'swab_ready' || portAccessCurrentStep === 'swab_dragging') {
+        setPortAccessPrompt("Use the swab to trace the tip over the dotted outline where the Tegaderm bandage will go to protect the skin!");
       } else if (portAccessCurrentStep === 'tegaderm_ready' || portAccessCurrentStep === 'tegaderm_dragging') {
         if (isTegadermOverPort) {
           applyPortTegaderm();
@@ -28529,6 +28686,8 @@
         } else {
           setPortAccessPrompt("Drag the needle over the port and tap to access!");
         }
+      } else if (portAccessCurrentStep === 'swab_ready' || portAccessCurrentStep === 'swab_dragging') {
+        setPortAccessPrompt("Use the swab to trace the tip over the dotted outline where the Tegaderm bandage will go to protect the skin!");
       } else if (portAccessCurrentStep === 'tegaderm_ready' || portAccessCurrentStep === 'tegaderm_dragging') {
         if (isTegadermOverPort) {
           applyPortTegaderm();
@@ -30534,8 +30693,296 @@
       triggerHapticFeedback(true);
 
       portAccessTimers.push(setTimeout(() => {
-        showPortTegadermStep();
+        showPortSwabStep();
       }, 1400));
+    }
+
+    function showPortSwabStep() {
+      portAccessCurrentStep = 'swab_ready';
+      isDraggingPortSwab = false;
+      isPortSwabComplete = false;
+      portSwabLastTipX = null;
+      portSwabLastTipY = null;
+      portSwabSegments = new Array(PORT_SWAB_SEGMENTS_TOTAL).fill(false);
+
+      const chestTarget = document.getElementById('portChestTargetZone');
+      if (chestTarget) {
+        chestTarget.style.display = 'none';
+        chestTarget.classList.remove('hovered', 'accessed');
+      }
+
+      const swabOutline = document.getElementById('portSwabOutline');
+      if (swabOutline) {
+        swabOutline.style.display = 'block';
+        swabOutline.classList.remove('hovered', 'completed');
+      }
+
+      const swabCanvas = document.getElementById('portSwabCanvas');
+      if (swabCanvas) {
+        swabCanvas.style.display = 'block';
+        const sctx = swabCanvas.getContext('2d');
+        if (sctx) sctx.clearRect(0, 0, swabCanvas.width, swabCanvas.height);
+      }
+
+      const swabItem = document.getElementById('portSwabItem');
+      if (swabItem) {
+        swabItem.style.display = 'block';
+        swabItem.style.transform = 'none';
+        swabItem.style.opacity = '0';
+        swabItem.style.transition = 'opacity 0.4s ease';
+        swabItem.classList.remove('dragging', 'spring-back');
+        requestAnimationFrame(() => {
+          if (swabItem) swabItem.style.opacity = '1';
+        });
+      }
+
+      setPortAccessPrompt("Trace the swab tip over the dotted outline where the Tegaderm bandage will go to protect the skin!");
+    }
+
+    function handlePortSwabClick(e) {
+      if (portAccessCurrentStep !== 'swab_ready' && portAccessCurrentStep !== 'swab_dragging') return;
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      setPortAccessPrompt("Use the swab to trace the tip over the dotted outline where the Tegaderm bandage will go to protect the skin!");
+    }
+
+    function startDragPortSwab(e) {
+      if (portAccessCurrentStep !== 'swab_ready' && portAccessCurrentStep !== 'swab_dragging') return;
+      if (isPortSwabComplete) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      const item = document.getElementById('portSwabItem');
+      const stage = document.getElementById('portAccessStage');
+      if (!item || !stage) return;
+
+      isDraggingPortSwab = true;
+      portAccessCurrentStep = 'swab_dragging';
+      item.classList.add('dragging');
+      item.classList.remove('spring-back');
+      item.style.transition = 'none';
+
+      const startClientX = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
+      const startClientY = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
+      let deltaX = 0;
+      let deltaY = 0;
+      let rAFId = null;
+
+      if (e.target.setPointerCapture && e.pointerId !== undefined) {
+        try { e.target.setPointerCapture(e.pointerId); } catch (err) {}
+      }
+
+      function onPointerMove(ev) {
+        if (!isDraggingPortSwab) return;
+        ev.preventDefault();
+
+        const curX = (ev.touches && ev.touches[0]) ? ev.touches[0].clientX : ev.clientX;
+        const curY = (ev.touches && ev.touches[0]) ? ev.touches[0].clientY : ev.clientY;
+
+        deltaX = curX - startClientX;
+        deltaY = curY - startClientY;
+
+        if (!rAFId) {
+          rAFId = requestAnimationFrame(() => {
+            rAFId = null;
+            if (!isDraggingPortSwab) return;
+            item.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0) scale(1.06)`;
+            checkCursorOverPortSwab(item);
+          });
+        }
+      }
+
+      function onPointerUp(ev) {
+        if (!isDraggingPortSwab) return;
+        isDraggingPortSwab = false;
+        if (rAFId) {
+          cancelAnimationFrame(rAFId);
+          rAFId = null;
+        }
+
+        window.removeEventListener('pointermove', onPointerMove);
+        window.removeEventListener('pointerup', onPointerUp);
+        window.removeEventListener('pointercancel', onPointerUp);
+
+        if (item && ev && ev.pointerId !== undefined) {
+          try { item.releasePointerCapture(ev.pointerId); } catch (err) {}
+        }
+
+        item.classList.remove('dragging');
+        portSwabLastTipX = null;
+        portSwabLastTipY = null;
+
+        if (isPortSwabComplete) return;
+
+        const swabOutline = document.getElementById('portSwabOutline');
+        if (swabOutline) swabOutline.classList.remove('hovered');
+
+        item.classList.add('spring-back');
+        item.style.transform = 'translate3d(0, 0, 0)';
+        setTimeout(() => {
+          if (item && !isPortSwabComplete) {
+            item.classList.remove('spring-back');
+            item.style.transform = '';
+          }
+        }, 420);
+        portAccessCurrentStep = 'swab_ready';
+      }
+
+      window.addEventListener('pointermove', onPointerMove, { passive: false });
+      window.addEventListener('pointerup', onPointerUp);
+      window.addEventListener('pointercancel', onPointerUp);
+    }
+
+    function checkCursorOverPortSwab(item) {
+      if (isPortSwabComplete) return;
+      const stage = document.getElementById('portAccessStage');
+      const swabOutline = document.getElementById('portSwabOutline');
+      const swabCanvas = document.getElementById('portSwabCanvas');
+      if (!stage || !swabOutline || !item) return;
+
+      const itemRect = item.getBoundingClientRect();
+      // Foam swab tip sits at top-left (~18%, ~18%) of Swab Cropped.png
+      const tipX = itemRect.left + itemRect.width * 0.18;
+      const tipY = itemRect.top + itemRect.height * 0.18;
+
+      const rect = swabOutline.getBoundingClientRect();
+      // Distance from tip to nearest point on the outline rectangle perimeter
+      const clampedX = Math.max(rect.left, Math.min(rect.right, tipX));
+      const clampedY = Math.max(rect.top, Math.min(rect.bottom, tipY));
+      const dLeft = Math.abs(tipX - rect.left);
+      const dRight = Math.abs(tipX - rect.right);
+      const dTop = Math.abs(tipY - rect.top);
+      const dBottom = Math.abs(tipY - rect.bottom);
+      const insideHoriz = tipX >= rect.left - 28 && tipX <= rect.right + 28;
+      const insideVert = tipY >= rect.top - 28 && tipY <= rect.bottom + 28;
+
+      let distToPerimeter = Math.hypot(tipX - clampedX, tipY - clampedY);
+      if (tipX > rect.left && tipX < rect.right && tipY > rect.top && tipY < rect.bottom) {
+        distToPerimeter = Math.min(dLeft, dRight, dTop, dBottom);
+      }
+
+      const tolerance = Math.max(36, rect.width * 0.16);
+      const isNearOutline = insideHoriz && insideVert && distToPerimeter <= tolerance;
+
+      if (isNearOutline) {
+        swabOutline.classList.add('hovered');
+      } else {
+        swabOutline.classList.remove('hovered');
+        portSwabLastTipX = null;
+        portSwabLastTipY = null;
+        return;
+      }
+
+      // Draw translucent protective barrier sheen along the outline path
+      const stageRect = stage.getBoundingClientRect();
+      const canvasX = ((tipX - stageRect.left) / stageRect.width) * 1366;
+      const canvasY = ((tipY - stageRect.top) / stageRect.height) * 1024;
+      if (swabCanvas) {
+        const sctx = swabCanvas.getContext('2d');
+        if (sctx) {
+          sctx.save();
+          sctx.strokeStyle = 'rgba(125, 211, 252, 0.36)';
+          sctx.fillStyle = 'rgba(125, 211, 252, 0.36)';
+          sctx.lineWidth = 22;
+          sctx.lineCap = 'round';
+          sctx.lineJoin = 'round';
+          if (portSwabLastTipX !== null && portSwabLastTipY !== null) {
+            sctx.beginPath();
+            sctx.moveTo(portSwabLastTipX, portSwabLastTipY);
+            sctx.lineTo(canvasX, canvasY);
+            sctx.stroke();
+          } else {
+            sctx.beginPath();
+            sctx.arc(canvasX, canvasY, 11, 0, Math.PI * 2);
+            sctx.fill();
+          }
+          sctx.restore();
+        }
+      }
+      portSwabLastTipX = canvasX;
+      portSwabLastTipY = canvasY;
+
+      // Map tip position onto perimeter [0 .. 2*(W+H)] and mark segments
+      const w = rect.width;
+      const h = rect.height;
+      const perim = 2 * (w + h);
+      let sPos = 0;
+      const minD = Math.min(dTop, dRight, dBottom, dLeft);
+      if (minD === dTop) {
+        sPos = Math.max(0, Math.min(w, tipX - rect.left));
+      } else if (minD === dRight) {
+        sPos = w + Math.max(0, Math.min(h, tipY - rect.top));
+      } else if (minD === dBottom) {
+        sPos = w + h + Math.max(0, Math.min(w, rect.right - tipX));
+      } else {
+        sPos = 2 * w + h + Math.max(0, Math.min(h, rect.bottom - tipY));
+      }
+
+      const segIdx = Math.floor((sPos / perim) * PORT_SWAB_SEGMENTS_TOTAL) % PORT_SWAB_SEGMENTS_TOTAL;
+      const prevIdx = (segIdx - 1 + PORT_SWAB_SEGMENTS_TOTAL) % PORT_SWAB_SEGMENTS_TOTAL;
+      const nextIdx = (segIdx + 1) % PORT_SWAB_SEGMENTS_TOTAL;
+      let newlyCovered = false;
+      [prevIdx, segIdx, nextIdx].forEach(idx => {
+        if (!portSwabSegments[idx]) {
+          portSwabSegments[idx] = true;
+          newlyCovered = true;
+        }
+      });
+
+      if (newlyCovered) {
+        const now = Date.now();
+        if (now - portSwabLastSoundTime > 260) {
+          portSwabLastSoundTime = now;
+          playPortClothWipeSound();
+        }
+        const chestFX = document.getElementById('portChestFXContainer');
+        if (chestFX && Math.random() < 0.4) {
+          spawnPortSparkles(chestFX, 2);
+        }
+      }
+
+      const coveredCount = portSwabSegments.filter(Boolean).length;
+      if (coveredCount >= Math.ceil(PORT_SWAB_SEGMENTS_TOTAL * 0.84)) {
+        completePortSwabStep();
+      }
+    }
+
+    function completePortSwabStep() {
+      if (isPortSwabComplete) return;
+      isPortSwabComplete = true;
+      isDraggingPortSwab = false;
+      portAccessCurrentStep = 'swab_completed';
+
+      const swabItem = document.getElementById('portSwabItem');
+      const swabOutline = document.getElementById('portSwabOutline');
+      const chestFX = document.getElementById('portChestFXContainer');
+
+      if (swabOutline) {
+        swabOutline.classList.remove('hovered');
+        swabOutline.classList.add('completed');
+      }
+      if (swabItem) {
+        swabItem.style.transition = 'opacity 0.35s ease';
+        swabItem.style.opacity = '0';
+        setTimeout(() => {
+          if (swabItem) swabItem.style.display = 'none';
+        }, 360);
+      }
+      if (chestFX) spawnPortSparkles(chestFX, 14);
+
+      playPortAccessClickSound();
+      triggerHapticFeedback(true);
+      setPortAccessPrompt("Great job! The skin around the port is protected and ready for the Tegaderm bandage.");
+
+      portAccessTimers.push(setTimeout(() => {
+        if (swabOutline) {
+          swabOutline.style.display = 'none';
+          swabOutline.classList.remove('hovered', 'completed');
+        }
+        showPortTegadermStep();
+      }, 1150));
     }
 
     function showPortTegadermStep() {
@@ -30738,6 +31185,30 @@
       if (item) {
         item.style.display = 'none';
         item.classList.remove('dragging', 'spring-back', 'over-port');
+      }
+
+      isDraggingPortSwab = false;
+      isPortSwabComplete = false;
+      portSwabLastTipX = null;
+      portSwabLastTipY = null;
+      portSwabSegments = [];
+      const swabItem = document.getElementById('portSwabItem');
+      if (swabItem) {
+        swabItem.style.display = 'none';
+        swabItem.style.opacity = '1';
+        swabItem.style.transform = 'none';
+        swabItem.classList.remove('dragging', 'spring-back');
+      }
+      const swabOutline = document.getElementById('portSwabOutline');
+      if (swabOutline) {
+        swabOutline.style.display = 'none';
+        swabOutline.classList.remove('hovered', 'completed');
+      }
+      const swabCanvas = document.getElementById('portSwabCanvas');
+      if (swabCanvas) {
+        swabCanvas.style.display = 'none';
+        const sctx = swabCanvas.getContext('2d');
+        if (sctx) sctx.clearRect(0, 0, swabCanvas.width, swabCanvas.height);
       }
 
       const tegadermLayer = document.getElementById('portTegadermAppliedLayer');
