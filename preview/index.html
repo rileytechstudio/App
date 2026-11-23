@@ -6119,7 +6119,7 @@
       transform: translate(-50%, -50%);
       border-radius: 18px;
       pointer-events: none;
-      z-index: 24;
+      z-index: 19;
       border: 3.5px dashed rgba(56, 189, 248, 0.95);
       background: transparent;
       animation: portSwabOutlinePulse 2.2s infinite ease-in-out;
@@ -14901,7 +14901,7 @@
                   <canvas id="portChloraprepCanvas" class="port-access-layer" width="1366" height="1024" style="display: none; z-index: 15; pointer-events: none;"></canvas>
 
                   <!-- Layer 3c: Swab Skin-Protectant Outline Trail Canvas -->
-                  <canvas id="portSwabCanvas" class="port-access-layer" width="1366" height="1024" style="display: none; z-index: 23; pointer-events: none;"></canvas>
+                  <canvas id="portSwabCanvas" class="port-access-layer" width="1366" height="1024" style="display: none; z-index: 18; pointer-events: none;"></canvas>
 
                   <!-- Layer 4: Applied Clear Bandage Layer (Worn under gown wrapping body) -->
                   <div id="portClearBandageLayer" class="port-clear-bandage-layer" style="opacity: 0; pointer-events: none; z-index: 18;" onclick="removePortBandage(event)">
@@ -28647,7 +28647,7 @@
           setPortAccessPrompt("Drag the needle over the port and tap to access!");
         }
       } else if (portAccessCurrentStep === 'swab_ready' || portAccessCurrentStep === 'swab_dragging') {
-        setPortAccessPrompt("Use the swab to trace the tip over the dotted outline where the Tegaderm bandage will go to protect the skin!");
+        setPortAccessPrompt("Swab some skin protectant over the area we will put the Tegaderm bandage!");
       } else if (portAccessCurrentStep === 'tegaderm_ready' || portAccessCurrentStep === 'tegaderm_dragging') {
         if (isTegadermOverPort) {
           applyPortTegaderm();
@@ -28687,7 +28687,7 @@
           setPortAccessPrompt("Drag the needle over the port and tap to access!");
         }
       } else if (portAccessCurrentStep === 'swab_ready' || portAccessCurrentStep === 'swab_dragging') {
-        setPortAccessPrompt("Use the swab to trace the tip over the dotted outline where the Tegaderm bandage will go to protect the skin!");
+        setPortAccessPrompt("Swab some skin protectant over the area we will put the Tegaderm bandage!");
       } else if (portAccessCurrentStep === 'tegaderm_ready' || portAccessCurrentStep === 'tegaderm_dragging') {
         if (isTegadermOverPort) {
           applyPortTegaderm();
@@ -30736,7 +30736,7 @@
         });
       }
 
-      setPortAccessPrompt("Trace the swab tip over the dotted outline where the Tegaderm bandage will go to protect the skin!");
+      setPortAccessPrompt("Swab some skin protectant over the area we will put the Tegaderm bandage!");
     }
 
     function handlePortSwabClick(e) {
@@ -30745,7 +30745,7 @@
         e.preventDefault();
         e.stopPropagation();
       }
-      setPortAccessPrompt("Use the swab to trace the tip over the dotted outline where the Tegaderm bandage will go to protect the skin!");
+      setPortAccessPrompt("Swab some skin protectant over the area we will put the Tegaderm bandage!");
     }
 
     function startDragPortSwab(e) {
